@@ -1,0 +1,15 @@
+etc/
+tmp/
+cache/
+bin/
+build/
+local/
+local.*
+*.o
+*.d
+*.out
+*.tmp
+*.log
+*.swp
+*.backup
+*.local

@@ -13,3 +13,9 @@ local.*
 *.swp
 *.backup
 *.local
+
+# sym links
+*/test/Test.cxx
+*/test/Test.h
+!/test/Test.cxx
+!/test/Test.ch

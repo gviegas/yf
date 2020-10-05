@@ -10,13 +10,13 @@
 SHELL := /bin/sh
 .SUFFIXES: .cxx .o .d
 
-INCBASE_DIR := ../include/
+BASE_DIR := ../include/
 INCLUDE_DIR := include/
 SRC_DIR := src/
 TEST_DIR := test/
 ETC_DIR := etc/
-BIN_DIR := ../bin/
-BUILD_DIR := ../build/
+BIN_DIR := bin/
+BUILD_DIR := build/
 
 SRC := \
   $(wildcard $(SRC_DIR)*.cxx) \
@@ -34,7 +34,7 @@ CXX_FLAGS := -std=gnu++17 -Wpedantic -Wall -Wextra -Og
 
 LD_LIBS := # -ldl
 LD_FLAGS := \
-  -iquote $(INCBASE_DIR) \
+  -iquote $(BASE_DIR) \
   -iquote $(INCLUDE_DIR) \
   -iquote $(SRC_DIR)
 

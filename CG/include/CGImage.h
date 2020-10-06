@@ -11,6 +11,7 @@
 #include <cstdint>
 
 #include "YFDefs.h"
+#include "CGTypes.h"
 #include "CGResult.h"
 
 YF_NS_BEGIN
@@ -37,31 +38,6 @@ enum CGSamples {
   CGSamples64
 };
 
-/// Two-dimensional size.
-///
-struct CGSize2 {
-  CGSize2(uint32_t w, uint32_t h) : width(w), height(h) {}
-  CGSize2(uint32_t wh) : width(wh), height(wh) {} // implicit
-
-  bool operator ==(const CGSize2& other) const {
-    return width == other.width && height == other.height;
-  }
-
-  uint32_t width;
-  uint32_t height;
-};
-
-/// Two-dimensional offset.
-///
-struct CGOffset2 {
-  bool operator ==(const CGOffset2& other) const {
-    return x == other.x && y == other.y;
-  }
-
-  int32_t x;
-  int32_t y;
-};
-
 class CGImage {
  public:
   CGImage(CGPxFormat format,
@@ -83,10 +59,10 @@ class CGImage {
   /// Instance constants.
   ///
   const CGPxFormat _format;
-  const CGSize2     _size;
-  const uint32_t    _layers;
-  const uint32_t    _levels;
-  const CGSamples   _samples;
+  const CGSize2    _size;
+  const uint32_t   _layers;
+  const uint32_t   _levels;
+  const CGSamples  _samples;
 };
 
 YF_NS_END

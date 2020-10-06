@@ -26,7 +26,7 @@ struct CGResult {
     return value == Success;
   }
 
-  bool operator ==(CGResult other) const {
+  bool operator==(CGResult other) const {
     return value == other.value;
   }
 

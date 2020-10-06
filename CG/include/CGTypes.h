@@ -17,11 +17,14 @@ YF_NS_BEGIN
 /// Two-dimensional size.
 ///
 struct CGSize2 {
-  CGSize2(uint32_t w, uint32_t h) : width(w), height(h) {}
-  CGSize2(uint32_t s) : width(s), height(s) {} // implicit
+  CGSize2(uint32_t width, uint32_t height) : width(width), height(height) {}
+  CGSize2(uint32_t size) : width(size), height(size) {} // implicit
 
   bool operator==(const CGSize2& other) const {
     return width == other.width && height == other.height;
+  }
+  bool operator!=(const CGSize2& other) const {
+    return !operator==(other);
   }
 
   uint32_t width;
@@ -31,12 +34,16 @@ struct CGSize2 {
 /// Three-dimensional size.
 ///
 struct CGSize3 : CGSize2 {
-  CGSize3(uint32_t w, uint32_t h, uint32_t d) : CGSize2(w, h), depth(d) {}
-  CGSize3(CGSize2 size2, uint32_t d) : CGSize2(size2), depth(d) {}
-  CGSize3(uint32_t s) : CGSize2(s), depth(s) {} // implicit
+  CGSize3(uint32_t width, uint32_t height, uint32_t depth)
+    : CGSize2(width, height), depth(depth) {}
+  CGSize3(CGSize2 size2, uint32_t depth) : CGSize2(size2), depth(depth) {}
+  CGSize3(uint32_t size) : CGSize2(size), depth(size) {} // implicit
 
-  bool operator==(const CGSize3 other) const {
+  bool operator==(const CGSize3& other) const {
     return CGSize2::operator==(other) && depth == other.depth;
+  }
+  bool operator!=(const CGSize3& other) const {
+    return !operator==(other);
   }
 
   uint32_t depth;
@@ -46,10 +53,13 @@ struct CGSize3 : CGSize2 {
 ///
 struct CGOffset2 {
   CGOffset2(int32_t x, int32_t y) : x(x), y(y) {}
-  CGOffset2(int32_t v = 0) : x(v), y(v) {} // implicit
+  CGOffset2(int32_t value = 0) : x(value), y(value) {} // implicit
 
   bool operator==(const CGOffset2& other) const {
     return x == other.x && y == other.y;
+  }
+  bool operator!=(const CGOffset2& other) const {
+    return !operator==(other);
   }
 
   int32_t x;
@@ -60,11 +70,14 @@ struct CGOffset2 {
 ///
 struct CGOffset3 : CGOffset2 {
   CGOffset3(int32_t x, int32_t y, int32_t z) : CGOffset2(x, y), z(z) {}
-  CGOffset3(CGOffset2 off2, int32_t z) : CGOffset2(off2), z(z) {}
-  CGOffset3(int32_t v = 0) : CGOffset3(v, v, v) {} // implicit
+  CGOffset3(CGOffset2 offset2, int32_t z) : CGOffset2(offset2), z(z) {}
+  CGOffset3(int32_t value = 0) : CGOffset3(value, value, value) {} // implicit
 
   bool operator==(const CGOffset3& other) const {
     return CGOffset2::operator==(other) && z == other.z;
+  }
+  bool operator!=(const CGOffset3& other) const {
+    return !operator==(other);
   }
 
   int32_t z;

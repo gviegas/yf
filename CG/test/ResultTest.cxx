@@ -33,7 +33,7 @@ struct ResultTest : Test {
           << endl;
 
     // TODO
-    return 95.0;
+    return 0.95;
   }
 };
 

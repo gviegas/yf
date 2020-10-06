@@ -15,9 +15,13 @@ TEST_NS_BEGIN
 Test* resultTest();
 Test* bufferTest();
 Test* imageTest();
+Test* deviceTest();
 
 inline const std::vector<Test*> unitTests() {
-  static std::vector<Test*> tests{resultTest(), bufferTest(), imageTest()};
+  static std::vector<Test*> tests{resultTest(),
+                                  bufferTest(),
+                                  imageTest(),
+                                  deviceTest()};
   return tests;
 }
 

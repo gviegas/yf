@@ -43,7 +43,7 @@ struct ImageTest : Test {
           << endl;
 
     // TODO
-    return 60.0;
+    return 0.165;
   }
 };
 

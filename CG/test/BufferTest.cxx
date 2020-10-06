@@ -33,7 +33,7 @@ struct BufferTest : Test {
           << endl;
 
     // TODO
-    return 80.0;
+    return 0.8;
   }
 };
 

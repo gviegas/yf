@@ -26,14 +26,17 @@ Coverage TEST_NS::run(const vector<Test*>& tests, vector<string>&& args)  {
   Coverage unit, total = 0.0;
 
   for (auto test : tests) {
-    wcout << "\n---- Running test '" << test->name << "' ----\n";
+    wcout << "\n**** Running test '" << test->name << "' ****\n";
     unit = test->run(args);
     total += unit;
-    wcout << "\n---------------- " << unit << "%\n\n";
+    wstring dots;
+    dots.resize(32*unit);
+    fill(dots.begin(), dots.end(), L'.');
+    wcout << "\n" << dots << " " << unit*100.0 << "%\n\n";
   }
 
   total /= n;
-  wcout << "\n- Test coverage : " << total << "%"
+  wcout << "\n- Test coverage : " << total*100.0 << "%"
         << "\n- Unit tests run: " << n << endl;
 
   return total;

@@ -25,7 +25,7 @@ class Test {
  public:
   explicit Test(std::wstring&& name);
   Test(const Test&) = delete;
-  Test& operator =(const Test&) = delete;
+  Test& operator=(const Test&) = delete;
   virtual ~Test();
   virtual Coverage run(const std::vector<std::string>& args) = 0;
   const std::wstring name;

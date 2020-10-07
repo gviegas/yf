@@ -7,12 +7,15 @@
 
 #include <iostream>
 
+#include "Defs.h"
 #include "UnitTests.h"
 #include "CGTypes.h"
 
 using namespace TEST_NS;
 using namespace YF_NS;
 using namespace std;
+
+INTERNAL_NS_BEGIN
 
 struct TypesTest : Test {
   TypesTest() : Test(L"CGTypes") {}
@@ -78,6 +81,8 @@ struct TypesTest : Test {
     return cov / res.size();
   }
 };
+
+INTERNAL_NS_END
 
 Test* TEST_NS::typesTest() {
   static TypesTest test;

@@ -10,7 +10,8 @@
 SHELL := /bin/sh
 .SUFFIXES: .cxx .o .d
 
-BASE_DIR := ../include/
+PRIV_DIR := ../priv/
+PUB_DIR := ../pub/
 INCLUDE_DIR := include/
 SRC_DIR := src/
 TEST_DIR := test/
@@ -34,7 +35,8 @@ CXX_FLAGS := -std=gnu++17 -Wpedantic -Wall -Wextra -Og
 
 LD_LIBS := # -ldl
 LD_FLAGS := \
-  -iquote $(BASE_DIR) \
+  -iquote $(PRIV_DIR) \
+  -iquote $(PUB_DIR) \
   -iquote $(INCLUDE_DIR) \
   -iquote $(SRC_DIR)
 

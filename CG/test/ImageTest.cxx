@@ -37,11 +37,11 @@ struct ImageTest : Test {
     Image img(CGPxFormatRgba8Unorm, 2048, 16, 1, CGSamples1);
 
     wcout << "\n-Image-"
-          << "\nformat : " << img._format
-          << "\nsize : " << img._size.width << "x" << img._size.height
-          << "\nlayers : " << img._layers
-          << "\nlevels : " << img._levels
-          << "\nsamples : " << img._samples
+          << "\nformat : " << img.format
+          << "\nsize : " << img.size.width << "x" << img.size.height
+          << "\nlayers : " << img.layers
+          << "\nlevels : " << img.levels
+          << "\nsamples : " << img.samples
           << "\nwrite() : " << img.write({0, 0}, {64, 72}, 0, 0, nullptr)
           << endl;
 

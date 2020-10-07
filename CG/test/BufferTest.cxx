@@ -31,7 +31,7 @@ struct BufferTest : Test {
     Buffer buf(1<<12);
 
     wcout << "\n-Buffer-"
-          << "\nsize : " << buf._size
+          << "\nsize : " << buf.size
           << "\nwrite() : " << buf.write(0, 0, nullptr)
           << endl;
 

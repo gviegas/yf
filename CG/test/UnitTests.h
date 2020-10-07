@@ -17,13 +17,15 @@ Test* resultTest();
 Test* deviceTest();
 Test* bufferTest();
 Test* imageTest();
+Test* shaderTest();
 
 inline const std::vector<Test*> unitTests() {
   static std::vector<Test*> tests{typesTest(),
                                   resultTest(),
                                   deviceTest(),
                                   bufferTest(),
-                                  imageTest()};
+                                  imageTest(),
+                                  shaderTest()};
   return tests;
 }
 

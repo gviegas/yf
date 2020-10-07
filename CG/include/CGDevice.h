@@ -14,6 +14,7 @@
 #include "YFDefs.h"
 #include "CGBuffer.h"
 #include "CGImage.h"
+#include "CGShader.h"
 
 YF_NS_BEGIN
 
@@ -27,15 +28,24 @@ class CGDevice {
 
   /// Makes a new buffer object.
   ///
-  virtual std::unique_ptr<CGBuffer> makeBuffer(uint64_t size) = 0;
+  using BufferPtr = std::unique_ptr<CGBuffer>;
+  virtual BufferPtr makeBuffer(uint64_t size) = 0;
 
   /// Makes a new image object.
   ///
-  virtual std::unique_ptr<CGImage> makeImage(CGPxFormat format,
-                                             CGSize2 size,
-                                             uint32_t layers,
-                                             uint32_t levels,
-                                             CGSamples samples) = 0;
+  using ImagePtr = std::unique_ptr<CGImage>;
+  virtual ImagePtr makeImage(CGPxFormat format,
+                             CGSize2 size,
+                             uint32_t layers,
+                             uint32_t levels,
+                             CGSamples samples) = 0;
+
+  /// Makes a new shader object.
+  ///
+  using ShaderPtr = std::unique_ptr<CGShader>;
+  virtual ShaderPtr makeShader(CGStage stage,
+                               std::wstring&& codeFile,
+                               std::wstring&& entryPoint = L"main") = 0;
 };
 
 YF_NS_END

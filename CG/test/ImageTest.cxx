@@ -7,12 +7,15 @@
 
 #include <iostream>
 
+#include "Defs.h"
 #include "UnitTests.h"
 #include "CGImage.h"
 
 using namespace TEST_NS;
 using namespace YF_NS;
 using namespace std;
+
+INTERNAL_NS_BEGIN
 
 struct ImageTest : Test {
   ImageTest() : Test(L"CGImage") {}
@@ -46,6 +49,8 @@ struct ImageTest : Test {
     return 0.165;
   }
 };
+
+INTERNAL_NS_END
 
 Test* TEST_NS::imageTest() {
   static ImageTest test;

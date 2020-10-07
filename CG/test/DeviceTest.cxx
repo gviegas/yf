@@ -8,12 +8,15 @@
 #include <algorithm>
 #include <iostream>
 
+#include "Defs.h"
 #include "UnitTests.h"
 #include "CGDevice.h"
 
 using namespace TEST_NS;
 using namespace YF_NS;
 using namespace std;
+
+INTERNAL_NS_BEGIN
 
 struct DeviceTest : Test {
   DeviceTest() : Test(L"CGDevice") {}
@@ -38,6 +41,8 @@ struct DeviceTest : Test {
     return cov / res.size();
   }
 };
+
+INTERNAL_NS_END
 
 Test* TEST_NS::deviceTest() {
   static DeviceTest test;

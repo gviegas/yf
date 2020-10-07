@@ -7,12 +7,15 @@
 
 #include <iostream>
 
+#include "Defs.h"
 #include "UnitTests.h"
 #include "CGBuffer.h"
 
 using namespace TEST_NS;
 using namespace YF_NS;
 using namespace std;
+
+INTERNAL_NS_BEGIN
 
 struct BufferTest : Test {
   BufferTest() : Test(L"CGBuffer") {}
@@ -36,6 +39,8 @@ struct BufferTest : Test {
     return 0.8;
   }
 };
+
+INTERNAL_NS_END
 
 Test* TEST_NS::bufferTest() {
   static BufferTest test;

@@ -7,12 +7,15 @@
 
 #include <iostream>
 
+#include "Defs.h"
 #include "UnitTests.h"
 #include "CGResult.h"
 
 using namespace TEST_NS;
 using namespace YF_NS;
 using namespace std;
+
+INTERNAL_NS_BEGIN
 
 struct ResultTest : Test {
   ResultTest() : Test(L"CGResult") {}
@@ -36,6 +39,8 @@ struct ResultTest : Test {
     return 0.95;
   }
 };
+
+INTERNAL_NS_END
 
 Test* TEST_NS::resultTest() {
   static ResultTest test;

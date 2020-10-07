@@ -58,11 +58,11 @@ class CGImage {
 
   /// Instance constants.
   ///
-  const CGPxFormat _format;
-  const CGSize2    _size;
-  const uint32_t   _layers;
-  const uint32_t   _levels;
-  const CGSamples  _samples;
+  const CGPxFormat format;
+  const CGSize2    size;
+  const uint32_t   layers;
+  const uint32_t   levels;
+  const CGSamples  samples;
 };
 
 YF_NS_END

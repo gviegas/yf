@@ -26,7 +26,7 @@ class CGBuffer {
 
   /// The size of the buffer.
   ///
-  const uint64_t _size;
+  const uint64_t size;
 };
 
 YF_NS_END

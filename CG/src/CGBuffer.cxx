@@ -9,6 +9,6 @@
 
 using namespace YF_NS;
 
-CGBuffer::CGBuffer(uint64_t size) : _size(size) {}
+CGBuffer::CGBuffer(uint64_t size) : size(size) {}
 
 CGBuffer::~CGBuffer() {}

@@ -26,6 +26,10 @@ CGDevice& CGDevice::get() {
 
     DcTablePtr makeDcTable(const CGDcEntries&) { return nullptr; }
     DcTablePtr makeDcTable(CGDcEntries&&) { return nullptr; }
+
+    PassPtr makePass(const std::vector<CGColorAttach>*,
+                     const std::vector<CGColorAttach>*,
+                     const CGDepStenAttach*) { return nullptr; }
   };
 
   static Dummy dev;

@@ -7,9 +7,9 @@
 
 #include <iostream>
 
-#include "Defs.h"
 #include "UnitTests.h"
 #include "CGTypes.h"
+#include "Defs.h"
 
 using namespace TEST_NS;
 using namespace YF_NS;
@@ -20,65 +20,59 @@ INTERNAL_NS_BEGIN
 struct TypesTest : Test {
   TypesTest() : Test(L"CGTypes") {}
 
-  Coverage run(const vector<string>& args) {
-    vector<pair<wstring, bool>> res;
+  Assertions run(const vector<string>& args) {
+    Assertions a;
 
     // CGSize2
     {
-      CGSize2 a(20);
-      CGSize2 b(1, 2);
-      res.push_back({L"CGSize2 a(20)", a.width == 20 && a.height == 20});
-      res.push_back({L"CGSize2 b(1, 2)", b.width == 1 && b.height == 2});
-      res.push_back({L"a == b", !(a == b)});
-      res.push_back({L"a == CGSize2(20, 20)", a == CGSize2(20, 20)});
-      res.push_back({L"b != CGSize2(2, 1)", b != CGSize2(2, 1)});
+      CGSize2 t(20);
+      CGSize2 u(1, 2);
+      a.push_back({L"CGSize2 t(20)", t.width == 20 && t.height == 20});
+      a.push_back({L"CGSize2 u(1, 2)", u.width == 1 && u.height == 2});
+      a.push_back({L"t == u", !(t == u)});
+      a.push_back({L"t == CGSize2(20, 20)", t == CGSize2(20, 20)});
+      a.push_back({L"u != CGSize2(2, 1)", u != CGSize2(2, 1)});
     }
 
     // CGSize3
     {
-      CGSize3 a(30);
-      CGSize3 b(1, 2, 3);
-      res.push_back({L"CGSize3 a(30)",
-                     a.width == 30 && a.height == 30 && a.depth == 30});
-      res.push_back({L"CGSize3 b(1, 2, 3)",
-                     b.width == 1 && b.height == 2 && b.depth == 3});
-      res.push_back({L"a == b", !(a == b)});
-      res.push_back({L"a == CGSize3(30, 30, 30)", a == CGSize3(30, 30, 30)});
-      res.push_back({L"b != CGSize3(1, 2, 4)", b != CGSize3(1, 2, 4)});
-      res.push_back({L"b != CGSize3({1, 2}, 3)", !(b != CGSize3({1, 2}, 3))});
+      CGSize3 t(30);
+      CGSize3 u(1, 2, 3);
+      a.push_back({L"CGSize3 t(30)",
+                     t.width == 30 && t.height == 30 && t.depth == 30});
+      a.push_back({L"CGSize3 u(1, 2, 3)",
+                     u.width == 1 && u.height == 2 && u.depth == 3});
+      a.push_back({L"t == u", !(t == u)});
+      a.push_back({L"t == CGSize3(30, 30, 30)", t == CGSize3(30, 30, 30)});
+      a.push_back({L"u != CGSize3(1, 2, 4)", u != CGSize3(1, 2, 4)});
+      a.push_back({L"u != CGSize3({1, 2}, 3)", !(u != CGSize3({1, 2}, 3))});
     }
 
     // CGOffset2
     {
-      CGOffset2 a(-20);
-      CGOffset2 b(-1, 2);
-      res.push_back({L"CGOffset2 a(-20)", a.x == -20 && a.y == -20});
-      res.push_back({L"CGOffset2 b(1, 2)", b.x == -1 && b.y == 2});
-      res.push_back({L"a == b", !(a == b)});
-      res.push_back({L"a == CGOffset2(-20, -20)", a == CGOffset2(-20, -20)});
-      res.push_back({L"b != CGOffset2(2, -1)", b != CGOffset2(2, -1)});
+      CGOffset2 t(-20);
+      CGOffset2 u(-1, 2);
+      a.push_back({L"CGOffset2 t(-20)", t.x == -20 && t.y == -20});
+      a.push_back({L"CGOffset2 u(1, 2)", u.x == -1 && u.y == 2});
+      a.push_back({L"t == u", !(t == u)});
+      a.push_back({L"t == CGOffset2(-20, -20)", t == CGOffset2(-20, -20)});
+      a.push_back({L"u != CGOffset2(2, -1)", u != CGOffset2(2, -1)});
     }
 
     // CGOffset3
     {
-      CGOffset3 a(3);
-      CGOffset3 b(-1, 2, -3);
-      res.push_back({L"CGOffset3 a(3)", a.x == 3 && a.y == 3 && a.z == 3});
-      res.push_back({L"CGOffset3 b(1, 2)", b.x == -1 && b.y == 2 && b.z == -3});
-      res.push_back({L"a == b", !(a == b)});
-      res.push_back({L"a == CGOffset3(3, 3, 3)", a == CGOffset3(3, 3, 3)});
-      res.push_back({L"b != CGOffset3(3, -1, 1)", b != CGOffset3(3, -1, 1)});
-      res.push_back({L"b == CGOffset3({-1, 2}, -3)",
-                     b == CGOffset3({-1, 2}, -3)});
+      CGOffset3 t(3);
+      CGOffset3 u(-1, 2, -3);
+      a.push_back({L"CGOffset3 t(3)", t.x == 3 && t.y == 3 && t.z == 3});
+      a.push_back({L"CGOffset3 u(1, 2)", u.x == -1 && u.y == 2 && u.z == -3});
+      a.push_back({L"t == u", !(t == u)});
+      a.push_back({L"t == CGOffset3(3, 3, 3)", t == CGOffset3(3, 3, 3)});
+      a.push_back({L"u != CGOffset3(3, -1, 1)", u != CGOffset3(3, -1, 1)});
+      a.push_back({L"u == CGOffset3({-1, 2}, -3)",
+                     u == CGOffset3({-1, 2}, -3)});
     }
 
-    double cov = 0.0;
-    for (auto& p : res) {
-      wcout << "\n@ " << p.first << (p.second ? "\nPASSED\n" : "\nFAILED\n");
-      cov += p.second;
-    }
-
-    return cov / res.size();
+    return a;
   }
 };
 

@@ -6,6 +6,7 @@
 //
 
 #include <iostream>
+#include <cmath>
 
 #include "Test.h"
 
@@ -18,26 +19,52 @@ Test::~Test() {}
 
 Coverage TEST_NS::run(const vector<Test*>& tests, vector<string>&& args)  {
   if (tests.size() == 0) {
-    wcout << "No tests to run\n";
+    wcout << "\n\nNo tests to run\n";
     return 0.0;
   }
 
-  const auto n = tests.size();
-  Coverage unit, total = 0.0;
+  auto runUnit = [&](Test& t) {
+    wstring title = L" Unit test '" + t.name + L"' ";
+    wstring tildes;
+    tildes.resize(title.size());
+    fill(tildes.begin(), tildes.end(), L'~');
+    wcout << "\n\n" << tildes << tildes << tildes
+          << "\n" << tildes << title << tildes
+          << "\n" << tildes << tildes << tildes << "\n";
 
-  for (auto test : tests) {
-    wcout << "\n**** Running test '" << test->name << "' ****\n";
-    unit = test->run(args);
-    total += unit;
+    auto asserts = t.run(args);
+
+    Coverage cov = 0.0;
+    for (auto& a : asserts) {
+      wcout << "\n@ " << a.first << (a.second ? "\nPASSED\n" : "\nFAILED\n");
+      cov += a.second;
+    }
+    cov = asserts.empty() ? 1.0 : cov/asserts.size();
+
     wstring dots;
-    dots.resize(32*unit);
+    dots.resize(64*cov);
     fill(dots.begin(), dots.end(), L'.');
-    wcout << "\n" << dots << " " << unit*100.0 << "%\n\n";
-  }
+    wcout << "\n" << dots << " [" << cov*100.0 << "%]\n";
 
-  total /= n;
-  wcout << "\n- Test coverage : " << total*100.0 << "%"
-        << "\n- Unit tests run: " << n << endl;
+    return cov;
+  };
+
+  vector<pair<Test*, Coverage>> res;
+  Coverage unit, total = 0.0;
+  for (auto test : tests) {
+    unit = runUnit(*test);
+    total += unit;
+    res.push_back({test, unit});
+  }
+  total /= tests.size();
+
+  wcout << "\n\n<DONE>\n"
+        << "\n\n------ SUMMARY ------\n---------------------\n";
+  for (auto& p : res) {
+    wcout << "\n[" << round(p.second*100.0) << "%]\t" << p.first->name;
+  }
+  wcout << "\n\n> Unit tests run: " << tests.size()
+        << "\n\n> Test coverage: " << total*100.0 << "%\n";
 
   return total;
 }

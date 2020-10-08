@@ -7,9 +7,9 @@
 
 #include <iostream>
 
-#include "Defs.h"
 #include "UnitTests.h"
 #include "CGImage.h"
+#include "Defs.h"
 
 using namespace TEST_NS;
 using namespace YF_NS;
@@ -20,7 +20,7 @@ INTERNAL_NS_BEGIN
 struct ImageTest : Test {
   ImageTest() : Test(L"CGImage") {}
 
-  Coverage run(const vector<string>& args) {
+  Assertions run(const vector<string>& args) {
     struct Image : CGImage {
       Image(CGPxFormat format,
             CGSize2 size,
@@ -34,19 +34,18 @@ struct ImageTest : Test {
       }
     };
 
+    Assertions a;
+
     Image img(CGPxFormatRgba8Unorm, 2048, 16, 1, CGSamples1);
 
-    wcout << "\n-Image-"
-          << "\nformat : " << img.format
-          << "\nsize : " << img.size.width << "x" << img.size.height
-          << "\nlayers : " << img.layers
-          << "\nlevels : " << img.levels
-          << "\nsamples : " << img.samples
-          << "\nwrite() : " << img.write({0, 0}, {64, 72}, 0, 0, nullptr)
-          << endl;
+    a.push_back({L"CGImage(CGPxFormatRgba8Unorm, 2048, 16, 1, CGSamples1)",
+                 img.format == CGPxFormatRgba8Unorm &&
+                 img.size == CGSize2(2048, 2048) &&
+                 img.layers == 16 && img.levels == 1 &&
+                 img.samples == CGSamples1 &&
+                 !img.write({0, 0}, {48, 32}, 0, 0, nullptr)});
 
-    // TODO
-    return 0.165;
+    return a;
   }
 };
 

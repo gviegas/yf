@@ -7,9 +7,9 @@
 
 #include <iostream>
 
-#include "Defs.h"
 #include "UnitTests.h"
 #include "CGResult.h"
+#include "Defs.h"
 
 using namespace TEST_NS;
 using namespace YF_NS;
@@ -20,23 +20,26 @@ INTERNAL_NS_BEGIN
 struct ResultTest : Test {
   ResultTest() : Test(L"CGResult") {}
 
-  Coverage run(const vector<string>& args) {
+  Assertions run(const vector<string>& args) {
+    Assertions a;
+
     CGResult ok1(CGResult::Success);
     CGResult ok2(CGResult::Success);
     CGResult nok(CGResult::Failure);
 
-    wcout << "\n-Result-"
-          << "\nok1 == ok2 : " << (ok1 == ok2)
-          << "\nok1 : " << ok1
-          << "\n!ok1 : " << !ok1
-          << "\nok1 == nok : " << (ok1 == nok)
-          << "\nok1 != nok : " << (ok1 != nok)
-          << "\nnok : " << nok
-          << "\n!nok : " << !nok
-          << endl;
+    a.push_back({L"CGResult ok1(CGResult::Success)",
+                 ok1.value == CGResult::Success});
+    a.push_back({L"CGResult ok2(CGResult::Success)",
+                 ok2.value == CGResult::Success});
+    a.push_back({L"CGResult nok(CGResult::Failure)",
+                 nok.value == CGResult::Failure});
+    a.push_back({L"ok1", ok1});
+    a.push_back({L"!ok2", !(!ok2)});
+    a.push_back({L"ok1 == ok2", ok1 == ok2});
+    a.push_back({L"ok2 != nok", ok2 != nok});
+    a.push_back({L"!nok", !nok});
 
-    // TODO
-    return 0.95;
+    return a;
   }
 };
 

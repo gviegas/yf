@@ -15,6 +15,7 @@
 #include "CGBuffer.h"
 #include "CGImage.h"
 #include "CGShader.h"
+#include "CGDcTable.h"
 
 YF_NS_BEGIN
 
@@ -46,6 +47,12 @@ class CGDevice {
   virtual ShaderPtr makeShader(CGStage stage,
                                std::wstring&& codeFile,
                                std::wstring&& entryPoint = L"main") = 0;
+
+  /// Makes a new descriptor table object.
+  ///
+  using DcTablePtr = std::unique_ptr<CGDcTable>;
+  virtual DcTablePtr makeDcTable(const CGDcEntries& entries) = 0;
+  virtual DcTablePtr makeDcTable(CGDcEntries&& entries) = 0;
 };
 
 YF_NS_END

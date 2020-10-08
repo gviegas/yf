@@ -1,11 +1,14 @@
 [yf-CG]
 =======
 
-- CGDevice
-- CGBuffer
-- CGImage
-- CGShader
-- CGDscTable
+
+Core types
+----------
+- CGDevice  [x]
+- CGBuffer  [x]
+- CGImage   [x]
+- CGShader  [x]
+- CGDcTable [x]
 - CGPass
 - CGTarget
 - CGState
@@ -13,13 +16,12 @@
 - CGQueue
 - ...
 
+
+Sub types
+---------
 - CGPxFormat
 - CGStage
-- CGResource
-- CGVxFormat
-- CGVxAttr
-- CGVxStepFn
-- CGVxInput
+- CGVx[Format/Attr/StepFn/Input]
 - CGPolyMode
 - CGCullMode
 - CGWinding
@@ -27,9 +29,12 @@
 - CGBlendFn
 - ...
 
+
+Etc
+---
 - CGResult
-- CGSize2/3
-- CGOffset2/3
+- CGSize[2/3]
+- CGOffset[2/3]
 - CGRect
 - CGViewport
 - CGColor

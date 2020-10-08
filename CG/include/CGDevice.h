@@ -16,6 +16,7 @@
 #include "CGImage.h"
 #include "CGShader.h"
 #include "CGDcTable.h"
+#include "CGPass.h"
 
 YF_NS_BEGIN
 
@@ -53,6 +54,13 @@ class CGDevice {
   using DcTablePtr = std::unique_ptr<CGDcTable>;
   virtual DcTablePtr makeDcTable(const CGDcEntries& entries) = 0;
   virtual DcTablePtr makeDcTable(CGDcEntries&& entries) = 0;
+
+  /// Makes a new pass object.
+  ///
+  using PassPtr = std::unique_ptr<CGPass>;
+  virtual PassPtr makePass(const std::vector<CGColorAttach>* colors,
+                           const std::vector<CGColorAttach>* resolves,
+                           const CGDepStenAttach* depthStencil) = 0;
 };
 
 YF_NS_END

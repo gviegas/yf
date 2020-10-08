@@ -5,8 +5,6 @@
 // Copyright (C) 2020 Gustavo C. Viegas.
 //
 
-#include <iostream>
-
 #include "UnitTests.h"
 #include "CGBuffer.h"
 #include "Defs.h"
@@ -32,7 +30,7 @@ struct BufferTest : Test {
 
     Buffer buf(1<<12);
 
-    a.push_back({L"CGBuffer(1 << 12)",
+    a.push_back({L"CGBuffer(1<<12)",
                  buf.size == (1<<12) && !buf.write(0, 0, nullptr)});
 
     return a;

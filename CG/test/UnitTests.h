@@ -5,8 +5,8 @@
 // Copyright (C) 2020 Gustavo C. Viegas.
 //
 
-#ifndef YF_CG_UNIT_TESTS_H
-#define YF_CG_UNIT_TESTS_H
+#ifndef YF_UNITTESTS_H
+#define YF_UNITTESTS_H
 
 #include "Test.h"
 
@@ -18,6 +18,7 @@ Test* deviceTest();
 Test* bufferTest();
 Test* imageTest();
 Test* shaderTest();
+Test* dcTableTest();
 
 inline const std::vector<Test*> unitTests() {
   static std::vector<Test*> tests{typesTest(),
@@ -25,10 +26,11 @@ inline const std::vector<Test*> unitTests() {
                                   deviceTest(),
                                   bufferTest(),
                                   imageTest(),
-                                  shaderTest()};
+                                  shaderTest(),
+                                  dcTableTest()};
   return tests;
 }
 
 TEST_NS_END
 
-#endif // YF_CG_UNIT_TESTS_H
+#endif // YF_UNITTESTS_H

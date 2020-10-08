@@ -13,13 +13,21 @@ using namespace TEST_NS;
 using namespace std;
 
 int main(int argc, char* argv[]) {
-  wcout << "[yf-CG] Test\n------------\n\n";
-  for (int i = 0; i < argc; ++i)
+  wstring line;
+  line.resize(80);
+  fill(line.begin(), line.end(), L'=');
+
+  wcout << line << "\n[yf-CG] Test\n" << line << "\n\n";
+
+  vector<string> args;
+  wcout << argv[0] << " ";
+  for (int i = 1; i < argc; ++i) {
+    args.push_back(argv[i]);
     wcout << argv[i] << " ";
+  }
   wcout << endl;
 
-  // TODO: Argument list.
-  run(unitTests());
+  run(unitTests(), move(args));
 
-  wcout << "\n-----------\nEnd of test\n";
+  wcout << "\n" << line << "\nEnd of test\n" << line << "\n";
 }

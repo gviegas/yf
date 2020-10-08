@@ -5,9 +5,6 @@
 // Copyright (C) 2020 Gustavo C. Viegas.
 //
 
-#include <algorithm>
-#include <iostream>
-
 #include "UnitTests.h"
 #include "CGDevice.h"
 #include "Defs.h"

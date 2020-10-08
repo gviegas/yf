@@ -5,11 +5,9 @@
 // Copyright (C) 2020 Gustavo C. Viegas.
 //
 
-#include <iostream>
-
-#include "Defs.h"
 #include "UnitTests.h"
 #include "CGShader.h"
+#include "Defs.h"
 
 using namespace TEST_NS;
 using namespace YF_NS;

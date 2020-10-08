@@ -7,9 +7,9 @@
 
 #include <iostream>
 
-#include "Defs.h"
 #include "UnitTests.h"
 #include "CGBuffer.h"
+#include "Defs.h"
 
 using namespace TEST_NS;
 using namespace YF_NS;
@@ -20,7 +20,7 @@ INTERNAL_NS_BEGIN
 struct BufferTest : Test {
   BufferTest() : Test(L"CGBuffer") {}
 
-  Coverage run(const vector<string>& args) {
+  Assertions run(const vector<string>& args) {
     struct Buffer : CGBuffer {
       Buffer(size_t sz) : CGBuffer(sz) {}
       CGResult write(uint64_t, uint64_t, const void*) {
@@ -28,15 +28,14 @@ struct BufferTest : Test {
       }
     };
 
+    Assertions a;
+
     Buffer buf(1<<12);
 
-    wcout << "\n-Buffer-"
-          << "\nsize : " << buf.size
-          << "\nwrite() : " << buf.write(0, 0, nullptr)
-          << endl;
+    a.push_back({L"CGBuffer(1 << 12)",
+                 buf.size == (1<<12) && !buf.write(0, 0, nullptr)});
 
-    // TODO
-    return 0.8;
+    return a;
   }
 };
 

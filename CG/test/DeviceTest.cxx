@@ -8,9 +8,9 @@
 #include <algorithm>
 #include <iostream>
 
-#include "Defs.h"
 #include "UnitTests.h"
 #include "CGDevice.h"
+#include "Defs.h"
 
 using namespace TEST_NS;
 using namespace YF_NS;
@@ -21,11 +21,11 @@ INTERNAL_NS_BEGIN
 struct DeviceTest : Test {
   DeviceTest() : Test(L"CGDevice") {}
 
-  Coverage run(const vector<string>& args) {
+  Assertions run(const vector<string>& args) {
     auto& dev = CGDevice::get();
 
     // TODO
-    return 1.0;
+    return {};
   }
 };
 

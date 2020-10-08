@@ -20,6 +20,8 @@
 TEST_NS_BEGIN
 
 using Coverage = double;
+using Assertion = std::pair<std::wstring, bool>;
+using Assertions = std::vector<Assertion>;
 
 class Test {
  public:
@@ -27,7 +29,7 @@ class Test {
   Test(const Test&) = delete;
   Test& operator=(const Test&) = delete;
   virtual ~Test();
-  virtual Coverage run(const std::vector<std::string>& args) = 0;
+  virtual Assertions run(const std::vector<std::string>& args) = 0;
   const std::wstring name;
 };
 

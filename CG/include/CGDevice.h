@@ -17,6 +17,7 @@
 #include "CGShader.h"
 #include "CGDcTable.h"
 #include "CGPass.h"
+#include "CGState.h"
 
 YF_NS_BEGIN
 
@@ -61,6 +62,15 @@ class CGDevice {
   virtual PassPtr makePass(const std::vector<CGColorAttach>* colors,
                            const std::vector<CGColorAttach>* resolves,
                            const CGDepStenAttach* depthStencil) = 0;
+
+  /// Makes a new state object.
+  ///
+  using GraphStatePtr = std::unique_ptr<CGGraphState>;
+  using CompStatePtr = std::unique_ptr<CGCompState>;
+  virtual GraphStatePtr makeState(const CGGraphState::Config& config) = 0;
+  virtual GraphStatePtr makeState(CGGraphState::Config&& config) = 0;
+  virtual CompStatePtr makeState(const CGCompState::Config& config) = 0;
+  virtual CompStatePtr makeState(CGCompState::Config&& config) = 0;
 };
 
 YF_NS_END

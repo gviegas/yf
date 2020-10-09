@@ -9,8 +9,8 @@ Core types
 - CGImage   [x]
 - CGShader  [x]
 - CGDcTable [x]
-- CGPass
-- CGTarget
+- CGPass    [x]
+- CGTarget  [?]
 - CGState
 - CGEncoder
 - CGQueue

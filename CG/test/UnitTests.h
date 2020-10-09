@@ -20,6 +20,7 @@ Test* imageTest();
 Test* shaderTest();
 Test* dcTableTest();
 Test* passTest();
+Test* stateTest();
 
 inline const std::vector<Test*> unitTests() {
   static std::vector<Test*> tests{typesTest(),
@@ -29,7 +30,8 @@ inline const std::vector<Test*> unitTests() {
                                   imageTest(),
                                   shaderTest(),
                                   dcTableTest(),
-                                  passTest()};
+                                  passTest(),
+                                  stateTest()};
   return tests;
 }
 

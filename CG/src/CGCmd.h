@@ -16,8 +16,8 @@ YF_NS_BEGIN
 ///
 struct CGCmd {
   enum Cmd {
-    GraphState,
-    CompState,
+    StateGp,
+    StateCm,
     Viewport,
     Scissor,
     Target,
@@ -27,33 +27,31 @@ struct CGCmd {
     Draw,
     DrawIx,
     Dispatch,
-    ClearCol,
-    ClearDep,
-    ClearSten
+    ClearCl,
+    ClearDp,
+    ClearSc
   };
 
   explicit CGCmd(Cmd cmd) : cmd(cmd) {}
-  virtual ~CGCmd() = 0;
+  virtual ~CGCmd() = default;
 
   const Cmd cmd;
 };
 
-CGCmd::~CGCmd() {}
-
-/// Set graphics state command.
+/// Set state command for graphics.
 ///
-struct CGGraphStateCmd : CGCmd {
-  explicit CGGraphStateCmd(CGGraphState* state)
-    : CGCmd(GraphState), state(state) {}
+struct CGStateGpCmd : CGCmd {
+  explicit CGStateGpCmd(CGGraphState* state)
+    : CGCmd(StateGp), state(state) {}
 
   CGGraphState* state;
 };
 
-/// Set compute state command.
+/// Set state command for compute.
 ///
-struct CGCompStateCmd : CGCmd {
-  explicit CGCompStateCmd(CGCompState* state)
-    : CGCmd(CompState), state(state) {}
+struct CGStateCmCmd : CGCmd {
+  explicit CGStateCmCmd(CGCompState* state)
+    : CGCmd(StateCm), state(state) {}
 
   CGCompState* state;
 };
@@ -61,17 +59,21 @@ struct CGCompStateCmd : CGCmd {
 /// Set viewport command.
 ///
 struct CGViewportCmd : CGCmd {
-  explicit CGViewportCmd(CGViewport viewport)
-    : CGCmd(Viewport), viewport(viewport) {}
+  CGViewportCmd(CGViewport viewport, uint32_t viewportIndex)
+    : CGCmd(Viewport), viewport(viewport), viewportIndex(viewportIndex) {}
 
   CGViewport viewport;
+  uint32_t viewportIndex;
 };
 
 /// Set scissor command.
 ///
 struct CGScissorCmd : CGCmd {
-  explicit CGScissorCmd(CGScissor scissor) : CGCmd(Scissor), scissor(scissor) {}
+  explicit CGScissorCmd(CGScissor scissor, uint32_t viewportIndex)
+    : CGCmd(Scissor), scissor(scissor), viewportIndex(viewportIndex) {}
+
   CGScissor scissor;
+  uint32_t viewportIndex;
 };
 
 /// Set render target command.
@@ -94,12 +96,12 @@ struct CGDcTableCmd : CGCmd {
 /// Set vertex buffer command.
 ///
 struct CGVxBufferCmd : CGCmd {
-  CGVxBufferCmd(uint32_t inputIndex, CGBuffer* buffer, uint64_t offset)
-    : CGCmd(VxBuffer), inputIndex(inputIndex), buffer(buffer), offset(offset) {}
+  CGVxBufferCmd(CGBuffer* buffer, uint64_t offset, uint32_t inputIndex)
+    : CGCmd(VxBuffer), buffer(buffer), offset(offset), inputIndex(inputIndex) {}
 
-  uint32_t inputIndex;
   CGBuffer* buffer;
   uint64_t offset;
+  uint32_t inputIndex;
 };
 
 /// Set index buffer command.
@@ -163,25 +165,25 @@ struct CGDispatchCmd : CGCmd {
 
 /// Clear color command.
 ///
-struct CGClearColCmd : CGCmd {
-  CGClearColCmd(uint32_t colorIndex, CGColor value)
-    : CGCmd(ClearCol), colorIndex(colorIndex), value(value) {}
+struct CGClearClCmd : CGCmd {
+  CGClearClCmd(CGColor value, uint32_t colorIndex)
+    : CGCmd(ClearCl), value(value), colorIndex(colorIndex) {}
 
-  uint32_t colorIndex;
   CGColor value;
+  uint32_t colorIndex;
 };
 
 /// Clear depth command.
 ///
-struct CGClearDepCmd : CGCmd {
-  explicit CGClearDepCmd(float value) : CGCmd(ClearDep), value(value) {}
+struct CGClearDpCmd : CGCmd {
+  explicit CGClearDpCmd(float value) : CGCmd(ClearDp), value(value) {}
   float value;
 };
 
 /// Clear stencil command.
 ///
-struct CGClearStenCmd : CGCmd {
-  explicit CGClearStenCmd(uint32_t value) : CGCmd(ClearSten), value(value) {}
+struct CGClearScCmd : CGCmd {
+  explicit CGClearScCmd(uint32_t value) : CGCmd(ClearSc), value(value) {}
   uint32_t value;
 };
 

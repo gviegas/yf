@@ -23,6 +23,13 @@ enum CGIndexType {
 };
 
 struct CGColor {
+  bool operator==(const CGColor& other) const {
+    return r == other.r && g == other.g && b == other.b && a == other.a;
+  }
+  bool operator!=(const CGColor& other) const {
+    return !operator==(other);
+  }
+
   float r;
   float g;
   float b;
@@ -30,6 +37,15 @@ struct CGColor {
 };
 
 struct CGViewport {
+  bool operator==(const CGViewport& other) const {
+    return x == other.x && y == other.y &&
+           width == other.width && height == other.height &&
+           zNear == other.zNear && zFar == other.zFar;
+  }
+  bool operator!=(const CGViewport& other) const {
+    return !operator==(other);
+  }
+
   float x;
   float y;
   float width;
@@ -39,6 +55,13 @@ struct CGViewport {
 };
 
 struct CGScissor {
+  bool operator==(const CGScissor& other) const {
+    return offset == other.offset && size == other.size;
+  }
+  bool operator!=(const CGScissor& other) const {
+    return !operator==(other);
+  }
+
   CGOffset2 offset;
   CGSize2 size;
 };
@@ -67,8 +90,8 @@ class CGEncoder {
 
   /// Sets the render area.
   ///
-  void setViewport(CGViewport viewport);
-  void setScissor(CGScissor scissor);
+  void setViewport(CGViewport viewport, uint32_t viewportIndex = 0);
+  void setScissor(CGScissor scissor, uint32_t viewportIndex = 0);
 
   /// Sets the render target.
   ///
@@ -80,7 +103,9 @@ class CGEncoder {
 
   /// Sets the vertex buffer.
   ///
-  void setVertexBuffer(uint32_t inputIndex, CGBuffer* buffer, uint64_t offset);
+  void setVertexBuffer(CGBuffer* buffer,
+                       uint64_t offset,
+                       uint32_t inputIndex = 0);
 
   /// Sets the index buffer.
   ///
@@ -107,7 +132,7 @@ class CGEncoder {
 
   /// Clears the bound target.
   ///
-  void clearColor(uint32_t colorIndex, CGColor value);
+  void clearColor(CGColor value, uint32_t colorIndex = 0);
   void clearDepth(float value);
   void clearStencil(uint32_t value);
 

@@ -22,19 +22,20 @@ CGEncoder::CGEncoder() : _impl(make_unique<Impl>()) {}
 CGEncoder::~CGEncoder() {}
 
 void CGEncoder::setState(CGGraphState* state) {
-  _impl->encoding.push_back(make_unique<CGGraphStateCmd>(state));
+  _impl->encoding.push_back(make_unique<CGStateGpCmd>(state));
 }
 
 void CGEncoder::setState(CGCompState* state) {
-  _impl->encoding.push_back(make_unique<CGCompStateCmd>(state));
+  _impl->encoding.push_back(make_unique<CGStateCmCmd>(state));
 }
 
-void CGEncoder::setViewport(CGViewport viewport) {
-  _impl->encoding.push_back(make_unique<CGViewportCmd>(viewport));
+void CGEncoder::setViewport(CGViewport viewport, uint32_t viewportIndex) {
+  _impl->encoding.push_back(make_unique<CGViewportCmd>(viewport,
+                                                       viewportIndex));
 }
 
-void CGEncoder::setScissor(CGScissor scissor) {
-  _impl->encoding.push_back(make_unique<CGScissorCmd>(scissor));
+void CGEncoder::setScissor(CGScissor scissor, uint32_t viewportIndex) {
+  _impl->encoding.push_back(make_unique<CGScissorCmd>(scissor, viewportIndex));
 }
 
 void CGEncoder::setTarget(CGTarget* target) {
@@ -45,13 +46,13 @@ void CGEncoder::setDcTable(uint32_t tableIndex, uint32_t allocIndex) {
   _impl->encoding.push_back(make_unique<CGDcTableCmd>(tableIndex, allocIndex));
 }
 
-void CGEncoder::setVertexBuffer(uint32_t inputIndex,
-                                CGBuffer* buffer,
-                                uint64_t offset) {
+void CGEncoder::setVertexBuffer(CGBuffer* buffer,
+                                uint64_t offset,
+                                uint32_t inputIndex) {
 
-  _impl->encoding.push_back(make_unique<CGVxBufferCmd>(inputIndex,
-                                                       buffer,
-                                                       offset));
+  _impl->encoding.push_back(make_unique<CGVxBufferCmd>(buffer,
+                                                       offset,
+                                                       inputIndex));
 }
 
 void CGEncoder::setIndexBuffer(CGBuffer* buffer,
@@ -89,16 +90,16 @@ void CGEncoder::dispatch(CGSize3 size) {
   _impl->encoding.push_back(make_unique<CGDispatchCmd>(size));
 }
 
-void CGEncoder::clearColor(uint32_t colorIndex, CGColor value) {
-  _impl->encoding.push_back(make_unique<CGClearColCmd>(colorIndex, value));
+void CGEncoder::clearColor(CGColor value, uint32_t colorIndex) {
+  _impl->encoding.push_back(make_unique<CGClearClCmd>(value, colorIndex));
 }
 
 void CGEncoder::clearDepth(float value) {
-  _impl->encoding.push_back(make_unique<CGClearDepCmd>(value));
+  _impl->encoding.push_back(make_unique<CGClearDpCmd>(value));
 }
 
 void CGEncoder::clearStencil(uint32_t value) {
-  _impl->encoding.push_back(make_unique<CGClearStenCmd>(value));
+  _impl->encoding.push_back(make_unique<CGClearScCmd>(value));
 }
 
 const CGEncoding& CGEncoder::encoding() const {

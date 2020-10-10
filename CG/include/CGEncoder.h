@@ -9,6 +9,7 @@
 #define YF_CG_ENCODER_H
 
 #include <cstdint>
+#include <vector>
 #include <memory>
 
 #include "YFDefs.h"
@@ -47,6 +48,9 @@ class CGCompState;
 class CGTarget;
 class CGDcTable;
 class CGBuffer;
+
+struct CGCmd;
+using CGEncoding = std::vector<std::unique_ptr<CGCmd>>;
 
 class CGEncoder {
  public:
@@ -112,6 +116,8 @@ class CGEncoder {
   // - clear buf/img
   // - sync
   // - ...
+
+  const CGEncoding& encoding() const;
 
  private:
   class Impl;

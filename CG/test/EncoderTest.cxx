@@ -2,7 +2,7 @@
 // yf
 // EncoderTest.cxx
 //
-// Copyright (c) 2020 Gustavo C. Viegas.
+// Copyright © 2020 Gustavo C. Viegas.
 //
 
 #include "UnitTests.h"
@@ -27,8 +27,8 @@ struct EncoderTest : Test {
     CGColor green{0.0f, 1.0f, 0.0f, 1.0f};
 
     CGEncoder enc;
-    enc.setState(static_cast<CGGraphState*>(nullptr));
-    enc.setState(static_cast<CGCompState*>(nullptr));
+    enc.setState(static_cast<CGGrState*>(nullptr));
+    enc.setState(static_cast<CGCpState*>(nullptr));
     enc.setViewport(vport);
     enc.setScissor(sciss);
     enc.setTarget(nullptr);
@@ -46,13 +46,13 @@ struct EncoderTest : Test {
     bool chk;
     for (auto& cmd : enc.encoding()) {
       switch (cmd->cmd) {
-      case CGCmd::StateGp:
-        str = L"CGCmd::StateGp";
-        chk = static_cast<CGStateGpCmd*>(cmd.get())->state == nullptr;
+      case CGCmd::StateGr:
+        str = L"CGCmd::StateGr";
+        chk = static_cast<CGStateGrCmd*>(cmd.get())->state == nullptr;
         break;
-      case CGCmd::StateCm:
-        str = L"CGCmd::StateCm";
-        chk = static_cast<CGStateGpCmd*>(cmd.get())->state == nullptr;
+      case CGCmd::StateCp:
+        str = L"CGCmd::StateCp";
+        chk = static_cast<CGStateCpCmd*>(cmd.get())->state == nullptr;
         break;
       case CGCmd::Viewport: {
         auto sub = static_cast<CGViewportCmd*>(cmd.get());

@@ -2,7 +2,7 @@
 // yf
 // CGEncoder.h
 //
-// Copyright (c) 2020 Gustavo C. Viegas.
+// Copyright © 2020 Gustavo C. Viegas.
 //
 
 #ifndef YF_CG_ENCODER_H
@@ -66,8 +66,8 @@ struct CGScissor {
   CGSize2 size;
 };
 
-class CGGraphState;
-class CGCompState;
+class CGGrState;
+class CGCpState;
 class CGTarget;
 class CGDcTable;
 class CGBuffer;
@@ -82,11 +82,11 @@ class CGEncoder {
 
   /// Sets the state for graphics operations.
   ///
-  void setState(CGGraphState* state);
+  void setState(CGGrState* state);
 
   /// Sets the state for compute operations.
   ///
-  void setState(CGCompState* state);
+  void setState(CGCpState* state);
 
   /// Sets the render area.
   ///

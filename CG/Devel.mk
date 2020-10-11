@@ -2,9 +2,11 @@
 
 #
 # yf
-# Devel.mk - Development makefile (CG).
+# Devel.mk
 #
-# Copyright (C) 2020 Gustavo C. Viegas.
+# Development makefile (CG).
+#
+# Copyright © 2020 Gustavo C. Viegas.
 #
 
 SHELL := /bin/sh

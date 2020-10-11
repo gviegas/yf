@@ -2,7 +2,7 @@
 // yf
 // BufferTest.cxx
 //
-// Copyright (C) 2020 Gustavo C. Viegas.
+// Copyright © 2020 Gustavo C. Viegas.
 //
 
 #include "UnitTests.h"

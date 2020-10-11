@@ -2,7 +2,7 @@
 // yf
 // CGState.h
 //
-// Copyright (C) 2020 Gustavo C. Viegas.
+// Copyright © 2020 Gustavo C. Viegas.
 //
 
 #ifndef YF_CG_STATE_H
@@ -86,7 +86,7 @@ class CGPass;
 class CGShader;
 class CGDcTable;
 
-class CGGraphState {
+class CGGrState {
  public:
   struct Config {
     CGPass* pass;
@@ -99,25 +99,25 @@ class CGGraphState {
     CGWinding winding;
   };
 
-  explicit CGGraphState(const Config& config);
-  explicit CGGraphState(Config&& config);
-  virtual ~CGGraphState() = 0;
+  explicit CGGrState(const Config& config);
+  explicit CGGrState(Config&& config);
+  virtual ~CGGrState() = 0;
 
   /// The state configuration.
   ///
   const Config config;
 };
 
-class CGCompState {
+class CGCpState {
  public:
   struct Config {
     CGShader* shader;
     std::vector<CGDcTable*> dcTables;
   };
 
-  explicit CGCompState(const Config& config);
-  explicit CGCompState(Config&& config);
-  virtual ~CGCompState() = 0;
+  explicit CGCpState(const Config& config);
+  explicit CGCpState(Config&& config);
+  virtual ~CGCpState() = 0;
 
   /// The state configuration.
   ///

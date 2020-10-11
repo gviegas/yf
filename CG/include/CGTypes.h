@@ -2,7 +2,7 @@
 // yf
 // CGTypes.h
 //
-// Copyright (C) 2020 Gustavo C. Viegas.
+// Copyright © 2020 Gustavo C. Viegas.
 //
 
 #ifndef YF_CG_TYPES_H

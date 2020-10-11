@@ -2,7 +2,7 @@
 // yf
 // CGCmd.h
 //
-// Copyright (c) 2020 Gustavo C. Viegas.
+// Copyright © 2020 Gustavo C. Viegas.
 //
 
 #ifndef YF_CG_CMD_H
@@ -16,8 +16,8 @@ YF_NS_BEGIN
 ///
 struct CGCmd {
   enum Cmd {
-    StateGp,
-    StateCm,
+    StateGr,
+    StateCp,
     Viewport,
     Scissor,
     Target,
@@ -40,20 +40,20 @@ struct CGCmd {
 
 /// Set state command for graphics.
 ///
-struct CGStateGpCmd : CGCmd {
-  explicit CGStateGpCmd(CGGraphState* state)
-    : CGCmd(StateGp), state(state) {}
+struct CGStateGrCmd : CGCmd {
+  explicit CGStateGrCmd(CGGrState* state)
+    : CGCmd(StateGr), state(state) {}
 
-  CGGraphState* state;
+  CGGrState* state;
 };
 
 /// Set state command for compute.
 ///
-struct CGStateCmCmd : CGCmd {
-  explicit CGStateCmCmd(CGCompState* state)
-    : CGCmd(StateCm), state(state) {}
+struct CGStateCpCmd : CGCmd {
+  explicit CGStateCpCmd(CGCpState* state)
+    : CGCmd(StateCp), state(state) {}
 
-  CGCompState* state;
+  CGCpState* state;
 };
 
 /// Set viewport command.

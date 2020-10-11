@@ -2,7 +2,7 @@
 // yf
 // CGDevice.h
 //
-// Copyright (C) 2020 Gustavo C. Viegas.
+// Copyright © 2020 Gustavo C. Viegas.
 //
 
 #ifndef YF_CG_DEVICE_H
@@ -65,12 +65,12 @@ class CGDevice {
 
   /// Makes a new state object.
   ///
-  using GraphStatePtr = std::unique_ptr<CGGraphState>;
-  using CompStatePtr = std::unique_ptr<CGCompState>;
-  virtual GraphStatePtr makeState(const CGGraphState::Config& config) = 0;
-  virtual GraphStatePtr makeState(CGGraphState::Config&& config) = 0;
-  virtual CompStatePtr makeState(const CGCompState::Config& config) = 0;
-  virtual CompStatePtr makeState(CGCompState::Config&& config) = 0;
+  using GrStatePtr = std::unique_ptr<CGGrState>;
+  using CpStatePtr = std::unique_ptr<CGCpState>;
+  virtual GrStatePtr makeState(const CGGrState::Config& config) = 0;
+  virtual GrStatePtr makeState(CGGrState::Config&& config) = 0;
+  virtual CpStatePtr makeState(const CGCpState::Config& config) = 0;
+  virtual CpStatePtr makeState(CGCpState::Config&& config) = 0;
 };
 
 YF_NS_END

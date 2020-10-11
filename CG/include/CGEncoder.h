@@ -75,18 +75,37 @@ class CGBuffer;
 struct CGCmd;
 using CGEncoding = std::vector<std::unique_ptr<CGCmd>>;
 
+/// Base encoder.
+///
 class CGEncoder {
  public:
-  CGEncoder();
-  ~CGEncoder();
+  enum Type {
+    Graphics,
+    Compute,
+    Transfer
+  };
 
-  /// Sets the state for graphics operations.
+  CGEncoder(Type type);
+  virtual ~CGEncoder() = 0;
+
+  Type type() const;
+  const CGEncoding& encoding() const;
+
+ protected:
+  class Impl;
+  std::unique_ptr<Impl> _impl;
+};
+
+/// Graphics encoder.
+///
+class CGGrEncoder final : public CGEncoder {
+ public:
+  CGGrEncoder();
+  ~CGGrEncoder() = default;
+
+  /// Sets the graphics state.
   ///
   void setState(CGGrState* state);
-
-  /// Sets the state for compute operations.
-  ///
-  void setState(CGCpState* state);
 
   /// Sets the render area.
   ///
@@ -126,27 +145,41 @@ class CGEncoder {
                    uint32_t baseInstance = 0,
                    uint32_t instanceCount = 1);
 
-  /// Dispatches a workgroup.
-  ///
-  void dispatch(CGSize3 size);
-
   /// Clears the bound target.
   ///
   void clearColor(CGColor value, uint32_t colorIndex = 0);
   void clearDepth(float value);
   void clearStencil(uint32_t value);
+};
 
-  // TODO:
-  // - copy buf/img
-  // - clear buf/img
-  // - sync
-  // - ...
+/// Compute encoder.
+///
+class CGCpEncoder final : public CGEncoder {
+ public:
+  CGCpEncoder();
+  ~CGCpEncoder() = default;
 
-  const CGEncoding& encoding() const;
+  /// Sets the compute state.
+  ///
+  void setState(CGCpState* state);
 
- private:
-  class Impl;
-  std::unique_ptr<Impl> _impl;
+  /// Sets a descriptor table allocation.
+  ///
+  void setDcTable(uint32_t tableIndex, uint32_t allocIndex);
+
+  /// Dispatches a workgroup.
+  ///
+  void dispatch(CGSize3 size);
+};
+
+/// Transfer encoder.
+///
+class CGTfEncoder final : public CGEncoder {
+ public:
+  CGTfEncoder();
+  ~CGTfEncoder() = default;
+
+  // TODO
 };
 
 YF_NS_END

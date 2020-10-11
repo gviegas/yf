@@ -26,33 +26,34 @@ struct EncoderTest : Test {
     CGScissor sciss{{0, 0}, {480, 300}};
     CGColor green{0.0f, 1.0f, 0.0f, 1.0f};
 
-    CGEncoder enc;
-    enc.setState(static_cast<CGGrState*>(nullptr));
-    enc.setState(static_cast<CGCpState*>(nullptr));
-    enc.setViewport(vport);
-    enc.setScissor(sciss);
-    enc.setTarget(nullptr);
-    enc.setDcTable(1, 15);
-    enc.setVertexBuffer(nullptr, 128);
-    enc.setIndexBuffer(nullptr, 256, CGIndexTypeU16);
-    enc.draw(0, 3, 0, 1);
-    enc.drawIndexed(6, 36, -6, 10, 50);
-    enc.dispatch(64);
-    enc.clearColor(green);
-    enc.clearDepth(1.0f);
-    enc.clearStencil(0xFF);
+    CGGrEncoder enc1;
+    enc1.setState(nullptr);
+    enc1.setViewport(vport);
+    enc1.setScissor(sciss);
+    enc1.setTarget(nullptr);
+    enc1.setDcTable(1, 15);
+    enc1.setVertexBuffer(nullptr, 128);
+    enc1.setIndexBuffer(nullptr, 256, CGIndexTypeU16);
+    enc1.draw(0, 3, 0, 1);
+    enc1.drawIndexed(6, 36, -6, 10, 50);
+    enc1.clearColor(green);
+    enc1.clearDepth(1.0f);
+    enc1.clearStencil(0xFF);
+
+    CGCpEncoder enc2;
+    enc2.setDcTable(0, 0);
+    enc2.setDcTable(1, 20);
+    enc2.dispatch(64);
 
     wstring str;
     bool chk;
-    for (auto& cmd : enc.encoding()) {
+
+    a.push_back({L"CGGrEncoder()", enc1.type() == CGEncoder::Graphics});
+    for (auto& cmd : enc1.encoding()) {
       switch (cmd->cmd) {
       case CGCmd::StateGr:
         str = L"CGCmd::StateGr";
         chk = static_cast<CGStateGrCmd*>(cmd.get())->state == nullptr;
-        break;
-      case CGCmd::StateCp:
-        str = L"CGCmd::StateCp";
-        chk = static_cast<CGStateCpCmd*>(cmd.get())->state == nullptr;
         break;
       case CGCmd::Viewport: {
         auto sub = static_cast<CGViewportCmd*>(cmd.get());
@@ -98,10 +99,6 @@ struct EncoderTest : Test {
               sub->vertexOffset == -6 && sub->baseInstance == 10 &&
               sub->instanceCount == 50;
       } break;
-      case CGCmd::Dispatch:
-        str = L"CGCmd::Dispatch";
-        chk = static_cast<CGDispatchCmd*>(cmd.get())->size == CGSize3(64);
-        break;
       case CGCmd::ClearCl: {
         auto sub = static_cast<CGClearClCmd*>(cmd.get());
         str = L"CGCmd::ClearCl";
@@ -114,6 +111,27 @@ struct EncoderTest : Test {
       case CGCmd::ClearSc:
         str = L"CGCmd::ClearSc";
         chk = static_cast<CGClearScCmd*>(cmd.get())->value == 0xFF;
+        break;
+      }
+      a.push_back({str, chk});
+    }
+
+    a.push_back({L"CGCpEncoder()", enc2.type() == CGEncoder::Compute});
+    for (auto& cmd : enc2.encoding()) {
+      switch (cmd->cmd) {
+      case CGCmd::StateCp:
+        str = L"CGCmd::StateCp";
+        chk = static_cast<CGStateCpCmd*>(cmd.get())->state == nullptr;
+        break;
+      case CGCmd::DcTable: {
+        auto sub = static_cast<CGDcTableCmd*>(cmd.get());
+        str = L"CGCmd::DcTable";
+        chk = (sub->tableIndex == 0 && sub->allocIndex == 0) ||
+              (sub->tableIndex == 1 && sub->allocIndex == 20);
+      } break;
+      case CGCmd::Dispatch:
+        str = L"CGCmd::Dispatch";
+        chk = static_cast<CGDispatchCmd*>(cmd.get())->size == CGSize3(64);
         break;
       }
       a.push_back({str, chk});

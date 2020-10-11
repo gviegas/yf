@@ -2,17 +2,17 @@
 // yf
 // CGState.cxx
 //
-// Copyright (C) 2020 Gustavo C. Viegas.
+// Copyright © 2020 Gustavo C. Viegas.
 //
 
 #include "CGState.h"
 
 using namespace YF_NS;
 
-CGGraphState::CGGraphState(const Config& config) : config(config) {}
-CGGraphState::CGGraphState(Config&& config) : config(config) {}
-CGGraphState::~CGGraphState() {}
+CGGrState::CGGrState(const Config& config) : config(config) {}
+CGGrState::CGGrState(Config&& config) : config(config) {}
+CGGrState::~CGGrState() {}
 
-CGCompState::CGCompState(const Config& config) : config(config) {}
-CGCompState::CGCompState(Config&& config) : config(config) {}
-CGCompState::~CGCompState() {}
+CGCpState::CGCpState(const Config& config) : config(config) {}
+CGCpState::CGCpState(Config&& config) : config(config) {}
+CGCpState::~CGCpState() {}

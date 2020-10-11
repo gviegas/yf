@@ -2,7 +2,7 @@
 // yf
 // CGEncoder.cxx
 //
-// Copyright (c) 2020 Gustavo C. Viegas.
+// Copyright © 2020 Gustavo C. Viegas.
 //
 
 #include "CGEncoder.h"
@@ -21,12 +21,12 @@ class CGEncoder::Impl {
 CGEncoder::CGEncoder() : _impl(make_unique<Impl>()) {}
 CGEncoder::~CGEncoder() {}
 
-void CGEncoder::setState(CGGraphState* state) {
-  _impl->encoding.push_back(make_unique<CGStateGpCmd>(state));
+void CGEncoder::setState(CGGrState* state) {
+  _impl->encoding.push_back(make_unique<CGStateGrCmd>(state));
 }
 
-void CGEncoder::setState(CGCompState* state) {
-  _impl->encoding.push_back(make_unique<CGStateCmCmd>(state));
+void CGEncoder::setState(CGCpState* state) {
+  _impl->encoding.push_back(make_unique<CGStateCpCmd>(state));
 }
 
 void CGEncoder::setViewport(CGViewport viewport, uint32_t viewportIndex) {

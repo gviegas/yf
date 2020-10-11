@@ -2,7 +2,7 @@
 // yf
 // StateTest.cxx
 //
-// Copyright (C) 2020 Gustavo C. Viegas.
+// Copyright © 2020 Gustavo C. Viegas.
 //
 
 #include "UnitTests.h"
@@ -19,17 +19,17 @@ struct StateTest : Test {
   StateTest() : Test(L"CGState") {}
 
   Assertions run(const vector<string>& args) {
-    struct GraphState : CGGraphState {
-      GraphState(const Config& config) : CGGraphState(config) {}
+    struct GrState : CGGrState {
+      GrState(const Config& config) : CGGrState(config) {}
     };
 
-    struct CompState : CGCompState {
-      CompState(const Config& config) : CGCompState(config) {}
+    struct CpState : CGCpState {
+      CpState(const Config& config) : CGCpState(config) {}
     };
 
     Assertions a;
 
-    GraphState::Config gc;
+    GrState::Config gc;
     gc.vxInputs.push_back({});
     gc.vxInputs.back().attributes[4] = {CGVxFormatFlt4, 0};
     gc.vxInputs.back().stride = sizeof(float[4]);
@@ -38,12 +38,12 @@ struct StateTest : Test {
     gc.polyMode = CGPolyModeFill;
     gc.cullMode = CGCullModeBack;
     gc.winding = CGWindingCounterCw;
-    GraphState gs(gc);
+    GrState gs(gc);
 
-    CompState::Config cc;
-    CompState cs(cc);
+    CpState::Config cc;
+    CpState cs(cc);
 
-    a.push_back({L"CGGraphState(config)",
+    a.push_back({L"CGGrState(config)",
                  gs.config.vxInputs.size() == 1 &&
                  gs.config.vxInputs.back().attributes
                   .find(4)->second.format == CGVxFormatFlt4 &&
@@ -54,7 +54,7 @@ struct StateTest : Test {
                  gs.config.cullMode == CGCullModeBack &&
                  gs.config.winding == CGWindingCounterCw});
 
-    a.push_back({L"CGCompState(config)",
+    a.push_back({L"CGCpState(config)",
                  cs.config.shader == nullptr && cs.config.dcTables.empty()});
 
     return a;

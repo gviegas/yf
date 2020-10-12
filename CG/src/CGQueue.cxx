@@ -8,7 +8,6 @@
 #include "CGQueue.h"
 
 using namespace YF_NS;
-using namespace std;
 
 CGQueue::CGQueue(CapabilityMask capabilities) : capabilities(capabilities) {}
 CGQueue::~CGQueue() {}

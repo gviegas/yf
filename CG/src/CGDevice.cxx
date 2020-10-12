@@ -35,6 +35,9 @@ CGDevice& CGDevice::get() {
     GrStatePtr makeState(CGGrState::Config&&) { return nullptr; }
     CpStatePtr makeState(const CGCpState::Config&) { return nullptr; }
     CpStatePtr makeState(CGCpState::Config&&){ return nullptr; }
+
+    CGQueue& defaultQueue() { std::abort(); }
+    CGQueue* queue(CGQueue::CapabilityMask) { return nullptr; }
   };
 
   static Dummy dev;

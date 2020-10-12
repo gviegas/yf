@@ -18,6 +18,7 @@
 #include "CGDcTable.h"
 #include "CGPass.h"
 #include "CGState.h"
+#include "CGQueue.h"
 
 YF_NS_BEGIN
 
@@ -71,6 +72,11 @@ class CGDevice {
   virtual GrStatePtr makeState(CGGrState::Config&& config) = 0;
   virtual CpStatePtr makeState(const CGCpState::Config& config) = 0;
   virtual CpStatePtr makeState(CGCpState::Config&& config) = 0;
+
+  /// Retrieves execution queues.
+  ///
+  virtual CGQueue& defaultQueue() = 0;
+  virtual CGQueue* queue(CGQueue::CapabilityMask capabilities) = 0;
 };
 
 YF_NS_END

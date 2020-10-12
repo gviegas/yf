@@ -25,11 +25,11 @@ struct PassTest : Test {
            const CGDepStenAttach* depthStencil)
            : CGPass(colors, resolves, depthStencil) {}
 
-      TargetPtr makeTarget(CGSize2,
+      TargetRes makeTarget(CGSize2,
                            uint32_t,
                            const vector<CGAttachImg>*,
                            const vector<CGAttachImg>*,
-                           const CGAttachImg*) { return nullptr; }
+                           const CGAttachImg*) { return TargetRes(nullptr); }
     };
 
     Assertions a;

@@ -51,7 +51,17 @@ struct CGAttachImg {
   uint32_t baseLayer;
 };
 
-class CGTarget;
+class CGPass;
+
+class CGTarget {
+ public:
+  CGTarget() = default;
+  virtual ~CGTarget() = default;
+
+  /// The pass that created this target.
+  ///
+  virtual const CGPass& pass() const = 0;
+};
 
 class CGPass {
  public:
@@ -63,8 +73,8 @@ class CGPass {
 
   /// Makes a new target compatible with this pass.
   ///
-  using TargetPtr = std::unique_ptr<CGTarget>;
-  virtual TargetPtr makeTarget(CGSize2 size,
+  using TargetRes = CGResultPair<std::unique_ptr<CGTarget>>;
+  virtual TargetRes makeTarget(CGSize2 size,
                                uint32_t layers,
                                const std::vector<CGAttachImg>* colors,
                                const std::vector<CGAttachImg>* resolves,

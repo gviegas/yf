@@ -17,27 +17,37 @@ CGDevice& CGDevice::get() {
 
   ////////////////
   struct Dummy : CGDevice {
-    BufferPtr makeBuffer(uint64_t) { return nullptr; }
+    BufferRes makeBuffer(uint64_t) { return BufferRes(nullptr); }
 
-    ImagePtr makeImage(CGPxFormat, CGSize2, uint32_t, uint32_t, CGSamples)
-    { return nullptr; }
+    ImageRes makeImage(CGPxFormat, CGSize2, uint32_t, uint32_t, CGSamples)
+    { return ImageRes(nullptr); }
 
-    ShaderPtr makeShader(CGStage, wstring&&, wstring&&) { return nullptr; }
+    ShaderRes makeShader(CGStage, wstring&&, wstring&&)
+    { return ShaderRes(nullptr); }
 
-    DcTablePtr makeDcTable(const CGDcEntries&) { return nullptr; }
-    DcTablePtr makeDcTable(CGDcEntries&&) { return nullptr; }
+    DcTableRes makeDcTable(const CGDcEntries&)
+    { return DcTableRes(nullptr); }
+    DcTableRes makeDcTable(CGDcEntries&&)
+    { return DcTableRes(nullptr); }
 
-    PassPtr makePass(const std::vector<CGColorAttach>*,
+    PassRes makePass(const std::vector<CGColorAttach>*,
                      const std::vector<CGColorAttach>*,
-                     const CGDepStenAttach*) { return nullptr; }
+                     const CGDepStenAttach*)
+    { return PassRes(nullptr); }
 
-    GrStatePtr makeState(const CGGrState::Config&) { return nullptr; }
-    GrStatePtr makeState(CGGrState::Config&&) { return nullptr; }
-    CpStatePtr makeState(const CGCpState::Config&) { return nullptr; }
-    CpStatePtr makeState(CGCpState::Config&&){ return nullptr; }
+    GrStateRes makeState(const CGGrState::Config&)
+    { return GrStateRes(nullptr); }
+    GrStateRes makeState(CGGrState::Config&&)
+    { return GrStateRes(nullptr); }
+    CpStateRes makeState(const CGCpState::Config&)
+    { return CpStateRes(nullptr); }
+    CpStateRes makeState(CGCpState::Config&&)
+    { return CpStateRes(nullptr); }
 
-    CGQueue& defaultQueue() { std::abort(); }
-    CGQueue* queue(CGQueue::CapabilityMask) { return nullptr; }
+    QueueRes defaultQueue()
+    { return QueueRes(nullptr); }
+    QueueRes queue(CGQueue::CapabilityMask)
+    { return QueueRes(nullptr); }
   };
 
   static Dummy dev;

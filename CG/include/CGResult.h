@@ -8,10 +8,14 @@
 #ifndef YF_CG_RESULT_H
 #define YF_CG_RESULT_H
 
+#include <utility>
+
 #include "YFDefs.h"
 
 YF_NS_BEGIN
 
+/// Result type representing success/failure.
+///
 struct CGResult {
   // TODO
   enum Value {
@@ -31,6 +35,20 @@ struct CGResult {
   }
 
   const Value value;
+};
+
+/// Pair holding an arbitrary object plus a CGResult.
+///
+template<class T>
+struct CGResultPair {
+  explicit CGResultPair(const T& object, CGResult result = CGResult::Success)
+    : object(object), result(result) {}
+
+  explicit CGResultPair(T&& object, CGResult result = CGResult::Success)
+    : object(std::move(object)), result(result) {}
+
+  T object;
+  CGResult result;
 };
 
 YF_NS_END

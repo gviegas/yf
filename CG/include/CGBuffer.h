@@ -17,7 +17,7 @@ YF_NS_BEGIN
 
 class CGBuffer {
  public:
-  CGBuffer(uint64_t size);
+  explicit CGBuffer(uint64_t size);
   virtual ~CGBuffer();
 
   /// Writes data to buffer.

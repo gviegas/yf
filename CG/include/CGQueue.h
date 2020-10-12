@@ -60,8 +60,8 @@ class CGQueue {
 
   /// Makes a new command buffer object.
   ///
-  using CmdBufferPtr = std::unique_ptr<CGCmdBuffer>;
-  virtual CmdBufferPtr makeCmdBuffer() = 0;
+  using CmdBufferRes = CGResultPair<std::unique_ptr<CGCmdBuffer>>;
+  virtual CmdBufferRes makeCmdBuffer() = 0;
 
   /// Submits enqueued command buffers for execution.
   ///

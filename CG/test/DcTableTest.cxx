@@ -23,7 +23,7 @@ struct DcTableTest : Test {
       DcTable(const CGDcEntries& entries) : CGDcTable(entries) {}
       DcTable(CGDcEntries&& entries) : CGDcTable(entries) {}
 
-      CGResult alloc(uint32_t) { return CGResult::Success; }
+      CGResult allocate(uint32_t) { return CGResult::Success; }
       uint32_t allocations() { return UINT32_MAX; }
       CGResult write(uint32_t, CGDcId, uint32_t, CGBuffer&, uint64_t, uint64_t)
       { return CGResult::Success; }

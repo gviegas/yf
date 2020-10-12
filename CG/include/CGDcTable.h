@@ -44,7 +44,7 @@ class CGDcTable {
 
   /// Allocates a given number of resources.
   ///
-  virtual CGResult alloc(uint32_t n) = 0;
+  virtual CGResult allocate(uint32_t n) = 0;
 
   /// Retrives the number of allocations.
   ///

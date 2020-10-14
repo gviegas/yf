@@ -4,17 +4,17 @@
 
 Core types
 ----------
-- CGDevice  [x]
-- CGBuffer  [x]
-- CGImage   [x]
-- CGShader  [x]
-- CGDcTable [x]
-- CGPass    [x]
-- CGTarget  [?]
+- CGDevice
+- CGBuffer
+- CGImage
+- CGShader
+- CGDcTable
+- CGPass
+- CGTarget
 - CGState
 - CGEncoder
+- CGCmdBuffer
 - CGQueue
-- ...
 
 
 Sub types

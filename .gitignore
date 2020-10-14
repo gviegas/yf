@@ -19,3 +19,4 @@ local.*
 */test/Test.h
 !/test/Test.cxx
 !/test/Test.ch
+*/sub

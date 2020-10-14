@@ -18,24 +18,27 @@ INCLUDE_DIR := include/
 SRC_DIR := src/
 TEST_DIR := test/
 ETC_DIR := etc/
+SUB_DIR := sub/
 BIN_DIR := bin/
 BUILD_DIR := build/
 
 SRC := \
   $(wildcard $(SRC_DIR)*.cxx) \
   $(wildcard $(TEST_DIR)*.cxx) \
-  $(wildcard $(ETC_DIR)*.cxx)
+  $(wildcard $(ETC_DIR)*.cxx) \
+  $(wildcard $(SUB_DIR)*.cxx)
 
 OBJ := $(subst $(SRC_DIR),$(BUILD_DIR),$(SRC:.cxx=.o))
 OBJ := $(subst $(TEST_DIR),$(BUILD_DIR),$(OBJ))
 OBJ := $(subst $(ETC_DIR),$(BUILD_DIR),$(OBJ))
+OBJ := $(subst $(SUB_DIR),$(BUILD_DIR),$(OBJ))
 
 DEP := $(OBJ:.o=.d)
 
 CXX := /usr/bin/clang++
 CXX_FLAGS := -std=gnu++17 -Wpedantic -Wall -Wextra -Og
 
-LD_LIBS := # -ldl
+LD_LIBS := -ldl
 LD_FLAGS := \
   -iquote $(PRIV_DIR) \
   -iquote $(PUB_DIR) \
@@ -76,6 +79,9 @@ $(BUILD_DIR)%.o: $(TEST_DIR)%.cxx
 $(BUILD_DIR)%.o: $(ETC_DIR)%.cxx
 	$(CXX) $(CXX_FLAGS) $(LD_FLAGS) $(PP_FLAGS) -c $< -o $@
 
+$(BUILD_DIR)%.o: $(SUB_DIR)%.cxx
+	$(CXX) $(CXX_FLAGS) $(LD_FLAGS) $(PP_FLAGS) -c $< -o $@
+
 $(BUILD_DIR)%.d: $(SRC_DIR)%.cxx
 	@$(PP) $(LD_FLAGS) $(PP_FLAGS) $< -MM -MT $(@:.d=.o) > $@
 
@@ -83,4 +89,7 @@ $(BUILD_DIR)%.d: $(TEST_DIR)%.cxx
 	@$(PP) $(LD_FLAGS) $(PP_FLAGS) $< -MM -MT $(@:.d=.o) > $@
 
 $(BUILD_DIR)%.d: $(ETC_DIR)%.cxx
+	@$(PP) $(LD_FLAGS) $(PP_FLAGS) $< -MM -MT $(@:.d=.o) > $@
+
+$(BUILD_DIR)%.d: $(SUB_DIR)%.cxx
 	@$(PP) $(LD_FLAGS) $(PP_FLAGS) $< -MM -MT $(@:.d=.o) > $@

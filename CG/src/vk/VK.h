@@ -8,6 +8,16 @@
 #ifndef YF_CG_VK_H
 #define YF_CG_VK_H
 
+#if defined(__linux__)
+# define VK_USE_PLATFORM_WAYLAND_KHR
+# define VK_USE_PLATFORM_XCB_KHR
+#elif defined(__APPLE__)
+# define VK_USE_PLATFORM_METAL_EXT
+#elif defined (_WIN32)
+# define VK_USE_PLATFORM_WIN32_KHR
+#else
+# error "Invalid platform"
+#endif
 #define VK_NO_PROTOTYPES
 #include <vulkan/vulkan.h>
 
@@ -24,7 +34,7 @@ CGResult initVK();
 ///
 CGResult setInstanceVK(VkInstance instance);
 
-/// Sets device-level procedures of 'vk' structure.
+/// Sets device-level procedures of `vk` structure.
 ///
 CGResult setDeviceVK(VkDevice device);
 

@@ -5,16 +5,23 @@
 // Copyright © 2020 Gustavo C. Viegas.
 //
 
-#ifdef __linux__
-# include <dlfcn.h>
-#else
-# error "Invalid platform" // TODO
-#endif
-
 #include <cstring>
 
 #include "VK.h"
 #include "Defs.h"
+
+#if defined(__linux__)
+# include <dlfcn.h>
+# define YF_LIBVK "libvulkan.so.1"
+#elif defined(__APPLE__)
+# include <dlfcn.h>
+# define YF_LIBVK "libvulkan.dylib"
+#elif defined(_WIN32)
+# include <windows.h>
+# define YF_LIBVK "vulkan-1.dll"
+#else
+# error "Invalid platform"
+#endif
 
 using namespace YF_NS;
 using namespace std;
@@ -29,15 +36,14 @@ CGResult loadVK();
 ///
 void unloadVK();
 
-#ifdef __linux__
+#if defined(__linux__) || defined(__APPLE__)
 void* libHandle = nullptr;
 
 CGResult loadVK() {
   if (libHandle)
     return CGResult::Success;
 
-  const char libName[] = "libvulkan.so.1";
-  void* handle = dlopen(libName, RTLD_LAZY);
+  void* handle = dlopen(YF_LIBVK, RTLD_LAZY);
   if (!handle)
     return CGResult::Failure;
 
@@ -60,8 +66,10 @@ void unloadVK() {
     libHandle = nullptr;
   }
 }
+#elif defined(_WIN32)
+# error "Unimplemented"
 #else
-# error "Invalid platform" // TODO
+# error "Invalid platform"
 #endif
 
 INTERNAL_NS_END

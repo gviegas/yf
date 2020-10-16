@@ -5,8 +5,6 @@
 // Copyright © 2020 Gustavo C. Viegas.
 //
 
-#include <cstring>
-
 #include "VK.h"
 #include "Defs.h"
 
@@ -24,22 +22,13 @@
 #endif
 
 using namespace YF_NS;
-using namespace std;
 
 INTERNAL_NS_BEGIN
-
-/// Loads VK lib and sets `vk.getInstanceProcAddr`.
-///
-CGResult loadVK();
-
-/// Unloads VK lib.
-///
-void unloadVK();
 
 #if defined(__linux__) || defined(__APPLE__)
 void* libHandle = nullptr;
 
-CGResult loadVK() {
+inline CGResult loadVK() {
   if (libHandle)
     return CGResult::Success;
 
@@ -47,20 +36,19 @@ CGResult loadVK() {
   if (!handle)
     return CGResult::Failure;
 
-  const char fnName[] = "vkGetInstanceProcAddr";
-  void* sym = dlsym(handle, fnName);
+  void* sym = dlsym(handle, "vkGetInstanceProcAddr");
   if (!sym) {
     dlclose(handle);
     return CGResult::Failure;
   }
 
   libHandle = handle;
-  vk.getInstanceProcAddr = reinterpret_cast<PFN_vkGetInstanceProcAddr>(sym);
+  getInstanceProcAddrVK = reinterpret_cast<PFN_vkGetInstanceProcAddr>(sym);
 
   return CGResult::Success;
 }
 
-void unloadVK() {
+inline void unloadVK() {
   if (libHandle) {
     dlclose(libHandle);
     libHandle = nullptr;
@@ -74,50 +62,13 @@ void unloadVK() {
 
 INTERNAL_NS_END
 
-#define YF_IPROCVK(instance, name) \
-  reinterpret_cast<PFN_##name>(vk.getInstanceProcAddr(instance, #name))
-#define YF_DPROCVK(device, name) \
-  reinterpret_cast<PFN_##name>(vk.getDeviceProcAddr(device, #name))
-
-VK1 YF_NS::vk;
+PFN_vkGetInstanceProcAddr YF_NS::getInstanceProcAddrVK;
+PFN_vkGetDeviceProcAddr YF_NS::getDeviceProcAddrVK;
 
 CGResult YF_NS::initVK() {
-  if (!loadVK())
-    return CGResult::Failure;
-
-  vk.enumerateInstanceExtensionProperties =
-  YF_IPROCVK(nullptr, vkEnumerateInstanceExtensionProperties);
-
-  vk.enumerateInstanceLayerProperties =
-  YF_IPROCVK(nullptr, vkEnumerateInstanceLayerProperties);
-
-  vk.createInstance = YF_IPROCVK(nullptr, vkCreateInstance);
-
-  vk._1.enumerateInstanceVersion =
-  YF_IPROCVK(nullptr, vkEnumerateInstanceVersion);
-
-  return CGResult::Success;
-}
-
-CGResult YF_NS::setInstanceVK(VkInstance instance) {
-  if (!vk.getInstanceProcAddr || !instance)
-    return CGResult::Failure;
-
-  return CGResult::Success;
-
-  // TODO
-}
-
-CGResult YF_NS::setDeviceVK(VkDevice device) {
-  if (!vk.getDeviceProcAddr || !device)
-    return CGResult::Failure;
-
-  return CGResult::Success;
-
-  // TODO
+  return loadVK();
 }
 
 void YF_NS::deinitVK() {
-  memset(&vk, 0, sizeof vk);
   unloadVK();
 }

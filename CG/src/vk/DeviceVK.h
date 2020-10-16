@@ -10,13 +10,15 @@
 
 #include "YFDefs.h"
 #include "CGDevice.h"
+#include "VK.h"
 
 YF_NS_BEGIN
 
-class DeviceVK : public CGDevice {
+class DeviceVK final : public CGDevice {
  public:
-  DeviceVK();
   ~DeviceVK();
+
+  static DeviceVK& get();
 
   BufferRes makeBuffer(uint64_t size);
 
@@ -45,9 +47,31 @@ class DeviceVK : public CGDevice {
   QueueRes defaultQueue();
   QueueRes queue(CGQueue::CapabilityMask capabilities);
 
+  VkInstance instance() const;
+  VkPhysicalDevice physicalDev() const;
+  VkDevice device() const;
+  uint32_t instVersion();
+  uint32_t devVersion();
+  const std::vector<const char*>& instLayers() const;
+  const std::vector<const char*>& instExts() const;
+  const std::vector<const char*>& devExts() const;
+
  private:
-  class Impl;
-  std::unique_ptr<Impl> _impl;
+  DeviceVK();
+
+  CGResult checkInstanceExts();
+  CGResult checkDeviceExts();
+  void initInstance();
+  void initDevice();
+
+  VkInstance _instance;
+  VkPhysicalDevice _physicalDev;
+  VkDevice _device;
+  uint32_t _instVersion;
+  uint32_t _devVersion;
+  std::vector<const char*> _instLayers;
+  std::vector<const char*> _instExts;
+  std::vector<const char*> _devExts;
 };
 
 YF_NS_END

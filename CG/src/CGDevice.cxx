@@ -15,6 +15,5 @@ CGDevice::~CGDevice() {}
 
 // TODO
 CGDevice& CGDevice::get() {
-  static DeviceVK dev;
-  return dev;
+  return DeviceVK::get();
 }

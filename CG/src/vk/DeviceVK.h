@@ -16,8 +16,6 @@ YF_NS_BEGIN
 
 class DeviceVK final : public CGDevice {
  public:
-  ~DeviceVK();
-
   static DeviceVK& get();
 
   BufferRes makeBuffer(uint64_t size);
@@ -47,31 +45,39 @@ class DeviceVK final : public CGDevice {
   QueueRes defaultQueue();
   QueueRes queue(CGQueue::CapabilityMask capabilities);
 
+/*
   VkInstance instance() const;
   VkPhysicalDevice physicalDev() const;
   VkDevice device() const;
+  const VkPhysicalDeviceProperties& physProperties() const;
   uint32_t instVersion();
   uint32_t devVersion();
-  const std::vector<const char*>& instLayers() const;
-  const std::vector<const char*>& instExts() const;
-  const std::vector<const char*>& devExts() const;
+  const std::vector<const char*>& layers() const;
+  const std::vector<const char*>& instExtensions() const;
+  const std::vector<const char*>& devExtensions() const;
+*/
 
  private:
   DeviceVK();
 
-  CGResult checkInstanceExts();
-  CGResult checkDeviceExts();
+  CGResult checkInstanceExtensions();
+  CGResult checkDeviceExtensions();
   void initInstance();
+  void initPhysicalDevice();
   void initDevice();
 
-  VkInstance _instance;
-  VkPhysicalDevice _physicalDev;
-  VkDevice _device;
-  uint32_t _instVersion;
-  uint32_t _devVersion;
-  std::vector<const char*> _instLayers;
-  std::vector<const char*> _instExts;
-  std::vector<const char*> _devExts;
+  VkInstance _instance = nullptr;
+  uint32_t _instVersion = 0;
+  std::vector<const char*> _instExtensions{};
+  std::vector<const char*> _layers{};
+
+  VkPhysicalDevice _physicalDev = nullptr;
+  VkPhysicalDeviceProperties _physProperties{};
+  int32_t _graphFamily = -1;
+  int32_t _compFamily = -1;
+
+  VkDevice _device = nullptr;
+  std::vector<const char*> _devExtensions{};
 };
 
 YF_NS_END

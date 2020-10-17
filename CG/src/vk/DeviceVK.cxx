@@ -23,13 +23,15 @@ DeviceVK& DeviceVK::get() {
 DeviceVK::DeviceVK() {
   if (!initVK())
     // TODO
-    throw runtime_error("!initVK()");
+    throw runtime_error("Failed to initialize VK lib");
   initInstance();
   initPhysicalDevice();
   initDevice();
 }
 
 CGResult DeviceVK::checkInstanceExtensions() {
+  assert(_instExtensions.empty());
+
   _instExtensions.push_back(VK_KHR_DEVICE_GROUP_CREATION_EXTENSION_NAME);
   _instExtensions.push_back(VK_KHR_SURFACE_EXTENSION_NAME);
 #if defined(__linux__)
@@ -43,8 +45,7 @@ CGResult DeviceVK::checkInstanceExtensions() {
 # error "Invalid platform"
 #endif
 
-  auto vkEnumerateInstanceExtensionProperties =
-  YF_IPROCVK(nullptr, vkEnumerateInstanceExtensionProperties);
+  YF_INSTPROCVK(nullptr, vkEnumerateInstanceExtensionProperties);
 
   vector<VkExtensionProperties> exts;
   uint32_t extN;
@@ -68,10 +69,12 @@ CGResult DeviceVK::checkInstanceExtensions() {
 }
 
 CGResult DeviceVK::checkDeviceExtensions() {
+  assert(_physicalDev != nullptr);
+  assert(_devExtensions.empty());
+
   _devExtensions.push_back(VK_KHR_SWAPCHAIN_EXTENSION_NAME);
 
-  auto vkEnumerateDeviceExtensionProperties =
-  YF_IPROCVK(_instance, vkEnumerateDeviceExtensionProperties);
+  YF_INSTPROCVK(_instance, vkEnumerateDeviceExtensionProperties);
 
   vector<VkExtensionProperties> exts;
   uint32_t extN;
@@ -95,14 +98,16 @@ CGResult DeviceVK::checkDeviceExtensions() {
 }
 
 void DeviceVK::initInstance() {
+  assert(getInstanceProcAddrVK != nullptr);
+  assert(_instance == nullptr);
+
   // Check extensions
   if (!checkInstanceExtensions())
     // TODO
-    throw runtime_error("Missing required instance extensions");
+    throw runtime_error("Missing required instance extension(s)");
 
   // Get instance version
-  auto vkEnumerateInstanceVersion =
-  YF_IPROCVK(nullptr, vkEnumerateInstanceVersion);
+  YF_INSTPROCVK(nullptr, vkEnumerateInstanceVersion);
   if (!vkEnumerateInstanceVersion)
     _instVersion = VK_API_VERSION_1_0;
   else
@@ -128,7 +133,7 @@ void DeviceVK::initInstance() {
   instInfo.enabledExtensionCount = _instExtensions.size();
   instInfo.ppEnabledExtensionNames = _instExtensions.data();
 
-  auto vkCreateInstance = YF_IPROCVK(nullptr, vkCreateInstance);
+  YF_INSTPROCVK(nullptr, vkCreateInstance);
   auto res = vkCreateInstance(&instInfo, nullptr, &_instance);
   if (res != VK_SUCCESS)
     // TODO
@@ -142,14 +147,9 @@ void DeviceVK::initPhysicalDevice() {
 
   VkResult res;
 
-  auto vkEnumeratePhysicalDevices =
-  YF_IPROCVK(_instance, vkEnumeratePhysicalDevices);
-
-  auto vkGetPhysicalDeviceProperties =
-  YF_IPROCVK(_instance, vkGetPhysicalDeviceProperties);
-
-  auto vkGetPhysicalDeviceQueueFamilyProperties =
-  YF_IPROCVK(_instance, vkGetPhysicalDeviceQueueFamilyProperties);
+  YF_INSTPROCVK(_instance, vkEnumeratePhysicalDevices);
+  YF_INSTPROCVK(_instance, vkGetPhysicalDeviceProperties);
+  YF_INSTPROCVK(_instance, vkGetPhysicalDeviceQueueFamilyProperties);
 
   vector<VkPhysicalDevice> phys;
   uint32_t physN;
@@ -230,7 +230,60 @@ void DeviceVK::initPhysicalDevice() {
 }
 
 void DeviceVK::initDevice() {
+  assert(_physicalDev != nullptr);
+  assert(_graphFamily > -1);
+  assert(_device == nullptr);
+
+  // Check extensions
+  if (!checkDeviceExtensions())
+    // TODO
+    throw runtime_error("Missing required device extension(s)");
+
+  // Define queues
+  const float queuePrio = 0.0f;
+  VkDeviceQueueCreateInfo queueInfos[2];
+  queueInfos[0].sType = VK_STRUCTURE_TYPE_DEVICE_QUEUE_CREATE_INFO;
+  queueInfos[0].pNext = nullptr;
+  queueInfos[0].flags = 0;
+  queueInfos[0].queueFamilyIndex = _graphFamily;
+  queueInfos[0].queueCount = 1;
+  queueInfos[0].pQueuePriorities = &queuePrio;
+  uint32_t queueN = 1;
+  if (_graphFamily != _compFamily) {
+    queueInfos[1] = queueInfos[0];
+    queueInfos[1].queueFamilyIndex = _compFamily;
+    queueN = 2;
+  }
+
+  // Create device
+  VkDeviceCreateInfo devInfo;
+  devInfo.sType = VK_STRUCTURE_TYPE_DEVICE_CREATE_INFO;
+  devInfo.pNext = nullptr;
+  devInfo.flags = 0;
+  devInfo.queueCreateInfoCount = queueN;
+  devInfo.pQueueCreateInfos = queueInfos;
+  devInfo.enabledLayerCount = 0;
+  devInfo.ppEnabledLayerNames = nullptr;
+  devInfo.enabledExtensionCount = _devExtensions.size();
+  devInfo.ppEnabledExtensionNames = _devExtensions.data();
   // TODO
+  devInfo.pEnabledFeatures = nullptr;
+
+  YF_INSTPROCVK(_instance, vkCreateDevice);
+  auto res = vkCreateDevice(_physicalDev, &devInfo, nullptr, &_device);
+  if (res != VK_SUCCESS)
+    // TODO
+    throw runtime_error("Could not create logical device");
+
+  // Set `getDeviceProcAddrVK` with the newly created device object
+  getDeviceProcAddrVK =
+  reinterpret_cast<PFN_vkGetDeviceProcAddr>
+  (getInstanceProcAddrVK(_instance, "vkGetDeviceProcAddr"));
+
+  // Get queues
+  YF_DEVPROCVK(_device, vkGetDeviceQueue);
+  vkGetDeviceQueue(_device, _graphFamily, 0, &_graphQueue);
+  vkGetDeviceQueue(_device, _compFamily, 0, &_compQueue);
 }
 
 CGDevice::BufferRes DeviceVK::makeBuffer(uint64_t size) {

@@ -39,14 +39,20 @@ void deinitVK();
 // XXX: invalid until `initVK()` returns successfully
 extern PFN_vkGetInstanceProcAddr getInstanceProcAddrVK;
 
-#define YF_IPROCVK(instance, name) \
-  reinterpret_cast<PFN_##name>(YF_NS::getInstanceProcAddrVK(instance, #name))
+#define YF_INSTPROCVK_RVAL(instance, name) \
+reinterpret_cast<PFN_##name>(YF_NS::getInstanceProcAddrVK(instance, #name))
+
+#define YF_INSTPROCVK(instance, name) \
+PFN_##name name = YF_INSTPROCVK_RVAL(instance, name)
 
 // XXX: invalid until `DeviceVK` object is created
 extern PFN_vkGetDeviceProcAddr getDeviceProcAddrVK;
 
-#define YF_DPROCVK(device, name) \
-  reinterpret_cast<PFN_##name>(YF_NS::getDeviceProcAddrVK(device, #name))
+#define YF_DEVPROCVK_RVAL(device, name) \
+reinterpret_cast<PFN_##name>(YF_NS::getDeviceProcAddrVK(device, #name))
+
+#define YF_DEVPROCVK(device, name) \
+PFN_##name name = YF_DEVPROCVK_RVAL(device, name)
 
 YF_NS_END
 

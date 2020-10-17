@@ -45,17 +45,7 @@ class DeviceVK final : public CGDevice {
   QueueRes defaultQueue();
   QueueRes queue(CGQueue::CapabilityMask capabilities);
 
-/*
-  VkInstance instance() const;
-  VkPhysicalDevice physicalDev() const;
-  VkDevice device() const;
-  const VkPhysicalDeviceProperties& physProperties() const;
-  uint32_t instVersion();
-  uint32_t devVersion();
-  const std::vector<const char*>& layers() const;
-  const std::vector<const char*>& instExtensions() const;
-  const std::vector<const char*>& devExtensions() const;
-*/
+  // TODO: getters
 
  private:
   DeviceVK();
@@ -78,6 +68,8 @@ class DeviceVK final : public CGDevice {
 
   VkDevice _device = nullptr;
   std::vector<const char*> _devExtensions{};
+  VkQueue _graphQueue = nullptr;
+  VkQueue _compQueue = nullptr;
 };
 
 YF_NS_END

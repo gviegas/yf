@@ -11,6 +11,7 @@
 #include <cstdint>
 #include <unordered_map>
 #include <vector>
+#include <memory>
 
 #include "YFDefs.h"
 
@@ -88,6 +89,8 @@ class CGDcTable;
 
 class CGGrState {
  public:
+  using Ptr = std::unique_ptr<CGGrState>;
+
   struct Config {
     CGPass* pass;
     std::vector<CGShader*> shaders;
@@ -110,6 +113,8 @@ class CGGrState {
 
 class CGCpState {
  public:
+  using Ptr = std::unique_ptr<CGCpState>;
+
   struct Config {
     CGShader* shader;
     std::vector<CGDcTable*> dcTables;

@@ -9,6 +9,7 @@
 #define YF_CG_IMAGE_H
 
 #include <cstdint>
+#include <memory>
 
 #include "YFDefs.h"
 #include "CGTypes.h"
@@ -40,6 +41,8 @@ enum CGSamples {
 
 class CGImage {
  public:
+  using Ptr = std::unique_ptr<CGImage>;
+
   CGImage(CGPxFormat format,
           CGSize2 size,
           uint32_t layers,

@@ -18,32 +18,32 @@ class DeviceVK final : public CGDevice {
  public:
   static DeviceVK& get();
 
-  BufferRes makeBuffer(uint64_t size);
+  CGBuffer::Ptr makeBuffer(uint64_t size);
 
-  ImageRes makeImage(CGPxFormat format,
-                     CGSize2 size,
-                     uint32_t layers,
-                     uint32_t levels,
-                     CGSamples samples);
+  CGImage::Ptr makeImage(CGPxFormat format,
+                         CGSize2 size,
+                         uint32_t layers,
+                         uint32_t levels,
+                         CGSamples samples);
 
-  ShaderRes makeShader(CGStage stage,
-                       std::wstring&& codeFile,
-                       std::wstring&& entryPoint);
+  CGShader::Ptr makeShader(CGStage stage,
+                           std::wstring&& codeFile,
+                           std::wstring&& entryPoint);
 
-  DcTableRes makeDcTable(const CGDcEntries& entries);
-  DcTableRes makeDcTable(CGDcEntries&& entries);
+  CGDcTable::Ptr makeDcTable(const CGDcEntries& entries);
+  CGDcTable::Ptr makeDcTable(CGDcEntries&& entries);
 
-  PassRes makePass(const std::vector<CGColorAttach>* colors,
-                   const std::vector<CGColorAttach>* resolves,
-                   const CGDepStenAttach* depthStencil);
+  CGPass::Ptr makePass(const std::vector<CGColorAttach>* colors,
+                       const std::vector<CGColorAttach>* resolves,
+                       const CGDepStenAttach* depthStencil);
 
-  GrStateRes makeState(const CGGrState::Config& config);
-  GrStateRes makeState(CGGrState::Config&& config);
-  CpStateRes makeState(const CGCpState::Config& config);
-  CpStateRes makeState(CGCpState::Config&& config);
+  CGGrState::Ptr makeState(const CGGrState::Config& config);
+  CGGrState::Ptr makeState(CGGrState::Config&& config);
+  CGCpState::Ptr makeState(const CGCpState::Config& config);
+  CGCpState::Ptr makeState(CGCpState::Config&& config);
 
-  QueueRes defaultQueue();
-  QueueRes queue(CGQueue::CapabilityMask capabilities);
+  CGQueue& defaultQueue();
+  CGQueue& queue(CGQueue::CapabilityMask capabilities);
 
   // TODO: getters
 

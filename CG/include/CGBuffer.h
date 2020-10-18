@@ -9,6 +9,7 @@
 #define YF_CG_BUFFER_H
 
 #include <cstdint>
+#include <memory>
 
 #include "YFDefs.h"
 #include "CGResult.h"
@@ -17,6 +18,7 @@ YF_NS_BEGIN
 
 class CGBuffer {
  public:
+  using Ptr = std::unique_ptr<CGBuffer>;
   explicit CGBuffer(uint64_t size);
   virtual ~CGBuffer();
 

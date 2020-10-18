@@ -9,6 +9,7 @@
 #define YF_CG_SHADER_H
 
 #include <string>
+#include <memory>
 
 #include "YFDefs.h"
 
@@ -27,6 +28,8 @@ enum CGStage {
 
 class CGShader {
  public:
+  using Ptr = std::unique_ptr<CGShader>;
+
   CGShader(CGStage stage,
            std::wstring&& codeFile,
            std::wstring&& entryPoint = L"main");

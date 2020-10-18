@@ -9,6 +9,7 @@
 #define YF_CG_DCTABLE_H
 
 #include <cstdint>
+#include <memory>
 #include <unordered_map>
 
 #include "YFDefs.h"
@@ -38,6 +39,7 @@ class CGImage;
 
 class CGDcTable {
  public:
+  using Ptr = std::unique_ptr<CGDcTable>;
   explicit CGDcTable(const CGDcEntries& entries);
   explicit CGDcTable(CGDcEntries&& entries);
   virtual ~CGDcTable();

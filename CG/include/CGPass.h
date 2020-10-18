@@ -55,6 +55,7 @@ class CGPass;
 
 class CGTarget {
  public:
+  using Ptr = std::unique_ptr<CGTarget>;
   CGTarget() = default;
   virtual ~CGTarget() = default;
 
@@ -65,6 +66,8 @@ class CGTarget {
 
 class CGPass {
  public:
+  using Ptr = std::unique_ptr<CGPass>;
+
   CGPass(const std::vector<CGColorAttach>* colors,
          const std::vector<CGColorAttach>* resolves,
          const CGDepStenAttach* depthStencil);
@@ -73,12 +76,11 @@ class CGPass {
 
   /// Makes a new target compatible with this pass.
   ///
-  using TargetRes = CGResultPair<std::unique_ptr<CGTarget>>;
-  virtual TargetRes makeTarget(CGSize2 size,
-                               uint32_t layers,
-                               const std::vector<CGAttachImg>* colors,
-                               const std::vector<CGAttachImg>* resolves,
-                               const CGAttachImg* depthStencil) = 0;
+  virtual CGTarget::Ptr makeTarget(CGSize2 size,
+                                   uint32_t layers,
+                                   const std::vector<CGAttachImg>* colors,
+                                   const std::vector<CGAttachImg>* resolves,
+                                   const CGAttachImg* depthStencil) = 0;
 
   /// Instance constants.
   ///

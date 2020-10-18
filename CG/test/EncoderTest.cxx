@@ -19,7 +19,7 @@ INTERNAL_NS_BEGIN
 struct EncoderTest : Test {
   EncoderTest() : Test(L"CGEncoder") {}
 
-  Assertions run(const vector<string>& args) {
+  Assertions run(const vector<string>&) {
     Assertions a;
 
     CGViewport vport{0.0f, 0.0f, 480.0f, 300.0f, 0.0f, 1.0f};
@@ -59,12 +59,12 @@ struct EncoderTest : Test {
         auto sub = static_cast<CGViewportCmd*>(cmd.get());
         str = L"CGCmd::Viewport";
         chk = sub->viewport == vport && sub->viewportIndex == 0;
-      } break;
+        } break;
       case CGCmd::Scissor: {
         auto sub = static_cast<CGScissorCmd*>(cmd.get());
         str = L"CGCmd::Scissor";
         chk = sub->scissor == sciss;
-      } break;
+        } break;
       case CGCmd::Target:
         str = L"CGCmd::Target";
         chk = static_cast<CGTargetCmd*>(cmd.get())->target == nullptr;
@@ -73,37 +73,37 @@ struct EncoderTest : Test {
         auto sub = static_cast<CGDcTableCmd*>(cmd.get());
         str = L"CGCmd::DcTable";
         chk = sub->tableIndex == 1 && sub->allocIndex == 15;
-      } break;
+        } break;
       case CGCmd::VxBuffer: {
         auto sub = static_cast<CGVxBufferCmd*>(cmd.get());
         str = L"CGCmd::VxBuffer";
         chk = sub->buffer == nullptr && sub->offset == 128 &&
               sub->inputIndex == 0;
-      } break;
+        } break;
       case CGCmd::IxBuffer: {
         auto sub = static_cast<CGIxBufferCmd*>(cmd.get());
         str = L"CGCmd::IxBuffer";
         chk = sub->buffer == nullptr && sub->offset == 256 &&
               sub->type == CGIndexTypeU16;
-      } break;
+        } break;
       case CGCmd::Draw: {
         auto sub = static_cast<CGDrawCmd*>(cmd.get());
         str = L"CGCmd::Draw";
         chk = sub->vertexStart == 0 && sub->vertexCount == 3 &&
               sub->baseInstance == 0 && sub->instanceCount == 1;
-      } break;
+        } break;
       case CGCmd::DrawIx: {
         auto sub = static_cast<CGDrawIxCmd*>(cmd.get());
         str = L"CGCmd::DrawIx";
         chk = sub->indexStart == 6 && sub->vertexCount == 36 &&
               sub->vertexOffset == -6 && sub->baseInstance == 10 &&
               sub->instanceCount == 50;
-      } break;
+        } break;
       case CGCmd::ClearCl: {
         auto sub = static_cast<CGClearClCmd*>(cmd.get());
         str = L"CGCmd::ClearCl";
         chk = sub->value == green && sub->colorIndex == 0;
-      } break;
+        } break;
       case CGCmd::ClearDp:
         str = L"CGCmd::ClearDp";
         chk = static_cast<CGClearDpCmd*>(cmd.get())->value == 1.0f;
@@ -112,6 +112,9 @@ struct EncoderTest : Test {
         str = L"CGCmd::ClearSc";
         chk = static_cast<CGClearScCmd*>(cmd.get())->value == 0xFF;
         break;
+      default:
+        str = L"#Invalid CGCmd#";
+        chk = false;
       }
       a.push_back({str, chk});
     }
@@ -128,11 +131,14 @@ struct EncoderTest : Test {
         str = L"CGCmd::DcTable";
         chk = (sub->tableIndex == 0 && sub->allocIndex == 0) ||
               (sub->tableIndex == 1 && sub->allocIndex == 20);
-      } break;
+        } break;
       case CGCmd::Dispatch:
         str = L"CGCmd::Dispatch";
         chk = static_cast<CGDispatchCmd*>(cmd.get())->size == CGSize3(64);
         break;
+      default:
+        str = L"#Invalid CGCmd#";
+        chk = false;
       }
       a.push_back({str, chk});
     }

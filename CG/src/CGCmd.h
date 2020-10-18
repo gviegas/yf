@@ -15,6 +15,8 @@ YF_NS_BEGIN
 /// Base command.
 ///
 struct CGCmd {
+  /// Identification for command subclasses (no rtti).
+  ///
   enum Cmd {
     StateGr,
     StateCp,
@@ -35,6 +37,8 @@ struct CGCmd {
   explicit CGCmd(Cmd cmd) : cmd(cmd) {}
   virtual ~CGCmd() = default;
 
+  /// The subclass of this command.
+  ///
   const Cmd cmd;
 };
 
@@ -80,6 +84,7 @@ struct CGScissorCmd : CGCmd {
 ///
 struct CGTargetCmd : CGCmd {
   explicit CGTargetCmd(CGTarget* target) : CGCmd(Target), target(target) {}
+
   CGTarget* target;
 };
 
@@ -160,6 +165,7 @@ struct CGDrawIxCmd : CGCmd {
 ///
 struct CGDispatchCmd : CGCmd {
   explicit CGDispatchCmd(CGSize3 size) : CGCmd(Dispatch), size(size) {}
+
   CGSize3 size;
 };
 
@@ -177,6 +183,7 @@ struct CGClearClCmd : CGCmd {
 ///
 struct CGClearDpCmd : CGCmd {
   explicit CGClearDpCmd(float value) : CGCmd(ClearDp), value(value) {}
+
   float value;
 };
 
@@ -184,6 +191,7 @@ struct CGClearDpCmd : CGCmd {
 ///
 struct CGClearScCmd : CGCmd {
   explicit CGClearScCmd(uint32_t value) : CGCmd(ClearSc), value(value) {}
+
   uint32_t value;
 };
 

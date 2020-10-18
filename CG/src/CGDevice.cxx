@@ -9,7 +9,6 @@
 #include "vk/DeviceVK.h"
 
 using namespace YF_NS;
-using namespace std;
 
 CGDevice::~CGDevice() {}
 

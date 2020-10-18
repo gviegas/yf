@@ -58,7 +58,7 @@ inline void unloadVK() {
 # error "Unimplemented"
 #else
 # error "Invalid platform"
-#endif
+#endif // defined(__linux__) || defined(__APPLE__)
 
 INTERNAL_NS_END
 

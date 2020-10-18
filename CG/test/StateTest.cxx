@@ -18,7 +18,7 @@ INTERNAL_NS_BEGIN
 struct StateTest : Test {
   StateTest() : Test(L"CGState") {}
 
-  Assertions run(const vector<string>& args) {
+  Assertions run(const vector<string>&) {
     struct GrState : CGGrState {
       GrState(const Config& config) : CGGrState(config) {}
     };

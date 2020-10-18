@@ -39,6 +39,8 @@ enum CGSamples {
   CGSamples64
 };
 
+/// Formatted multidimensional data in device memory.
+///
 class CGImage {
  public:
   using Ptr = std::unique_ptr<CGImage>;

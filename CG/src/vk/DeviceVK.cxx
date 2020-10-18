@@ -46,7 +46,6 @@ CGResult DeviceVK::checkInstanceExtensions() {
 #endif
 
   YF_INSTPROCVK(nullptr, vkEnumerateInstanceExtensionProperties);
-
   vector<VkExtensionProperties> exts;
   uint32_t extN;
   VkResult res;
@@ -61,7 +60,6 @@ CGResult DeviceVK::checkInstanceExtensions() {
   unordered_set<string> reqExts;
   for (const auto& e : _instExtensions)
     reqExts.insert(e);
-
   for (const auto& e : exts)
     reqExts.erase(e.extensionName);
 
@@ -75,14 +73,15 @@ CGResult DeviceVK::checkDeviceExtensions() {
   _devExtensions.push_back(VK_KHR_SWAPCHAIN_EXTENSION_NAME);
 
   YF_INSTPROCVK(_instance, vkEnumerateDeviceExtensionProperties);
-
   vector<VkExtensionProperties> exts;
   uint32_t extN;
   VkResult res;
-  res = vkEnumerateDeviceExtensionProperties(_physicalDev, nullptr, &extN, nullptr);
+  res = vkEnumerateDeviceExtensionProperties(_physicalDev, nullptr, &extN,
+                                             nullptr);
   if (res == VK_SUCCESS && extN > 0) {
     exts.resize(extN);
-    res = vkEnumerateDeviceExtensionProperties(_physicalDev, nullptr, &extN, exts.data());
+    res = vkEnumerateDeviceExtensionProperties(_physicalDev, nullptr, &extN,
+                                               exts.data());
     if (res != VK_SUCCESS)
       extN = 0;
   }
@@ -90,7 +89,6 @@ CGResult DeviceVK::checkDeviceExtensions() {
   unordered_set<string> reqExts;
   for (const auto& e : _devExtensions)
     reqExts.insert(e);
-
   for (const auto& e : exts)
     reqExts.erase(e.extensionName);
 
@@ -195,25 +193,30 @@ void DeviceVK::initPhysicalDevice() {
     uint32_t familyN;
     vkGetPhysicalDeviceQueueFamilyProperties(phys[p.first], &familyN, nullptr);
     families.resize(familyN);
-    vkGetPhysicalDeviceQueueFamilyProperties(phys[p.first], &familyN, families.data());
+    vkGetPhysicalDeviceQueueFamilyProperties(phys[p.first], &familyN,
+                                             families.data());
 
     int32_t graph = -1;
     int32_t comp = -1;
     for (uint32_t i = 0; i < familyN; ++i) {
-      if (families[i].queueFlags & (VK_QUEUE_GRAPHICS_BIT|VK_QUEUE_COMPUTE_BIT)) {
+      if (families[i].queueFlags &
+      (VK_QUEUE_GRAPHICS_BIT | VK_QUEUE_COMPUTE_BIT)) {
         graph = comp = i;
         break;
-      } else if (graph < 0 && (families[i].queueFlags & VK_QUEUE_GRAPHICS_BIT)) {
+      } else if (graph < 0 &&
+      (families[i].queueFlags & VK_QUEUE_GRAPHICS_BIT)) {
         graph = i;
-      } else if (comp < 0 && (families[i].queueFlags & VK_QUEUE_COMPUTE_BIT)) {
+      } else if (comp < 0 &&
+      (families[i].queueFlags & VK_QUEUE_COMPUTE_BIT)) {
         comp = i;
       }
     }
 
     // [1.2.146 c4.1]
-    // "If an implementation exposes any queue family that supports graphics operations,
-    // at least one queue family of at least one physical device exposed by the
-    // implementation must support both graphics and compute operations."
+    // "If an implementation exposes any queue family that supports graphics
+    // operations, at least one queue family of at least one physical device
+    // exposed by the implementation must support both graphics and compute
+    // operations."
 
     if (graph > -1 && comp > -1) {
       _physicalDev = phys[p.first];

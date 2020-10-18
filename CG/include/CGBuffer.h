@@ -16,6 +16,8 @@
 
 YF_NS_BEGIN
 
+/// Linear array of data in device memory.
+///
 class CGBuffer {
  public:
   using Ptr = std::unique_ptr<CGBuffer>;

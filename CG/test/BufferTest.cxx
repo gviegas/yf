@@ -18,7 +18,7 @@ INTERNAL_NS_BEGIN
 struct BufferTest : Test {
   BufferTest() : Test(L"CGBuffer") {}
 
-  Assertions run(const vector<string>& args) {
+  Assertions run(const vector<string>&) {
     struct Buffer : CGBuffer {
       Buffer(size_t sz) : CGBuffer(sz) {}
       CGResult write(uint64_t, uint64_t, const void*) {

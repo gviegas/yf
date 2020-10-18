@@ -26,6 +26,8 @@ enum CGStage {
   CGStageCompute
 };
 
+/// Shader stage module.
+///
 class CGShader {
  public:
   using Ptr = std::unique_ptr<CGShader>;

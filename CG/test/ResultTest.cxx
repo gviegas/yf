@@ -18,7 +18,7 @@ INTERNAL_NS_BEGIN
 struct ResultTest : Test {
   ResultTest() : Test(L"CGResult") {}
 
-  Assertions run(const vector<string>& args) {
+  Assertions run(const vector<string>&) {
     Assertions a;
 
     CGResult ok1(CGResult::Success);

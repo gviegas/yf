@@ -25,17 +25,10 @@ Test* encoderTest();
 Test* queueTest();
 
 inline const std::vector<Test*> unitTests() {
-  static std::vector<Test*> tests{typesTest(),
-                                  resultTest(),
-                                  deviceTest(),
-                                  bufferTest(),
-                                  imageTest(),
-                                  shaderTest(),
-                                  dcTableTest(),
-                                  passTest(),
-                                  stateTest(),
-                                  encoderTest(),
-                                  queueTest()};
+  static std::vector<Test*> tests{
+    typesTest(), resultTest(), deviceTest(), bufferTest(), imageTest(),
+    shaderTest(), dcTableTest(), passTest(), stateTest(), encoderTest(),
+    queueTest()};
   return tests;
 }
 

@@ -17,6 +17,8 @@
 
 YF_NS_BEGIN
 
+/// Vertex formats.
+///
 enum CGVxFormat {
   CGVxFormatInt, CGVxFormatInt2, CGVxFormatInt3, CGVxFormatInt4,
   CGVxFormatInt2x2, CGVxFormatInt2x3, CGVxFormatInt2x4,
@@ -39,11 +41,15 @@ enum CGVxFormat {
   CGVxFormatDbl4x2, CGVxFormatDbl4x3, CGVxFormatDbl4x4
 };
 
+/// Vertex attribute.
+///
 struct CGVxAttr {
   CGVxFormat format;
   uint64_t offset;
 };
 
+/// Vertex step function.
+///
 enum CGVxStepFn {
   CGVxStepFnVertex,
   CGVxStepFnInstance
@@ -52,25 +58,33 @@ enum CGVxStepFn {
 using CGVxId = uint32_t;
 using CGVxAttrs = std::unordered_map<CGVxId, CGVxAttr>;
 
+/// Collection of vertex attributes using the same buffer binding.
+///
 struct CGVxInput {
   CGVxAttrs attributes;
   uint32_t stride;
   CGVxStepFn stepFunction;
 };
 
-// TODO
+/// Type of a graphics primitive.
+///
 enum CGPrimitive {
   CGPrimitivePoint,
   CGPrimitiveLine,
   CGPrimitiveTriangle
+  // TODO
 };
 
+/// Polygon modes.
+///
 enum CGPolyMode {
   CGPolyModeFill,
   CGPolyModeLine,
   CGPolyModePoint
 };
 
+/// Cull modes.
+///
 enum CGCullMode {
   CGCullModeNone,
   CGCullModeFront,
@@ -78,6 +92,8 @@ enum CGCullMode {
   CGCullModeAny
 };
 
+/// Directions to determine front/back-facing primitives.
+///
 enum CGWinding {
   CGWindingClockwise,
   CGWindingCounterCw
@@ -87,10 +103,14 @@ class CGPass;
 class CGShader;
 class CGDcTable;
 
+/// Graphics state.
+///
 class CGGrState {
  public:
   using Ptr = std::unique_ptr<CGGrState>;
 
+  /// Configuration that determines how the state operates.
+  ///
   struct Config {
     CGPass* pass;
     std::vector<CGShader*> shaders;
@@ -111,10 +131,14 @@ class CGGrState {
   const Config config;
 };
 
+/// Compute state.
+///
 class CGCpState {
  public:
   using Ptr = std::unique_ptr<CGCpState>;
 
+  /// Configuration that determines how the state operates.
+  ///
   struct Config {
     CGShader* shader;
     std::vector<CGDcTable*> dcTables;

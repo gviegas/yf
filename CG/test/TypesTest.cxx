@@ -18,7 +18,7 @@ INTERNAL_NS_BEGIN
 struct TypesTest : Test {
   TypesTest() : Test(L"CGTypes") {}
 
-  Assertions run(const vector<string>& args) {
+  Assertions run(const vector<string>&) {
     Assertions a;
 
     // CGSize2
@@ -37,9 +37,9 @@ struct TypesTest : Test {
       CGSize3 t(30);
       CGSize3 u(1, 2, 3);
       a.push_back({L"CGSize3 t(30)",
-                     t.width == 30 && t.height == 30 && t.depth == 30});
+                   t.width == 30 && t.height == 30 && t.depth == 30});
       a.push_back({L"CGSize3 u(1, 2, 3)",
-                     u.width == 1 && u.height == 2 && u.depth == 3});
+                   u.width == 1 && u.height == 2 && u.depth == 3});
       a.push_back({L"t == u", !(t == u)});
       a.push_back({L"t == CGSize3(30, 30, 30)", t == CGSize3(30, 30, 30)});
       a.push_back({L"u != CGSize3(1, 2, 4)", u != CGSize3(1, 2, 4)});
@@ -67,7 +67,7 @@ struct TypesTest : Test {
       a.push_back({L"t == CGOffset3(3, 3, 3)", t == CGOffset3(3, 3, 3)});
       a.push_back({L"u != CGOffset3(3, -1, 1)", u != CGOffset3(3, -1, 1)});
       a.push_back({L"u == CGOffset3({-1, 2}, -3)",
-                     u == CGOffset3({-1, 2}, -3)});
+                   u == CGOffset3({-1, 2}, -3)});
     }
 
     return a;

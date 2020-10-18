@@ -18,7 +18,7 @@ YF_NS_BEGIN
 ///
 struct CGSize2 {
   CGSize2(uint32_t width, uint32_t height) : width(width), height(height) {}
-  CGSize2(uint32_t size) : width(size), height(size) {} // implicit
+  CGSize2(uint32_t size) : width(size), height(size) {}
 
   bool operator==(const CGSize2& other) const {
     return width == other.width && height == other.height;
@@ -37,7 +37,7 @@ struct CGSize3 : CGSize2 {
   CGSize3(uint32_t width, uint32_t height, uint32_t depth)
     : CGSize2(width, height), depth(depth) {}
   CGSize3(CGSize2 size2, uint32_t depth) : CGSize2(size2), depth(depth) {}
-  CGSize3(uint32_t size) : CGSize2(size), depth(size) {} // implicit
+  CGSize3(uint32_t size) : CGSize2(size), depth(size) {}
 
   bool operator==(const CGSize3& other) const {
     return CGSize2::operator==(other) && depth == other.depth;
@@ -53,7 +53,7 @@ struct CGSize3 : CGSize2 {
 ///
 struct CGOffset2 {
   CGOffset2(int32_t x, int32_t y) : x(x), y(y) {}
-  CGOffset2(int32_t value = 0) : x(value), y(value) {} // implicit
+  CGOffset2(int32_t value = 0) : x(value), y(value) {}
 
   bool operator==(const CGOffset2& other) const {
     return x == other.x && y == other.y;
@@ -71,7 +71,7 @@ struct CGOffset2 {
 struct CGOffset3 : CGOffset2 {
   CGOffset3(int32_t x, int32_t y, int32_t z) : CGOffset2(x, y), z(z) {}
   CGOffset3(CGOffset2 offset2, int32_t z) : CGOffset2(offset2), z(z) {}
-  CGOffset3(int32_t value = 0) : CGOffset3(value, value, value) {} // implicit
+  CGOffset3(int32_t value = 0) : CGOffset3(value, value, value) {}
 
   bool operator==(const CGOffset3& other) const {
     return CGOffset2::operator==(other) && z == other.z;

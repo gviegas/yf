@@ -17,6 +17,8 @@
 
 YF_NS_BEGIN
 
+/// Descriptor types.
+///
 enum CGDcType {
   CGDcTypeUniform,
   CGDcTypeStorage,
@@ -26,6 +28,8 @@ enum CGDcType {
   CGDcTypeImgSampler
 };
 
+/// Descriptor table entry.
+///
 struct CGDcEntry {
   CGDcType type;
   uint32_t elements;
@@ -37,6 +41,8 @@ using CGDcEntries = std::unordered_map<CGDcId, CGDcEntry>;
 class CGBuffer;
 class CGImage;
 
+/// Descriptor table.
+///
 class CGDcTable {
  public:
   using Ptr = std::unique_ptr<CGDcTable>;

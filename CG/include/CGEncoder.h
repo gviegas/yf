@@ -17,11 +17,15 @@
 
 YF_NS_BEGIN
 
+/// Type of index data in an index buffer.
+///
 enum CGIndexType {
   CGIndexTypeU16,
   CGIndexTypeU32
 };
 
+/// Normalized RGBA color.
+///
 struct CGColor {
   bool operator==(const CGColor& other) const {
     return r == other.r && g == other.g && b == other.b && a == other.a;
@@ -36,6 +40,8 @@ struct CGColor {
   float a;
 };
 
+/// Viewport.
+///
 struct CGViewport {
   bool operator==(const CGViewport& other) const {
     return x == other.x && y == other.y &&
@@ -54,6 +60,8 @@ struct CGViewport {
   float zFar;
 };
 
+/// Scissor.
+///
 struct CGScissor {
   bool operator==(const CGScissor& other) const {
     return offset == other.offset && size == other.size;

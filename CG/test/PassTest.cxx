@@ -18,7 +18,7 @@ INTERNAL_NS_BEGIN
 struct PassTest : Test {
   PassTest() : Test(L"CGPass") {}
 
-  Assertions run(const vector<string>& args) {
+  Assertions run(const vector<string>&) {
     struct Pass : CGPass {
       Pass(const vector<CGColorAttach>* colors,
            const vector<CGColorAttach>* resolves,
@@ -34,26 +34,17 @@ struct PassTest : Test {
 
     Assertions a;
 
-    vector<CGColorAttach> cols{{CGPxFormatBgra8Srgb,
-                                CGSamples4,
-                                CGLoadOpLoad,
-                                CGStoreOpDontCare}};
-    vector<CGColorAttach> resvs{{CGPxFormatBgra8Srgb,
-                                 CGSamples1,
-                                 CGLoadOpDontCare,
-                                 CGStoreOpStore}};
-    CGDepStenAttach depSten{CGPxFormatD16S8Unorm,
-                            CGSamples1,
-                            CGLoadOpDontCare,
-                            CGStoreOpStore,
-                            CGLoadOpDontCare,
-                            CGStoreOpDontCare};
+    vector<CGColorAttach> cols{{CGPxFormatBgra8Srgb, CGSamples4,
+                                CGLoadOpLoad, CGStoreOpDontCare}};
+    vector<CGColorAttach> resvs{{CGPxFormatBgra8Srgb, CGSamples1,
+                                 CGLoadOpDontCare, CGStoreOpStore}};
+    CGDepStenAttach depSten{CGPxFormatD16S8Unorm, CGSamples1,
+                            CGLoadOpDontCare, CGStoreOpStore,
+                            CGLoadOpDontCare, CGStoreOpDontCare};
     Pass p1(&cols, &resvs, &depSten);
 
-    cols.push_back({CGPxFormatRgba8Unorm,
-                    CGSamples1,
-                    CGLoadOpLoad,
-                    CGStoreOpStore});
+    cols.push_back({CGPxFormatRgba8Unorm, CGSamples1,
+                    CGLoadOpLoad, CGStoreOpStore});
     cols.front().samples = CGSamples1;
     depSten.depStoreOp = CGStoreOpDontCare;
     Pass p2(&cols, nullptr, &depSten);

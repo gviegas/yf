@@ -17,15 +17,16 @@ YF_NS_BEGIN
 /// Result type representing success/failure.
 ///
 struct CGResult {
-  // TODO
+  /// Result values.
+  ///
   enum Value {
     Success,
     Failure
+    // TODO
   };
 
-  CGResult(Value value) : value(value) {} // implicit
+  CGResult(Value value) : value(value) {}
 
-  // implicit
   operator bool() const {
     return value == Success;
   }
@@ -34,10 +35,12 @@ struct CGResult {
     return value == other.value;
   }
 
+  /// The result value.
+  ///
   const Value value;
 };
 
-/// Pair holding an arbitrary object plus a CGResult.
+/// Pair holding an arbitrary object plus a `CGResult`.
 ///
 template <class T>
 struct CGResultPair {
@@ -47,6 +50,8 @@ struct CGResultPair {
   explicit CGResultPair(T&& object, CGResult result = CGResult::Success)
     : object(std::move(object)), result(result) {}
 
+  /// Object & result.
+  ///
   T object;
   CGResult result;
 };

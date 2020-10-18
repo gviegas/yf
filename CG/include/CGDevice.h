@@ -22,6 +22,8 @@
 
 YF_NS_BEGIN
 
+/// Device abstraction.
+///
 class CGDevice {
  public:
   virtual ~CGDevice();

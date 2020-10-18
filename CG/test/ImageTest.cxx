@@ -18,7 +18,7 @@ INTERNAL_NS_BEGIN
 struct ImageTest : Test {
   ImageTest() : Test(L"CGImage") {}
 
-  Assertions run(const vector<string>& args) {
+  Assertions run(const vector<string>&) {
     struct Image : CGImage {
       Image(CGPxFormat format,
             CGSize2 size,

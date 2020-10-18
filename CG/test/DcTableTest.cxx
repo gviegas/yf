@@ -18,7 +18,7 @@ INTERNAL_NS_BEGIN
 struct DcTableTest : Test {
   DcTableTest() : Test(L"CGDcTable") {}
 
-  Assertions run(const vector<string>& args) {
+  Assertions run(const vector<string>&) {
     struct DcTable : CGDcTable {
       DcTable(const CGDcEntries& entries) : CGDcTable(entries) {}
       DcTable(CGDcEntries&& entries) : CGDcTable(entries) {}

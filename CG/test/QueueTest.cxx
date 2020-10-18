@@ -18,7 +18,7 @@ INTERNAL_NS_BEGIN
 struct QueueTest : Test {
   QueueTest() : Test(L"CGQueue") {}
 
-  Assertions run(const vector<string>& args) {
+  Assertions run(const vector<string>&) {
     struct CmdBuffer : CGCmdBuffer {
       CmdBuffer(const CGQueue& owner) : _queue(owner) {}
       CGResult encode(const CGEncoder&) { return CGResult::Failure; }

@@ -18,7 +18,7 @@ INTERNAL_NS_BEGIN
 struct ShaderTest : Test {
   ShaderTest() : Test(L"CGShader") {}
 
-  Assertions run(const vector<string>& args) {
+  Assertions run(const vector<string>&) {
     struct Shader : CGShader {
       Shader(CGStage stage, wstring&& codeFile, wstring&& entryPoint)
         : CGShader(stage, move(codeFile), move(entryPoint)) {}

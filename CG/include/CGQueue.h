@@ -20,6 +20,8 @@ YF_NS_BEGIN
 class CGQueue;
 class CGEncoder;
 
+/// Command buffer.
+///
 class CGCmdBuffer {
  public:
   using Ptr = std::unique_ptr<CGCmdBuffer>;
@@ -47,10 +49,16 @@ class CGCmdBuffer {
   virtual const CGQueue& queue() const = 0;
 };
 
+/// Queue.
+///
 class CGQueue {
  public:
+  /// Mask of `CapabilityFlags` bits.
+  ///
   using CapabilityMask = uint32_t;
 
+  /// Possible capabilities of a queue.
+  ///
   enum CapabilityFlags : uint32_t {
     Graphics = 0x01,
     Compute  = 0x02,

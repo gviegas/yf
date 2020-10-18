@@ -19,17 +19,23 @@
 
 YF_NS_BEGIN
 
+/// Initial operation for an attachment.
+///
 enum CGLoadOp {
   CGLoadOpLoad,
   CGLoadOpClear,
   CGLoadOpDontCare
 };
 
+/// Final operation for an attachment.
+///
 enum CGStoreOp {
   CGStoreOpStore,
   CGStoreOpDontCare
 };
 
+/// Configuration for color attachments.
+///
 struct CGColorAttach {
   CGPxFormat format;
   CGSamples samples;
@@ -37,6 +43,8 @@ struct CGColorAttach {
   CGStoreOp storeOp;
 };
 
+/// Configuration for depth/stencil attachments.
+///
 struct CGDepStenAttach {
   CGPxFormat format;
   CGSamples samples;
@@ -46,6 +54,8 @@ struct CGDepStenAttach {
   CGStoreOp stenStoreOp;
 };
 
+/// Attachment resource.
+///
 struct CGAttachImg {
   CGImage* image;
   uint32_t baseLayer;
@@ -53,6 +63,8 @@ struct CGAttachImg {
 
 class CGPass;
 
+/// Render target.
+///
 class CGTarget {
  public:
   using Ptr = std::unique_ptr<CGTarget>;
@@ -64,6 +76,8 @@ class CGTarget {
   virtual const CGPass& pass() const = 0;
 };
 
+/// Render pass.
+///
 class CGPass {
  public:
   using Ptr = std::unique_ptr<CGPass>;

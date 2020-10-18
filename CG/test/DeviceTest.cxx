@@ -18,7 +18,7 @@ INTERNAL_NS_BEGIN
 struct DeviceTest : Test {
   DeviceTest() : Test(L"CGDevice") {}
 
-  Assertions run(const vector<string>& args) {
+  Assertions run(const vector<string>&) {
     auto& dev = CGDevice::get();
 
     // TODO

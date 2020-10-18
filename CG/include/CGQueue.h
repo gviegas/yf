@@ -22,6 +22,7 @@ class CGEncoder;
 
 class CGCmdBuffer {
  public:
+  using Ptr = std::unique_ptr<CGCmdBuffer>;
   CGCmdBuffer() = default;
   virtual ~CGCmdBuffer();
 
@@ -49,6 +50,7 @@ class CGCmdBuffer {
 class CGQueue {
  public:
   using CapabilityMask = uint32_t;
+
   enum CapabilityFlags : uint32_t {
     Graphics = 0x01,
     Compute  = 0x02,
@@ -60,8 +62,7 @@ class CGQueue {
 
   /// Makes a new command buffer object.
   ///
-  using CmdBufferRes = CGResultPair<std::unique_ptr<CGCmdBuffer>>;
-  virtual CmdBufferRes makeCmdBuffer() = 0;
+  virtual CGCmdBuffer::Ptr makeCmdBuffer() = 0;
 
   /// Submits enqueued command buffers for execution.
   ///

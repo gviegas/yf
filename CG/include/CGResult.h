@@ -39,7 +39,7 @@ struct CGResult {
 
 /// Pair holding an arbitrary object plus a CGResult.
 ///
-template<class T>
+template <class T>
 struct CGResultPair {
   explicit CGResultPair(const T& object, CGResult result = CGResult::Success)
     : object(object), result(result) {}

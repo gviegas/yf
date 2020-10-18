@@ -31,8 +31,8 @@ struct QueueTest : Test {
 
     struct Queue : CGQueue {
       Queue(CapabilityMask capab) : CGQueue(capab) {}
-      CmdBufferRes makeCmdBuffer()
-      { return CmdBufferRes(make_unique<CmdBuffer>(*this)); }
+      CGCmdBuffer::Ptr makeCmdBuffer()
+      { return make_unique<CmdBuffer>(*this); }
       CGResult submit(CompletionFn) { return CGResult::Failure; }
     };
 
@@ -45,10 +45,9 @@ struct QueueTest : Test {
     a.push_back({L"CGQueue q1(Graphics | Transfer)",
                  q1.capabilities == (CGQueue::Graphics | CGQueue::Transfer)});
     a.push_back({L"CGQueue q2(Compute)", q2.capabilities == CGQueue::Compute});
-    a.push_back({L"cb = q1.makeCmdBuffer()",
-                 cb.result && cb.object != nullptr});
-    a.push_back({L"&cb.object->queue() == &q1", &cb.object->queue() == &q1});
-    a.push_back({L"&cb.object->queue() == &q2", &cb.object->queue() != &q2});
+    a.push_back({L"cb = q1.makeCmdBuffer()", cb != nullptr});
+    a.push_back({L"&cb->queue() == &q1", &cb->queue() == &q1});
+    a.push_back({L"&cb->queue() == &q2", &cb->queue() != &q2});
 
     return a;
   }

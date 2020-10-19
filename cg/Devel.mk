@@ -1,10 +1,10 @@
 #!/usr/bin/env -S make -f
 
 #
-# yf
+# cg
 # Devel.mk
 #
-# Development makefile (CG).
+# Development makefile.
 #
 # Copyright © 2020 Gustavo C. Viegas.
 #
@@ -12,8 +12,7 @@
 SHELL := /bin/sh
 .SUFFIXES: .cxx .o .d
 
-PRIV_DIR := ../priv/
-PUB_DIR := ../pub/
+BASE_DIR := ../inc/
 INCLUDE_DIR := include/
 SRC_DIR := src/
 TEST_DIR := test/
@@ -40,15 +39,14 @@ CXX_FLAGS := -std=gnu++17 -Wpedantic -Wall -Wextra -Og
 
 LD_LIBS := -ldl
 LD_FLAGS := \
-  -iquote $(PRIV_DIR) \
-  -iquote $(PUB_DIR) \
+  -iquote $(BASE_DIR) \
   -iquote $(INCLUDE_DIR) \
   -iquote $(SRC_DIR)
 
 PP := $(CXX) -E
 PP_FLAGS := -D YF_CG -D YF_DEVEL
 
-OUT := $(BIN_DIR)CG-devel
+OUT := $(BIN_DIR)cg-devel
 
 devel: $(OBJ)
 	$(CXX) $(CXX_FLAGS) $(LD_FLAGS) $^ $(LD_LIBS) -o $(OUT)

@@ -26,7 +26,7 @@ CG_NS_BEGIN
 ///
 class Device {
  public:
-  virtual ~CGDevice();
+  virtual ~Device();
 
   /// Retrieves the device instance.
   ///

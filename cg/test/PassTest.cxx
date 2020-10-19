@@ -19,10 +19,10 @@ struct PassTest : Test {
 
   Assertions run(const vector<string>&) {
     struct Pass_ : Pass {
-      Pass(const vector<ColorAttach>* colors,
-           const vector<ColorAttach>* resolves,
-           const DepStenAttach* depthStencil)
-           : Pass(colors, resolves, depthStencil) {}
+      Pass_(const vector<ColorAttach>* colors,
+            const vector<ColorAttach>* resolves,
+            const DepStenAttach* depthStencil)
+            : Pass(colors, resolves, depthStencil) {}
 
       Target::Ptr makeTarget(Size2,
                              uint32_t,

@@ -27,7 +27,7 @@ struct ShaderTest : Test {
 
     const wstring code = L"path/to/code";
     const wstring entry = L"_main0";
-    Shader shd(StageFragment, wstring(code), wstring(entry));
+    Shader_ shd(StageFragment, wstring(code), wstring(entry));
 
     a.push_back({L"Shader(StageFragment, "+code+L", "+entry+L")",
                  shd.stage == StageFragment && shd.codeFile == code &&

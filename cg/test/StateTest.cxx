@@ -19,11 +19,11 @@ struct StateTest : Test {
 
   Assertions run(const vector<string>&) {
     struct GrState_ : GrState {
-      GrState(const Config& config) : GrState(config) {}
+      GrState_(const Config& config) : GrState(config) {}
     };
 
     struct CpState_ : CpState {
-      CpState(const Config& config) : CpState(config) {}
+      CpState_(const Config& config) : CpState(config) {}
     };
 
     Assertions a;

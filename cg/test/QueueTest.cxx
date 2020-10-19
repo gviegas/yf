@@ -45,7 +45,7 @@ struct QueueTest : Test {
       Queue_(CapabilityMask capab) : Queue(capab) {}
 
       CmdBuffer::Ptr makeCmdBuffer() {
-        return make_unique<CmdBuffer>(*this);
+        return make_unique<CmdBuffer_>(*this);
       }
       Result submit(CompletionFn) {
         return Result::Failure;

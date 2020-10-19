@@ -18,7 +18,7 @@ class Encoder::Impl {
   Impl(Type type) : type(type) {}
 
   const Type type;
-  CGEncoding encoding;
+  Encoding encoding;
 };
 
 Encoder::Encoder(Type type) : _impl(make_unique<Impl>(type)) {}

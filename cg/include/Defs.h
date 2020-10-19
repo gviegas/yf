@@ -11,7 +11,7 @@
 #include "yf/Defs.h"
 #include "yf/Internal.h"
 
-#undef CGNS
+#undef CG_NS
 #undef CG_NS_BEGIN
 #undef CG_NS_END
 

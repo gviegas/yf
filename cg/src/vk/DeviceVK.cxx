@@ -29,6 +29,20 @@ DeviceVK::DeviceVK() {
   initDevice();
 }
 
+DeviceVK::~DeviceVK() {
+  // TODO: ensure that all VK objects were disposed of prior to this point
+  if (_device != nullptr) {
+    CG_DEVPROCVK(_device, vkDeviceWaitIdle);
+    CG_DEVPROCVK(_device, vkDestroyDevice);
+    vkDeviceWaitIdle(_device);
+    vkDestroyDevice(_device, nullptr);
+  }
+  if (_instance != nullptr) {
+    CG_INSTPROCVK(_instance, vkDestroyInstance);
+    vkDestroyInstance(_instance, nullptr);
+  }
+}
+
 Result DeviceVK::checkInstanceExtensions() {
   assert(_instExtensions.empty());
 

@@ -16,6 +16,8 @@ CG_NS_BEGIN
 
 class DeviceVK final : public Device {
  public:
+  ~DeviceVK();
+
   static DeviceVK& get();
 
   Buffer::Ptr makeBuffer(uint64_t size);

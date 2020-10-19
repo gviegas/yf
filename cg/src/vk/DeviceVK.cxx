@@ -303,6 +303,49 @@ void DeviceVK::initDevice() {
   vkGetDeviceQueue(_device, _compFamily, 0, &_compQueue);
 }
 
+VkInstance DeviceVK::instance() const {
+  return _instance;
+}
+VkPhysicalDevice DeviceVK::physicalDev() const {
+  return _physicalDev;
+}
+VkDevice DeviceVK::device() const {
+  return _device;
+}
+VkQueue DeviceVK::graphQueue() const {
+  return _graphQueue;
+}
+VkQueue DeviceVK::compQueue() const {
+  return _compQueue;
+}
+int32_t DeviceVK::graphFamily() const {
+  return _graphFamily;
+}
+int32_t DeviceVK::compFamily() const {
+  return _compFamily;
+}
+const VkPhysicalDeviceProperties& DeviceVK::physProperties() const {
+  return _physProperties;
+}
+const std::vector<const char*>& DeviceVK::instExtensions() const {
+  return _instExtensions;
+}
+const std::vector<const char*>& DeviceVK::devExtensions() const {
+  return _devExtensions;
+}
+const std::vector<const char*>& DeviceVK::layers() const {
+  return _layers;
+}
+uint32_t DeviceVK::instVersion() const {
+  return _instVersion;
+}
+uint32_t DeviceVK::devVersion() const {
+  return _physProperties.apiVersion;
+}
+const VkPhysicalDeviceLimits& DeviceVK::limits() const {
+  return _physProperties.limits;
+}
+
 Buffer::Ptr DeviceVK::makeBuffer(uint64_t size) {
   // TODO
   assert(false);

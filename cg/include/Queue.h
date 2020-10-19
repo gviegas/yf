@@ -40,9 +40,9 @@ class CmdBuffer {
   ///
   virtual Result reset() = 0;
 
-  /// Checks whether the command buffer is ready for use.
+  /// Checks whether the command buffer is pending execution.
   ///
-  virtual bool isReady() = 0;
+  virtual bool isPending() = 0;
 
   /// The queue that owns the command buffer.
   ///

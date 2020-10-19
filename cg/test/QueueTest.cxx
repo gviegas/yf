@@ -30,7 +30,7 @@ struct QueueTest : Test {
       Result reset() {
         return Result::Failure;
       }
-      bool isReady() {
+      bool isPending() {
         return true;
       }
       const Queue& queue() const {

@@ -1,3 +1,4 @@
+# general
 etc/
 tmp/
 cache/
@@ -15,8 +16,9 @@ local.*
 *.local
 
 # sym links
+inc/
+*/sub
 */test/Test.cxx
 */test/Test.h
 !/test/Test.cxx
 !/test/Test.ch
-*/sub

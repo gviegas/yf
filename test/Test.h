@@ -11,7 +11,7 @@
 #include <string>
 #include <vector>
 
-#include "YFDefs.h"
+#include "yf/Defs.h"
 
 #define TEST_NS YF_NS::test
 #define TEST_NS_BEGIN namespace TEST_NS {

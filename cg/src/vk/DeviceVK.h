@@ -47,7 +47,22 @@ class DeviceVK final : public Device {
   Queue& defaultQueue();
   Queue& queue(Queue::CapabilityMask capabilities);
 
-  // TODO: getters
+  /// Getters.
+  ///
+  VkInstance instance() const;
+  VkPhysicalDevice physicalDev() const;
+  VkDevice device() const;
+  VkQueue graphQueue() const;
+  VkQueue compQueue() const;
+  int32_t graphFamily() const;
+  int32_t compFamily() const;
+  const VkPhysicalDeviceProperties& physProperties() const;
+  const std::vector<const char*>& instExtensions() const;
+  const std::vector<const char*>& devExtensions() const;
+  const std::vector<const char*>& layers() const;
+  uint32_t instVersion() const;
+  uint32_t devVersion() const;
+  const VkPhysicalDeviceLimits& limits() const;
 
  private:
   DeviceVK();

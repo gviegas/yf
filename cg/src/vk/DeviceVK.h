@@ -14,6 +14,8 @@
 
 CG_NS_BEGIN
 
+class QueueVK;
+
 class DeviceVK final : public Device {
  public:
   ~DeviceVK();
@@ -52,10 +54,6 @@ class DeviceVK final : public Device {
   VkInstance instance() const;
   VkPhysicalDevice physicalDev() const;
   VkDevice device() const;
-  VkQueue graphQueue() const;
-  VkQueue compQueue() const;
-  int32_t graphFamily() const;
-  int32_t compFamily() const;
   const VkPhysicalDeviceProperties& physProperties() const;
   const std::vector<const char*>& instExtensions() const;
   const std::vector<const char*>& devExtensions() const;
@@ -71,7 +69,7 @@ class DeviceVK final : public Device {
   Result checkDeviceExtensions();
   void initInstance();
   void initPhysicalDevice();
-  void initDevice();
+  void initDevice(int32_t);
 
   VkInstance _instance = nullptr;
   uint32_t _instVersion = 0;
@@ -80,13 +78,11 @@ class DeviceVK final : public Device {
 
   VkPhysicalDevice _physicalDev = nullptr;
   VkPhysicalDeviceProperties _physProperties{};
-  int32_t _graphFamily = -1;
-  int32_t _compFamily = -1;
 
   VkDevice _device = nullptr;
   std::vector<const char*> _devExtensions{};
-  VkQueue _graphQueue = nullptr;
-  VkQueue _compQueue = nullptr;
+
+  QueueVK* _queue = nullptr;
 };
 
 CG_NS_END

@@ -38,7 +38,7 @@ class CmdBufferVK final : public CmdBuffer {
 
 class QueueVK final : public Queue {
  public:
-  QueueVK(CapabilityMask capabilities, int32_t family, VkQueue handle);
+  QueueVK(int32_t family, VkQueue handle);
   ~QueueVK();
 
   CmdBuffer::Ptr makeCmdBuffer();

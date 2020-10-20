@@ -82,12 +82,16 @@ void setProcs(bool replacing = false) {
 
 INTERNAL_NS_END
 
-QueueVK::QueueVK(CapabilityMask capabilities, int32_t family, VkQueue handle)
-  : Queue(capabilities), _family(family), _handle(handle) {}
+QueueVK::QueueVK(int32_t family, VkQueue handle)
+  : _family(family), _handle(handle), Queue(CapabilityFlags::Graphics |
+                                            CapabilityFlags::Compute |
+                                            CapabilityFlags::Transfer) {
+  assert(family > -1);
+  assert(handle != nullptr);
+}
 
 QueueVK::~QueueVK() {
   // TODO
-  assert(false);
 }
 
 void QueueVK::initPool(CmdBufferVK* cmdBuffer) {

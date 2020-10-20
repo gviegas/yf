@@ -54,6 +54,7 @@ class QueueVK final : public Queue {
 
  private:
   void initPool(CmdBufferVK* cmdBuffer);
+  void deinitPool(CmdBufferVK* cmdBuffer);
 
   int32_t _family = -1;
   VkQueue _handle = nullptr;

@@ -15,7 +15,7 @@
 #undef CG_NS_BEGIN
 #undef CG_NS_END
 
-#define CG_NS cg
+#define CG_NS YF_NS::cg
 #define CG_NS_BEGIN namespace CG_NS {
 #define CG_NS_END }
 

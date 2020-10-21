@@ -11,6 +11,7 @@
 
 #include "DeviceVK.h"
 #include "VK.h"
+#include "QueueVK.h"
 
 using namespace CG_NS;
 using namespace std;
@@ -25,16 +26,15 @@ DeviceVK::DeviceVK() {
     // TODO
     throw runtime_error("Failed to initialize VK lib");
   initInstance();
-  initPhysicalDevice();
-  initDevice();
 }
 
 DeviceVK::~DeviceVK() {
-  // TODO: ensure that all VK objects were disposed of prior to this point
   if (_device != nullptr) {
     CG_DEVPROCVK(_device, vkDeviceWaitIdle);
     CG_DEVPROCVK(_device, vkDestroyDevice);
     vkDeviceWaitIdle(_device);
+    // TODO: ensure that all VK objects were disposed of prior to this point
+    delete _queue;
     vkDestroyDevice(_device, nullptr);
   }
   if (_instance != nullptr) {
@@ -46,6 +46,7 @@ DeviceVK::~DeviceVK() {
 Result DeviceVK::checkInstanceExtensions() {
   assert(_instExtensions.empty());
 
+  // Define required extensions
   _instExtensions.push_back(VK_KHR_DEVICE_GROUP_CREATION_EXTENSION_NAME);
   _instExtensions.push_back(VK_KHR_SURFACE_EXTENSION_NAME);
 #if defined(__linux__)
@@ -59,6 +60,7 @@ Result DeviceVK::checkInstanceExtensions() {
 # error "Invalid platform"
 #endif
 
+  // Enumerate the ones that the instance offers
   CG_INSTPROCVK(nullptr, vkEnumerateInstanceExtensionProperties);
   vector<VkExtensionProperties> exts;
   uint32_t extN;
@@ -71,6 +73,7 @@ Result DeviceVK::checkInstanceExtensions() {
       extN = 0;
   }
 
+  // Check if the instance has everything
   unordered_set<string> reqExts;
   for (const auto& e : _instExtensions)
     reqExts.insert(e);
@@ -84,8 +87,10 @@ Result DeviceVK::checkDeviceExtensions() {
   assert(_physicalDev != nullptr);
   assert(_devExtensions.empty());
 
+  // Define required extensions (just this one for now)
   _devExtensions.push_back(VK_KHR_SWAPCHAIN_EXTENSION_NAME);
 
+  // Enumerate the ones that the device offers
   CG_INSTPROCVK(_instance, vkEnumerateDeviceExtensionProperties);
   vector<VkExtensionProperties> exts;
   uint32_t extN;
@@ -100,6 +105,7 @@ Result DeviceVK::checkDeviceExtensions() {
       extN = 0;
   }
 
+  // Check if the device has everything
   unordered_set<string> reqExts;
   for (const auto& e : _devExtensions)
     reqExts.insert(e);
@@ -150,12 +156,14 @@ void DeviceVK::initInstance() {
   if (res != VK_SUCCESS)
     // TODO
     throw runtime_error("Failed to create VK instance");
+
+  // Now the physical device can be initialized
+  initPhysicalDevice();
 }
 
 void DeviceVK::initPhysicalDevice() {
   assert(_instance != nullptr);
   assert(_physicalDev == nullptr);
-  assert(_graphFamily == -1 && _compFamily == -1);
 
   VkResult res;
 
@@ -163,6 +171,7 @@ void DeviceVK::initPhysicalDevice() {
   CG_INSTPROCVK(_instance, vkGetPhysicalDeviceProperties);
   CG_INSTPROCVK(_instance, vkGetPhysicalDeviceQueueFamilyProperties);
 
+  // Enumerate physical devices & get their properties
   vector<VkPhysicalDevice> phys;
   uint32_t physN;
   res = vkEnumeratePhysicalDevices(_instance, &physN, nullptr);
@@ -202,6 +211,8 @@ void DeviceVK::initPhysicalDevice() {
     return v1 >= v2;
   });
 
+  // Find a physical device that supports both graphics and compute
+  int32_t queueFamily = -1;
   for (const auto& p : physProps) {
     vector<VkQueueFamilyProperties> families;
     uint32_t familyN;
@@ -210,19 +221,11 @@ void DeviceVK::initPhysicalDevice() {
     vkGetPhysicalDeviceQueueFamilyProperties(phys[p.first], &familyN,
                                              families.data());
 
-    int32_t graph = -1;
-    int32_t comp = -1;
     for (uint32_t i = 0; i < familyN; ++i) {
       if (families[i].queueFlags &
       (VK_QUEUE_GRAPHICS_BIT | VK_QUEUE_COMPUTE_BIT)) {
-        graph = comp = i;
+        queueFamily = i;
         break;
-      } else if (graph < 0 &&
-      (families[i].queueFlags & VK_QUEUE_GRAPHICS_BIT)) {
-        graph = i;
-      } else if (comp < 0 &&
-      (families[i].queueFlags & VK_QUEUE_COMPUTE_BIT)) {
-        comp = i;
       }
     }
 
@@ -232,11 +235,9 @@ void DeviceVK::initPhysicalDevice() {
     // exposed by the implementation must support both graphics and compute
     // operations."
 
-    if (graph > -1 && comp > -1) {
+    if (queueFamily > -1) {
       _physicalDev = phys[p.first];
       _physProperties = p.second;
-      _graphFamily = graph;
-      _compFamily = comp;
       break;
     }
   }
@@ -244,11 +245,14 @@ void DeviceVK::initPhysicalDevice() {
   if (_physicalDev == nullptr)
     // TODO
     throw runtime_error("Could not find a suitable physical device");
+
+  // Now the logical device can be initialized
+  initDevice(queueFamily);
 }
 
-void DeviceVK::initDevice() {
+void DeviceVK::initDevice(int32_t queueFamily) {
+  assert(queueFamily > -1);
   assert(_physicalDev != nullptr);
-  assert(_graphFamily > -1);
   assert(_device == nullptr);
 
   // Check extensions
@@ -256,29 +260,23 @@ void DeviceVK::initDevice() {
     // TODO
     throw runtime_error("Missing required device extension(s)");
 
-  // Define queues
+  // Define queue
   const float queuePrio = 0.0f;
-  VkDeviceQueueCreateInfo queueInfos[2];
-  queueInfos[0].sType = VK_STRUCTURE_TYPE_DEVICE_QUEUE_CREATE_INFO;
-  queueInfos[0].pNext = nullptr;
-  queueInfos[0].flags = 0;
-  queueInfos[0].queueFamilyIndex = _graphFamily;
-  queueInfos[0].queueCount = 1;
-  queueInfos[0].pQueuePriorities = &queuePrio;
-  uint32_t queueN = 1;
-  if (_graphFamily != _compFamily) {
-    queueInfos[1] = queueInfos[0];
-    queueInfos[1].queueFamilyIndex = _compFamily;
-    queueN = 2;
-  }
+  VkDeviceQueueCreateInfo queueInfo;
+  queueInfo.sType = VK_STRUCTURE_TYPE_DEVICE_QUEUE_CREATE_INFO;
+  queueInfo.pNext = nullptr;
+  queueInfo.flags = 0;
+  queueInfo.queueFamilyIndex = queueFamily;
+  queueInfo.queueCount = 1;
+  queueInfo.pQueuePriorities = &queuePrio;
 
   // Create device
   VkDeviceCreateInfo devInfo;
   devInfo.sType = VK_STRUCTURE_TYPE_DEVICE_CREATE_INFO;
   devInfo.pNext = nullptr;
   devInfo.flags = 0;
-  devInfo.queueCreateInfoCount = queueN;
-  devInfo.pQueueCreateInfos = queueInfos;
+  devInfo.queueCreateInfoCount = 1;
+  devInfo.pQueueCreateInfos = &queueInfo;
   devInfo.enabledLayerCount = 0;
   devInfo.ppEnabledLayerNames = nullptr;
   devInfo.enabledExtensionCount = _devExtensions.size();
@@ -297,10 +295,12 @@ void DeviceVK::initDevice() {
   reinterpret_cast<PFN_vkGetDeviceProcAddr>
   (getInstanceProcAddrVK(_instance, "vkGetDeviceProcAddr"));
 
-  // Get queues
+  // Now the queue object can be created
   CG_DEVPROCVK(_device, vkGetDeviceQueue);
-  vkGetDeviceQueue(_device, _graphFamily, 0, &_graphQueue);
-  vkGetDeviceQueue(_device, _compFamily, 0, &_compQueue);
+  VkQueue queue;
+  vkGetDeviceQueue(_device, queueFamily, 0, &queue);
+  _queue = new QueueVK(queueFamily, queue);
+  _queue->setProcs(_device, _physProperties.apiVersion);
 }
 
 VkInstance DeviceVK::instance() const {
@@ -311,18 +311,6 @@ VkPhysicalDevice DeviceVK::physicalDev() const {
 }
 VkDevice DeviceVK::device() const {
   return _device;
-}
-VkQueue DeviceVK::graphQueue() const {
-  return _graphQueue;
-}
-VkQueue DeviceVK::compQueue() const {
-  return _compQueue;
-}
-int32_t DeviceVK::graphFamily() const {
-  return _graphFamily;
-}
-int32_t DeviceVK::compFamily() const {
-  return _compFamily;
 }
 const VkPhysicalDeviceProperties& DeviceVK::physProperties() const {
   return _physProperties;
@@ -405,11 +393,9 @@ CpState::Ptr DeviceVK::makeState(CpState::Config&& config) {
 }
 
 Queue& DeviceVK::defaultQueue() {
-  // TODO
-  assert(false);
+  return *_queue;
 }
 
-Queue& DeviceVK::queue(Queue::CapabilityMask capabilities) {
-  // TODO
-  assert(false);
+Queue& DeviceVK::queue(Queue::CapabilityMask) {
+  return *_queue;
 }

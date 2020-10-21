@@ -13,7 +13,6 @@
 #include <memory>
 
 #include "yf/cg/Defs.h"
-#include "yf/cg/Result.h"
 
 CG_NS_BEGIN
 
@@ -30,19 +29,19 @@ class CmdBuffer {
 
   /// Encodes the command buffer with the contents of an encoder object.
   ///
-  virtual Result encode(const Encoder& encoder) = 0;
+  virtual void encode(const Encoder& encoder) = 0;
 
   /// Enqueues the command buffer for execution.
   ///
-  virtual Result enqueue() = 0;
+  virtual void enqueue() = 0;
 
   /// Resets the command buffer encodings.
   ///
-  virtual Result reset() = 0;
+  virtual void reset() = 0;
 
-  /// Checks whether the command buffer is ready for use.
+  /// Checks whether the command buffer is pending execution.
   ///
-  virtual bool isReady() = 0;
+  virtual bool isPending() = 0;
 
   /// The queue that owns the command buffer.
   ///
@@ -74,8 +73,7 @@ class Queue {
 
   /// Submits enqueued command buffers for execution.
   ///
-  using CompletionFn = std::function<Result ()>;
-  virtual Result submit(CompletionFn onCompletion) = 0;
+  virtual void submit() = 0;
 
   /// The capabilities of the queue.
   ///

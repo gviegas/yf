@@ -140,11 +140,22 @@ Result QueueVK::submit(CompletionFn onCompletion) {
 }
 
 void QueueVK::enqueue(CmdBufferVK* cmdBuffer) {
-  // TODO
-  assert(false);
+  assert(_pending.find(cmdBuffer) == _pending.end());
+
+  // TODO: lock
+  _pending.insert(cmdBuffer);
 }
 
 void QueueVK::unmake(CmdBufferVK* cmdBuffer) noexcept {
-  // TODO
-  assert(false);
+  assert(_pools.find(cmdBuffer) != _pools.end());
+
+  if (cmdBuffer->isPending()) {
+    // TODO: gate command buffer destruction
+    assert(false);
+    abort();
+  }
+
+  auto it = _pools.find(cmdBuffer);
+  vkDestroyCommandPool(DeviceVK::get().device(), it->second, nullptr);
+  _pools.erase(it);
 }

@@ -24,11 +24,19 @@ class CmdBufferVK final : public CmdBuffer {
   explicit CmdBufferVK(QueueVK& queue, VkCommandBuffer handle);
   ~CmdBufferVK();
 
-  Result encode(const Encoder& encoder);
-  Result enqueue();
-  Result reset();
+  void encode(const Encoder& encoder);
+  void enqueue();
+  void reset();
   bool isPending();
   Queue& queue() const;
+
+  /// The command buffer handle.
+  ///
+  VkCommandBuffer handle() const;
+
+  /// Called by `QueueVK` when execution of this command buffer completes.
+  ///
+  void didExecute();
 
  private:
   QueueVK& _queue;
@@ -42,7 +50,7 @@ class QueueVK final : public Queue {
   ~QueueVK();
 
   CmdBuffer::Ptr makeCmdBuffer();
-  Result submit(CompletionFn onCompletion);
+  void submit();
 
   /// Called by `CmdBufferVK` to enqueue itself.
   ///

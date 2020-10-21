@@ -21,21 +21,11 @@ struct QueueTest : Test {
     struct CmdBuffer_ : CmdBuffer {
       CmdBuffer_(const Queue& owner) : _queue(owner) {}
 
-      Result encode(const Encoder&) {
-        return Result::Failure;
-      }
-      Result enqueue() {
-        return Result::Failure;
-      }
-      Result reset() {
-        return Result::Failure;
-      }
-      bool isPending() {
-        return true;
-      }
-      const Queue& queue() const {
-        return _queue;
-      }
+      void encode(const Encoder&) {}
+      void enqueue() {}
+      void reset() {}
+      bool isPending() { return true; }
+      const Queue& queue() const { return _queue; }
 
      private:
       const Queue& _queue;
@@ -44,12 +34,8 @@ struct QueueTest : Test {
     struct Queue_ : Queue {
       Queue_(CapabilityMask capab) : Queue(capab) {}
 
-      CmdBuffer::Ptr makeCmdBuffer() {
-        return make_unique<CmdBuffer_>(*this);
-      }
-      Result submit(CompletionFn) {
-        return Result::Failure;
-      }
+      CmdBuffer::Ptr makeCmdBuffer() { return make_unique<CmdBuffer_>(*this); }
+      void submit() {}
     };
 
     Assertions a;

@@ -26,15 +26,15 @@ CmdBufferVK::~CmdBufferVK() {
   //assert(false);
 }
 
-Result CmdBufferVK::encode(const Encoder& encoder) {
+void CmdBufferVK::encode(const Encoder& encoder) {
   // TODO
   assert(false);
 }
-Result CmdBufferVK::enqueue() {
+void CmdBufferVK::enqueue() {
   // TODO
   assert(false);
 }
-Result CmdBufferVK::reset() {
+void CmdBufferVK::reset() {
   // TODO
   assert(false);
 }
@@ -43,6 +43,16 @@ bool CmdBufferVK::isPending() {
 }
 Queue& CmdBufferVK::queue() const {
   return _queue;
+}
+
+VkCommandBuffer CmdBufferVK::handle() const {
+  return _handle;
+}
+
+void CmdBufferVK::didExecute() {
+  assert(_pending);
+
+  _pending = false;
 }
 
 // ------------------------------------------------------------------------
@@ -56,6 +66,8 @@ PFN_vkCreateCommandPool vkCreateCommandPool = nullptr;
 PFN_vkResetCommandPool vkResetCommandPool = nullptr;
 PFN_vkDestroyCommandPool vkDestroyCommandPool = nullptr;
 PFN_vkAllocateCommandBuffers vkAllocateCommandBuffers = nullptr;
+PFN_vkQueueSubmit vkQueueSubmit = nullptr;
+PFN_vkQueueWaitIdle vkQueueWaitIdle = nullptr;
 // v1.1
 PFN_vkTrimCommandPool vkTrimCommandPool = nullptr;
 
@@ -67,6 +79,8 @@ void QueueVK::setProcs(VkDevice device, uint32_t version) {
   vkDestroyCommandPool = CG_DEVPROCVK_RVAL(device, vkDestroyCommandPool);
   vkAllocateCommandBuffers =
   CG_DEVPROCVK_RVAL(device, vkAllocateCommandBuffers);
+  vkQueueSubmit = CG_DEVPROCVK_RVAL(device, vkQueueSubmit);
+  vkQueueWaitIdle = CG_DEVPROCVK_RVAL(device, vkQueueWaitIdle);
 
   if (version >= VK_MAKE_VERSION(1, 1, 0))
     vkTrimCommandPool = CG_DEVPROCVK_RVAL(device, vkTrimCommandPool);
@@ -134,9 +148,46 @@ CmdBuffer::Ptr QueueVK::makeCmdBuffer() {
   return CmdBuffer::Ptr(it->first);
 }
 
-Result QueueVK::submit(CompletionFn onCompletion) {
-  // TODO
-  assert(false);
+void QueueVK::submit() {
+  if (_pending.empty())
+    return;
+
+  auto notifyAndClear = [&] {
+    for (auto& cb : _pending)
+      cb->didExecute();
+    _pending.clear();
+  };
+
+  vector<VkCommandBuffer> handles;
+  for (const auto& cb : _pending)
+    handles.push_back(cb->handle());
+
+  VkSubmitInfo info;
+  info.sType = VK_STRUCTURE_TYPE_SUBMIT_INFO;
+  info.pNext = nullptr;
+  info.waitSemaphoreCount = 0;
+  info.pWaitSemaphores = nullptr;
+  info.pWaitDstStageMask = 0;
+  info.commandBufferCount = handles.size();
+  info.pCommandBuffers = handles.data();
+  info.signalSemaphoreCount = 0;
+  info.pSignalSemaphores = nullptr;
+
+  VkResult res;
+  res = vkQueueSubmit(_handle, 1, &info, VK_NULL_HANDLE);
+  if (res != VK_SUCCESS) {
+    notifyAndClear();
+    // TODO
+    throw runtime_error("Queue submission failed");
+  }
+  res = vkQueueWaitIdle(_handle);
+  if (res != VK_SUCCESS) {
+    notifyAndClear();
+    // TODO
+    throw runtime_error("Could not wait queue operations to complete");
+  }
+
+  notifyAndClear();
 }
 
 void QueueVK::enqueue(CmdBufferVK* cmdBuffer) {

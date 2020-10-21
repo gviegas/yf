@@ -300,6 +300,7 @@ void DeviceVK::initDevice(int32_t queueFamily) {
   VkQueue queue;
   vkGetDeviceQueue(_device, queueFamily, 0, &queue);
   _queue = new QueueVK(queueFamily, queue);
+  _queue->setProcs(_device, _physProperties.apiVersion);
 }
 
 VkInstance DeviceVK::instance() const {

@@ -52,9 +52,13 @@ class QueueVK final : public Queue {
   ///
   void unmake(CmdBufferVK* cmdBuffer) noexcept;
 
+  /// Called by `DeviceVK` to signal that procedures can now be set.
+  ///
+  void setProcs(VkDevice device, uint32_t version);
+
  private:
-  void initPool(CmdBufferVK* cmdBuffer);
-  void deinitPool(CmdBufferVK* cmdBuffer);
+  VkCommandPool initPool();
+  void deinitPool(VkCommandPool pool);
 
   int32_t _family = -1;
   VkQueue _handle = nullptr;

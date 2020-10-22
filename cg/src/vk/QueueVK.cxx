@@ -13,59 +13,15 @@
 using namespace CG_NS;
 using namespace std;
 
-// ------------------------------------------------------------------------
-// CmdBufferVK
-
-CmdBufferVK::CmdBufferVK(QueueVK& queue, VkCommandBuffer handle)
-  : _queue(queue), _handle(handle), _pending(false) {
-  // TODO
-  //assert(false);
-}
-CmdBufferVK::~CmdBufferVK() {
-  // TODO
-  //assert(false);
-}
-
-void CmdBufferVK::encode(const Encoder& encoder) {
-  // TODO
-  assert(false);
-}
-void CmdBufferVK::enqueue() {
-  // TODO
-  assert(false);
-}
-void CmdBufferVK::reset() {
-  // TODO
-  assert(false);
-}
-bool CmdBufferVK::isPending() {
-  return _pending;
-}
-Queue& CmdBufferVK::queue() const {
-  return _queue;
-}
-
-VkCommandBuffer CmdBufferVK::handle() const {
-  return _handle;
-}
-
-void CmdBufferVK::didExecute() {
-  assert(_pending);
-
-  _pending = false;
-}
-
-// ------------------------------------------------------------------------
-// QueueVK
-
 INTERNAL_NS_BEGIN
 
-/// VK procedures used by `QueueVK`.
+/// VK procedures used by `QueueVK` and `CmdBufferVK`.
 ///
 PFN_vkCreateCommandPool vkCreateCommandPool = nullptr;
 PFN_vkResetCommandPool vkResetCommandPool = nullptr;
 PFN_vkDestroyCommandPool vkDestroyCommandPool = nullptr;
 PFN_vkAllocateCommandBuffers vkAllocateCommandBuffers = nullptr;
+PFN_vkResetCommandBuffer vkResetCommandBuffer = nullptr;
 PFN_vkQueueSubmit vkQueueSubmit = nullptr;
 PFN_vkQueueWaitIdle vkQueueWaitIdle = nullptr;
 // v1.1
@@ -73,12 +29,17 @@ PFN_vkTrimCommandPool vkTrimCommandPool = nullptr;
 
 INTERNAL_NS_END
 
+// ------------------------------------------------------------------------
+// QueueVK
+
 void QueueVK::setProcs(VkDevice device, uint32_t version) {
   vkCreateCommandPool = CG_DEVPROCVK_RVAL(device, vkCreateCommandPool);
   vkResetCommandPool = CG_DEVPROCVK_RVAL(device, vkResetCommandPool);
   vkDestroyCommandPool = CG_DEVPROCVK_RVAL(device, vkDestroyCommandPool);
-  vkAllocateCommandBuffers =
-  CG_DEVPROCVK_RVAL(device, vkAllocateCommandBuffers);
+
+  vkAllocateCommandBuffers = CG_DEVPROCVK_RVAL(device, vkAllocateCommandBuffers);
+  vkResetCommandBuffer = CG_DEVPROCVK_RVAL(device, vkResetCommandBuffer);
+
   vkQueueSubmit = CG_DEVPROCVK_RVAL(device, vkQueueSubmit);
   vkQueueWaitIdle = CG_DEVPROCVK_RVAL(device, vkQueueWaitIdle);
 
@@ -209,4 +170,53 @@ void QueueVK::unmake(CmdBufferVK* cmdBuffer) noexcept {
   auto it = _pools.find(cmdBuffer);
   vkDestroyCommandPool(DeviceVK::get().device(), it->second, nullptr);
   _pools.erase(it);
+}
+
+// ------------------------------------------------------------------------
+// CmdBufferVK
+
+CmdBufferVK::CmdBufferVK(QueueVK& queue, VkCommandBuffer handle)
+  : _queue(queue), _handle(handle), _pending(false) {
+
+  assert(handle != nullptr);
+}
+
+CmdBufferVK::~CmdBufferVK() {
+  _queue.unmake(this);
+}
+
+void CmdBufferVK::encode(const Encoder& encoder) {
+  // TODO
+  assert(false);
+}
+
+void CmdBufferVK::enqueue() {
+  // TODO
+  assert(false);
+}
+
+void CmdBufferVK::reset() {
+  if (_pending)
+    // TODO
+    throw runtime_error("Attempt to reset a pending command buffer");
+
+  vkResetCommandBuffer(_handle, 0);
+}
+
+bool CmdBufferVK::isPending() {
+  return _pending;
+}
+
+Queue& CmdBufferVK::queue() const {
+  return _queue;
+}
+
+VkCommandBuffer CmdBufferVK::handle() const {
+  return _handle;
+}
+
+void CmdBufferVK::didExecute() {
+  assert(_pending);
+
+  _pending = false;
 }

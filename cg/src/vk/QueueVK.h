@@ -17,33 +17,7 @@
 
 CG_NS_BEGIN
 
-class QueueVK;
-
-class CmdBufferVK final : public CmdBuffer {
- public:
-  explicit CmdBufferVK(QueueVK& queue, VkCommandBuffer handle);
-  ~CmdBufferVK();
-
-  void encode(const Encoder& encoder);
-  void enqueue();
-  void reset();
-  bool isPending();
-  Queue& queue() const;
-
-  /// The command buffer handle.
-  ///
-  VkCommandBuffer handle() const;
-
-  /// Called by `QueueVK` when execution of this command buffer completes.
-  ///
-  void didExecute();
-
- private:
-  QueueVK& _queue;
-  VkCommandBuffer _handle = nullptr;
-  bool _pending = false;
-  bool _begun = false;
-};
+class CmdBufferVK;
 
 class QueueVK final : public Queue {
  public:
@@ -67,12 +41,46 @@ class QueueVK final : public Queue {
 
  private:
   VkCommandPool initPool();
-  void deinitPool(VkCommandPool pool);
+  void deinitPool(VkCommandPool);
 
   int32_t _family = -1;
   VkQueue _handle = nullptr;
   std::unordered_map<CmdBufferVK*, VkCommandPool> _pools{};
   std::unordered_set<CmdBufferVK*> _pending{};
+};
+
+class GrEncoder;
+class CpEncoder;
+class TfEncoder;
+
+class CmdBufferVK final : public CmdBuffer {
+ public:
+  explicit CmdBufferVK(QueueVK& queue, VkCommandBuffer handle);
+  ~CmdBufferVK();
+
+  void encode(const Encoder& encoder);
+  void enqueue();
+  void reset();
+  bool isPending();
+  Queue& queue() const;
+
+  /// The command buffer handle.
+  ///
+  VkCommandBuffer handle() const;
+
+  /// Called by `QueueVK` when execution of this command buffer completes.
+  ///
+  void didExecute();
+
+ private:
+  void encode(const GrEncoder&);
+  void encode(const CpEncoder&);
+  void encode(const TfEncoder&);
+
+  QueueVK& _queue;
+  VkCommandBuffer _handle = nullptr;
+  bool _pending = false;
+  bool _begun = false;
 };
 
 CG_NS_END

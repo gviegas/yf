@@ -9,6 +9,8 @@
 
 #include "QueueVK.h"
 #include "DeviceVK.h"
+#include "Cmd.h"
+#include "yf/cg/Encoder.h"
 
 using namespace CG_NS;
 using namespace std;
@@ -191,18 +193,47 @@ CmdBufferVK::~CmdBufferVK() {
 }
 
 void CmdBufferVK::encode(const Encoder& encoder) {
-  // TODO
-  assert(false);
+  if (_pending)
+    // TODO
+    throw runtime_error("Attempt to encode a pending command buffer");
+
+  if (!_begun) {
+    VkCommandBufferBeginInfo info;
+    info.sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_BEGIN_INFO;
+    info.pNext = nullptr;
+    // TODO: consider reusing the command buffer instead
+    info.flags = VK_COMMAND_BUFFER_USAGE_ONE_TIME_SUBMIT_BIT;
+    info.pInheritanceInfo = nullptr;
+
+    auto res = vkBeginCommandBuffer(_handle, &info);
+    if (res != VK_SUCCESS)
+      // TODO
+      throw runtime_error("Could not set command buffer for encoding");
+
+    _begun = true;
+  }
+
+  switch (encoder.type()) {
+  case Encoder::Graphics:
+    encode(static_cast<const GrEncoder&>(encoder));
+    break;
+  case Encoder::Compute:
+    encode(static_cast<const CpEncoder&>(encoder));
+    break;
+  case Encoder::Transfer:
+    encode(static_cast<const TfEncoder&>(encoder));
+    break;
+  }
 }
 
 void CmdBufferVK::enqueue() {
-  if (!_begun)
-    // TODO
-    throw runtime_error("Attempt to enqueue an empty command buffer");
-
   if (_pending)
     // TODO
     throw runtime_error("Attempt to enqueue a pending command buffer");
+
+  if (!_begun)
+    // TODO
+    throw runtime_error("Attempt to enqueue an empty command buffer");
 
   _begun = false;
 
@@ -239,4 +270,83 @@ void CmdBufferVK::didExecute() {
   assert(_pending);
 
   _pending = false;
+}
+
+void CmdBufferVK::encode(const GrEncoder& encoder) {
+  auto& encoding = encoder.encoding();
+  for (auto& cmd : encoding) {
+    switch (cmd->cmd) {
+    case Cmd::StateGrT:
+      // TODO
+      assert(false);
+    case Cmd::ViewportT:
+      // TODO
+      assert(false);
+    case Cmd::ScissorT:
+      // TODO
+      assert(false);
+    case Cmd::TargetT:
+      // TODO
+      assert(false);
+    case Cmd::DcTableT:
+      // TODO
+      assert(false);
+    case Cmd::VxBufferT:
+      // TODO
+      assert(false);
+    case Cmd::IxBufferT:
+      // TODO
+      assert(false);
+    case Cmd::DrawT:
+      // TODO
+      assert(false);
+    case Cmd::DrawIxT:
+      // TODO
+      assert(false);
+    case Cmd::ClearClT:
+      // TODO
+      assert(false);
+    case Cmd::ClearDpT:
+      // TODO
+      assert(false);
+    case Cmd::ClearScT:
+      // TODO
+      assert(false);
+    default:
+      assert(false);
+      abort();
+    }
+  }
+}
+
+void CmdBufferVK::encode(const CpEncoder& encoder) {
+  auto& encoding = encoder.encoding();
+  for (auto& cmd : encoding) {
+    switch (cmd->cmd) {
+    case Cmd::StateCpT:
+      // TODO
+      assert(false);
+    case Cmd::DcTableT:
+      // TODO
+      assert(false);
+    case Cmd::DispatchT:
+      // TODO
+      assert(false);
+    default:
+      assert(false);
+      abort();
+    }
+  }
+}
+
+void CmdBufferVK::encode(const TfEncoder& encoder) {
+  auto& encoding = encoder.encoding();
+  for (auto& cmd : encoding) {
+    // TODO
+    switch (cmd->cmd) {
+    default:
+      assert(false);
+      abort();
+    }
+  }
 }

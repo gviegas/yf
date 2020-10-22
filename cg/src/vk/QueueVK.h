@@ -42,6 +42,7 @@ class CmdBufferVK final : public CmdBuffer {
   QueueVK& _queue;
   VkCommandBuffer _handle = nullptr;
   bool _pending = false;
+  bool _begun = false;
 };
 
 class QueueVK final : public Queue {

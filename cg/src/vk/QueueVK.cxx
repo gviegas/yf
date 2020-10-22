@@ -22,6 +22,8 @@ PFN_vkResetCommandPool vkResetCommandPool = nullptr;
 PFN_vkDestroyCommandPool vkDestroyCommandPool = nullptr;
 PFN_vkAllocateCommandBuffers vkAllocateCommandBuffers = nullptr;
 PFN_vkResetCommandBuffer vkResetCommandBuffer = nullptr;
+PFN_vkBeginCommandBuffer vkBeginCommandBuffer = nullptr;
+PFN_vkEndCommandBuffer vkEndCommandBuffer = nullptr;
 PFN_vkQueueSubmit vkQueueSubmit = nullptr;
 PFN_vkQueueWaitIdle vkQueueWaitIdle = nullptr;
 // v1.1
@@ -39,6 +41,9 @@ void QueueVK::setProcs(VkDevice device, uint32_t version) {
 
   vkAllocateCommandBuffers = CG_DEVPROCVK_RVAL(device, vkAllocateCommandBuffers);
   vkResetCommandBuffer = CG_DEVPROCVK_RVAL(device, vkResetCommandBuffer);
+
+  vkBeginCommandBuffer = CG_DEVPROCVK_RVAL(device, vkBeginCommandBuffer);
+  vkEndCommandBuffer = CG_DEVPROCVK_RVAL(device, vkEndCommandBuffer);
 
   vkQueueSubmit = CG_DEVPROCVK_RVAL(device, vkQueueSubmit);
   vkQueueWaitIdle = CG_DEVPROCVK_RVAL(device, vkQueueWaitIdle);
@@ -176,7 +181,7 @@ void QueueVK::unmake(CmdBufferVK* cmdBuffer) noexcept {
 // CmdBufferVK
 
 CmdBufferVK::CmdBufferVK(QueueVK& queue, VkCommandBuffer handle)
-  : _queue(queue), _handle(handle), _pending(false) {
+  : _queue(queue), _handle(handle), _pending(false), _begun(false) {
 
   assert(handle != nullptr);
 }
@@ -191,8 +196,23 @@ void CmdBufferVK::encode(const Encoder& encoder) {
 }
 
 void CmdBufferVK::enqueue() {
-  // TODO
-  assert(false);
+  if (!_begun)
+    // TODO
+    throw runtime_error("Attempt to enqueue an empty command buffer");
+
+  if (_pending)
+    // TODO
+    throw runtime_error("Attempt to enqueue a pending command buffer");
+
+  _begun = false;
+
+  auto res = vkEndCommandBuffer(_handle);
+  if (res != VK_SUCCESS)
+    // TODO
+    throw runtime_error("Invalid command buffer encoding(s)");
+
+  _pending = true;
+  _queue.enqueue(this);
 }
 
 void CmdBufferVK::reset() {

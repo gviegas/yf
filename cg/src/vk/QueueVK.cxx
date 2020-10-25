@@ -6,6 +6,7 @@
 //
 
 #include <cassert>
+#include <stdexcept>
 
 #include "QueueVK.h"
 #include "DeviceVK.h"

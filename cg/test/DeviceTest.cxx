@@ -18,10 +18,15 @@ struct DeviceTest : Test {
   DeviceTest() : Test(L"Device") {}
 
   Assertions run(const vector<string>&) {
-    auto& dev = Device::get();
+    Assertions a;
 
-    // TODO
-    return {};
+    auto& dev = Device::get();
+    auto shd = dev.makeShader(StageFragment, L"tmp/frag");
+
+    a.push_back({L"Device::get()", true});
+    a.push_back({L"dev.makeShader(...)", shd != nullptr});
+
+    return a;
   }
 };
 

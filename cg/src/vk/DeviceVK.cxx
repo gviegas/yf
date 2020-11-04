@@ -13,6 +13,7 @@
 #include "DeviceVK.h"
 #include "VK.h"
 #include "QueueVK.h"
+#include "ShaderVK.h"
 
 using namespace CG_NS;
 using namespace std;
@@ -352,8 +353,8 @@ Image::Ptr DeviceVK::makeImage(PxFormat format,
 Shader::Ptr DeviceVK::makeShader(Stage stage,
                                  wstring&& codeFile,
                                  wstring&& entryPoint) {
-  // TODO
-  assert(false);
+
+  return make_unique<ShaderVK>(stage, move(codeFile), move(entryPoint));
 }
 
 DcTable::Ptr DeviceVK::makeDcTable(const DcEntries& entries) {

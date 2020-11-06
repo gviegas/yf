@@ -4,8 +4,6 @@
 # cg
 # Devel.mk
 #
-# Development makefile.
-#
 # Copyright © 2020 Gustavo C. Viegas.
 #
 
@@ -22,10 +20,10 @@ BIN_DIR := bin/
 BUILD_DIR := build/
 
 SRC := \
-  $(wildcard $(SRC_DIR)*.cxx) \
-  $(wildcard $(TEST_DIR)*.cxx) \
-  $(wildcard $(ETC_DIR)*.cxx) \
-  $(wildcard $(SUB_DIR)*.cxx)
+	$(wildcard $(SRC_DIR)*.cxx) \
+	$(wildcard $(TEST_DIR)*.cxx) \
+	$(wildcard $(ETC_DIR)*.cxx) \
+	$(wildcard $(SUB_DIR)*.cxx)
 
 OBJ := $(subst $(SRC_DIR),$(BUILD_DIR),$(SRC:.cxx=.o))
 OBJ := $(subst $(TEST_DIR),$(BUILD_DIR),$(OBJ))
@@ -35,13 +33,10 @@ OBJ := $(subst $(SUB_DIR),$(BUILD_DIR),$(OBJ))
 DEP := $(OBJ:.o=.d)
 
 CXX := /usr/bin/clang++
-CXX_FLAGS := -std=gnu++17 -Wpedantic -Wall -Wextra -Og
+CXX_FLAGS := -std=gnu++17 -Wpedantic -Wall -Wextra -g
 
 LD_LIBS := -ldl
-LD_FLAGS := \
-  -iquote $(BASE_DIR) \
-  -iquote $(INCLUDE_DIR) \
-  -iquote $(SRC_DIR)
+LD_FLAGS := -iquote $(BASE_DIR) -iquote $(INCLUDE_DIR) -iquote $(SRC_DIR)
 
 PP := $(CXX) -E
 PP_FLAGS := -D YF_CG -D YF_DEVEL

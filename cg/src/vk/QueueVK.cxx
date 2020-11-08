@@ -16,46 +16,8 @@
 using namespace CG_NS;
 using namespace std;
 
-INTERNAL_NS_BEGIN
-
-/// VK procedures used by `QueueVK` and `CmdBufferVK`.
-///
-PFN_vkCreateCommandPool vkCreateCommandPool = nullptr;
-PFN_vkResetCommandPool vkResetCommandPool = nullptr;
-PFN_vkDestroyCommandPool vkDestroyCommandPool = nullptr;
-PFN_vkAllocateCommandBuffers vkAllocateCommandBuffers = nullptr;
-PFN_vkResetCommandBuffer vkResetCommandBuffer = nullptr;
-PFN_vkBeginCommandBuffer vkBeginCommandBuffer = nullptr;
-PFN_vkEndCommandBuffer vkEndCommandBuffer = nullptr;
-PFN_vkQueueSubmit vkQueueSubmit = nullptr;
-PFN_vkQueueWaitIdle vkQueueWaitIdle = nullptr;
-// v1.1
-PFN_vkTrimCommandPool vkTrimCommandPool = nullptr;
-
-INTERNAL_NS_END
-
 // ------------------------------------------------------------------------
 // QueueVK
-
-void QueueVK::setProcs(VkDevice device, uint32_t version) {
-  vkCreateCommandPool = CG_DEVPROCVK_RVAL(device, vkCreateCommandPool);
-  vkResetCommandPool = CG_DEVPROCVK_RVAL(device, vkResetCommandPool);
-  vkDestroyCommandPool = CG_DEVPROCVK_RVAL(device, vkDestroyCommandPool);
-
-  vkAllocateCommandBuffers = CG_DEVPROCVK_RVAL(device, vkAllocateCommandBuffers);
-  vkResetCommandBuffer = CG_DEVPROCVK_RVAL(device, vkResetCommandBuffer);
-
-  vkBeginCommandBuffer = CG_DEVPROCVK_RVAL(device, vkBeginCommandBuffer);
-  vkEndCommandBuffer = CG_DEVPROCVK_RVAL(device, vkEndCommandBuffer);
-
-  vkQueueSubmit = CG_DEVPROCVK_RVAL(device, vkQueueSubmit);
-  vkQueueWaitIdle = CG_DEVPROCVK_RVAL(device, vkQueueWaitIdle);
-
-  if (version >= VK_MAKE_VERSION(1, 1, 0))
-    vkTrimCommandPool = CG_DEVPROCVK_RVAL(device, vkTrimCommandPool);
-  else
-    vkTrimCommandPool = nullptr;
-}
 
 QueueVK::QueueVK(int32_t family, VkQueue handle)
   : Queue(Graphics|Compute|Transfer), _family(family), _handle(handle) {

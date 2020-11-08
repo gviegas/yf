@@ -1,5 +1,5 @@
 //
-// yf
+// cg
 // ShaderVK.cxx
 //
 // Copyright © 2020 Gustavo C. Viegas.
@@ -35,9 +35,6 @@ ShaderVK::ShaderVK(Stage stage, wstring&& codeFile, wstring&& entryPoint)
     // TODO
     throw runtime_error("Failed to read data from file");
 
-  auto dev = DeviceVK::get().device();
-  CG_DEVPROCVK(dev, vkCreateShaderModule);
-
   VkShaderModuleCreateInfo info;
   info.sType = VK_STRUCTURE_TYPE_SHADER_MODULE_CREATE_INFO;
   info.pNext = nullptr;
@@ -45,6 +42,7 @@ ShaderVK::ShaderVK(Stage stage, wstring&& codeFile, wstring&& entryPoint)
   info.codeSize = sz;
   info.pCode = reinterpret_cast<uint32_t*>(buf.get());
 
+  auto dev = DeviceVK::get().device();
   auto res = vkCreateShaderModule(dev, &info, nullptr, &_module);
   if (res != VK_SUCCESS)
     // TODO
@@ -54,7 +52,6 @@ ShaderVK::ShaderVK(Stage stage, wstring&& codeFile, wstring&& entryPoint)
 ShaderVK::~ShaderVK() {
   // TODO: notify
   auto dev = DeviceVK::get().device();
-  CG_DEVPROCVK(dev, vkDestroyShaderModule);
   vkDestroyShaderModule(dev, _module, nullptr);
 }
 

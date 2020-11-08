@@ -39,7 +39,7 @@ struct StateTest : Test {
     gc.winding = WindingCounterCw;
     GrState_ gs(gc);
 
-    CpState::Config cc;
+    CpState::Config cc{nullptr, {}};
     CpState_ cs(cc);
 
     a.push_back({L"GrState(config)",

@@ -24,7 +24,7 @@ enum PxFormat {
   PxFormatUndefined,
   PxFormatBgra8Srgb,
   PxFormatRgba8Unorm,
-  PxFormatD16S8Unorm
+  PxFormatD16Unorm
 };
 
 /// Sample count.

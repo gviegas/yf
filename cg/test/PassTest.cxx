@@ -37,7 +37,7 @@ struct PassTest : Test {
       {PxFormatBgra8Srgb, Samples4, LoadOpLoad, StoreOpDontCare}};
     vector<ColorAttach> resvs{
       {PxFormatBgra8Srgb, Samples1, LoadOpDontCare, StoreOpStore}};
-    DepStenAttach depSten{PxFormatD16S8Unorm, Samples1,
+    DepStenAttach depSten{PxFormatD16Unorm, Samples1,
                           LoadOpDontCare, StoreOpStore,
                           LoadOpDontCare, StoreOpDontCare};
     Pass_ p1(&cols, &resvs, &depSten);
@@ -63,7 +63,7 @@ struct PassTest : Test {
                  p1.resolves->front().loadOp == LoadOpDontCare &&
                  p1.resolves->front().storeOp == StoreOpStore &&
                  p1.depthStencil != nullptr &&
-                 p1.depthStencil->format == PxFormatD16S8Unorm &&
+                 p1.depthStencil->format == PxFormatD16Unorm &&
                  p1.depthStencil->samples == Samples1 &&
                  p1.depthStencil->depLoadOp == LoadOpDontCare &&
                  p1.depthStencil->depStoreOp == StoreOpStore &&
@@ -82,7 +82,7 @@ struct PassTest : Test {
                  p2.colors->back().storeOp == StoreOpStore &&
                  p2.resolves == nullptr &&
                  p2.depthStencil != nullptr &&
-                 p2.depthStencil->format == PxFormatD16S8Unorm &&
+                 p2.depthStencil->format == PxFormatD16Unorm &&
                  p2.depthStencil->samples == Samples1 &&
                  p2.depthStencil->depLoadOp == LoadOpDontCare &&
                  p2.depthStencil->depStoreOp == StoreOpDontCare &&
@@ -106,7 +106,7 @@ struct PassTest : Test {
                  p4.colors == nullptr &&
                  p4.resolves == nullptr &&
                  p4.depthStencil != nullptr &&
-                 p4.depthStencil->format == PxFormatD16S8Unorm &&
+                 p4.depthStencil->format == PxFormatD16Unorm &&
                  p4.depthStencil->samples == Samples1 &&
                  p4.depthStencil->depLoadOp == LoadOpDontCare &&
                  p4.depthStencil->depStoreOp == StoreOpDontCare &&

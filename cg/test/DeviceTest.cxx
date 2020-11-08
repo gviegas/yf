@@ -21,10 +21,18 @@ struct DeviceTest : Test {
     Assertions a;
 
     auto& dev = Device::get();
+
     auto shd = dev.makeShader(StageFragment, L"tmp/frag");
+
+    vector<ColorAttach> clrs{{PxFormatRgba8Unorm, Samples1, LoadOpLoad,
+                              StoreOpStore}};
+    DepStenAttach depSten = {PxFormatD16Unorm, Samples1, LoadOpLoad,
+                             StoreOpStore, LoadOpDontCare, StoreOpDontCare};
+    auto pass = dev.makePass(&clrs, nullptr, &depSten);
 
     a.push_back({L"Device::get()", true});
     a.push_back({L"dev.makeShader(...)", shd != nullptr});
+    a.push_back({L"dev.makePass(...)", pass != nullptr});
 
     return a;
   }

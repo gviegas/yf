@@ -14,6 +14,7 @@
 #include "VK.h"
 #include "QueueVK.h"
 #include "ShaderVK.h"
+#include "PassVK.h"
 
 using namespace CG_NS;
 using namespace std;
@@ -362,8 +363,8 @@ DcTable::Ptr DeviceVK::makeDcTable(DcEntries&& entries) {
 Pass::Ptr DeviceVK::makePass(const vector<ColorAttach>* colors,
                              const vector<ColorAttach>* resolves,
                              const DepStenAttach* depthStencil) {
-  // TODO
-  assert(false);
+
+  return make_unique<PassVK>(colors, resolves, depthStencil);
 }
 
 GrState::Ptr DeviceVK::makeState(const GrState::Config& config) {

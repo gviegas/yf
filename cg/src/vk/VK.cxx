@@ -5,6 +5,8 @@
 // Copyright © 2020 Gustavo C. Viegas.
 //
 
+#include <stdexcept>
+
 #include "VK.h"
 #include "yf/cg/Defs.h"
 
@@ -22,6 +24,7 @@
 #endif
 
 using namespace CG_NS;
+using namespace std;
 
 INTERNAL_NS_BEGIN
 
@@ -67,6 +70,16 @@ Result CG_NS::initVK() {
 }
 
 void CG_NS::setProcsVK(VkInstance instance) {
+#if defined(__linux__) || defined(__APPLE__)
+  if (!libHandle && !loadVK())
+    // TODO
+    throw runtime_error("Failed to load VK lib");
+#elif defined(_WIN32)
+# error "Unimplemented"
+#else
+# error "Invalid platform"
+#endif
+
   if (!instance) {
     CG_INSTPROCVK(nullptr, vkGetInstanceProcAddr);
     CG_INSTPROCVK(nullptr, vkEnumerateInstanceVersion);
@@ -98,6 +111,20 @@ void CG_NS::setProcsVK(VkInstance instance) {
 }
 
 void CG_NS::setProcsVK(VkDevice device) {
+  if (!device)
+    // TODO
+    throw invalid_argument("setProcsVK() expects a valid device handle");
+
+#if defined(__linux__) || defined(__APPLE__)
+  if (!libHandle || !loadVK())
+    // TODO
+    throw runtime_error("Failed to load VK lib");
+#elif defined(_WIN32)
+# error "Unimplemented"
+#else
+# error "Invalid platform"
+#endif
+
   CG_DEVPROCVK(device, vkGetDeviceProcAddr);
   CG_DEVPROCVK(device, vkDestroyDevice);
   CG_DEVPROCVK(device, vkGetDeviceQueue);

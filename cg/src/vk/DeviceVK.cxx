@@ -32,23 +32,21 @@ DeviceVK::DeviceVK() {
 
 DeviceVK::~DeviceVK() {
   if (_device != nullptr) {
-    CG_DEVPROCVK(_device, vkDeviceWaitIdle);
-    CG_DEVPROCVK(_device, vkDestroyDevice);
     vkDeviceWaitIdle(_device);
     // TODO: ensure that all VK objects were disposed of prior to this point
     delete _queue;
     vkDestroyDevice(_device, nullptr);
   }
-  if (_instance != nullptr) {
-    CG_INSTPROCVK(_instance, vkDestroyInstance);
+  if (_instance != nullptr)
     vkDestroyInstance(_instance, nullptr);
-  }
 }
 
 Result DeviceVK::checkInstanceExtensions() {
   assert(_instExtensions.empty());
 
-  // Define required extensions
+  setProcsVK(static_cast<VkInstance>(nullptr));
+
+  // Set required extensions
   _instExtensions.push_back(VK_KHR_DEVICE_GROUP_CREATION_EXTENSION_NAME);
   _instExtensions.push_back(VK_KHR_SURFACE_EXTENSION_NAME);
 #if defined(__linux__)
@@ -62,8 +60,7 @@ Result DeviceVK::checkInstanceExtensions() {
 # error "Invalid platform"
 #endif
 
-  // Enumerate the ones that the instance offers
-  CG_INSTPROCVK(nullptr, vkEnumerateInstanceExtensionProperties);
+  // Get available extensions
   vector<VkExtensionProperties> exts;
   uint32_t extN;
   VkResult res;
@@ -89,11 +86,10 @@ Result DeviceVK::checkDeviceExtensions() {
   assert(_physicalDev != nullptr);
   assert(_devExtensions.empty());
 
-  // Define required extensions (just this one for now)
+  // Set required extensions
   _devExtensions.push_back(VK_KHR_SWAPCHAIN_EXTENSION_NAME);
 
-  // Enumerate the ones that the device offers
-  CG_INSTPROCVK(_instance, vkEnumerateDeviceExtensionProperties);
+  // Get available extensions
   vector<VkExtensionProperties> exts;
   uint32_t extN;
   VkResult res;
@@ -118,7 +114,6 @@ Result DeviceVK::checkDeviceExtensions() {
 }
 
 void DeviceVK::initInstance() {
-  assert(getInstanceProcAddrVK != nullptr);
   assert(_instance == nullptr);
 
   // Check extensions
@@ -127,7 +122,6 @@ void DeviceVK::initInstance() {
     throw runtime_error("Missing required instance extension(s)");
 
   // Get instance version
-  CG_INSTPROCVK(nullptr, vkEnumerateInstanceVersion);
   if (!vkEnumerateInstanceVersion)
     _instVersion = VK_API_VERSION_1_0;
   else
@@ -153,13 +147,13 @@ void DeviceVK::initInstance() {
   instInfo.enabledExtensionCount = _instExtensions.size();
   instInfo.ppEnabledExtensionNames = _instExtensions.data();
 
-  CG_INSTPROCVK(nullptr, vkCreateInstance);
   auto res = vkCreateInstance(&instInfo, nullptr, &_instance);
   if (res != VK_SUCCESS)
     // TODO
     throw runtime_error("Failed to create VK instance");
 
   // Now the physical device can be initialized
+  setProcsVK(_instance);
   initPhysicalDevice();
 }
 
@@ -168,10 +162,6 @@ void DeviceVK::initPhysicalDevice() {
   assert(_physicalDev == nullptr);
 
   VkResult res;
-
-  CG_INSTPROCVK(_instance, vkEnumeratePhysicalDevices);
-  CG_INSTPROCVK(_instance, vkGetPhysicalDeviceProperties);
-  CG_INSTPROCVK(_instance, vkGetPhysicalDeviceQueueFamilyProperties);
 
   // Enumerate physical devices & get their properties
   vector<VkPhysicalDevice> phys;
@@ -286,52 +276,54 @@ void DeviceVK::initDevice(int32_t queueFamily) {
   // TODO
   devInfo.pEnabledFeatures = nullptr;
 
-  CG_INSTPROCVK(_instance, vkCreateDevice);
   auto res = vkCreateDevice(_physicalDev, &devInfo, nullptr, &_device);
   if (res != VK_SUCCESS)
     // TODO
     throw runtime_error("Could not create logical device");
 
-  // Set `getDeviceProcAddrVK` with the newly created device object
-  getDeviceProcAddrVK =
-  reinterpret_cast<PFN_vkGetDeviceProcAddr>
-  (getInstanceProcAddrVK(_instance, "vkGetDeviceProcAddr"));
-
   // Now the queue object can be created
-  CG_DEVPROCVK(_device, vkGetDeviceQueue);
+  setProcsVK(_device);
   VkQueue queue;
   vkGetDeviceQueue(_device, queueFamily, 0, &queue);
   _queue = new QueueVK(queueFamily, queue);
-  _queue->setProcs(_device, _physProperties.apiVersion);
 }
 
 VkInstance DeviceVK::instance() const {
   return _instance;
 }
+
 VkPhysicalDevice DeviceVK::physicalDev() const {
   return _physicalDev;
 }
+
 VkDevice DeviceVK::device() const {
   return _device;
 }
+
 const VkPhysicalDeviceProperties& DeviceVK::physProperties() const {
   return _physProperties;
 }
+
 const std::vector<const char*>& DeviceVK::instExtensions() const {
   return _instExtensions;
 }
+
 const std::vector<const char*>& DeviceVK::devExtensions() const {
   return _devExtensions;
 }
+
 const std::vector<const char*>& DeviceVK::layers() const {
   return _layers;
 }
+
 uint32_t DeviceVK::instVersion() const {
   return _instVersion;
 }
+
 uint32_t DeviceVK::devVersion() const {
   return _physProperties.apiVersion;
 }
+
 const VkPhysicalDeviceLimits& DeviceVK::limits() const {
   return _physProperties.limits;
 }

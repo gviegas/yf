@@ -51,7 +51,7 @@ name = reinterpret_cast<PFN_##name>(CG_NS::vkGetInstanceProcAddr(inst, #name))
 name = reinterpret_cast<PFN_##name>(CG_NS::vkGetDeviceProcAddr(dev, #name))
 
 #define CG_DECLVK(name) extern PFN_##name name
-#define CG_DEFVK(name)  PFN_##name name
+#define CG_DEFVK(name)  PFN_##name CG_NS::name
 
 /// Instance-level procedures (null instance).
 ///

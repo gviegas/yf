@@ -41,7 +41,7 @@ LD_FLAGS := -iquote $(BASE_DIR) -iquote $(INCLUDE_DIR) -iquote $(SRC_DIR)
 PP := $(CXX) -E
 PP_FLAGS := -D YF_CG -D YF_DEVEL
 
-OUT := $(BIN_DIR)cg-devel
+OUT := $(BIN_DIR)devel
 
 devel: $(OBJ)
 	$(CXX) $(CXX_FLAGS) $(LD_FLAGS) $^ $(LD_LIBS) -o $(OUT)

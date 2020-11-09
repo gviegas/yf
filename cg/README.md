@@ -1,5 +1,5 @@
-[yf-CG]
-=======
+[CG]
+====
 
 
 Core types
@@ -17,7 +17,7 @@ Core types
 - CGQueue
 
 
-Sub types
+Subtypes
 ---------
 - CGPxFormat
 - CGStage
@@ -32,7 +32,6 @@ Sub types
 
 Etc
 ---
-- CGResult
 - CGSize[2/3]
 - CGOffset[2/3]
 - CGRect

@@ -1,5 +1,5 @@
 //
-// cg
+// CG
 // DeviceVK.h
 //
 // Copyright © 2020 Gustavo C. Viegas.

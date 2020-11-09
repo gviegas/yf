@@ -11,7 +11,6 @@
 #include <vector>
 
 #include "yf/cg/Defs.h"
-#include "yf/cg/Result.h"
 
 #if defined(__linux__)
 # define VK_USE_PLATFORM_WAYLAND_KHR
@@ -30,7 +29,7 @@ CG_NS_BEGIN
 
 /// Initializes VK.
 ///
-Result initVK();
+bool initVK();
 
 /// Set VK instance-level procedures (null/non-null instance).
 ///

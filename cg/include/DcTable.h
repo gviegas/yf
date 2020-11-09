@@ -13,7 +13,6 @@
 #include <unordered_map>
 
 #include "yf/cg/Defs.h"
-#include "yf/cg/Result.h"
 
 CG_NS_BEGIN
 
@@ -52,7 +51,7 @@ class DcTable {
 
   /// Allocates a given number of resources.
   ///
-  virtual Result allocate(uint32_t n) = 0;
+  virtual void allocate(uint32_t n) = 0;
 
   /// Retrives the number of allocations.
   ///
@@ -60,20 +59,20 @@ class DcTable {
 
   /// Writes to a table resource using a buffer object.
   ///
-  virtual Result write(uint32_t allocation,
-                       DcId id,
-                       uint32_t element,
-                       Buffer& buffer,
-                       uint64_t offset,
-                       uint64_t size) = 0;
+  virtual void write(uint32_t allocation,
+                     DcId id,
+                     uint32_t element,
+                     Buffer& buffer,
+                     uint64_t offset,
+                     uint64_t size) = 0;
 
   /// Writes to a table resource using an image object.
   ///
-  virtual Result write(uint32_t allocation,
-                       DcId id,
-                       uint32_t element,
-                       Image& image,
-                       uint32_t layer) = 0;
+  virtual void write(uint32_t allocation,
+                     DcId id,
+                     uint32_t element,
+                     Image& image,
+                     uint32_t layer) = 0;
 
   /// The table entries.
   ///

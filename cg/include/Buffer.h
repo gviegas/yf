@@ -12,7 +12,6 @@
 #include <memory>
 
 #include "yf/cg/Defs.h"
-#include "yf/cg/Result.h"
 
 CG_NS_BEGIN
 
@@ -26,7 +25,7 @@ class Buffer {
 
   /// Writes data to buffer.
   ///
-  virtual Result write(uint64_t offset, uint64_t size, const void* data) = 0;
+  virtual void write(uint64_t offset, uint64_t size, const void* data) = 0;
 
   /// The size of the buffer.
   ///

@@ -22,17 +22,14 @@ struct DcTableTest : Test {
       DcTable_(const DcEntries& entries) : DcTable(entries) {}
       DcTable_(DcEntries&& entries) : DcTable(entries) {}
 
-      Result allocate(uint32_t) {
-        return Result::Success;
+      void allocate(uint32_t) {
       }
       uint32_t allocations() {
         return UINT32_MAX;
       }
-      Result write(uint32_t, DcId, uint32_t, Buffer&, uint64_t, uint64_t) {
-        return Result::Success;
+      void write(uint32_t, DcId, uint32_t, Buffer&, uint64_t, uint64_t) {
       }
-      Result write(uint32_t, DcId, uint32_t, Image&, uint32_t) {
-        return Result::Success;
+      void write(uint32_t, DcId, uint32_t, Image&, uint32_t) {
       }
     };
 

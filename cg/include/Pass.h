@@ -14,7 +14,6 @@
 
 #include "yf/cg/Defs.h"
 #include "yf/cg/Types.h"
-#include "yf/cg/Result.h"
 #include "yf/cg/Image.h"
 
 CG_NS_BEGIN

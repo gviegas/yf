@@ -66,8 +66,8 @@ class DeviceVK final : public Device {
  private:
   DeviceVK();
 
-  Result checkInstanceExtensions();
-  Result checkDeviceExtensions();
+  bool checkInstanceExtensions();
+  bool checkDeviceExtensions();
   void initInstance();
   void initPhysicalDevice();
   void initDevice(int32_t);

@@ -31,24 +31,24 @@ INTERNAL_NS_BEGIN
 #if defined(__linux__) || defined(__APPLE__)
 void* libHandle = nullptr;
 
-inline Result loadVK() {
+inline bool loadVK() {
   if (libHandle)
-    return Result::Success;
+    return true;
 
   void* handle = dlopen(CG_LIBVK, RTLD_LAZY);
   if (!handle)
-    return Result::Failure;
+    return false;
 
   void* sym = dlsym(handle, "vkGetInstanceProcAddr");
   if (!sym) {
     dlclose(handle);
-    return Result::Failure;
+    return false;
   }
 
   libHandle = handle;
   vkGetInstanceProcAddr = reinterpret_cast<PFN_vkGetInstanceProcAddr>(sym);
 
-  return Result::Success;
+  return true;
 }
 
 inline void unloadVK() {
@@ -65,7 +65,7 @@ inline void unloadVK() {
 
 INTERNAL_NS_END
 
-Result CG_NS::initVK() {
+bool CG_NS::initVK() {
   return loadVK();
 }
 

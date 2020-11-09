@@ -26,8 +26,7 @@ struct ImageTest : Test {
              Samples samples)
              : Image(format, size, layers, levels, samples) {}
 
-      Result write(Offset2, Size2, uint32_t, uint32_t, const void*) {
-        return Result::Failure;
+      void write(Offset2, Size2, uint32_t, uint32_t, const void*) {
       }
     };
 
@@ -39,8 +38,7 @@ struct ImageTest : Test {
                  img.format == PxFormatRgba8Unorm &&
                  img.size == Size2(2048, 2048) &&
                  img.layers == 16 && img.levels == 1 &&
-                 img.samples == Samples1 &&
-                 !img.write({0, 0}, {48, 32}, 0, 0, nullptr)});
+                 img.samples == Samples1});
 
     return a;
   }

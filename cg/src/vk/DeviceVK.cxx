@@ -43,7 +43,7 @@ DeviceVK::~DeviceVK() {
     vkDestroyInstance(_instance, nullptr);
 }
 
-Result DeviceVK::checkInstanceExtensions() {
+bool DeviceVK::checkInstanceExtensions() {
   assert(_instExtensions.empty());
 
   setProcsVK(static_cast<VkInstance>(nullptr));
@@ -81,10 +81,10 @@ Result DeviceVK::checkInstanceExtensions() {
   for (const auto& e : exts)
     reqExts.erase(e.extensionName);
 
-  return reqExts.empty() ? Result::Success : Result::Failure;
+  return reqExts.empty() ? true : false;
 }
 
-Result DeviceVK::checkDeviceExtensions() {
+bool DeviceVK::checkDeviceExtensions() {
   assert(_physicalDev != nullptr);
   assert(_devExtensions.empty());
 
@@ -112,7 +112,7 @@ Result DeviceVK::checkDeviceExtensions() {
   for (const auto& e : exts)
     reqExts.erase(e.extensionName);
 
-  return reqExts.empty() ? Result::Success : Result::Failure;
+  return reqExts.empty() ? true : false;
 }
 
 void DeviceVK::initInstance() {

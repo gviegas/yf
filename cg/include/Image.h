@@ -13,7 +13,6 @@
 
 #include "yf/cg/Defs.h"
 #include "yf/cg/Types.h"
-#include "yf/cg/Result.h"
 
 CG_NS_BEGIN
 
@@ -55,11 +54,11 @@ class Image {
 
   /// Writes data to image.
   ///
-  virtual Result write(Offset2 offset,
-                       Size2 size,
-                       uint32_t layer,
-                       uint32_t level,
-                       const void* data) = 0;
+  virtual void write(Offset2 offset,
+                     Size2 size,
+                     uint32_t layer,
+                     uint32_t level,
+                     const void* data) = 0;
 
   /// Instance constants.
   ///

@@ -18,7 +18,7 @@ class BufferVK final : public Buffer {
   BufferVK(uint64_t size);
   ~BufferVK();
 
-  Result write(uint64_t offset, uint64_t size, const void* data);
+  void write(uint64_t offset, uint64_t size, const void* data);
 
   VkBuffer handle() const;
 

@@ -70,13 +70,12 @@ BufferVK::~BufferVK() {
   deallocateVK(_memory);
 }
 
-Result BufferVK::write(uint64_t offset, uint64_t size, const void* data) {
+void BufferVK::write(uint64_t offset, uint64_t size, const void* data) {
   if (offset + size > this->size || !data)
     // TODO
     throw invalid_argument("Invalid BufferVK::write() argument(s)");
 
   memcpy(reinterpret_cast<uint8_t*>(_data)+offset, data, size);
-  return Result::Success;
 }
 
 VkBuffer BufferVK::handle() const {

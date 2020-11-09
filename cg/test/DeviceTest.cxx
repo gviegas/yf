@@ -30,9 +30,12 @@ struct DeviceTest : Test {
                              StoreOpStore, LoadOpDontCare, StoreOpDontCare};
     auto pass = dev.makePass(&clrs, nullptr, &depSten);
 
+    auto buf = dev.makeBuffer(1<<28);
+
     a.push_back({L"Device::get()", true});
     a.push_back({L"dev.makeShader(...)", shd != nullptr});
     a.push_back({L"dev.makePass(...)", pass != nullptr});
+    a.push_back({L"dev.makeBuffer(...)", buf != nullptr});
 
     return a;
   }

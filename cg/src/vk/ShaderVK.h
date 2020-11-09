@@ -1,5 +1,5 @@
 //
-// cg
+// CG
 // ShaderVK.h
 //
 // Copyright © 2020 Gustavo C. Viegas.

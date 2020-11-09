@@ -1,5 +1,5 @@
 //
-// cg
+// CG
 // Run.cxx
 //
 // Copyright © 2020 Gustavo C. Viegas.
@@ -17,7 +17,7 @@ int main(int argc, char* argv[]) {
   line.resize(80);
   fill(line.begin(), line.end(), L'=');
 
-  wcout << line << "\n[yf-cg] Test\n" << line << "\n\n";
+  wcout << line << "\n[CG] Test\n" << line << "\n\n";
 
   vector<string> args;
   wcout << argv[0] << " ";

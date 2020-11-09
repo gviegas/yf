@@ -1,5 +1,5 @@
 //
-// cg
+// CG
 // BufferTest.cxx
 //
 // Copyright © 2020 Gustavo C. Viegas.

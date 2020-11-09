@@ -1,5 +1,5 @@
 //
-// cg
+// CG
 // MemoryVK.h
 //
 // Copyright © 2020 Gustavo C. Viegas.

@@ -1,5 +1,5 @@
 //
-// cg
+// CG
 // ImageTest.cxx
 //
 // Copyright © 2020 Gustavo C. Viegas.

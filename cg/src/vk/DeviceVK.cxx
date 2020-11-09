@@ -239,6 +239,8 @@ void DeviceVK::initPhysicalDevice() {
     // TODO
     throw runtime_error("Could not find a suitable physical device");
 
+  vkGetPhysicalDeviceMemoryProperties(_physicalDev, &_memProperties);
+
   // Now the logical device can be initialized
   initDevice(queueFamily);
 }
@@ -303,6 +305,10 @@ VkDevice DeviceVK::device() const {
 
 const VkPhysicalDeviceProperties& DeviceVK::physProperties() const {
   return _physProperties;
+}
+
+const VkPhysicalDeviceMemoryProperties& DeviceVK::memProperties() const {
+  return _memProperties;
 }
 
 const std::vector<const char*>& DeviceVK::instExtensions() const {

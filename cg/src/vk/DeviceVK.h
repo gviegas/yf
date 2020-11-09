@@ -55,6 +55,7 @@ class DeviceVK final : public Device {
   VkPhysicalDevice physicalDev() const;
   VkDevice device() const;
   const VkPhysicalDeviceProperties& physProperties() const;
+  const VkPhysicalDeviceMemoryProperties& memProperties() const;
   const std::vector<const char*>& instExtensions() const;
   const std::vector<const char*>& devExtensions() const;
   const std::vector<const char*>& layers() const;
@@ -78,6 +79,7 @@ class DeviceVK final : public Device {
 
   VkPhysicalDevice _physicalDev = nullptr;
   VkPhysicalDeviceProperties _physProperties{};
+  VkPhysicalDeviceMemoryProperties _memProperties{};
 
   VkDevice _device = nullptr;
   std::vector<const char*> _devExtensions{};

@@ -13,6 +13,7 @@
 #include "DeviceVK.h"
 #include "VK.h"
 #include "QueueVK.h"
+#include "BufferVK.h"
 #include "ShaderVK.h"
 #include "PassVK.h"
 
@@ -336,8 +337,7 @@ const VkPhysicalDeviceLimits& DeviceVK::limits() const {
 }
 
 Buffer::Ptr DeviceVK::makeBuffer(uint64_t size) {
-  // TODO
-  assert(false);
+  return make_unique<BufferVK>(size);
 }
 
 Image::Ptr DeviceVK::makeImage(PxFormat format,

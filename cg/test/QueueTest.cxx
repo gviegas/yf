@@ -6,7 +6,7 @@
 //
 
 #include "UnitTests.h"
-#include "yf/cg/Queue.h"
+#include "Queue.h"
 
 using namespace TEST_NS;
 using namespace CG_NS;

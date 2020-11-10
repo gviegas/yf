@@ -5,7 +5,7 @@
 // Copyright © 2020 Gustavo C. Viegas.
 //
 
-#include "yf/cg/Encoder.h"
+#include "Encoder.h"
 #include "Cmd.h"
 
 using namespace CG_NS;

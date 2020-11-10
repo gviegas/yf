@@ -6,7 +6,7 @@
 //
 
 #include "UnitTests.h"
-#include "yf/cg/Pass.h"
+#include "Pass.h"
 
 using namespace TEST_NS;
 using namespace CG_NS;

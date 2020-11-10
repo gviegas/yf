@@ -8,7 +8,7 @@
 #ifndef YF_CG_CMD_H
 #define YF_CG_CMD_H
 
-#include "yf/cg/Encoder.h"
+#include "Encoder.h"
 
 CG_NS_BEGIN
 

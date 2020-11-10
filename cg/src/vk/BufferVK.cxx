@@ -5,12 +5,11 @@
 // Copyright © 2020 Gustavo C. Viegas.
 //
 
-#include <stdexcept>
 #include <cstring>
 
 #include "BufferVK.h"
-#include "DeviceVK.h"
 #include "MemoryVK.h"
+#include "DeviceVK.h"
 #include "yf/Except.h"
 
 using namespace CG_NS;

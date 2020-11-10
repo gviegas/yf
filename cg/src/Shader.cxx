@@ -5,7 +5,7 @@
 // Copyright © 2020 Gustavo C. Viegas.
 //
 
-#include "yf/cg/Shader.h"
+#include "Shader.h"
 
 using namespace CG_NS;
 using namespace std;

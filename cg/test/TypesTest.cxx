@@ -6,7 +6,7 @@
 //
 
 #include "UnitTests.h"
-#include "yf/cg/Types.h"
+#include "Types.h"
 
 using namespace TEST_NS;
 using namespace CG_NS;

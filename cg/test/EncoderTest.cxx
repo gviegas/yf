@@ -6,7 +6,7 @@
 //
 
 #include "UnitTests.h"
-#include "yf/cg/Encoder.h"
+#include "Encoder.h"
 #include "Cmd.h"
 
 using namespace TEST_NS;

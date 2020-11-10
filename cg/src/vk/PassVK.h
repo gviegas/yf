@@ -58,6 +58,25 @@ class TargetVK final : public Target {
   VkFramebuffer framebuffer_ = VK_NULL_HANDLE;
 };
 
+/// Converts from a `LoadOP` value.
+///
+inline VkAttachmentLoadOp toLoadOpVK(LoadOp op) {
+  switch (op) {
+  case LoadOpLoad:     return VK_ATTACHMENT_LOAD_OP_LOAD;
+  case LoadOpClear:    return VK_ATTACHMENT_LOAD_OP_CLEAR;
+  case LoadOpDontCare: return VK_ATTACHMENT_LOAD_OP_DONT_CARE;
+  }
+}
+
+/// Converts from a `StoreOp` value.
+///
+inline VkAttachmentStoreOp toStoreOpVK(StoreOp op) {
+  switch (op) {
+  case StoreOpStore:    return VK_ATTACHMENT_STORE_OP_STORE;
+  case StoreOpDontCare: return VK_ATTACHMENT_STORE_OP_DONT_CARE;
+  }
+}
+
 CG_NS_END
 
 #endif // YF_CG_PASSVK_H

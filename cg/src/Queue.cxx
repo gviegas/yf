@@ -5,7 +5,7 @@
 // Copyright © 2020 Gustavo C. Viegas.
 //
 
-#include "yf/cg/Queue.h"
+#include "Queue.h"
 
 using namespace CG_NS;
 

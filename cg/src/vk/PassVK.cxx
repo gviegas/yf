@@ -8,53 +8,12 @@
 #include <stdexcept>
 
 #include "PassVK.h"
+#include "ImageVK.h"
 #include "DeviceVK.h"
 #include "yf/Except.h"
 
 using namespace CG_NS;
 using namespace std;
-
-INTERNAL_NS_BEGIN
-
-// TODO: move these functions
-
-inline VkFormat toFormatVK(PxFormat pxFormat) {
-  switch (pxFormat) {
-  case PxFormatUndefined:  return VK_FORMAT_UNDEFINED;
-  case PxFormatBgra8Srgb:  return VK_FORMAT_B8G8R8A8_SRGB;
-  case PxFormatRgba8Unorm: return VK_FORMAT_R8G8B8A8_UNORM;
-  case PxFormatD16Unorm: return VK_FORMAT_D16_UNORM;
-  }
-}
-
-inline VkSampleCountFlagBits toSampleCountVK(Samples samples) {
-  switch (samples) {
-  case Samples1:  return VK_SAMPLE_COUNT_1_BIT;
-  case Samples2:  return VK_SAMPLE_COUNT_2_BIT;
-  case Samples4:  return VK_SAMPLE_COUNT_4_BIT;
-  case Samples8:  return VK_SAMPLE_COUNT_8_BIT;
-  case Samples16: return VK_SAMPLE_COUNT_16_BIT;
-  case Samples32: return VK_SAMPLE_COUNT_32_BIT;
-  case Samples64: return VK_SAMPLE_COUNT_64_BIT;
-  }
-}
-
-inline VkAttachmentLoadOp toLoadOpVK(LoadOp op) {
-  switch (op) {
-  case LoadOpLoad:     return VK_ATTACHMENT_LOAD_OP_LOAD;
-  case LoadOpClear:    return VK_ATTACHMENT_LOAD_OP_CLEAR;
-  case LoadOpDontCare: return VK_ATTACHMENT_LOAD_OP_DONT_CARE;
-  }
-}
-
-inline VkAttachmentStoreOp toStoreOpVK(StoreOp op) {
-  switch (op) {
-  case StoreOpStore:    return VK_ATTACHMENT_STORE_OP_STORE;
-  case StoreOpDontCare: return VK_ATTACHMENT_STORE_OP_DONT_CARE;
-  }
-}
-
-INTERNAL_NS_END
 
 // ------------------------------------------------------------------------
 // PassVK

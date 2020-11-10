@@ -43,7 +43,7 @@ ShaderVK::ShaderVK(Stage stage, wstring&& codeFile, wstring&& entryPoint)
   info.pCode = reinterpret_cast<uint32_t*>(buf.get());
 
   auto dev = DeviceVK::get().device();
-  auto res = vkCreateShaderModule(dev, &info, nullptr, &_module);
+  auto res = vkCreateShaderModule(dev, &info, nullptr, &module_);
   if (res != VK_SUCCESS)
     // TODO
     throw runtime_error("Failed to create shader module");
@@ -52,9 +52,9 @@ ShaderVK::ShaderVK(Stage stage, wstring&& codeFile, wstring&& entryPoint)
 ShaderVK::~ShaderVK() {
   // TODO: notify
   auto dev = DeviceVK::get().device();
-  vkDestroyShaderModule(dev, _module, nullptr);
+  vkDestroyShaderModule(dev, module_, nullptr);
 }
 
 VkShaderModule ShaderVK::module() const {
-  return _module;
+  return module_;
 }

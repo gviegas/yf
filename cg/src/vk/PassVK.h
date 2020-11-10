@@ -33,7 +33,7 @@ class PassVK final : public Pass {
   VkRenderPass renderPass() const;
 
  private:
-  VkRenderPass _renderPass = VK_NULL_HANDLE;
+  VkRenderPass renderPass_ = VK_NULL_HANDLE;
 };
 
 class TargetVK final : public Target {
@@ -46,13 +46,16 @@ class TargetVK final : public Target {
            const AttachImg* depthStencil);
 
   ~TargetVK();
-  const Pass& pass() const;
 
+  Pass& pass() const;
+
+  /// Getter.
+  ///
   VkFramebuffer framebuffer() const;
 
  private:
-  PassVK& _pass;
-  VkFramebuffer _framebuffer = VK_NULL_HANDLE;
+  PassVK& pass_;
+  VkFramebuffer framebuffer_ = VK_NULL_HANDLE;
 };
 
 CG_NS_END

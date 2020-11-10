@@ -40,9 +40,9 @@ class Shader {
 
   /// Instance constants.
   ///
-  const Stage        stage;
-  const std::wstring codeFile;
-  const std::wstring entryPoint;
+  const Stage stage_;
+  const std::wstring codeFile_;
+  const std::wstring entryPoint_;
 };
 
 CG_NS_END

@@ -123,12 +123,11 @@ class GrState {
   };
 
   explicit GrState(const Config& config);
-  explicit GrState(Config&& config);
   virtual ~GrState() = 0;
 
   /// The state configuration.
   ///
-  const Config config;
+  const Config config_;
 };
 
 /// Compute state.
@@ -150,7 +149,7 @@ class CpState {
 
   /// The state configuration.
   ///
-  const Config config;
+  const Config config_;
 };
 
 CG_NS_END

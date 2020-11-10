@@ -15,7 +15,7 @@ using namespace std;
 INTERNAL_NS_BEGIN
 
 struct TypesTest : Test {
-  TypesTest() : Test(L"Types") {}
+  TypesTest() : Test(L"Types") { }
 
   Assertions run(const vector<string>&) {
     Assertions a;

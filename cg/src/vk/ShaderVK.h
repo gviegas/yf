@@ -21,7 +21,7 @@ class ShaderVK final : public Shader {
   VkShaderModule module() const;
 
  private:
-  VkShaderModule _module = VK_NULL_HANDLE;
+  VkShaderModule module_ = VK_NULL_HANDLE;
 };
 
 CG_NS_END

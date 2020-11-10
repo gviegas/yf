@@ -20,7 +20,7 @@ using namespace std;
 // QueueVK
 
 QueueVK::QueueVK(int32_t family, VkQueue handle)
-  : Queue(Graphics|Compute|Transfer), _family(family), _handle(handle) {
+  : Queue(Graphics|Compute|Transfer), family_(family), handle_(handle) {
 
   assert(family > -1);
   assert(handle != nullptr);
@@ -30,7 +30,7 @@ QueueVK::QueueVK(int32_t family, VkQueue handle)
 
 QueueVK::~QueueVK() {
   // No command buffer shall outlive its queue
-  if (!_pools.empty()) {
+  if (!pools_.empty()) {
     assert(false);
     abort();
   }
@@ -41,7 +41,7 @@ VkCommandPool QueueVK::initPool() {
   info.sType = VK_STRUCTURE_TYPE_COMMAND_POOL_CREATE_INFO;
   info.pNext = nullptr;
   info.flags = VK_COMMAND_POOL_CREATE_RESET_COMMAND_BUFFER_BIT;
-  info.queueFamilyIndex = _family;
+  info.queueFamilyIndex = family_;
 
   VkCommandPool handle;
   auto res = vkCreateCommandPool(DeviceVK::get().device(), &info, nullptr,
@@ -75,22 +75,22 @@ CmdBuffer::Ptr QueueVK::makeCmdBuffer() {
     throw runtime_error("Could not allocate command buffer");
   }
 
-  auto it = _pools.emplace(new CmdBufferVK(*this, handle), pool).first;
+  auto it = pools_.emplace(new CmdBufferVK(*this, handle), pool).first;
   return CmdBuffer::Ptr(it->first);
 }
 
 void QueueVK::submit() {
-  if (_pending.empty())
+  if (pending_.empty())
     return;
 
   auto notifyAndClear = [&] {
-    for (auto& cb : _pending)
+    for (auto& cb : pending_)
       cb->didExecute();
-    _pending.clear();
+    pending_.clear();
   };
 
   vector<VkCommandBuffer> handles;
-  for (const auto& cb : _pending)
+  for (const auto& cb : pending_)
     handles.push_back(cb->handle());
 
   VkSubmitInfo info;
@@ -105,13 +105,13 @@ void QueueVK::submit() {
   info.pSignalSemaphores = nullptr;
 
   VkResult res;
-  res = vkQueueSubmit(_handle, 1, &info, VK_NULL_HANDLE);
+  res = vkQueueSubmit(handle_, 1, &info, VK_NULL_HANDLE);
   if (res != VK_SUCCESS) {
     notifyAndClear();
     // TODO
     throw runtime_error("Queue submission failed");
   }
-  res = vkQueueWaitIdle(_handle);
+  res = vkQueueWaitIdle(handle_);
   if (res != VK_SUCCESS) {
     notifyAndClear();
     // TODO
@@ -122,14 +122,14 @@ void QueueVK::submit() {
 }
 
 void QueueVK::enqueue(CmdBufferVK* cmdBuffer) {
-  assert(_pending.find(cmdBuffer) == _pending.end());
+  assert(pending_.find(cmdBuffer) == pending_.end());
 
   // TODO: lock
-  _pending.insert(cmdBuffer);
+  pending_.insert(cmdBuffer);
 }
 
 void QueueVK::unmake(CmdBufferVK* cmdBuffer) noexcept {
-  assert(_pools.find(cmdBuffer) != _pools.end());
+  assert(pools_.find(cmdBuffer) != pools_.end());
 
   if (cmdBuffer->isPending()) {
     // TODO: gate command buffer destruction
@@ -137,30 +137,30 @@ void QueueVK::unmake(CmdBufferVK* cmdBuffer) noexcept {
     abort();
   }
 
-  auto it = _pools.find(cmdBuffer);
+  auto it = pools_.find(cmdBuffer);
   vkDestroyCommandPool(DeviceVK::get().device(), it->second, nullptr);
-  _pools.erase(it);
+  pools_.erase(it);
 }
 
 // ------------------------------------------------------------------------
 // CmdBufferVK
 
 CmdBufferVK::CmdBufferVK(QueueVK& queue, VkCommandBuffer handle)
-  : _queue(queue), _handle(handle), _pending(false), _begun(false) {
+  : queue_(queue), handle_(handle), pending_(false), begun_(false) {
 
   assert(handle != nullptr);
 }
 
 CmdBufferVK::~CmdBufferVK() {
-  _queue.unmake(this);
+  queue_.unmake(this);
 }
 
 void CmdBufferVK::encode(const Encoder& encoder) {
-  if (_pending)
+  if (pending_)
     // TODO
     throw runtime_error("Attempt to encode a pending command buffer");
 
-  if (!_begun) {
+  if (!begun_) {
     VkCommandBufferBeginInfo info;
     info.sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_BEGIN_INFO;
     info.pNext = nullptr;
@@ -168,12 +168,12 @@ void CmdBufferVK::encode(const Encoder& encoder) {
     info.flags = VK_COMMAND_BUFFER_USAGE_ONE_TIME_SUBMIT_BIT;
     info.pInheritanceInfo = nullptr;
 
-    auto res = vkBeginCommandBuffer(_handle, &info);
+    auto res = vkBeginCommandBuffer(handle_, &info);
     if (res != VK_SUCCESS)
       // TODO
       throw runtime_error("Could not set command buffer for encoding");
 
-    _begun = true;
+    begun_ = true;
   }
 
   switch (encoder.type()) {
@@ -190,49 +190,49 @@ void CmdBufferVK::encode(const Encoder& encoder) {
 }
 
 void CmdBufferVK::enqueue() {
-  if (_pending)
+  if (pending_)
     // TODO
     throw runtime_error("Attempt to enqueue a pending command buffer");
 
-  if (!_begun)
+  if (!begun_)
     // TODO
     throw runtime_error("Attempt to enqueue an empty command buffer");
 
-  _begun = false;
+  begun_ = false;
 
-  auto res = vkEndCommandBuffer(_handle);
+  auto res = vkEndCommandBuffer(handle_);
   if (res != VK_SUCCESS)
     // TODO
     throw runtime_error("Invalid command buffer encoding(s)");
 
-  _pending = true;
-  _queue.enqueue(this);
+  pending_ = true;
+  queue_.enqueue(this);
 }
 
 void CmdBufferVK::reset() {
-  if (_pending)
+  if (pending_)
     // TODO
     throw runtime_error("Attempt to reset a pending command buffer");
 
-  vkResetCommandBuffer(_handle, 0);
+  vkResetCommandBuffer(handle_, 0);
 }
 
 bool CmdBufferVK::isPending() {
-  return _pending;
+  return pending_;
 }
 
 Queue& CmdBufferVK::queue() const {
-  return _queue;
+  return queue_;
 }
 
 VkCommandBuffer CmdBufferVK::handle() const {
-  return _handle;
+  return handle_;
 }
 
 void CmdBufferVK::didExecute() {
-  assert(_pending);
+  assert(pending_);
 
-  _pending = false;
+  pending_ = false;
 }
 
 void CmdBufferVK::encode(const GrEncoder& encoder) {

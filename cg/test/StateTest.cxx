@@ -15,15 +15,15 @@ using namespace std;
 INTERNAL_NS_BEGIN
 
 struct StateTest : Test {
-  StateTest() : Test(L"State") {}
+  StateTest() : Test(L"State") { }
 
   Assertions run(const vector<string>&) {
     struct GrState_ : GrState {
-      GrState_(const Config& config) : GrState(config) {}
+      GrState_(const Config& config) : GrState(config) { }
     };
 
     struct CpState_ : CpState {
-      CpState_(const Config& config) : CpState(config) {}
+      CpState_(const Config& config) : CpState(config) { }
     };
 
     Assertions a;
@@ -43,18 +43,18 @@ struct StateTest : Test {
     CpState_ cs(cc);
 
     a.push_back({L"GrState(config)",
-                 gs.config.vxInputs.size() == 1 &&
-                 gs.config.vxInputs.back().attributes
+                 gs.config_.vxInputs.size() == 1 &&
+                 gs.config_.vxInputs.back().attributes
                   .find(4)->second.format == VxFormatFlt4 &&
-                 gs.config.vxInputs.back().attributes
+                 gs.config_.vxInputs.back().attributes
                   .find(4)->second.offset == 0 &&
-                 gs.config.primitive == PrimitiveTriangle &&
-                 gs.config.polyMode == PolyModeFill &&
-                 gs.config.cullMode == CullModeBack &&
-                 gs.config.winding == WindingCounterCw});
+                 gs.config_.primitive == PrimitiveTriangle &&
+                 gs.config_.polyMode == PolyModeFill &&
+                 gs.config_.cullMode == CullModeBack &&
+                 gs.config_.winding == WindingCounterCw});
 
     a.push_back({L"CpState(config)",
-                 cs.config.shader == nullptr && cs.config.dcTables.empty()});
+                 cs.config_.shader == nullptr && cs.config_.dcTables.empty()});
 
     return a;
   }

@@ -29,10 +29,18 @@ class Test {
   Test(const Test&) = delete;
   Test& operator=(const Test&) = delete;
   virtual ~Test();
+
+  /// Runs the test.
+  ///
   virtual Assertions run(const std::vector<std::string>& args) = 0;
-  const std::wstring name;
+
+  /// Test name.
+  ///
+  const std::wstring name_;
 };
 
+/// Runs a test group.
+///
 Coverage run(const std::vector<Test*>& tests,
              std::vector<std::string>&& args = {});
 

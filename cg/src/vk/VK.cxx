@@ -28,9 +28,13 @@ using namespace std;
 
 INTERNAL_NS_BEGIN
 
-#if defined(__linux__) || defined(__APPLE__)
+/// Lib handle.
+///
 void* libHandle = nullptr;
 
+#if defined(__linux__) || defined(__APPLE__)
+/// Loads VK lib and retrieves `vkGetInstanceProcAddr` symbol.
+///
 inline bool loadVK() {
   if (libHandle)
     return true;
@@ -51,6 +55,8 @@ inline bool loadVK() {
   return true;
 }
 
+/// Unloads VK lib.
+///
 inline void unloadVK() {
   if (libHandle) {
     dlclose(libHandle);
@@ -58,7 +64,19 @@ inline void unloadVK() {
   }
 }
 #elif defined(_WIN32)
-# error "Unimplemented"
+/// Loads VK lib and retrieves `vkGetInstanceProcAddr` symbol.
+///
+inline bool loadVK() {
+  // TODO
+  throw runtime_error("Unimplemented);"
+}
+
+/// Unloads VK lib.
+///
+inline void unloadVK() {
+  // TODO
+  throw runtime_error("Unimplemented);"
+}
 #else
 # error "Invalid platform"
 #endif // defined(__linux__) || defined(__APPLE__)
@@ -70,15 +88,9 @@ bool CG_NS::initVK() {
 }
 
 void CG_NS::setProcsVK(VkInstance instance) {
-#if defined(__linux__) || defined(__APPLE__)
   if (!libHandle && !loadVK())
     // TODO
     throw runtime_error("Failed to load VK lib");
-#elif defined(_WIN32)
-# error "Unimplemented"
-#else
-# error "Invalid platform"
-#endif
 
   if (!instance) {
     CG_INSTPROCVK(nullptr, vkGetInstanceProcAddr);
@@ -115,15 +127,9 @@ void CG_NS::setProcsVK(VkDevice device) {
     // TODO
     throw invalid_argument("setProcsVK() expects a valid device handle");
 
-#if defined(__linux__) || defined(__APPLE__)
   if (!libHandle || !loadVK())
     // TODO
     throw runtime_error("Failed to load VK lib");
-#elif defined(_WIN32)
-# error "Unimplemented"
-#else
-# error "Invalid platform"
-#endif
 
   CG_DEVPROCVK(device, vkGetDeviceProcAddr);
   CG_DEVPROCVK(device, vkDestroyDevice);

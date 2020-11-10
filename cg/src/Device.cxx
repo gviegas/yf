@@ -10,7 +10,7 @@
 
 using namespace CG_NS;
 
-Device::~Device() {}
+Device::~Device() { }
 
 // TODO
 Device& Device::get() {

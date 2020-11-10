@@ -9,6 +9,6 @@
 
 using namespace CG_NS;
 
-Buffer::Buffer(uint64_t size) : size(size) {}
+Buffer::Buffer(uint64_t size) : size_(size) { }
 
-Buffer::~Buffer() {}
+Buffer::~Buffer() { }

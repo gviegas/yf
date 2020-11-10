@@ -15,12 +15,12 @@ using namespace std;
 INTERNAL_NS_BEGIN
 
 struct ShaderTest : Test {
-  ShaderTest() : Test(L"Shader") {}
+  ShaderTest() : Test(L"Shader") { }
 
   Assertions run(const vector<string>&) {
     struct Shader_ : Shader {
       Shader_(Stage stage, wstring&& codeFile, wstring&& entryPoint)
-        : Shader(stage, move(codeFile), move(entryPoint)) {}
+        : Shader(stage, move(codeFile), move(entryPoint)) { }
     };
 
     Assertions a;
@@ -30,8 +30,8 @@ struct ShaderTest : Test {
     Shader_ shd(StageFragment, wstring(code), wstring(entry));
 
     a.push_back({L"Shader(StageFragment, "+code+L", "+entry+L")",
-                 shd.stage == StageFragment && shd.codeFile == code &&
-                 shd.entryPoint == entry});
+                 shd.stage_ == StageFragment && shd.codeFile_ == code &&
+                 shd.entryPoint_ == entry});
 
     return a;
   }

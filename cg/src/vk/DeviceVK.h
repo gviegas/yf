@@ -35,16 +35,13 @@ class DeviceVK final : public Device {
                          std::wstring&& entryPoint);
 
   DcTable::Ptr makeDcTable(const DcEntries& entries);
-  DcTable::Ptr makeDcTable(DcEntries&& entries);
 
   Pass::Ptr makePass(const std::vector<ColorAttach>* colors,
                      const std::vector<ColorAttach>* resolves,
                      const DepStenAttach* depthStencil);
 
   GrState::Ptr makeState(const GrState::Config& config);
-  GrState::Ptr makeState(GrState::Config&& config);
   CpState::Ptr makeState(const CpState::Config& config);
-  CpState::Ptr makeState(CpState::Config&& config);
 
   Queue& defaultQueue();
   Queue& queue(Queue::CapabilityMask capabilities);
@@ -72,19 +69,19 @@ class DeviceVK final : public Device {
   void initPhysicalDevice();
   void initDevice(int32_t);
 
-  VkInstance _instance = nullptr;
-  uint32_t _instVersion = 0;
-  std::vector<const char*> _instExtensions{};
-  std::vector<const char*> _layers{};
+  VkInstance instance_ = nullptr;
+  uint32_t instVersion_ = 0;
+  std::vector<const char*> instExtensions_{};
+  std::vector<const char*> layers_{};
 
-  VkPhysicalDevice _physicalDev = nullptr;
-  VkPhysicalDeviceProperties _physProperties{};
-  VkPhysicalDeviceMemoryProperties _memProperties{};
+  VkPhysicalDevice physicalDev_ = nullptr;
+  VkPhysicalDeviceProperties physProperties_{};
+  VkPhysicalDeviceMemoryProperties memProperties_{};
 
-  VkDevice _device = nullptr;
-  std::vector<const char*> _devExtensions{};
+  VkDevice device_ = nullptr;
+  std::vector<const char*> devExtensions_{};
 
-  QueueVK* _queue = nullptr;
+  QueueVK* queue_ = nullptr;
 };
 
 CG_NS_END

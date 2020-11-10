@@ -39,10 +39,10 @@ class QueueVK final : public Queue {
   VkCommandPool initPool();
   void deinitPool(VkCommandPool);
 
-  int32_t _family = -1;
-  VkQueue _handle = nullptr;
-  std::unordered_map<CmdBufferVK*, VkCommandPool> _pools{};
-  std::unordered_set<CmdBufferVK*> _pending{};
+  int32_t family_ = -1;
+  VkQueue handle_ = nullptr;
+  std::unordered_map<CmdBufferVK*, VkCommandPool> pools_{};
+  std::unordered_set<CmdBufferVK*> pending_{};
 };
 
 class GrEncoder;
@@ -73,10 +73,10 @@ class CmdBufferVK final : public CmdBuffer {
   void encode(const CpEncoder&);
   void encode(const TfEncoder&);
 
-  QueueVK& _queue;
-  VkCommandBuffer _handle = nullptr;
-  bool _pending = false;
-  bool _begun = false;
+  QueueVK& queue_;
+  VkCommandBuffer handle_ = nullptr;
+  bool pending_ = false;
+  bool begun_ = false;
 };
 
 CG_NS_END

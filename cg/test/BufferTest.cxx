@@ -6,7 +6,7 @@
 //
 
 #include "UnitTests.h"
-#include "yf/cg/Buffer.h"
+#include "Buffer.h"
 
 using namespace TEST_NS;
 using namespace CG_NS;

@@ -20,12 +20,14 @@ class BufferVK final : public Buffer {
 
   void write(uint64_t offset, uint64_t size, const void* data);
 
+  /// Getter.
+  ///
   VkBuffer handle() const;
 
  private:
   VkDeviceMemory memory_ = VK_NULL_HANDLE;
   VkBuffer handle_ = VK_NULL_HANDLE;
-  void* data_;
+  void* data_ = nullptr;
 };
 
 CG_NS_END

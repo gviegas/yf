@@ -5,7 +5,7 @@
 // Copyright © 2020 Gustavo C. Viegas.
 //
 
-#include "yf/cg/Pass.h"
+#include "Pass.h"
 
 using namespace CG_NS;
 using namespace std;

@@ -23,9 +23,9 @@ class BufferVK final : public Buffer {
   VkBuffer handle() const;
 
  private:
-  VkDeviceMemory _memory = VK_NULL_HANDLE;
-  VkBuffer _handle = VK_NULL_HANDLE;
-  void* _data;
+  VkDeviceMemory memory_ = VK_NULL_HANDLE;
+  VkBuffer handle_ = VK_NULL_HANDLE;
+  void* data_;
 };
 
 CG_NS_END

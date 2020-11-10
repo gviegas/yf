@@ -76,7 +76,7 @@ class DcTable {
 
   /// The table entries.
   ///
-  const DcEntries entries;
+  const DcEntries entries_;
 };
 
 CG_NS_END

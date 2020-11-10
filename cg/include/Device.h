@@ -53,7 +53,6 @@ class Device {
   /// Makes a new descriptor table object.
   ///
   virtual DcTable::Ptr makeDcTable(const DcEntries& entries) = 0;
-  virtual DcTable::Ptr makeDcTable(DcEntries&& entries) = 0;
 
   /// Makes a new pass object.
   ///
@@ -64,9 +63,7 @@ class Device {
   /// Makes a new state object.
   ///
   virtual GrState::Ptr makeState(const GrState::Config& config) = 0;
-  virtual GrState::Ptr makeState(GrState::Config&& config) = 0;
   virtual CpState::Ptr makeState(const CpState::Config& config) = 0;
-  virtual CpState::Ptr makeState(CpState::Config&& config) = 0;
 
   /// Retrieves execution queues.
   ///

@@ -62,11 +62,11 @@ class Image {
 
   /// Instance constants.
   ///
-  const PxFormat format;
-  const Size2    size;
-  const uint32_t layers;
-  const uint32_t levels;
-  const Samples  samples;
+  const PxFormat format_;
+  const Size2 size_;
+  const uint32_t layers_;
+  const uint32_t levels_;
+  const Samples samples_;
 };
 
 CG_NS_END

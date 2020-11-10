@@ -77,7 +77,7 @@ class Queue {
 
   /// The capabilities of the queue.
   ///
-  const CapabilityMask capabilities;
+  const CapabilityMask capabilities_;
 };
 
 CG_NS_END

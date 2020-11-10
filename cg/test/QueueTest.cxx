@@ -15,15 +15,14 @@ using namespace std;
 INTERNAL_NS_BEGIN
 
 struct QueueTest : Test {
-  QueueTest() : Test(L"Queue") {}
+  QueueTest() : Test(L"Queue") { }
 
   Assertions run(const vector<string>&) {
     struct CmdBuffer_ : CmdBuffer {
-      CmdBuffer_(const Queue& owner) : _queue(owner) {}
-
-      void encode(const Encoder&) {}
-      void enqueue() {}
-      void reset() {}
+      CmdBuffer_(const Queue& owner) : _queue(owner) { }
+      void encode(const Encoder&) { }
+      void enqueue() { }
+      void reset() { }
       bool isPending() { return true; }
       const Queue& queue() const { return _queue; }
 
@@ -32,10 +31,9 @@ struct QueueTest : Test {
     };
 
     struct Queue_ : Queue {
-      Queue_(CapabilityMask capab) : Queue(capab) {}
-
+      Queue_(CapabilityMask capab) : Queue(capab) { }
       CmdBuffer::Ptr makeCmdBuffer() { return make_unique<CmdBuffer_>(*this); }
-      void submit() {}
+      void submit() { }
     };
 
     Assertions a;
@@ -45,8 +43,8 @@ struct QueueTest : Test {
     auto cb = q1.makeCmdBuffer();
 
     a.push_back({L"Queue q1(Graphics | Transfer)",
-                 q1.capabilities == (Queue::Graphics | Queue::Transfer)});
-    a.push_back({L"Queue q2(Compute)", q2.capabilities == Queue::Compute});
+                 q1.capabilities_ == (Queue::Graphics | Queue::Transfer)});
+    a.push_back({L"Queue q2(Compute)", q2.capabilities_ == Queue::Compute});
     a.push_back({L"cb = q1.makeCmdBuffer()", cb != nullptr});
     a.push_back({L"&cb->queue() == &q1", &cb->queue() == &q1});
     a.push_back({L"&cb->queue() == &q2", &cb->queue() != &q2});

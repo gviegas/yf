@@ -11,6 +11,6 @@ using namespace CG_NS;
 using namespace std;
 
 Shader::Shader(Stage stage, wstring&& codeFile, wstring&& entryPoint)
-  : stage(stage), codeFile(codeFile), entryPoint(entryPoint) {}
+  : stage_(stage), codeFile_(codeFile), entryPoint_(entryPoint) { }
 
 Shader::~Shader() {}

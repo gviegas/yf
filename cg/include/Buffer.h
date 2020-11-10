@@ -29,7 +29,7 @@ class Buffer {
 
   /// The size of the buffer.
   ///
-  const uint64_t size;
+  const uint64_t size_;
 };
 
 CG_NS_END

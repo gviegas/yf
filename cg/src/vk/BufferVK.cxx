@@ -43,21 +43,21 @@ BufferVK::BufferVK(uint64_t size) : Buffer(size) {
   info.queueFamilyIndexCount = 0;
   info.pQueueFamilyIndices = nullptr;
 
-  res = vkCreateBuffer(dev, &info, nullptr, &_handle);
+  res = vkCreateBuffer(dev, &info, nullptr, &handle_);
   if (res != VK_SUCCESS)
     // TODO
     throw runtime_error("Could not create buffer");
 
   VkMemoryRequirements memReq;
-  vkGetBufferMemoryRequirements(dev, _handle, &memReq);
-  _memory = allocateVK(memReq, true);
+  vkGetBufferMemoryRequirements(dev, handle_, &memReq);
+  memory_ = allocateVK(memReq, true);
 
-  res = vkBindBufferMemory(dev, _handle, _memory, 0);
+  res = vkBindBufferMemory(dev, handle_, memory_, 0);
   if (res != VK_SUCCESS)
     // TODO
     throw runtime_error("Failed to bind memory to buffer");
 
-  res = vkMapMemory(dev, _memory, 0, VK_WHOLE_SIZE, 0, &_data);
+  res = vkMapMemory(dev, memory_, 0, VK_WHOLE_SIZE, 0, &data_);
   if (res != VK_SUCCESS)
     // TODO
     throw runtime_error("Failed to map buffer memory");
@@ -66,18 +66,18 @@ BufferVK::BufferVK(uint64_t size) : Buffer(size) {
 BufferVK::~BufferVK() {
   // TODO: notify
   auto dev = DeviceVK::get().device();
-  vkDestroyBuffer(dev, _handle, nullptr);
-  deallocateVK(_memory);
+  vkDestroyBuffer(dev, handle_, nullptr);
+  deallocateVK(memory_);
 }
 
 void BufferVK::write(uint64_t offset, uint64_t size, const void* data) {
-  if (offset + size > this->size || !data)
+  if (offset + size > size_ || !data)
     // TODO
     throw invalid_argument("Invalid BufferVK::write() argument(s)");
 
-  memcpy(reinterpret_cast<uint8_t*>(_data)+offset, data, size);
+  memcpy(reinterpret_cast<uint8_t*>(data_)+offset, data, size);
 }
 
 VkBuffer BufferVK::handle() const {
-  return _handle;
+  return handle_;
 }

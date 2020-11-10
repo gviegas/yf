@@ -9,8 +9,6 @@
 
 using namespace CG_NS;
 
-DcTable::DcTable(const DcEntries& entries) : entries(entries) {}
+DcTable::DcTable(const DcEntries& entries) : entries_(entries) { }
 
-DcTable::DcTable(DcEntries&& entries) : entries(entries) {}
-
-DcTable::~DcTable() {}
+DcTable::~DcTable() { }

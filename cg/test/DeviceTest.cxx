@@ -15,7 +15,7 @@ using namespace std;
 INTERNAL_NS_BEGIN
 
 struct DeviceTest : Test {
-  DeviceTest() : Test(L"Device") {}
+  DeviceTest() : Test(L"Device") { }
 
   Assertions run(const vector<string>&) {
     Assertions a;

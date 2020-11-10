@@ -16,7 +16,7 @@ using namespace std;
 INTERNAL_NS_BEGIN
 
 struct EncoderTest : Test {
-  EncoderTest() : Test(L"Encoder") {}
+  EncoderTest() : Test(L"Encoder") { }
 
   Assertions run(const vector<string>&) {
     Assertions a;

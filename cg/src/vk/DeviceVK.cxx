@@ -33,31 +33,31 @@ DeviceVK::DeviceVK() {
 }
 
 DeviceVK::~DeviceVK() {
-  if (_device != nullptr) {
-    vkDeviceWaitIdle(_device);
+  if (device_ != nullptr) {
+    vkDeviceWaitIdle(device_);
     // TODO: ensure that all VK objects were disposed of prior to this point
-    delete _queue;
-    vkDestroyDevice(_device, nullptr);
+    delete queue_;
+    vkDestroyDevice(device_, nullptr);
   }
-  if (_instance != nullptr)
-    vkDestroyInstance(_instance, nullptr);
+  if (instance_ != nullptr)
+    vkDestroyInstance(instance_, nullptr);
 }
 
 bool DeviceVK::checkInstanceExtensions() {
-  assert(_instExtensions.empty());
+  assert(instExtensions_.empty());
 
   setProcsVK(static_cast<VkInstance>(nullptr));
 
   // Set required extensions
-  _instExtensions.push_back(VK_KHR_DEVICE_GROUP_CREATION_EXTENSION_NAME);
-  _instExtensions.push_back(VK_KHR_SURFACE_EXTENSION_NAME);
+  instExtensions_.push_back(VK_KHR_DEVICE_GROUP_CREATION_EXTENSION_NAME);
+  instExtensions_.push_back(VK_KHR_SURFACE_EXTENSION_NAME);
 #if defined(__linux__)
-  _instExtensions.push_back(VK_KHR_WAYLAND_SURFACE_EXTENSION_NAME);
-  _instExtensions.push_back(VK_KHR_XCB_SURFACE_EXTENSION_NAME);
+  instExtensions_.push_back(VK_KHR_WAYLAND_SURFACE_EXTENSION_NAME);
+  instExtensions_.push_back(VK_KHR_XCB_SURFACE_EXTENSION_NAME);
 #elif defined(__APPLE__)
-  _instExtensions.push_back(VK_EXT_METAL_SURFACE_EXTENSION_NAME);
+  instExtensions_.push_back(VK_EXT_METAL_SURFACE_EXTENSION_NAME);
 #elif defined(_WIN32)
-  _instExtensions.push_back(VK_KHR_WIN32_SURFACE_EXTENSION_NAME);
+  instExtensions_.push_back(VK_KHR_WIN32_SURFACE_EXTENSION_NAME);
 #else
 # error "Invalid platform"
 #endif
@@ -76,7 +76,7 @@ bool DeviceVK::checkInstanceExtensions() {
 
   // Check if the instance has everything
   unordered_set<string> reqExts;
-  for (const auto& e : _instExtensions)
+  for (const auto& e : instExtensions_)
     reqExts.insert(e);
   for (const auto& e : exts)
     reqExts.erase(e.extensionName);
@@ -85,21 +85,21 @@ bool DeviceVK::checkInstanceExtensions() {
 }
 
 bool DeviceVK::checkDeviceExtensions() {
-  assert(_physicalDev != nullptr);
-  assert(_devExtensions.empty());
+  assert(physicalDev_ != nullptr);
+  assert(devExtensions_.empty());
 
   // Set required extensions
-  _devExtensions.push_back(VK_KHR_SWAPCHAIN_EXTENSION_NAME);
+  devExtensions_.push_back(VK_KHR_SWAPCHAIN_EXTENSION_NAME);
 
   // Get available extensions
   vector<VkExtensionProperties> exts;
   uint32_t extN;
   VkResult res;
-  res = vkEnumerateDeviceExtensionProperties(_physicalDev, nullptr, &extN,
+  res = vkEnumerateDeviceExtensionProperties(physicalDev_, nullptr, &extN,
                                              nullptr);
   if (res == VK_SUCCESS && extN > 0) {
     exts.resize(extN);
-    res = vkEnumerateDeviceExtensionProperties(_physicalDev, nullptr, &extN,
+    res = vkEnumerateDeviceExtensionProperties(physicalDev_, nullptr, &extN,
                                                exts.data());
     if (res != VK_SUCCESS)
       extN = 0;
@@ -107,7 +107,7 @@ bool DeviceVK::checkDeviceExtensions() {
 
   // Check if the device has everything
   unordered_set<string> reqExts;
-  for (const auto& e : _devExtensions)
+  for (const auto& e : devExtensions_)
     reqExts.insert(e);
   for (const auto& e : exts)
     reqExts.erase(e.extensionName);
@@ -116,7 +116,7 @@ bool DeviceVK::checkDeviceExtensions() {
 }
 
 void DeviceVK::initInstance() {
-  assert(_instance == nullptr);
+  assert(instance_ == nullptr);
 
   // Check extensions
   if (!checkInstanceExtensions())
@@ -125,9 +125,9 @@ void DeviceVK::initInstance() {
 
   // Get instance version
   if (!vkEnumerateInstanceVersion)
-    _instVersion = VK_API_VERSION_1_0;
+    instVersion_ = VK_API_VERSION_1_0;
   else
-    vkEnumerateInstanceVersion(&_instVersion);
+    vkEnumerateInstanceVersion(&instVersion_);
 
   // Create instance
   VkApplicationInfo appInfo;
@@ -137,43 +137,43 @@ void DeviceVK::initInstance() {
   appInfo.applicationVersion = 0;
   appInfo.pEngineName = nullptr;
   appInfo.engineVersion = 0;
-  appInfo.apiVersion = _instVersion;
+  appInfo.apiVersion = instVersion_;
 
   VkInstanceCreateInfo instInfo;
   instInfo.sType = VK_STRUCTURE_TYPE_INSTANCE_CREATE_INFO;
   instInfo.pNext = nullptr;
   instInfo.flags = 0;
   instInfo.pApplicationInfo = &appInfo;
-  instInfo.enabledLayerCount = _layers.size();
-  instInfo.ppEnabledLayerNames = _layers.data();
-  instInfo.enabledExtensionCount = _instExtensions.size();
-  instInfo.ppEnabledExtensionNames = _instExtensions.data();
+  instInfo.enabledLayerCount = layers_.size();
+  instInfo.ppEnabledLayerNames = layers_.data();
+  instInfo.enabledExtensionCount = instExtensions_.size();
+  instInfo.ppEnabledExtensionNames = instExtensions_.data();
 
-  auto res = vkCreateInstance(&instInfo, nullptr, &_instance);
+  auto res = vkCreateInstance(&instInfo, nullptr, &instance_);
   if (res != VK_SUCCESS)
     // TODO
     throw runtime_error("Failed to create VK instance");
 
   // Now the physical device can be initialized
-  setProcsVK(_instance);
+  setProcsVK(instance_);
   initPhysicalDevice();
 }
 
 void DeviceVK::initPhysicalDevice() {
-  assert(_instance != nullptr);
-  assert(_physicalDev == nullptr);
+  assert(instance_ != nullptr);
+  assert(physicalDev_ == nullptr);
 
   VkResult res;
 
   // Enumerate physical devices & get their properties
   vector<VkPhysicalDevice> phys;
   uint32_t physN;
-  res = vkEnumeratePhysicalDevices(_instance, &physN, nullptr);
+  res = vkEnumeratePhysicalDevices(instance_, &physN, nullptr);
   if (res != VK_SUCCESS || physN == 0)
     // TODO
     throw runtime_error("Could not enumerate physical devices");
   phys.resize(physN);
-  res = vkEnumeratePhysicalDevices(_instance, &physN, phys.data());
+  res = vkEnumeratePhysicalDevices(instance_, &physN, phys.data());
   if (res != VK_SUCCESS)
     // TODO
     throw runtime_error("Could not enumerate physical devices");
@@ -230,17 +230,17 @@ void DeviceVK::initPhysicalDevice() {
     // operations."
 
     if (queueFamily > -1) {
-      _physicalDev = phys[p.first];
-      _physProperties = p.second;
+      physicalDev_ = phys[p.first];
+      physProperties_ = p.second;
       break;
     }
   }
 
-  if (_physicalDev == nullptr)
+  if (physicalDev_ == nullptr)
     // TODO
     throw runtime_error("Could not find a suitable physical device");
 
-  vkGetPhysicalDeviceMemoryProperties(_physicalDev, &_memProperties);
+  vkGetPhysicalDeviceMemoryProperties(physicalDev_, &memProperties_);
 
   // Now the logical device can be initialized
   initDevice(queueFamily);
@@ -248,8 +248,8 @@ void DeviceVK::initPhysicalDevice() {
 
 void DeviceVK::initDevice(int32_t queueFamily) {
   assert(queueFamily > -1);
-  assert(_physicalDev != nullptr);
-  assert(_device == nullptr);
+  assert(physicalDev_ != nullptr);
+  assert(device_ == nullptr);
 
   // Check extensions
   if (!checkDeviceExtensions())
@@ -275,65 +275,65 @@ void DeviceVK::initDevice(int32_t queueFamily) {
   devInfo.pQueueCreateInfos = &queueInfo;
   devInfo.enabledLayerCount = 0;
   devInfo.ppEnabledLayerNames = nullptr;
-  devInfo.enabledExtensionCount = _devExtensions.size();
-  devInfo.ppEnabledExtensionNames = _devExtensions.data();
+  devInfo.enabledExtensionCount = devExtensions_.size();
+  devInfo.ppEnabledExtensionNames = devExtensions_.data();
   // TODO
   devInfo.pEnabledFeatures = nullptr;
 
-  auto res = vkCreateDevice(_physicalDev, &devInfo, nullptr, &_device);
+  auto res = vkCreateDevice(physicalDev_, &devInfo, nullptr, &device_);
   if (res != VK_SUCCESS)
     // TODO
     throw runtime_error("Could not create logical device");
 
   // Now the queue object can be created
-  setProcsVK(_device);
+  setProcsVK(device_);
   VkQueue queue;
-  vkGetDeviceQueue(_device, queueFamily, 0, &queue);
-  _queue = new QueueVK(queueFamily, queue);
+  vkGetDeviceQueue(device_, queueFamily, 0, &queue);
+  queue_ = new QueueVK(queueFamily, queue);
 }
 
 VkInstance DeviceVK::instance() const {
-  return _instance;
+  return instance_;
 }
 
 VkPhysicalDevice DeviceVK::physicalDev() const {
-  return _physicalDev;
+  return physicalDev_;
 }
 
 VkDevice DeviceVK::device() const {
-  return _device;
+  return device_;
 }
 
 const VkPhysicalDeviceProperties& DeviceVK::physProperties() const {
-  return _physProperties;
+  return physProperties_;
 }
 
 const VkPhysicalDeviceMemoryProperties& DeviceVK::memProperties() const {
-  return _memProperties;
+  return memProperties_;
 }
 
 const std::vector<const char*>& DeviceVK::instExtensions() const {
-  return _instExtensions;
+  return instExtensions_;
 }
 
 const std::vector<const char*>& DeviceVK::devExtensions() const {
-  return _devExtensions;
+  return devExtensions_;
 }
 
 const std::vector<const char*>& DeviceVK::layers() const {
-  return _layers;
+  return layers_;
 }
 
 uint32_t DeviceVK::instVersion() const {
-  return _instVersion;
+  return instVersion_;
 }
 
 uint32_t DeviceVK::devVersion() const {
-  return _physProperties.apiVersion;
+  return physProperties_.apiVersion;
 }
 
 const VkPhysicalDeviceLimits& DeviceVK::limits() const {
-  return _physProperties.limits;
+  return physProperties_.limits;
 }
 
 Buffer::Ptr DeviceVK::makeBuffer(uint64_t size) {
@@ -361,11 +361,6 @@ DcTable::Ptr DeviceVK::makeDcTable(const DcEntries& entries) {
   assert(false);
 }
 
-DcTable::Ptr DeviceVK::makeDcTable(DcEntries&& entries) {
-  // TODO
-  assert(false);
-}
-
 Pass::Ptr DeviceVK::makePass(const vector<ColorAttach>* colors,
                              const vector<ColorAttach>* resolves,
                              const DepStenAttach* depthStencil) {
@@ -378,25 +373,15 @@ GrState::Ptr DeviceVK::makeState(const GrState::Config& config) {
   assert(false);
 }
 
-GrState::Ptr DeviceVK::makeState(GrState::Config&& config) {
-  // TODO
-  assert(false);
-}
-
 CpState::Ptr DeviceVK::makeState(const CpState::Config& config) {
   // TODO
   assert(false);
 }
 
-CpState::Ptr DeviceVK::makeState(CpState::Config&& config) {
-  // TODO
-  assert(false);
-}
-
 Queue& DeviceVK::defaultQueue() {
-  return *_queue;
+  return *queue_;
 }
 
 Queue& DeviceVK::queue(Queue::CapabilityMask) {
-  return *_queue;
+  return *queue_;
 }

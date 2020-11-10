@@ -13,18 +13,18 @@
 using namespace TEST_NS;
 using namespace std;
 
-Test::Test(wstring&& name) : name(name) {}
+Test::Test(wstring&& name) : name_(name) { }
 
-Test::~Test() {}
+Test::~Test() { }
 
-Coverage TEST_NS::run(const vector<Test*>& tests, vector<string>&& args)  {
+Coverage TEST_NS::run(const vector<Test*>& tests, vector<string>&& args) {
   if (tests.size() == 0) {
     wcout << "\n\nNo tests to run\n";
     return 0.0;
   }
 
   auto runUnit = [&](Test& t) {
-    wstring title = L" Unit test '" + t.name + L"' ";
+    wstring title = L" Unit test '" + t.name_ + L"' ";
     wstring tildes;
     tildes.resize(title.size());
     fill(tildes.begin(), tildes.end(), L'~');
@@ -60,9 +60,10 @@ Coverage TEST_NS::run(const vector<Test*>& tests, vector<string>&& args)  {
 
   wcout << "\n\n<DONE>\n"
         << "\n\n------ SUMMARY ------\n---------------------\n";
-  for (auto& p : res) {
-    wcout << "\n[" << round(p.second*100.0) << "%]\t" << p.first->name;
-  }
+
+  for (auto& p : res)
+    wcout << "\n[" << round(p.second*100.0) << "%]\t" << p.first->name_;
+
   wcout << "\n\n> Unit tests run: " << tests.size()
         << "\n\n> Test coverage: " << total*100.0 << "%\n";
 

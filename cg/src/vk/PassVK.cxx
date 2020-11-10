@@ -154,7 +154,7 @@ PassVK::PassVK(const vector<ColorAttach>* colors,
   info.pDependencies = nullptr;
 
   auto dev = DeviceVK::get().device();
-  auto res = vkCreateRenderPass(dev, &info, nullptr, &_renderPass);
+  auto res = vkCreateRenderPass(dev, &info, nullptr, &renderPass_);
   if (res != VK_SUCCESS)
     // TODO
     throw runtime_error("Could not create render pass");
@@ -163,7 +163,7 @@ PassVK::PassVK(const vector<ColorAttach>* colors,
 PassVK::~PassVK() {
   // TODO: notify
   auto dev = DeviceVK::get().device();
-  vkDestroyRenderPass(dev, _renderPass, nullptr);
+  vkDestroyRenderPass(dev, renderPass_, nullptr);
 }
 
 Target::Ptr PassVK::makeTarget(Size2 size,
@@ -177,7 +177,7 @@ Target::Ptr PassVK::makeTarget(Size2 size,
 }
 
 VkRenderPass PassVK::renderPass() const {
-  return _renderPass;
+  return renderPass_;
 }
 
 // ------------------------------------------------------------------------
@@ -189,7 +189,8 @@ TargetVK::TargetVK(PassVK& pass,
                    const vector<AttachImg>* colors,
                    const vector<AttachImg>* resolves,
                    const AttachImg* depthStencil)
-                   : _pass(pass) {
+                   : Target(size, layers, colors, resolves, depthStencil),
+                     pass_(pass) {
 
   // TODO
 }
@@ -197,13 +198,13 @@ TargetVK::TargetVK(PassVK& pass,
 TargetVK::~TargetVK() {
   // TODO: notify
   auto dev = DeviceVK::get().device();
-  vkDestroyFramebuffer(dev, _framebuffer, nullptr);
+  vkDestroyFramebuffer(dev, framebuffer_, nullptr);
 }
 
-const Pass& TargetVK::pass() const {
-  return _pass;
+Pass& TargetVK::pass() const {
+  return pass_;
 }
 
 VkFramebuffer TargetVK::framebuffer() const {
-  return _framebuffer;
+  return framebuffer_;
 }

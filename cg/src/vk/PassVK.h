@@ -8,8 +8,8 @@
 #ifndef YF_CG_PASSVK_H
 #define YF_CG_PASSVK_H
 
-#include "yf/cg/Defs.h"
-#include "yf/cg/Pass.h"
+#include "Defs.h"
+#include "Pass.h"
 #include "VK.h"
 
 CG_NS_BEGIN

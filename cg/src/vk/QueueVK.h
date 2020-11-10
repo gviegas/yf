@@ -11,8 +11,8 @@
 #include <unordered_map>
 #include <unordered_set>
 
-#include "yf/cg/Defs.h"
-#include "yf/cg/Queue.h"
+#include "Defs.h"
+#include "Queue.h"
 #include "VK.h"
 
 CG_NS_BEGIN

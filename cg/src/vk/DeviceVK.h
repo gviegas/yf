@@ -8,8 +8,8 @@
 #ifndef YF_CG_DEVICEVK_H
 #define YF_CG_DEVICEVK_H
 
-#include "yf/cg/Defs.h"
-#include "yf/cg/Device.h"
+#include "Defs.h"
+#include "Device.h"
 #include "VK.h"
 
 CG_NS_BEGIN

@@ -8,7 +8,7 @@
 #include <stdexcept>
 
 #include "VK.h"
-#include "yf/cg/Defs.h"
+#include "Defs.h"
 
 #if defined(__linux__)
 # include <dlfcn.h>
@@ -89,7 +89,6 @@ bool CG_NS::initVK() {
 
 void CG_NS::setProcsVK(VkInstance instance) {
   if (!libHandle && !loadVK())
-    // TODO
     throw runtime_error("Failed to load VK lib");
 
   if (!instance) {
@@ -124,11 +123,9 @@ void CG_NS::setProcsVK(VkInstance instance) {
 
 void CG_NS::setProcsVK(VkDevice device) {
   if (!device)
-    // TODO
     throw invalid_argument("setProcsVK() expects a valid device handle");
 
   if (!libHandle || !loadVK())
-    // TODO
     throw runtime_error("Failed to load VK lib");
 
   CG_DEVPROCVK(device, vkGetDeviceProcAddr);

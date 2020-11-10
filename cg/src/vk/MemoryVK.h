@@ -8,7 +8,7 @@
 #ifndef YF_CG_MEMORYVK_H
 #define YF_CG_MEMORYVK_H
 
-#include "yf/cg/Defs.h"
+#include "Defs.h"
 #include "VK.h"
 
 CG_NS_BEGIN

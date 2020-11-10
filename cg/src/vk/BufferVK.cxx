@@ -11,13 +11,13 @@
 #include "BufferVK.h"
 #include "DeviceVK.h"
 #include "MemoryVK.h"
+#include "yf/Except.h"
 
 using namespace CG_NS;
 using namespace std;
 
 BufferVK::BufferVK(uint64_t size) : Buffer(size) {
   if (size == 0)
-    // TODO
     throw invalid_argument("BufferVK requires size > 0");
 
   auto dev = DeviceVK::get().device();
@@ -45,8 +45,7 @@ BufferVK::BufferVK(uint64_t size) : Buffer(size) {
 
   res = vkCreateBuffer(dev, &info, nullptr, &handle_);
   if (res != VK_SUCCESS)
-    // TODO
-    throw runtime_error("Could not create buffer");
+    throw DeviceExcept("Could not create buffer");
 
   VkMemoryRequirements memReq;
   vkGetBufferMemoryRequirements(dev, handle_, &memReq);
@@ -54,13 +53,11 @@ BufferVK::BufferVK(uint64_t size) : Buffer(size) {
 
   res = vkBindBufferMemory(dev, handle_, memory_, 0);
   if (res != VK_SUCCESS)
-    // TODO
-    throw runtime_error("Failed to bind memory to buffer");
+    throw DeviceExcept("Failed to bind memory to buffer");
 
   res = vkMapMemory(dev, memory_, 0, VK_WHOLE_SIZE, 0, &data_);
   if (res != VK_SUCCESS)
-    // TODO
-    throw runtime_error("Failed to map buffer memory");
+    throw DeviceExcept("Failed to map buffer memory");
 }
 
 BufferVK::~BufferVK() {
@@ -72,7 +69,6 @@ BufferVK::~BufferVK() {
 
 void BufferVK::write(uint64_t offset, uint64_t size, const void* data) {
   if (offset + size > size_ || !data)
-    // TODO
     throw invalid_argument("Invalid BufferVK::write() argument(s)");
 
   memcpy(reinterpret_cast<uint8_t*>(data_)+offset, data, size);

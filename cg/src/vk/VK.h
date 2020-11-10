@@ -10,7 +10,7 @@
 
 #include <vector>
 
-#include "yf/cg/Defs.h"
+#include "Defs.h"
 
 #if defined(__linux__)
 # define VK_USE_PLATFORM_WAYLAND_KHR

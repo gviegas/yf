@@ -8,7 +8,7 @@
 #ifndef YF_CG_SHADERVK_H
 #define YF_CG_SHADERVK_H
 
-#include "yf/cg/Shader.h"
+#include "Shader.h"
 #include "VK.h"
 
 CG_NS_BEGIN

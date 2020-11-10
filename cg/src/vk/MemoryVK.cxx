@@ -9,6 +9,7 @@
 
 #include "MemoryVK.h"
 #include "DeviceVK.h"
+#include "yf/Except.h"
 
 using namespace CG_NS;
 using namespace std;
@@ -46,8 +47,7 @@ VkDeviceMemory CG_NS::allocateVK(const VkMemoryRequirements& requirements,
     prop &= ~VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT;
     memType = selectMemory(requirements.memoryTypeBits, prop);
     if (memType == -1)
-      // TODO
-      throw runtime_error("Failed to find a suitable memory type");
+      throw UnsupportedExcept("Failed to find a suitable memory type");
   }
 
   VkMemoryAllocateInfo info;
@@ -60,8 +60,7 @@ VkDeviceMemory CG_NS::allocateVK(const VkMemoryRequirements& requirements,
   auto dev = DeviceVK::get().device();
   auto res = vkAllocateMemory(dev, &info, nullptr, &mem);
   if (res != VK_SUCCESS)
-    // TODO
-    throw runtime_error("Failed to allocate device memory");
+    throw DeviceExcept("Failed to allocate device memory");
 
   return mem;
 }

@@ -11,7 +11,8 @@
 #include "QueueVK.h"
 #include "DeviceVK.h"
 #include "Cmd.h"
-#include "yf/cg/Encoder.h"
+#include "Encoder.h"
+#include "yf/Except.h"
 
 using namespace CG_NS;
 using namespace std;
@@ -47,8 +48,7 @@ VkCommandPool QueueVK::initPool() {
   auto res = vkCreateCommandPool(DeviceVK::get().device(), &info, nullptr,
                                  &handle);
   if (res != VK_SUCCESS)
-    // TODO
-    throw runtime_error("Could not create command pool");
+    throw DeviceExcept("Could not create command pool");
 
   return handle;
 }
@@ -71,8 +71,7 @@ CmdBuffer::Ptr QueueVK::makeCmdBuffer() {
   auto res = vkAllocateCommandBuffers(DeviceVK::get().device(), &info, &handle);
   if (res != VK_SUCCESS) {
     deinitPool(pool);
-    // TODO
-    throw runtime_error("Could not allocate command buffer");
+    throw DeviceExcept("Could not allocate command buffer");
   }
 
   auto it = pools_.emplace(new CmdBufferVK(*this, handle), pool).first;
@@ -108,14 +107,12 @@ void QueueVK::submit() {
   res = vkQueueSubmit(handle_, 1, &info, VK_NULL_HANDLE);
   if (res != VK_SUCCESS) {
     notifyAndClear();
-    // TODO
-    throw runtime_error("Queue submission failed");
+    throw DeviceExcept("Queue submission failed");
   }
   res = vkQueueWaitIdle(handle_);
   if (res != VK_SUCCESS) {
     notifyAndClear();
-    // TODO
-    throw runtime_error("Could not wait queue operations to complete");
+    throw DeviceExcept("Could not wait queue operations to complete");
   }
 
   notifyAndClear();
@@ -157,7 +154,6 @@ CmdBufferVK::~CmdBufferVK() {
 
 void CmdBufferVK::encode(const Encoder& encoder) {
   if (pending_)
-    // TODO
     throw runtime_error("Attempt to encode a pending command buffer");
 
   if (!begun_) {
@@ -170,8 +166,7 @@ void CmdBufferVK::encode(const Encoder& encoder) {
 
     auto res = vkBeginCommandBuffer(handle_, &info);
     if (res != VK_SUCCESS)
-      // TODO
-      throw runtime_error("Could not set command buffer for encoding");
+      throw DeviceExcept("Could not set command buffer for encoding");
 
     begun_ = true;
   }
@@ -191,19 +186,16 @@ void CmdBufferVK::encode(const Encoder& encoder) {
 
 void CmdBufferVK::enqueue() {
   if (pending_)
-    // TODO
     throw runtime_error("Attempt to enqueue a pending command buffer");
 
   if (!begun_)
-    // TODO
     throw runtime_error("Attempt to enqueue an empty command buffer");
 
   begun_ = false;
 
   auto res = vkEndCommandBuffer(handle_);
   if (res != VK_SUCCESS)
-    // TODO
-    throw runtime_error("Invalid command buffer encoding(s)");
+    throw DeviceExcept("Invalid command buffer encoding(s)");
 
   pending_ = true;
   queue_.enqueue(this);
@@ -211,7 +203,6 @@ void CmdBufferVK::enqueue() {
 
 void CmdBufferVK::reset() {
   if (pending_)
-    // TODO
     throw runtime_error("Attempt to reset a pending command buffer");
 
   vkResetCommandBuffer(handle_, 0);

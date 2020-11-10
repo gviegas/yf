@@ -9,6 +9,7 @@
 
 #include "PassVK.h"
 #include "DeviceVK.h"
+#include "yf/Except.h"
 
 using namespace CG_NS;
 using namespace std;
@@ -91,7 +92,6 @@ PassVK::PassVK(const vector<ColorAttach>* colors,
 
   if (resolves) {
     if (!colors || colors->size() != resolves->size())
-      // TODO
       throw invalid_argument("Pass color/resolve attachment mismatch");
     add(*resolves);
   }
@@ -156,8 +156,7 @@ PassVK::PassVK(const vector<ColorAttach>* colors,
   auto dev = DeviceVK::get().device();
   auto res = vkCreateRenderPass(dev, &info, nullptr, &renderPass_);
   if (res != VK_SUCCESS)
-    // TODO
-    throw runtime_error("Could not create render pass");
+    throw DeviceExcept("Could not create render pass");
 }
 
 PassVK::~PassVK() {

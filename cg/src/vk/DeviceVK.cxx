@@ -16,6 +16,7 @@
 #include "BufferVK.h"
 #include "ShaderVK.h"
 #include "PassVK.h"
+#include "yf/Except.h"
 
 using namespace CG_NS;
 using namespace std;
@@ -27,8 +28,8 @@ DeviceVK& DeviceVK::get() {
 
 DeviceVK::DeviceVK() {
   if (!initVK())
-    // TODO
     throw runtime_error("Failed to initialize VK lib");
+
   initInstance();
 }
 
@@ -120,8 +121,7 @@ void DeviceVK::initInstance() {
 
   // Check extensions
   if (!checkInstanceExtensions())
-    // TODO
-    throw runtime_error("Missing required instance extension(s)");
+    throw UnsupportedExcept("Missing required instance extension(s)");
 
   // Get instance version
   if (!vkEnumerateInstanceVersion)
@@ -151,8 +151,7 @@ void DeviceVK::initInstance() {
 
   auto res = vkCreateInstance(&instInfo, nullptr, &instance_);
   if (res != VK_SUCCESS)
-    // TODO
-    throw runtime_error("Failed to create VK instance");
+    throw DeviceExcept("Failed to create VK instance");
 
   // Now the physical device can be initialized
   setProcsVK(instance_);
@@ -170,13 +169,11 @@ void DeviceVK::initPhysicalDevice() {
   uint32_t physN;
   res = vkEnumeratePhysicalDevices(instance_, &physN, nullptr);
   if (res != VK_SUCCESS || physN == 0)
-    // TODO
-    throw runtime_error("Could not enumerate physical devices");
+    throw DeviceExcept("Could not enumerate physical devices");
   phys.resize(physN);
   res = vkEnumeratePhysicalDevices(instance_, &physN, phys.data());
   if (res != VK_SUCCESS)
-    // TODO
-    throw runtime_error("Could not enumerate physical devices");
+    throw DeviceExcept("Could not enumerate physical devices");
 
   vector<pair<uint32_t, VkPhysicalDeviceProperties>> physProps;
   physProps.resize(physN);
@@ -237,8 +234,7 @@ void DeviceVK::initPhysicalDevice() {
   }
 
   if (physicalDev_ == nullptr)
-    // TODO
-    throw runtime_error("Could not find a suitable physical device");
+    throw UnsupportedExcept("Could not find a suitable physical device");
 
   vkGetPhysicalDeviceMemoryProperties(physicalDev_, &memProperties_);
 
@@ -253,8 +249,7 @@ void DeviceVK::initDevice(int32_t queueFamily) {
 
   // Check extensions
   if (!checkDeviceExtensions())
-    // TODO
-    throw runtime_error("Missing required device extension(s)");
+    throw UnsupportedExcept("Missing required device extension(s)");
 
   // Define queue
   const float queuePrio = 0.0f;
@@ -282,8 +277,7 @@ void DeviceVK::initDevice(int32_t queueFamily) {
 
   auto res = vkCreateDevice(physicalDev_, &devInfo, nullptr, &device_);
   if (res != VK_SUCCESS)
-    // TODO
-    throw runtime_error("Could not create logical device");
+    throw DeviceExcept("Could not create logical device");
 
   // Now the queue object can be created
   setProcsVK(device_);

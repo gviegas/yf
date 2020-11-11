@@ -182,6 +182,7 @@ void CG_NS::setProcsVK(VkDevice device) {
   CG_DEVPROCVK(device, vkDestroyBufferView);
   CG_DEVPROCVK(device, vkCreateImage);
   CG_DEVPROCVK(device, vkDestroyImage);
+  CG_DEVPROCVK(device, vkGetImageSubresourceLayout);
   CG_DEVPROCVK(device, vkCreateImageView);
   CG_DEVPROCVK(device, vkDestroyImageView);
   CG_DEVPROCVK(device, vkGetBufferMemoryRequirements);
@@ -328,6 +329,7 @@ CG_DEFVK(vkCreateBufferView);
 CG_DEFVK(vkDestroyBufferView);
 CG_DEFVK(vkCreateImage);
 CG_DEFVK(vkDestroyImage);
+CG_DEFVK(vkGetImageSubresourceLayout);
 CG_DEFVK(vkCreateImageView);
 CG_DEFVK(vkDestroyImageView);
 CG_DEFVK(vkGetBufferMemoryRequirements);

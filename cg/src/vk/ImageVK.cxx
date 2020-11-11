@@ -168,19 +168,51 @@ void ImageVK::write(Offset2 offset,
     // TODO: consider getting all required layouts once on creation
     vkGetImageSubresourceLayout(dev, handle_, &subres, &layout);
 
-    auto src = reinterpret_cast<uint8_t*>(const_cast<void*>(data));
     auto dst = reinterpret_cast<uint8_t*>(data_);
     dst += layout.offset + layout.arrayPitch*layer;
+    auto src = reinterpret_cast<const uint8_t*>(data);
     for (uint32_t row = 0; row < size.height; ++row) {
-      memcpy(src, dst, size.width);
-      src += size.width;
+      memcpy(dst, src, size.width);
       dst += layout.rowPitch;
+      src += size.width;
     }
 
   } else {
     // TODO
     throw runtime_error("Unimplemented");
   }
+}
+
+void ImageVK::changeLayout(VkImageLayout newLayout) {
+  if (layout_ == newLayout)
+    return;
+
+  VkImageMemoryBarrier imb;
+  imb.sType = VK_STRUCTURE_TYPE_IMAGE_MEMORY_BARRIER;
+  imb.pNext = nullptr;
+  imb.srcAccessMask = VK_ACCESS_MEMORY_WRITE_BIT;
+  imb.dstAccessMask = VK_ACCESS_MEMORY_READ_BIT;
+  imb.oldLayout = layout_;
+  imb.newLayout = newLayout;
+  imb.srcQueueFamilyIndex = VK_QUEUE_FAMILY_IGNORED;
+  imb.dstQueueFamilyIndex = VK_QUEUE_FAMILY_IGNORED;
+  imb.image = handle_;
+  imb.subresourceRange.aspectMask = aspectOfVK(format_);
+  imb.subresourceRange.baseMipLevel = 0;
+  imb.subresourceRange.levelCount = levels_;
+  imb.subresourceRange.baseArrayLayer = 0;
+  imb.subresourceRange.layerCount = layers_;
+
+  // TODO: set up a priority command buffer for this kind of operation
+  VkCommandBuffer cb = nullptr;
+  throw runtime_error("Unimplemented");
+
+  vkCmdPipelineBarrier(cb, VK_PIPELINE_STAGE_TOP_OF_PIPE_BIT,
+                       VK_PIPELINE_STAGE_ALL_COMMANDS_BIT, 0,
+                       0, nullptr, 0, nullptr, 1, &imb);
+
+  // TODO: if the command fails to execute, `layout_` must be restored
+  layout_ = newLayout;
 }
 
 VkImage ImageVK::handle() const {

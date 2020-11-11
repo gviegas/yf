@@ -14,6 +14,7 @@
 #include "VK.h"
 #include "QueueVK.h"
 #include "BufferVK.h"
+#include "ImageVK.h"
 #include "ShaderVK.h"
 #include "PassVK.h"
 #include "yf/Except.h"
@@ -339,8 +340,8 @@ Image::Ptr DeviceVK::makeImage(PxFormat format,
                                uint32_t layers,
                                uint32_t levels,
                                Samples samples) {
-  // TODO
-  assert(false);
+
+  return make_unique<ImageVK>(format, size, layers, levels, samples);
 }
 
 Shader::Ptr DeviceVK::makeShader(Stage stage,

@@ -13,7 +13,7 @@
 
 CG_NS_BEGIN
 
-class ImageVK final : Image {
+class ImageVK final : public Image {
  public:
   ImageVK(PxFormat format,
           Size2 size,
@@ -31,7 +31,7 @@ class ImageVK final : Image {
 
   /// Performs a layout transition.
   ///
-  void changeLayout(VkImageLayout newLayout);
+  void changeLayout(VkImageLayout newLayout, bool defer);
 
   /// Getter.
   ///
@@ -45,6 +45,7 @@ class ImageVK final : Image {
   VkImage handle_ = VK_NULL_HANDLE;
   void* data_ = nullptr;
   VkImageLayout layout_ = VK_IMAGE_LAYOUT_UNDEFINED;
+  VkImageLayout nextLayout_ = VK_IMAGE_LAYOUT_UNDEFINED;
 };
 
 /// Converts from a `PxFormat` value.

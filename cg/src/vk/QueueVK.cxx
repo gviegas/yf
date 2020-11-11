@@ -30,8 +30,9 @@ QueueVK::QueueVK(int32_t family, VkQueue handle)
 }
 
 QueueVK::~QueueVK() {
-  // No command buffer shall outlive its queue
+  deinitPool(poolPrio_);
   if (!pools_.empty()) {
+    // XXX: no command buffer shall outlive its queue
     assert(false);
     abort();
   }
@@ -79,43 +80,110 @@ CmdBuffer::Ptr QueueVK::makeCmdBuffer() {
 }
 
 void QueueVK::submit() {
-  if (pending_.empty())
-    return;
+  auto dev = DeviceVK::get().device();
+  VkSemaphore sem = VK_NULL_HANDLE;
+  VkResult res;
 
-  auto notifyAndClear = [&] {
+  auto notifyAndClear = [&](bool result) {
+    for (auto& fn : callbsPrio_)
+      fn(result);
+    callbsPrio_.clear();
+    pendPrio_ = false;
+
     for (auto& cb : pending_)
       cb->didExecute();
     pending_.clear();
+
+    vkDestroySemaphore(dev, sem, nullptr);
   };
 
+  if (pendPrio_) {
+    res = vkEndCommandBuffer(cmdPrio_);
+    if (res != VK_SUCCESS) {
+      notifyAndClear(false);
+      throw DeviceExcept("Could not end priority command buffer");
+    }
+  } else if (pending_.empty()) {
+    // Nothing to do
+    return;
+  }
+
+  // Set submission info
+  VkSubmitInfo infos[2];
+  uint32_t infoN = 0;
   vector<VkCommandBuffer> handles;
-  for (const auto& cb : pending_)
-    handles.push_back(cb->handle());
+  uint32_t handleN = 0;
 
-  VkSubmitInfo info;
-  info.sType = VK_STRUCTURE_TYPE_SUBMIT_INFO;
-  info.pNext = nullptr;
-  info.waitSemaphoreCount = 0;
-  info.pWaitSemaphores = nullptr;
-  info.pWaitDstStageMask = 0;
-  info.commandBufferCount = handles.size();
-  info.pCommandBuffers = handles.data();
-  info.signalSemaphoreCount = 0;
-  info.pSignalSemaphores = nullptr;
+  if (pendPrio_) {
+    handles.push_back(cmdPrio_);
 
-  VkResult res;
-  res = vkQueueSubmit(handle_, 1, &info, VK_NULL_HANDLE);
+    infos[infoN].sType = VK_STRUCTURE_TYPE_SUBMIT_INFO;
+    infos[infoN].pNext = nullptr;
+    infos[infoN].waitSemaphoreCount = 0;
+    infos[infoN].pWaitSemaphores = nullptr;
+    infos[infoN].pWaitDstStageMask = nullptr;
+    infos[infoN].commandBufferCount = 1;
+    infos[infoN].pCommandBuffers = handles.data();
+    infos[infoN].signalSemaphoreCount = 0;
+    infos[infoN].pSignalSemaphores = nullptr;
+
+    ++infoN;
+    ++handleN;
+  }
+
+  if (!pending_.empty()) {
+    for (const auto& cb : pending_)
+      handles.push_back(cb->handle());
+
+    infos[infoN].sType = VK_STRUCTURE_TYPE_SUBMIT_INFO;
+    infos[infoN].pNext = nullptr;
+    infos[infoN].waitSemaphoreCount = 0;
+    infos[infoN].pWaitSemaphores = nullptr;
+    infos[infoN].pWaitDstStageMask = nullptr;
+    infos[infoN].commandBufferCount = pending_.size();
+    infos[infoN].pCommandBuffers = handles.data()+handleN;
+    infos[infoN].signalSemaphoreCount = 0;
+    infos[infoN].pSignalSemaphores = nullptr;
+
+    ++infoN;
+  }
+
+  // Sync. setup
+  VkPipelineStageFlags waitDst = VK_PIPELINE_STAGE_ALL_COMMANDS_BIT;
+  if (infoN == 2) {
+    VkSemaphoreCreateInfo info;
+    info.sType = VK_STRUCTURE_TYPE_SEMAPHORE_CREATE_INFO;
+    info.pNext = nullptr;
+    info.flags = 0;
+
+    res = vkCreateSemaphore(dev, &info, nullptr, &sem);
+    if (res != VK_SUCCESS) {
+      notifyAndClear(false);
+      throw DeviceExcept("Could not create semaphore for queue submission");
+    }
+
+    infos[0].signalSemaphoreCount = 1;
+    infos[0].pSignalSemaphores = &sem;
+
+    infos[1].waitSemaphoreCount = 1;
+    infos[1].pWaitSemaphores = &sem;
+    infos[1].pWaitDstStageMask = &waitDst;
+  }
+
+  // Submit and wait completion
+  res = vkQueueSubmit(handle_, infoN, infos, VK_NULL_HANDLE);
   if (res != VK_SUCCESS) {
-    notifyAndClear();
+    notifyAndClear(false);
     throw DeviceExcept("Queue submission failed");
   }
+
   res = vkQueueWaitIdle(handle_);
   if (res != VK_SUCCESS) {
-    notifyAndClear();
-    throw DeviceExcept("Could not wait queue operations to complete");
+    notifyAndClear(false);
+    throw DeviceExcept("Could not wait for queue operations to complete");
   }
 
-  notifyAndClear();
+  notifyAndClear(true);
 }
 
 void QueueVK::enqueue(CmdBufferVK* cmdBuffer) {
@@ -137,6 +205,47 @@ void QueueVK::unmake(CmdBufferVK* cmdBuffer) noexcept {
   auto it = pools_.find(cmdBuffer);
   vkDestroyCommandPool(DeviceVK::get().device(), it->second, nullptr);
   pools_.erase(it);
+}
+
+VkCommandBuffer QueueVK::getPriority(function<void (bool)> completionHandler) {
+  if (pendPrio_) {
+    callbsPrio_.push_back(completionHandler);
+    return cmdPrio_;
+  }
+
+  VkResult res;
+
+  if (!cmdPrio_) {
+    poolPrio_ = initPool();
+
+    VkCommandBufferAllocateInfo info;
+    info.sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_ALLOCATE_INFO;
+    info.pNext = nullptr;
+    info.commandPool = poolPrio_;
+    info.level = VK_COMMAND_BUFFER_LEVEL_PRIMARY;
+    info.commandBufferCount = 1;
+
+    res = vkAllocateCommandBuffers(DeviceVK::get().device(), &info, &cmdPrio_);
+    if (res != VK_SUCCESS) {
+      deinitPool(poolPrio_);
+      poolPrio_ = VK_NULL_HANDLE;
+      throw DeviceExcept("Could not allocate command buffer");
+    }
+  }
+
+  VkCommandBufferBeginInfo info;
+  info.sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_BEGIN_INFO;
+  info.pNext = nullptr;
+  info.flags = VK_COMMAND_BUFFER_USAGE_ONE_TIME_SUBMIT_BIT;
+  info.pInheritanceInfo = nullptr;
+
+  res = vkBeginCommandBuffer(cmdPrio_, &info);
+  if (res != VK_SUCCESS)
+    throw DeviceExcept("Could not begin command buffer");
+
+  callbsPrio_.push_back(completionHandler);
+  pendPrio_ = true;
+  return cmdPrio_;
 }
 
 // ------------------------------------------------------------------------

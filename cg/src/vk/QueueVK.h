@@ -10,6 +10,8 @@
 
 #include <unordered_map>
 #include <unordered_set>
+#include <functional>
+#include <vector>
 
 #include "Defs.h"
 #include "Queue.h"
@@ -35,6 +37,10 @@ class QueueVK final : public Queue {
   ///
   void unmake(CmdBufferVK* cmdBuffer) noexcept;
 
+  /// Gets a command buffer handle that executes before the next batch.
+  ///
+  VkCommandBuffer getPriority(std::function<void (bool)> completionHandler);
+
  private:
   VkCommandPool initPool();
   void deinitPool(VkCommandPool);
@@ -43,6 +49,11 @@ class QueueVK final : public Queue {
   VkQueue handle_ = nullptr;
   std::unordered_map<CmdBufferVK*, VkCommandPool> pools_{};
   std::unordered_set<CmdBufferVK*> pending_{};
+
+  VkCommandPool poolPrio_ = VK_NULL_HANDLE;
+  VkCommandBuffer cmdPrio_ = VK_NULL_HANDLE;
+  std::vector<std::function<void (bool)>> callbsPrio_{};
+  bool pendPrio_ = false;
 };
 
 class GrEncoder;

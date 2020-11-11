@@ -13,7 +13,7 @@
 
 CG_NS_BEGIN
 
-class ImageVK final : Image {
+class ImageVK final : public Image {
  public:
   ImageVK(PxFormat format,
           Size2 size,

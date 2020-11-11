@@ -32,10 +32,13 @@ struct DeviceTest : Test {
 
     auto buf = dev.makeBuffer(1<<28);
 
+    auto img = dev.makeImage(PxFormatRgba8Unorm, {1024, 256}, 1, 1, Samples1);
+
     a.push_back({L"Device::get()", true});
     a.push_back({L"dev.makeShader(...)", shd != nullptr});
     a.push_back({L"dev.makePass(...)", pass != nullptr});
     a.push_back({L"dev.makeBuffer(...)", buf != nullptr});
+    a.push_back({L"dev.makeImage(...)", img != nullptr});
 
     return a;
   }

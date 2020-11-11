@@ -9,6 +9,7 @@
 
 #include "ImageVK.h"
 #include "MemoryVK.h"
+#include "QueueVK.h"
 #include "DeviceVK.h"
 #include "yf/Except.h"
 
@@ -74,13 +75,13 @@ ImageVK::ImageVK(PxFormat format,
   usage_ = getUsage(fmtProp.linearTilingFeatures);
   if (usage_ != 0) {
     tiling_ = VK_IMAGE_TILING_LINEAR;
-    layout_ = VK_IMAGE_LAYOUT_PREINITIALIZED;
+    layout_ = nextLayout_ = VK_IMAGE_LAYOUT_PREINITIALIZED;
   } else {
     usage_ = fmtProp.optimalTilingFeatures;
     if (usage_ == 0)
       throw UnsupportedExcept("Format not supported by ImageVK");
     tiling_ = VK_IMAGE_TILING_OPTIMAL;
-    layout_ = VK_IMAGE_LAYOUT_UNDEFINED;
+    layout_ = nextLayout_ = VK_IMAGE_LAYOUT_UNDEFINED;
   }
 
   auto dev = DeviceVK::get().device();
@@ -154,7 +155,9 @@ void ImageVK::write(Offset2 offset,
       !data)
     throw invalid_argument("ImageVK write()");
 
-  // TODO: check image layout and transition as needed
+  if (layout_ != VK_IMAGE_LAYOUT_PREINITIALIZED &&
+      layout_ != VK_IMAGE_LAYOUT_GENERAL)
+    changeLayout(VK_IMAGE_LAYOUT_GENERAL, false);
 
   if (tiling_ == VK_IMAGE_TILING_LINEAR) {
     VkImageSubresource subres;
@@ -183,9 +186,14 @@ void ImageVK::write(Offset2 offset,
   }
 }
 
-void ImageVK::changeLayout(VkImageLayout newLayout) {
-  if (layout_ == newLayout)
+void ImageVK::changeLayout(VkImageLayout newLayout, bool defer) {
+  if (nextLayout_ == newLayout)
     return;
+
+  if (layout_ != nextLayout_)
+    throw runtime_error("Multiple layout transitions requested");
+
+  nextLayout_ = newLayout;
 
   VkImageMemoryBarrier imb;
   imb.sType = VK_STRUCTURE_TYPE_IMAGE_MEMORY_BARRIER;
@@ -203,16 +211,19 @@ void ImageVK::changeLayout(VkImageLayout newLayout) {
   imb.subresourceRange.baseArrayLayer = 0;
   imb.subresourceRange.layerCount = layers_;
 
-  // TODO: set up a priority command buffer for this kind of operation
-  VkCommandBuffer cb = nullptr;
-  throw runtime_error("Unimplemented");
+  auto& queue = static_cast<QueueVK&>(DeviceVK::get().defaultQueue());
+  auto cb = queue.getPriority([&](bool result) {
+    if (result)
+      layout_ = nextLayout_;
+    else
+      nextLayout_ = layout_;
+  });
 
   vkCmdPipelineBarrier(cb, VK_PIPELINE_STAGE_TOP_OF_PIPE_BIT,
                        VK_PIPELINE_STAGE_ALL_COMMANDS_BIT, 0,
                        0, nullptr, 0, nullptr, 1, &imb);
-
-  // TODO: if the command fails to execute, `layout_` must be restored
-  layout_ = newLayout;
+  if (!defer)
+    queue.submit();
 }
 
 VkImage ImageVK::handle() const {

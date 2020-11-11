@@ -147,8 +147,40 @@ void ImageVK::write(Offset2 offset,
                     uint32_t level,
                     const void* data) {
 
-  // TODO
-  throw runtime_error("Unimplemented");
+  if (offset.x + size.width > size_.width ||
+      offset.y + size.height > size_.height ||
+      layer >= layers_ ||
+      level >= levels_ ||
+      !data)
+    throw invalid_argument("ImageVK write()");
+
+  // TODO: check image layout and transition as needed
+
+  if (tiling_ == VK_IMAGE_TILING_LINEAR) {
+    VkImageSubresource subres;
+    // TODO: ensure that a single aspect is set (no combined depth/stencil)
+    subres.aspectMask = aspectOfVK(format_);
+    subres.mipLevel = level;
+    subres.arrayLayer = 0;//layer;
+
+    auto dev = DeviceVK::get().device();
+    VkSubresourceLayout layout;
+    // TODO: consider getting all required layouts once on creation
+    vkGetImageSubresourceLayout(dev, handle_, &subres, &layout);
+
+    auto src = reinterpret_cast<uint8_t*>(const_cast<void*>(data));
+    auto dst = reinterpret_cast<uint8_t*>(data_);
+    dst += layout.offset + layout.arrayPitch*layer;
+    for (uint32_t row = 0; row < size.height; ++row) {
+      memcpy(src, dst, size.width);
+      src += size.width;
+      dst += layout.rowPitch;
+    }
+
+  } else {
+    // TODO
+    throw runtime_error("Unimplemented");
+  }
 }
 
 VkImage ImageVK::handle() const {

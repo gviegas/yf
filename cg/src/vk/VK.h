@@ -138,6 +138,7 @@ CG_DECLVK(vkCreateBufferView);
 CG_DECLVK(vkDestroyBufferView);
 CG_DECLVK(vkCreateImage);
 CG_DECLVK(vkDestroyImage);
+CG_DECLVK(vkGetImageSubresourceLayout);
 CG_DECLVK(vkCreateImageView);
 CG_DECLVK(vkDestroyImageView);
 CG_DECLVK(vkGetBufferMemoryRequirements);

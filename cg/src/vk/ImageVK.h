@@ -29,6 +29,10 @@ class ImageVK final : Image {
              uint32_t level,
              const void* data);
 
+  /// Performs a layout transition.
+  ///
+  void changeLayout(VkImageLayout newLayout);
+
   /// Getter.
   ///
   VkImage handle() const;

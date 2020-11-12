@@ -229,3 +229,72 @@ void ImageVK::changeLayout(VkImageLayout newLayout, bool defer) {
 VkImage ImageVK::handle() const {
   return handle_;
 }
+
+ImageVK::View::Ptr ImageVK::getView(uint32_t firstLayer,
+                                    uint32_t layerCount,
+                                    uint32_t firstLevel,
+                                    uint32_t levelCount) {
+
+  if (layerCount == 0 || firstLayer + layerCount > layers_ ||
+      levelCount == 0 || firstLevel + levelCount > levels_)
+    throw invalid_argument("ImageVK getView()");
+
+  VkImageViewCreateInfo info;
+  info.sType = VK_STRUCTURE_TYPE_IMAGE_VIEW_CREATE_INFO;
+  info.pNext = nullptr;
+  info.flags = 0;
+  info.image = handle_;
+  info.format = toFormatVK(format_);
+
+  info.components.r = VK_COMPONENT_SWIZZLE_IDENTITY;
+  info.components.g = VK_COMPONENT_SWIZZLE_IDENTITY;
+  info.components.b = VK_COMPONENT_SWIZZLE_IDENTITY;
+  info.components.a = VK_COMPONENT_SWIZZLE_IDENTITY;
+
+  info.subresourceRange.aspectMask = aspectOfVK(format_);
+  info.subresourceRange.baseMipLevel = firstLevel;
+  info.subresourceRange.levelCount = levelCount;
+  info.subresourceRange.baseArrayLayer = firstLayer;
+  info.subresourceRange.layerCount = layerCount;
+
+  if (type_ == VK_IMAGE_TYPE_2D) {
+    if (layerCount == 1)
+      info.viewType = VK_IMAGE_VIEW_TYPE_2D;
+    else
+      info.viewType = VK_IMAGE_VIEW_TYPE_2D_ARRAY;
+  } else {
+    if (layerCount == 1)
+      info.viewType = VK_IMAGE_VIEW_TYPE_1D;
+    else
+      info.viewType = VK_IMAGE_VIEW_TYPE_1D_ARRAY;
+  }
+
+  VkImageView iv;
+  auto res = vkCreateImageView(DeviceVK::get().device(), &info, nullptr, &iv);
+  if (res != VK_SUCCESS)
+    throw DeviceExcept("Could not create image view");
+
+  views_.emplace(iv, 0).first->second++;
+  return make_unique<ImageVK::View>(*this, iv);
+}
+
+ImageVK::View::View(ImageVK& image, VkImageView handle)
+  : image_(image), handle_(handle) { }
+
+ImageVK::View::~View() {
+  auto it = image_.views_.find(handle_);
+  if (it == image_.views_.end())
+    return;
+
+  if (it->second > 1) {
+    it->second--;
+  } else {
+    // XXX: one must ensure this resource is not in use
+    image_.views_.erase(it);
+    vkDestroyImageView(DeviceVK::get().device(), handle_, nullptr);
+  }
+}
+
+VkImageView ImageVK::View::handle() const {
+  return handle_;
+}

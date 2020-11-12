@@ -8,6 +8,8 @@
 #ifndef YF_CG_IMAGEVK_H
 #define YF_CG_IMAGEVK_H
 
+#include <unordered_map>
+
 #include "Image.h"
 #include "VK.h"
 
@@ -15,6 +17,7 @@ CG_NS_BEGIN
 
 class ImageVK final : public Image {
  public:
+
   ImageVK(PxFormat format,
           Size2 size,
           uint32_t layers,
@@ -37,6 +40,29 @@ class ImageVK final : public Image {
   ///
   VkImage handle() const;
 
+  /// Image view.
+  ///
+  class View {
+   public:
+    using Ptr = std::unique_ptr<View>;
+    View(ImageVK& image, VkImageView handle);
+    View(const View&) = delete;
+    View& operator=(const View&) = delete;
+    ~View();
+    VkImageView handle() const;
+
+   private:
+    ImageVK& image_;
+    VkImageView handle_;
+  };
+
+  /// Gets an image view.
+  ///
+  View::Ptr getView(uint32_t firstLayer,
+                    uint32_t layerCount,
+                    uint32_t firstLevel,
+                    uint32_t levelCount);
+
  private:
   VkImageType type_ = VK_IMAGE_TYPE_2D;
   VkImageTiling tiling_ = VK_IMAGE_TILING_OPTIMAL;
@@ -46,6 +72,7 @@ class ImageVK final : public Image {
   void* data_ = nullptr;
   VkImageLayout layout_ = VK_IMAGE_LAYOUT_UNDEFINED;
   VkImageLayout nextLayout_ = VK_IMAGE_LAYOUT_UNDEFINED;
+  std::unordered_map<VkImageView, uint32_t> views_{};
 };
 
 /// Converts from a `PxFormat` value.

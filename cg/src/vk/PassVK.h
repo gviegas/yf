@@ -11,6 +11,7 @@
 #include "Defs.h"
 #include "Pass.h"
 #include "VK.h"
+#include "ImageVK.h"
 
 CG_NS_BEGIN
 
@@ -56,6 +57,7 @@ class TargetVK final : public Target {
  private:
   PassVK& pass_;
   VkFramebuffer framebuffer_ = VK_NULL_HANDLE;
+  std::vector<ImageVK::View::Ptr> views_{};
 };
 
 /// Converts from a `LoadOP` value.

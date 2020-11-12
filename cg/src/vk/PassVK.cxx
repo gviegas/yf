@@ -27,37 +27,42 @@ PassVK::PassVK(const vector<ColorAttach>* colors,
   vector<VkAttachmentReference> attachRefs;
 
   // Define attachments
-  auto add = [&](const vector<ColorAttach>& attachs) {
-    // TODO: validate parameters
-    for (const auto& attach : attachs) {
-      attachDescs.push_back({});
-      auto desc = attachDescs.back();
-      desc.flags = 0;
-      desc.format = toFormatVK(attach.format);
-      desc.samples = toSampleCountVK(attach.samples);
-      desc.loadOp = toLoadOpVK(attach.loadOp);
-      desc.storeOp = toStoreOpVK(attach.storeOp);
-      desc.stencilLoadOp = VK_ATTACHMENT_LOAD_OP_DONT_CARE;
-      desc.stencilStoreOp = VK_ATTACHMENT_STORE_OP_DONT_CARE;
-      desc.initialLayout = VK_IMAGE_LAYOUT_UNDEFINED;
-      desc.finalLayout = VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL;
-      attachRefs.push_back({static_cast<uint32_t>(attachDescs.size()-1),
-                            VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL});
-    }
-  };
+  if (colors) {
+    auto add = [&](const vector<ColorAttach>& attachs) {
+      // TODO: validate parameters
+      for (const auto& attach : attachs) {
+        attachDescs.push_back({});
 
-  if (colors)
+        auto desc = attachDescs.back();
+        desc.flags = 0;
+        desc.format = toFormatVK(attach.format);
+        desc.samples = toSampleCountVK(attach.samples);
+        desc.loadOp = toLoadOpVK(attach.loadOp);
+        desc.storeOp = toStoreOpVK(attach.storeOp);
+        desc.stencilLoadOp = VK_ATTACHMENT_LOAD_OP_DONT_CARE;
+        desc.stencilStoreOp = VK_ATTACHMENT_STORE_OP_DONT_CARE;
+        desc.initialLayout = VK_IMAGE_LAYOUT_UNDEFINED;
+        desc.finalLayout = VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL;
+
+        attachRefs.push_back({static_cast<uint32_t>(attachDescs.size()-1),
+                              VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL});
+      }
+    };
+
     add(*colors);
 
-  if (resolves) {
-    if (!colors || colors->size() != resolves->size())
-      throw invalid_argument("Pass color/resolve attachment mismatch");
-    add(*resolves);
+    if (resolves) {
+      if (colors->size() != resolves->size())
+        throw invalid_argument("Pass color/resolve attachment mismatch");
+
+      add(*resolves);
+    }
   }
 
   if (depthStencil) {
     // TODO: validate parameters
     attachDescs.push_back({});
+
     auto desc = attachDescs.back();
     desc.flags = 0;
     desc.format = toFormatVK(depthStencil->format);
@@ -69,6 +74,7 @@ PassVK::PassVK(const vector<ColorAttach>* colors,
     desc.initialLayout = VK_IMAGE_LAYOUT_UNDEFINED;
     // TODO: check format aspect and set layout accordingly
     desc.finalLayout = VK_IMAGE_LAYOUT_GENERAL;
+
     attachRefs.push_back({static_cast<uint32_t>(attachDescs.size()-1),
                           VK_IMAGE_LAYOUT_GENERAL});
   }
@@ -150,7 +156,68 @@ TargetVK::TargetVK(PassVK& pass,
                    : Target(size, layers, colors, resolves, depthStencil),
                      pass_(pass) {
 
-  // TODO
+  if (size == 0 || layers == 0)
+    throw invalid_argument("TargetVK requires size > 0 and layers > 0");
+
+  // TODO: consider relaxing compatibility requirements
+
+  // Define attachments
+  if (colors) {
+    auto add = [&](const vector<AttachImg>& attachs) {
+      for (const auto& a : attachs) {
+        auto img = static_cast<ImageVK*>(a.image);
+        views_.push_back(img->getView(a.layer, layers, a.level, 1));
+      }
+    };
+
+    if (!pass_.colors_ || pass_.colors_->size() != colors->size())
+      throw invalid_argument("Target not compatible with pass");
+
+    add(*colors);
+
+    if (resolves) {
+      if (!pass_.resolves_ || pass_.resolves_->size() != resolves->size())
+        throw invalid_argument("Target not compatible with pass");
+
+      add(*resolves);
+    }
+
+  } else if (pass_.colors_) {
+    throw invalid_argument("Target not compatible with pass");
+  }
+
+  if (depthStencil_) {
+    if (!pass_.depthStencil_)
+      throw invalid_argument("Target not compatible with pass");
+
+    auto img = static_cast<ImageVK*>(depthStencil->image);
+    views_.push_back(img->getView(depthStencil->layer, layers,
+                                  depthStencil->level, 1));
+
+  } else if (pass_.depthStencil_) {
+    throw invalid_argument("Target not compatible with pass");
+  }
+
+  vector<VkImageView> attachs;
+  for (const auto& v : views_)
+    attachs.push_back(v->handle());
+
+  // Create framebuffer
+  VkFramebufferCreateInfo info;
+  info.sType = VK_STRUCTURE_TYPE_FRAMEBUFFER_CREATE_INFO;
+  info.pNext = nullptr;
+  info.flags = 0;
+  info.renderPass = pass_.renderPass();
+  info.attachmentCount = attachs.size();
+  info.pAttachments = attachs.data();
+  info.width = size.width;
+  info.height = size.height;
+  info.layers = layers;
+
+  auto dev = DeviceVK::get().device();
+  auto res = vkCreateFramebuffer(dev, &info, nullptr, &framebuffer_);
+  if (res != VK_SUCCESS)
+    throw DeviceExcept("Could not create framebuffer");
 }
 
 TargetVK::~TargetVK() {

@@ -26,19 +26,26 @@ struct DeviceTest : Test {
 
     vector<ColorAttach> clrs{{PxFormatRgba8Unorm, Samples1, LoadOpLoad,
                               StoreOpStore}};
-    DepStenAttach depSten = {PxFormatD16Unorm, Samples1, LoadOpLoad,
-                             StoreOpStore, LoadOpDontCare, StoreOpDontCare};
+    DepStenAttach depSten{PxFormatD16Unorm, Samples1, LoadOpLoad,
+                          StoreOpStore, LoadOpDontCare, StoreOpDontCare};
     auto pass = dev.makePass(&clrs, nullptr, &depSten);
 
     auto buf = dev.makeBuffer(1<<28);
 
-    auto img = dev.makeImage(PxFormatRgba8Unorm, {1024, 256}, 4, 1, Samples1);
+    auto img1 = dev.makeImage(PxFormatRgba8Unorm, {600, 600}, 4, 1, Samples1);
+    auto img2 = dev.makeImage(PxFormatD16Unorm, {600, 600}, 1, 1, Samples1);
+
+    vector<AttachImg> clrImgs{{img1.get(), 0, 0}};
+    AttachImg depImg{img2.get(), 0, 0};
+    auto targ = pass->makeTarget({600, 600}, 1, &clrImgs, nullptr, &depImg);
 
     a.push_back({L"Device::get()", true});
     a.push_back({L"dev.makeShader(...)", shd != nullptr});
     a.push_back({L"dev.makePass(...)", pass != nullptr});
     a.push_back({L"dev.makeBuffer(...)", buf != nullptr});
-    a.push_back({L"dev.makeImage(...)", img != nullptr});
+    a.push_back({L"dev.makeImage(...) (1)", img1 != nullptr});
+    a.push_back({L"dev.makeImage(...) (2)", img2 != nullptr});
+    a.push_back({L"pass.makeTarget(...)", targ != nullptr});
 
     return a;
   }

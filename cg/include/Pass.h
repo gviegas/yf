@@ -57,7 +57,8 @@ struct DepStenAttach {
 ///
 struct AttachImg {
   Image* image;
-  uint32_t baseLayer;
+  uint32_t layer;
+  uint32_t level;
 };
 
 class Pass;

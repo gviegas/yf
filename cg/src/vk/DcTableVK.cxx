@@ -80,8 +80,63 @@ DcTableVK::~DcTableVK() {
 }
 
 void DcTableVK::allocate(uint32_t n) {
-  // TODO
-  throw runtime_error("Unimplemented");
+  // XXX: since currently held resources will only be freed after (and if)
+  // the new allocation succeeds, one may need to call `allocate(0)` first
+
+  if (n == sets_.size())
+    return;
+
+  auto dev = DeviceVK::get().device();
+
+  if (n == 0) {
+    vkDestroyDescriptorPool(dev, pool_, nullptr);
+    pool_ = VK_NULL_HANDLE;
+    sets_.clear();
+    return;
+  }
+
+  // Create new pool
+  auto sizes = poolSizes_;
+  if (n > 1) {
+    for (auto& s : sizes)
+      s.descriptorCount *= n;
+  }
+  VkDescriptorPool pool;
+  VkResult res;
+
+  VkDescriptorPoolCreateInfo poolInfo;
+  poolInfo.sType = VK_STRUCTURE_TYPE_DESCRIPTOR_POOL_CREATE_INFO;
+  poolInfo.pNext = nullptr;
+  poolInfo.flags = 0;
+  poolInfo.maxSets = n;
+  poolInfo.poolSizeCount = sizes.size();
+  poolInfo.pPoolSizes = sizes.data();
+
+  res = vkCreateDescriptorPool(dev, &poolInfo, nullptr, &pool);
+  if (res != VK_SUCCESS)
+    throw DeviceExcept("Could not create descriptor pool");
+
+  // Allocate new descriptor sets
+  vector<VkDescriptorSetLayout> layouts(n, dsLayout_);
+  vector<VkDescriptorSet> sets;
+  sets.resize(n);
+
+  VkDescriptorSetAllocateInfo allocInfo;
+  allocInfo.sType = VK_STRUCTURE_TYPE_DESCRIPTOR_SET_ALLOCATE_INFO;
+  allocInfo.pNext = nullptr;
+  allocInfo.descriptorPool = pool;
+  allocInfo.descriptorSetCount = n;
+  allocInfo.pSetLayouts = layouts.data();
+
+  res = vkAllocateDescriptorSets(dev, &allocInfo, sets.data());
+  if (res != VK_SUCCESS) {
+    vkDestroyDescriptorPool(dev, pool, nullptr);
+    throw DeviceExcept("Could not allocate descriptor set(s)");
+  }
+
+  vkDestroyDescriptorPool(dev, pool_, nullptr);
+  pool_ = pool;
+  sets_ = sets;
 }
 
 uint32_t DcTableVK::allocations() const {

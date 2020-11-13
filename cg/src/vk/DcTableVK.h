@@ -38,6 +38,7 @@ class DcTableVK final : public DcTable {
  private:
   VkDescriptorSetLayout dsLayout_ = VK_NULL_HANDLE;
   VkDescriptorPool pool_ = VK_NULL_HANDLE;
+  std::vector<VkDescriptorPoolSize> poolSizes_{};
   std::vector<VkDescriptorSet> sets_{};
 };
 

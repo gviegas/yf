@@ -22,8 +22,6 @@ enum DcType {
   DcTypeUniform,
   DcTypeStorage,
   DcTypeImage,
-  DcTypeSampler,
-  DcTypeSampledImg,
   DcTypeImgSampler
 };
 

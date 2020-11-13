@@ -274,7 +274,7 @@ ImageVK::View::Ptr ImageVK::getView(uint32_t firstLayer,
   if (res != VK_SUCCESS)
     throw DeviceExcept("Could not create image view");
 
-  views_.emplace(iv, 0).first->second++;
+  //views_.emplace(iv, 0).first->second++;
   return make_unique<ImageVK::View>(*this, iv);
 }
 
@@ -282,17 +282,31 @@ ImageVK::View::View(ImageVK& image, VkImageView handle)
   : image_(image), handle_(handle) { }
 
 ImageVK::View::~View() {
-  auto it = image_.views_.find(handle_);
-  if (it == image_.views_.end())
-    return;
+  // [1.2.146 c2.3]
+  // "Objects of a non-dispatchable type may not have unique handle values
+  // within a type or across types. If handle values are not unique, then
+  // destroying one such handle must not cause identical handles of other
+  // types to become invalid, and must not cause identical handles of the
+  // same type to become invalid if that handle value has been created
+  // more times than it has been destroyed".
 
-  if (it->second > 1) {
-    it->second--;
-  } else {
-    // XXX: one must ensure this resource is not in use
-    image_.views_.erase(it);
-    vkDestroyImageView(DeviceVK::get().device(), handle_, nullptr);
-  }
+  vkDestroyImageView(DeviceVK::get().device(), handle_, nullptr);
+
+//  auto it = image_.views_.find(handle_);
+//  if (it == image_.views_.end())
+//    return;
+//
+//  if (it->second > 1) {
+//    it->second--;
+//  } else {
+//    // XXX: one must ensure this resource is not in use
+//    image_.views_.erase(it);
+//    vkDestroyImageView(DeviceVK::get().device(), handle_, nullptr);
+//  }
+}
+
+ImageVK& ImageVK::View::image() const {
+  return image_;
 }
 
 VkImageView ImageVK::View::handle() const {

@@ -49,6 +49,7 @@ class ImageVK final : public Image {
     View(const View&) = delete;
     View& operator=(const View&) = delete;
     ~View();
+    ImageVK& image() const;
     VkImageView handle() const;
 
    private:
@@ -72,7 +73,7 @@ class ImageVK final : public Image {
   void* data_ = nullptr;
   VkImageLayout layout_ = VK_IMAGE_LAYOUT_UNDEFINED;
   VkImageLayout nextLayout_ = VK_IMAGE_LAYOUT_UNDEFINED;
-  std::unordered_map<VkImageView, uint32_t> views_{};
+  //std::unordered_map<VkImageView, uint32_t> views_{};
 };
 
 /// Converts from a `PxFormat` value.

@@ -22,8 +22,6 @@ enum DcType {
   DcTypeUniform,
   DcTypeStorage,
   DcTypeImage,
-  DcTypeSampler,
-  DcTypeSampledImg,
   DcTypeImgSampler
 };
 
@@ -46,7 +44,6 @@ class DcTable {
  public:
   using Ptr = std::unique_ptr<DcTable>;
   explicit DcTable(const DcEntries& entries);
-  explicit DcTable(DcEntries&& entries);
   virtual ~DcTable();
 
   /// Allocates a given number of resources.
@@ -55,7 +52,7 @@ class DcTable {
 
   /// Retrives the number of allocations.
   ///
-  virtual uint32_t allocations() = 0;
+  virtual uint32_t allocations() const = 0;
 
   /// Writes to a table resource using a buffer object.
   ///

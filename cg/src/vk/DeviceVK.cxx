@@ -16,6 +16,7 @@
 #include "BufferVK.h"
 #include "ImageVK.h"
 #include "ShaderVK.h"
+#include "DcTableVK.h"
 #include "PassVK.h"
 #include "yf/Except.h"
 
@@ -352,8 +353,7 @@ Shader::Ptr DeviceVK::makeShader(Stage stage,
 }
 
 DcTable::Ptr DeviceVK::makeDcTable(const DcEntries& entries) {
-  // TODO
-  assert(false);
+  return make_unique<DcTableVK>(entries);
 }
 
 Pass::Ptr DeviceVK::makePass(const vector<ColorAttach>* colors,

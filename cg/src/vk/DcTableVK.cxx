@@ -6,6 +6,8 @@
 //
 
 #include "DcTableVK.h"
+#include "BufferVK.h"
+#include "ImageVK.h"
 #include "DeviceVK.h"
 #include "yf/Except.h"
 
@@ -150,8 +152,37 @@ void DcTableVK::write(uint32_t allocation,
                       uint64_t offset,
                       uint64_t size) {
 
-  // TODO
-  throw runtime_error("Unimplemented");
+  auto ent = entries_.find(id);
+
+  if (allocation >= sets_.size() ||
+      ent == entries_.end() ||
+      (ent->second.type != DcTypeUniform &&
+        ent->second.type != DcTypeStorage) ||
+      element >= ent->second.elements ||
+      offset + size > buffer.size_)
+    throw invalid_argument("DcTable write() [Buffer]");
+
+  VkDescriptorBufferInfo info;
+  info.buffer = static_cast<BufferVK&>(buffer).handle();
+  info.offset = offset;
+  info.range = size;
+
+  VkWriteDescriptorSet wr;
+  wr.sType = VK_STRUCTURE_TYPE_WRITE_DESCRIPTOR_SET;
+  wr.pNext = nullptr;
+  wr.dstSet = sets_[allocation];
+  wr.dstBinding = id;
+  wr.dstArrayElement = element;
+  wr.descriptorCount = 1;
+  if (ent->second.type == DcTypeUniform)
+    wr.descriptorType = VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER;
+  else
+    wr.descriptorType = VK_DESCRIPTOR_TYPE_STORAGE_BUFFER;
+  wr.pImageInfo = nullptr;
+  wr.pBufferInfo = &info;
+  wr.pTexelBufferView = nullptr;
+
+  vkUpdateDescriptorSets(DeviceVK::get().device(), 1, &wr, 0, nullptr);
 }
 
 void DcTableVK::write(uint32_t allocation,

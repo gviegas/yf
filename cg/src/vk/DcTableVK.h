@@ -9,9 +9,11 @@
 #define YF_CG_DCTABLEVK_H
 
 #include <vector>
+#include <unordered_map>
 
 #include "DcTable.h"
 #include "VK.h"
+#include "ImageVK.h"
 
 CG_NS_BEGIN
 
@@ -40,6 +42,23 @@ class DcTableVK final : public DcTable {
   VkDescriptorPool pool_ = VK_NULL_HANDLE;
   std::vector<VkDescriptorPoolSize> poolSizes_{};
   std::vector<VkDescriptorSet> sets_{};
+
+  /// Image views and sampler objects used in `write()`s are managed by
+  /// the table. Every image/sampler descriptor has a list of `elements`
+  /// size holding resources used in the most recent update. A list of
+  /// `allocations` size holds descriptor-to-resource-list mappings.
+  ///
+  struct ImgRef {
+    uint32_t layer;
+    //uint32_t level;
+    ImageVK::View::Ptr view;
+    //SamplerVK::Ptr sampler;
+  };
+
+  using ImgRefs = std::unordered_map<DcId, std::vector<ImgRef>>;
+  std::vector<ImgRefs> imgRefs_{};
+
+  void resetImgRefs();
 };
 
 CG_NS_END

@@ -7,7 +7,6 @@
 
 #include "DcTableVK.h"
 #include "BufferVK.h"
-#include "ImageVK.h"
 #include "DeviceVK.h"
 #include "yf/Except.h"
 
@@ -94,6 +93,7 @@ void DcTableVK::allocate(uint32_t n) {
     vkDestroyDescriptorPool(dev, pool_, nullptr);
     pool_ = VK_NULL_HANDLE;
     sets_.clear();
+    imgRefs_.clear();
     return;
   }
 
@@ -139,6 +139,7 @@ void DcTableVK::allocate(uint32_t n) {
   vkDestroyDescriptorPool(dev, pool_, nullptr);
   pool_ = pool;
   sets_ = sets;
+  resetImgRefs();
 }
 
 uint32_t DcTableVK::allocations() const {
@@ -191,6 +192,69 @@ void DcTableVK::write(uint32_t allocation,
                       Image& image,
                       uint32_t layer) {
 
-  // TODO
-  throw runtime_error("Unimplemented");
+  auto ent = entries_.find(id);
+
+  if (allocation >= sets_.size() ||
+      ent == entries_.end() ||
+      (ent->second.type != DcTypeImage &&
+        ent->second.type != DcTypeImgSampler) ||
+      element >= ent->second.elements ||
+      layer >= image.layers_)
+    throw invalid_argument("DcTableVK write() [Image]");
+
+  ImgRef& ref = imgRefs_[allocation].find(id)->second[element];
+
+  if (!ref.view || ref.layer != layer) {
+    // TODO: level
+    ref.view = static_cast<ImageVK&>(image).getView(layer, 1, 0, 1);
+    ref.layer = layer;
+  }
+
+  VkDescriptorImageInfo info;
+  // TODO: sampler
+  info.sampler = VK_NULL_HANDLE;
+  info.imageView = ref.view->handle();
+  info.imageLayout = VK_IMAGE_LAYOUT_GENERAL;
+
+  VkWriteDescriptorSet wr;
+  wr.sType = VK_STRUCTURE_TYPE_WRITE_DESCRIPTOR_SET;
+  wr.pNext = nullptr;
+  wr.dstSet = sets_[allocation];
+  wr.dstBinding = id;
+  wr.dstArrayElement = element;
+  wr.descriptorCount = 1;
+  if (ent->second.type == DcTypeImage)
+    wr.descriptorType = VK_DESCRIPTOR_TYPE_STORAGE_IMAGE;
+  else
+    wr.descriptorType = VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER;
+  wr.pImageInfo = &info;
+  wr.pBufferInfo = nullptr;
+  wr.pTexelBufferView = nullptr;
+
+  vkUpdateDescriptorSets(DeviceVK::get().device(), 1, &wr, 0, nullptr);
+}
+
+void DcTableVK::resetImgRefs() {
+  imgRefs_.clear();
+
+  // Cannot copy unique pointers
+  for (auto i = sets_.size(); i > 0; --i) {
+    imgRefs_.push_back({});
+
+    for (const auto& e : entries_) {
+      if (e.second.type != DcTypeImgSampler && e.second.type != DcTypeImage)
+        continue;
+
+      auto it = imgRefs_.back().emplace(e.first, vector<ImgRef>()).first;
+
+      for (auto j = e.second.elements; j > 0; --j)
+        it->second.push_back({UINT32_MAX, nullptr});
+    }
+
+    // TODO: do this once
+    if (imgRefs_[0].empty()) {
+      imgRefs_.clear();
+      return;
+    }
+  }
 }

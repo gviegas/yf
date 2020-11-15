@@ -35,7 +35,9 @@ class DcTableVK final : public DcTable {
              DcId id,
              uint32_t element,
              Image& image,
-             uint32_t layer);
+             uint32_t layer,
+             uint32_t level,
+             ImgSampler sampler);
 
  private:
   VkDescriptorSetLayout dsLayout_ = VK_NULL_HANDLE;
@@ -49,10 +51,8 @@ class DcTableVK final : public DcTable {
   /// `allocations` size holds descriptor-to-resource-list mappings.
   ///
   struct ImgRef {
-    uint32_t layer;
-    //uint32_t level;
     ImageVK::View::Ptr view;
-    //SamplerVK::Ptr sampler;
+    SamplerVK::Ptr sampler;
   };
 
   using ImgRefs = std::unordered_map<DcId, std::vector<ImgRef>>;

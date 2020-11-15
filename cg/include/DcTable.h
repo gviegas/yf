@@ -13,6 +13,8 @@
 #include <unordered_map>
 
 #include "yf/cg/Defs.h"
+#include "yf/cg/Buffer.h"
+#include "yf/cg/Image.h"
 
 CG_NS_BEGIN
 
@@ -34,9 +36,6 @@ struct DcEntry {
 
 using DcId = uint32_t;
 using DcEntries = std::unordered_map<DcId, DcEntry>;
-
-class Buffer;
-class Image;
 
 /// Descriptor table.
 ///
@@ -69,7 +68,9 @@ class DcTable {
                      DcId id,
                      uint32_t element,
                      Image& image,
-                     uint32_t layer) = 0;
+                     uint32_t layer,
+                     uint32_t level,
+                     ImgSampler sampler) = 0;
 
   /// The table entries.
   ///

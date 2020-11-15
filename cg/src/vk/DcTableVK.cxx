@@ -190,7 +190,9 @@ void DcTableVK::write(uint32_t allocation,
                       DcId id,
                       uint32_t element,
                       Image& image,
-                      uint32_t layer) {
+                      uint32_t layer,
+                      uint32_t level,
+                      ImgSampler sampler) {
 
   auto ent = entries_.find(id);
 
@@ -204,15 +206,12 @@ void DcTableVK::write(uint32_t allocation,
 
   ImgRef& ref = imgRefs_[allocation].find(id)->second[element];
 
-  if (!ref.view || ref.layer != layer) {
-    // TODO: level
-    ref.view = static_cast<ImageVK&>(image).getView(layer, 1, 0, 1);
-    ref.layer = layer;
-  }
+  // Check if view object can be reused
+  if (!ref.view || &ref.view->image() != &image ||
+      ref.view->firstLayer() != layer || ref.view->firstLevel() != level)
+    ref.view = static_cast<ImageVK&>(image).getView(layer, 1, level, 1);
 
   VkDescriptorImageInfo info;
-  // TODO: sampler
-  info.sampler = VK_NULL_HANDLE;
   info.imageView = ref.view->handle();
   info.imageLayout = VK_IMAGE_LAYOUT_GENERAL;
 
@@ -223,13 +222,26 @@ void DcTableVK::write(uint32_t allocation,
   wr.dstBinding = id;
   wr.dstArrayElement = element;
   wr.descriptorCount = 1;
-  if (ent->second.type == DcTypeImage)
-    wr.descriptorType = VK_DESCRIPTOR_TYPE_STORAGE_IMAGE;
-  else
-    wr.descriptorType = VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER;
   wr.pImageInfo = &info;
   wr.pBufferInfo = nullptr;
   wr.pTexelBufferView = nullptr;
+
+  // Check if sampler is needed
+  switch (ent->second.type) {
+  case DcTypeImage:
+    ref.sampler = nullptr;
+    info.sampler = VK_NULL_HANDLE;
+    wr.descriptorType = VK_DESCRIPTOR_TYPE_STORAGE_IMAGE;
+    break;
+  case DcTypeImgSampler:
+    if (!ref.sampler || ref.sampler->type() != sampler)
+      ref.sampler = SamplerVK::make(sampler);
+    info.sampler = ref.sampler->handle();
+    wr.descriptorType = VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER;
+    break;
+  default:
+    break;
+  }
 
   vkUpdateDescriptorSets(DeviceVK::get().device(), 1, &wr, 0, nullptr);
 }
@@ -248,7 +260,7 @@ void DcTableVK::resetImgRefs() {
       auto it = imgRefs_.back().emplace(e.first, vector<ImgRef>()).first;
 
       for (auto j = e.second.elements; j > 0; --j)
-        it->second.push_back({UINT32_MAX, nullptr});
+        it->second.push_back({nullptr, nullptr});
     }
 
     // TODO: do this once

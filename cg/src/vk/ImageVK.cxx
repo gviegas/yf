@@ -275,11 +275,19 @@ ImageVK::View::Ptr ImageVK::getView(uint32_t firstLayer,
     throw DeviceExcept("Could not create image view");
 
   //views_.emplace(iv, 0).first->second++;
-  return make_unique<ImageVK::View>(*this, iv);
+  return make_unique<View>(*this, iv, firstLayer, layerCount,
+                           firstLevel, levelCount);
 }
 
-ImageVK::View::View(ImageVK& image, VkImageView handle)
-  : image_(image), handle_(handle) { }
+ImageVK::View::View(ImageVK& image,
+                    VkImageView handle,
+                    uint32_t firstLayer,
+                    uint32_t layerCount,
+                    uint32_t firstLevel,
+                    uint32_t levelCount)
+                    : image_(image), handle_(handle),
+                      firstLayer_(firstLayer), layerCount_(layerCount),
+                      firstLevel_(firstLevel), levelCount_(levelCount) { }
 
 ImageVK::View::~View() {
   // [1.2.146 c2.3]
@@ -311,6 +319,22 @@ ImageVK& ImageVK::View::image() const {
 
 VkImageView ImageVK::View::handle() const {
   return handle_;
+}
+
+uint32_t ImageVK::View::firstLayer() const {
+  return firstLayer_;
+}
+
+uint32_t ImageVK::View::layerCount() const {
+  return layerCount_;
+}
+
+uint32_t ImageVK::View::firstLevel() const {
+  return firstLevel_;
+}
+
+uint32_t ImageVK::View::levelCount() const {
+  return levelCount_;
 }
 
 SamplerVK::Ptr SamplerVK::make(ImgSampler type) {

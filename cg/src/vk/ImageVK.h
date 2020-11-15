@@ -45,16 +45,24 @@ class ImageVK final : public Image {
   class View {
    public:
     using Ptr = std::unique_ptr<View>;
-    View(ImageVK& image, VkImageView handle);
+    View(ImageVK&, VkImageView, uint32_t, uint32_t, uint32_t, uint32_t);
     View(const View&) = delete;
     View& operator=(const View&) = delete;
     ~View();
     ImageVK& image() const;
     VkImageView handle() const;
+    uint32_t firstLayer() const;
+    uint32_t layerCount() const;
+    uint32_t firstLevel() const;
+    uint32_t levelCount() const;
 
    private:
     ImageVK& image_;
     VkImageView handle_;
+    uint32_t firstLayer_;
+    uint32_t layerCount_;
+    uint32_t firstLevel_;
+    uint32_t levelCount_;
   };
 
   /// Gets an image view.
@@ -92,7 +100,7 @@ class SamplerVK final {
   static Ptr make(ImgSampler type);
 
  protected:
-  SamplerVK(ImgSampler type);
+  SamplerVK(ImgSampler);
 
  private:
   ImgSampler type_ = ImgSamplerBasic;

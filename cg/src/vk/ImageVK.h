@@ -76,6 +76,29 @@ class ImageVK final : public Image {
   //std::unordered_map<VkImageView, uint32_t> views_{};
 };
 
+/// Sampler.
+///
+class SamplerVK final {
+ public:
+  using Ptr = std::unique_ptr<SamplerVK>;
+  SamplerVK(const SamplerVK&) = delete;
+  SamplerVK& operator=(const SamplerVK&) = delete;
+  ~SamplerVK();
+  ImgSampler type() const;
+  VkSampler handle() const;
+
+  /// Makes a new sampler of a given type.
+  ///
+  static Ptr make(ImgSampler type);
+
+ protected:
+  SamplerVK(ImgSampler type);
+
+ private:
+  ImgSampler type_ = ImgSamplerBasic;
+  VkSampler handle_ = VK_NULL_HANDLE;
+};
+
 /// Converts from a `PxFormat` value.
 ///
 inline VkFormat toFormatVK(PxFormat pxFormat) {

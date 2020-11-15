@@ -312,3 +312,63 @@ ImageVK& ImageVK::View::image() const {
 VkImageView ImageVK::View::handle() const {
   return handle_;
 }
+
+SamplerVK::Ptr SamplerVK::make(ImgSampler type) {
+  return Ptr(new SamplerVK(type));
+}
+
+SamplerVK::SamplerVK(ImgSampler type) : type_(type) {
+  VkSamplerCreateInfo info;
+  info.sType = VK_STRUCTURE_TYPE_SAMPLER_CREATE_INFO;
+  info.pNext = nullptr;
+  info.flags = 0;
+  // TODO: make additional types for setting these parameters
+  info.addressModeU = VK_SAMPLER_ADDRESS_MODE_CLAMP_TO_EDGE;
+  info.addressModeV = VK_SAMPLER_ADDRESS_MODE_CLAMP_TO_EDGE;
+  info.addressModeW = VK_SAMPLER_ADDRESS_MODE_CLAMP_TO_EDGE;
+  info.mipLodBias = 0.0f;
+  info.anisotropyEnable = false;
+  info.maxAnisotropy = 0.0f;
+  info.compareEnable = false;
+  info.compareOp = VK_COMPARE_OP_NEVER;
+  info.minLod = 0.0f;
+  info.maxLod = 0.0f;
+  info.borderColor = VK_BORDER_COLOR_FLOAT_OPAQUE_BLACK;
+  info.unnormalizedCoordinates = false;
+
+  switch (type) {
+  case ImgSamplerBasic:
+    info.magFilter = VK_FILTER_NEAREST;
+    info.minFilter = VK_FILTER_NEAREST;
+    info.mipmapMode = VK_SAMPLER_MIPMAP_MODE_NEAREST;
+    break;
+  case ImgSamplerLinear:
+    info.magFilter = VK_FILTER_LINEAR;
+    info.minFilter = VK_FILTER_LINEAR;
+    info.mipmapMode = VK_SAMPLER_MIPMAP_MODE_NEAREST;
+    break;
+  case ImgSamplerTrilinear:
+    info.magFilter = VK_FILTER_LINEAR;
+    info.minFilter = VK_FILTER_LINEAR;
+    info.mipmapMode = VK_SAMPLER_MIPMAP_MODE_LINEAR;
+    break;
+  }
+
+  auto dev = DeviceVK::get().device();
+  auto res = vkCreateSampler(dev, &info, nullptr, &handle_);
+  if (res != VK_SUCCESS)
+    throw DeviceExcept("Could not create sampler");
+}
+
+SamplerVK::~SamplerVK() {
+  // XXX: like the image view above, assume the driver does reference counting
+  vkDestroySampler(DeviceVK::get().device(), handle_, nullptr);
+}
+
+ImgSampler SamplerVK::type() const {
+  return type_;
+}
+
+VkSampler SamplerVK::handle() const {
+  return handle_;
+}

@@ -23,7 +23,8 @@ struct DcTableTest : Test {
       void allocate(uint32_t) { }
       uint32_t allocations() const { return 0; }
       void write(uint32_t, DcId, uint32_t, Buffer&, uint64_t, uint64_t) { }
-      void write(uint32_t, DcId, uint32_t, Image&, uint32_t) { }
+      void write(uint32_t, DcId, uint32_t, Image&, uint32_t, uint32_t,
+                 ImgSampler) { }
     };
 
     Assertions a;

@@ -69,6 +69,14 @@ class Image {
   const Samples samples_;
 };
 
+/// Image sampler types.
+///
+enum ImgSampler {
+  ImgSamplerBasic,
+  ImgSamplerLinear,
+  ImgSamplerTrilinear
+};
+
 CG_NS_END
 
 #endif // YF_CG_IMAGE_H

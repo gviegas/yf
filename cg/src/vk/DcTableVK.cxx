@@ -270,3 +270,7 @@ void DcTableVK::resetImgRefs() {
     }
   }
 }
+
+VkDescriptorSetLayout DcTableVK::dsLayout() const {
+  return dsLayout_;
+}

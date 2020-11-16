@@ -18,6 +18,7 @@
 #include "ShaderVK.h"
 #include "DcTableVK.h"
 #include "PassVK.h"
+#include "StateVK.h"
 #include "yf/Except.h"
 
 using namespace CG_NS;
@@ -369,8 +370,7 @@ GrState::Ptr DeviceVK::makeState(const GrState::Config& config) {
 }
 
 CpState::Ptr DeviceVK::makeState(const CpState::Config& config) {
-  // TODO
-  assert(false);
+  return make_unique<CpStateVK>(config);
 }
 
 Queue& DeviceVK::defaultQueue() {

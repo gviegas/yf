@@ -23,6 +23,7 @@ class GrStateVK final : public GrState {
   VkPipeline pipeline() const;
 
  private:
+  VkShaderStageFlags stgFlags_ = 0;
   VkPipelineLayout plLayout_ = VK_NULL_HANDLE;
   VkPipeline pipeline_ = VK_NULL_HANDLE;
 };

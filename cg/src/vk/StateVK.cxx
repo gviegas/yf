@@ -45,10 +45,70 @@ inline VkPipelineLayout plLayoutVK(const vector<DcTable*>& dcTables) {
 INTERNAL_NS_END
 
 GrStateVK::GrStateVK(const Config& config)
-  : GrState(config), plLayout_(plLayoutVK(config.dcTables)) {
+  : GrState(config), stgFlags_(0), plLayout_(plLayoutVK(config.dcTables)) {
 
-  // TODO
-  throw runtime_error("Unimplemented");
+  auto dev = DeviceVK::get().device();
+  auto deinit = [&] { vkDestroyPipelineLayout(dev, plLayout_, nullptr); };
+
+  // Define shader stages
+  vector<VkPipelineShaderStageCreateInfo> stgInfos;
+
+  for (const auto shd : config.shaders) {
+    // XXX: assuming non-null
+    stgInfos.push_back({});
+    auto info = stgInfos.back();
+    info.sType = VK_STRUCTURE_TYPE_PIPELINE_SHADER_STAGE_CREATE_INFO;
+    info.pNext = nullptr;
+    info.flags = 0;
+    info.stage = toShaderStageVK(shd->stage_);
+    info.module = static_cast<ShaderVK*>(shd)->module();
+    info.pName = static_cast<ShaderVK*>(shd)->name();
+    info.pSpecializationInfo = nullptr;
+
+    if (info.stage & stgFlags_) {
+      deinit();
+      throw invalid_argument("Non-unique shader stages on pipeline creation");
+    }
+
+    stgFlags_ |= info.stage;
+  }
+
+  if (!(stgFlags_ & VK_SHADER_STAGE_VERTEX_BIT)) {
+    deinit();
+    throw invalid_argument("Graphics pipeline requires a vertex shader");
+  }
+  // TODO: check other invalid stage combinations
+
+  // TODO...
+
+  // Define vertex input state
+  VkPipelineVertexInputStateCreateInfo vxInfo;
+
+  // Define input assembly state
+  VkPipelineInputAssemblyStateCreateInfo inpInfo;
+
+  // Define tessellation state
+  VkPipelineTessellationStateCreateInfo tesInfo;
+
+  // Define viewport state
+  VkPipelineViewportStateCreateInfo vpInfo;
+
+  // Define rasterization state
+  VkPipelineRasterizationStateCreateInfo rasInfo;
+
+  // Define multisample state
+  VkPipelineMultisampleStateCreateInfo msInfo;
+
+  // Define depth/stencil state
+  VkPipelineDepthStencilStateCreateInfo depInfo;
+
+  // Define color blend state
+  VkPipelineColorBlendStateCreateInfo blnInfo;
+
+  // Define dynamic state
+  VkPipelineDynamicStateCreateInfo dynInfo;
+
+  // TODO...
 }
 
 GrStateVK::~GrStateVK() {

@@ -8,6 +8,8 @@
 #include <fstream>
 #include <filesystem>
 #include <memory>
+#include <cstring>
+#include <cwchar>
 
 #include "ShaderVK.h"
 #include "DeviceVK.h"
@@ -19,7 +21,11 @@ using namespace std;
 ShaderVK::ShaderVK(Stage stage, wstring&& codeFile, wstring&& entryPoint)
   : Shader(stage, move(codeFile), move(entryPoint)) {
 
-  ifstream ifs(filesystem::path{codeFile});
+  if (codeFile_.empty() || entryPoint_.empty())
+    throw invalid_argument("ShaderVK requires valid codeFile and entryPoint");
+
+  // Get shader code data and create module
+  ifstream ifs(filesystem::path{codeFile_});
   if (!ifs)
     throw FileExcept("Could not open file");
 
@@ -31,7 +37,7 @@ ShaderVK::ShaderVK(Stage stage, wstring&& codeFile, wstring&& entryPoint)
   ifs.seekg(0);
   auto buf = make_unique<char[]>(sz);
   if (!ifs.read(buf.get(), sz))
-    throw FileExcept("Failed to read data from file");
+    throw FileExcept("Could not read data from file");
 
   VkShaderModuleCreateInfo info;
   info.sType = VK_STRUCTURE_TYPE_SHADER_MODULE_CREATE_INFO;
@@ -43,7 +49,15 @@ ShaderVK::ShaderVK(Stage stage, wstring&& codeFile, wstring&& entryPoint)
   auto dev = DeviceVK::get().device();
   auto res = vkCreateShaderModule(dev, &info, nullptr, &module_);
   if (res != VK_SUCCESS)
-    throw DeviceExcept("Failed to create shader module");
+    throw DeviceExcept("Could not create shader module");
+
+  // Set shader function name
+  auto src = entryPoint_.data();
+  mbstate_t state;
+  memset(&state, 0, sizeof state);
+  wcsrtombs(name_, &src, sizeof name_, &state);
+  if (src)
+    throw LimitExcept("Could not set shader function name");
 }
 
 ShaderVK::~ShaderVK() {
@@ -54,4 +68,8 @@ ShaderVK::~ShaderVK() {
 
 VkShaderModule ShaderVK::module() const {
   return module_;
+}
+
+const char* ShaderVK::name() const {
+  return name_;
 }

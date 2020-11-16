@@ -18,10 +18,14 @@ class ShaderVK final : public Shader {
   ShaderVK(Stage stage, std::wstring&& codeFile, std::wstring&& entryPoint);
   ~ShaderVK();
 
+  /// Getters.
+  ///
   VkShaderModule module() const;
+  const char* name() const;
 
  private:
   VkShaderModule module_ = VK_NULL_HANDLE;
+  char name_[80] = {'\0'};
 };
 
 CG_NS_END

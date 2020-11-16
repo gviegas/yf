@@ -39,6 +39,10 @@ class DcTableVK final : public DcTable {
              uint32_t level,
              ImgSampler sampler);
 
+  /// Getter.
+  ///
+  VkDescriptorSetLayout dsLayout() const;
+
  private:
   VkDescriptorSetLayout dsLayout_ = VK_NULL_HANDLE;
   VkDescriptorPool pool_ = VK_NULL_HANDLE;

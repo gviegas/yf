@@ -53,6 +53,10 @@ struct DeviceTest : Test {
     AttachImg depImg{img2.get(), 0, 0};
     auto targ = pass->makeTarget({600, 600}, 1, &clrImgs, nullptr, &depImg);
 
+    auto cpShd = dev.makeShader(StageCompute, L"tmp/comp");
+    CpState::Config cpConfig = {cpShd.get(), vector<DcTable*>{}};
+    auto cpState = dev.makeState(cpConfig);
+
     a.push_back({L"Device::get()", true});
     a.push_back({L"dev.makeBuffer(...)", buf != nullptr});
     a.push_back({L"dev.makeImage(...) (1)", img1 != nullptr});
@@ -65,6 +69,7 @@ struct DeviceTest : Test {
     a.push_back({L"dtb.allocate(...) (4)", dtbAllocs[3]});
     a.push_back({L"dev.makePass(...)", pass != nullptr});
     a.push_back({L"pass.makeTarget(...)", targ != nullptr});
+    a.push_back({L"dev.makeState(Cp)", cpState != nullptr});
 
     return a;
   }

@@ -19,7 +19,7 @@ CG_NS_BEGIN
 ///
 enum Stage {
   StageVertex,
-  StageTesCntrl,
+  StageTesCtl,
   StageTesEval,
   StageGeometry,
   StageFragment,

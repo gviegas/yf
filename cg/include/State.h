@@ -144,7 +144,6 @@ class CpState {
   };
 
   explicit CpState(const Config& config);
-  explicit CpState(Config&& config);
   virtual ~CpState() = 0;
 
   /// The state configuration.

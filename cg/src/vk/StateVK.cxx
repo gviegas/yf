@@ -168,6 +168,32 @@ GrStateVK::GrStateVK(const Config& config)
 
   // Define depth/stencil state
   VkPipelineDepthStencilStateCreateInfo depInfo;
+  depInfo.sType = VK_STRUCTURE_TYPE_PIPELINE_DEPTH_STENCIL_STATE_CREATE_INFO;
+  depInfo.pNext = nullptr;
+  depInfo.depthTestEnable = true;
+  depInfo.depthWriteEnable = true;
+  depInfo.depthCompareOp = VK_COMPARE_OP_LESS_OR_EQUAL;
+  depInfo.depthBoundsTestEnable = false;
+
+  // TODO: stencil
+  depInfo.stencilTestEnable = false;
+  depInfo.front.failOp = VK_STENCIL_OP_KEEP;
+  depInfo.front.passOp = VK_STENCIL_OP_KEEP;
+  depInfo.front.depthFailOp = VK_STENCIL_OP_KEEP;
+  depInfo.front.compareOp = VK_COMPARE_OP_ALWAYS;
+  depInfo.front.compareMask = 0;
+  depInfo.front.writeMask = 0;
+  depInfo.front.reference = 0;
+  depInfo.back.failOp = VK_STENCIL_OP_KEEP;
+  depInfo.back.passOp = VK_STENCIL_OP_KEEP;
+  depInfo.back.depthFailOp = VK_STENCIL_OP_KEEP;
+  depInfo.back.compareOp = VK_COMPARE_OP_ALWAYS;
+  depInfo.back.compareMask = 0;
+  depInfo.back.writeMask = 0;
+  depInfo.back.reference = 0;
+
+  depInfo.minDepthBounds = 0.0f;
+  depInfo.maxDepthBounds = 0.0f;
 
   // Define color blend state
   VkPipelineColorBlendStateCreateInfo bndInfo;

@@ -365,8 +365,7 @@ Pass::Ptr DeviceVK::makePass(const vector<ColorAttach>* colors,
 }
 
 GrState::Ptr DeviceVK::makeState(const GrState::Config& config) {
-  // TODO
-  assert(false);
+  return make_unique<GrStateVK>(config);
 }
 
 CpState::Ptr DeviceVK::makeState(const CpState::Config& config) {

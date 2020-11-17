@@ -65,7 +65,7 @@ GrStateVK::GrStateVK(const Config& config)
   for (const auto shd : config.shaders) {
     // XXX: assuming non-null
     stgInfos.push_back({});
-    auto info = stgInfos.back();
+    auto& info = stgInfos.back();
     info.sType = VK_STRUCTURE_TYPE_PIPELINE_SHADER_STAGE_CREATE_INFO;
     info.pNext = nullptr;
     info.flags = 0;
@@ -130,6 +130,7 @@ GrStateVK::GrStateVK(const Config& config)
   VkPipelineViewportStateCreateInfo vpInfo;
   vpInfo.sType = VK_STRUCTURE_TYPE_PIPELINE_VIEWPORT_STATE_CREATE_INFO;
   vpInfo.pNext = nullptr;
+  vpInfo.flags = 0;
   // TODO: take from `config`
   vpInfo.viewportCount = 1;
   vpInfo.pViewports = nullptr; // dynamic
@@ -177,6 +178,7 @@ GrStateVK::GrStateVK(const Config& config)
   VkPipelineDepthStencilStateCreateInfo depInfo;
   depInfo.sType = VK_STRUCTURE_TYPE_PIPELINE_DEPTH_STENCIL_STATE_CREATE_INFO;
   depInfo.pNext = nullptr;
+  depInfo.flags = 0;
   depInfo.depthTestEnable = true;
   depInfo.depthWriteEnable = true;
   depInfo.depthCompareOp = VK_COMPARE_OP_LESS_OR_EQUAL;
@@ -263,7 +265,7 @@ GrStateVK::GrStateVK(const Config& config)
   plInfo.layout = plLayout_;
   plInfo.renderPass = static_cast<PassVK*>(config.pass)->renderPass();
   plInfo.subpass = 0;
-  plInfo.basePipelineHandle = nullptr;
+  plInfo.basePipelineHandle = VK_NULL_HANDLE;
   plInfo.basePipelineIndex = -1;
 
   // TODO: pipeline cache

@@ -196,7 +196,34 @@ GrStateVK::GrStateVK(const Config& config)
   depInfo.maxDepthBounds = 0.0f;
 
   // Define color blend state
-  VkPipelineColorBlendStateCreateInfo bndInfo;
+  VkPipelineColorBlendAttachmentState cbdAtt;
+  cbdAtt.blendEnable = true;
+  cbdAtt.srcColorBlendFactor = VK_BLEND_FACTOR_SRC_ALPHA;
+  cbdAtt.dstColorBlendFactor = VK_BLEND_FACTOR_ONE_MINUS_SRC_ALPHA;
+  cbdAtt.colorBlendOp = VK_BLEND_OP_ADD;
+  cbdAtt.srcAlphaBlendFactor = VK_BLEND_FACTOR_ONE;
+  cbdAtt.dstAlphaBlendFactor = VK_BLEND_FACTOR_ZERO;
+  cbdAtt.alphaBlendOp = VK_BLEND_OP_ADD;
+  cbdAtt.colorWriteMask = VK_COLOR_COMPONENT_R_BIT |
+                          VK_COLOR_COMPONENT_G_BIT |
+                          VK_COLOR_COMPONENT_B_BIT |
+                          VK_COLOR_COMPONENT_A_BIT;
+
+  vector<VkPipelineColorBlendAttachmentState>
+  cbdAtts(config.pass->colors_ ? config.pass->colors_->size() : 0, cbdAtt);
+
+  VkPipelineColorBlendStateCreateInfo cbdInfo;
+  cbdInfo.sType = VK_STRUCTURE_TYPE_PIPELINE_COLOR_BLEND_STATE_CREATE_INFO;
+  cbdInfo.pNext = nullptr;
+  cbdInfo.flags = 0;
+  cbdInfo.logicOpEnable = false;
+  cbdInfo.logicOp = VK_LOGIC_OP_NO_OP;
+  cbdInfo.attachmentCount = cbdAtts.size();
+  cbdInfo.pAttachments = cbdAtts.data();
+  cbdInfo.blendConstants[0] = 1.0f;
+  cbdInfo.blendConstants[1] = 1.0f;
+  cbdInfo.blendConstants[2] = 1.0f;
+  cbdInfo.blendConstants[3] = 1.0f;
 
   // Define dynamic state
   VkPipelineDynamicStateCreateInfo dynInfo;

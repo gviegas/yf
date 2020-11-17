@@ -8,6 +8,7 @@
 #include "StateVK.h"
 #include "ShaderVK.h"
 #include "DcTableVK.h"
+#include "PassVK.h"
 #include "DeviceVK.h"
 #include "yf/Except.h"
 
@@ -44,11 +45,19 @@ inline VkPipelineLayout plLayoutVK(const vector<DcTable*>& dcTables) {
 
 INTERNAL_NS_END
 
+// ------------------------------------------------------------------------
+// GrStateVK
+
 GrStateVK::GrStateVK(const Config& config)
   : GrState(config), stgFlags_(0), plLayout_(plLayoutVK(config.dcTables)) {
 
   auto dev = DeviceVK::get().device();
   auto deinit = [&] { vkDestroyPipelineLayout(dev, plLayout_, nullptr); };
+
+  if (!config.pass) {
+    deinit();
+    throw invalid_argument("GrStateVK requires a valid pass");
+  }
 
   // Define shader stages
   vector<VkPipelineShaderStageCreateInfo> stgInfos;
@@ -67,7 +76,7 @@ GrStateVK::GrStateVK(const Config& config)
 
     if (info.stage & stgFlags_) {
       deinit();
-      throw invalid_argument("Non-unique shader stages on pipeline creation");
+      throw invalid_argument("GrStateVK requires a unique set of stages");
     }
 
     stgFlags_ |= info.stage;
@@ -75,11 +84,9 @@ GrStateVK::GrStateVK(const Config& config)
 
   if (!(stgFlags_ & VK_SHADER_STAGE_VERTEX_BIT)) {
     deinit();
-    throw invalid_argument("Graphics pipeline requires a vertex shader");
+    throw invalid_argument("GrStateVK requires a vertex shader");
   }
   // TODO: check other invalid stage combinations
-
-  // TODO...
 
   // Define vertex input state
   vector<VkVertexInputBindingDescription> vxBinds;
@@ -237,7 +244,35 @@ GrStateVK::GrStateVK(const Config& config)
   dynInfo.dynamicStateCount = dynStates.size();
   dynInfo.pDynamicStates = dynStates.data();
 
-  // TODO...
+  // Create pipeline
+  VkGraphicsPipelineCreateInfo plInfo;
+  plInfo.sType = VK_STRUCTURE_TYPE_GRAPHICS_PIPELINE_CREATE_INFO;
+  plInfo.pNext = nullptr;
+  plInfo.flags = 0;
+  plInfo.stageCount = stgInfos.size();
+  plInfo.pStages = stgInfos.data();
+  plInfo.pVertexInputState = &vxInfo;
+  plInfo.pInputAssemblyState = &iaInfo;
+  plInfo.pTessellationState = &tesInfo;
+  plInfo.pViewportState = &vpInfo;
+  plInfo.pRasterizationState = &rzInfo;
+  plInfo.pMultisampleState = &msInfo;
+  plInfo.pDepthStencilState = &depInfo;
+  plInfo.pColorBlendState = &cbdInfo;
+  plInfo.pDynamicState = &dynInfo;
+  plInfo.layout = plLayout_;
+  plInfo.renderPass = static_cast<PassVK*>(config.pass)->renderPass();
+  plInfo.subpass = 0;
+  plInfo.basePipelineHandle = nullptr;
+  plInfo.basePipelineIndex = -1;
+
+  // TODO: pipeline cache
+  auto res = vkCreateGraphicsPipelines(dev, nullptr, 1, &plInfo, nullptr,
+                                       &pipeline_);
+  if (res != VK_SUCCESS) {
+    deinit();
+    throw DeviceExcept("Could not create graphics pipeline");
+  }
 }
 
 GrStateVK::~GrStateVK() {
@@ -250,6 +285,9 @@ GrStateVK::~GrStateVK() {
 VkPipeline GrStateVK::pipeline() const {
   return pipeline_;
 }
+
+// ------------------------------------------------------------------------
+// CpStateVK
 
 CpStateVK::CpStateVK(const Config& config)
   : CpState(config), plLayout_(plLayoutVK(config.dcTables)) {

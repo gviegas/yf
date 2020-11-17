@@ -52,6 +52,36 @@ inline VkPrimitiveTopology toTopologyVK(Primitive primitive) {
   }
 }
 
+/// Converts from a `PolyMode` value.
+///
+inline VkPolygonMode toPolygonModeVK(PolyMode polyMode) {
+  switch (polyMode) {
+  case PolyModeFill:  return VK_POLYGON_MODE_FILL;
+  case PolyModeLine:  return VK_POLYGON_MODE_LINE;
+  case PolyModePoint: return VK_POLYGON_MODE_POINT;
+  }
+}
+
+/// Converts from a `CullMode` value.
+///
+inline VkCullModeFlagBits toCullModeVK(CullMode cullMode) {
+  switch (cullMode) {
+  case CullModeNone:  return VK_CULL_MODE_NONE;
+  case CullModeFront: return VK_CULL_MODE_FRONT_BIT;
+  case CullModeBack:  return VK_CULL_MODE_BACK_BIT;
+  case CullModeAny:   return VK_CULL_MODE_FRONT_AND_BACK;
+  }
+}
+
+/// Converts from a `Winding` value.
+///
+inline VkFrontFace toFrontFaceVK(Winding winding) {
+  switch (winding) {
+  case WindingClockwise: return VK_FRONT_FACE_CLOCKWISE;
+  case WindingCounterCw: return VK_FRONT_FACE_COUNTER_CLOCKWISE;
+  }
+}
+
 /// Converts from a `VxStepFn` value.
 ///
 inline VkVertexInputRate toInputRateVK(VxStepFn stepFn) {

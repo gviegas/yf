@@ -116,14 +116,35 @@ GrStateVK::GrStateVK(const Config& config)
   tesInfo.sType = VK_STRUCTURE_TYPE_PIPELINE_TESSELLATION_STATE_CREATE_INFO;
   tesInfo.pNext = nullptr;
   tesInfo.flags = 0;
-  // TODO
+  // TODO: take from `config`
   tesInfo.patchControlPoints = 16;
 
   // Define viewport state
   VkPipelineViewportStateCreateInfo vpInfo;
+  vpInfo.sType = VK_STRUCTURE_TYPE_PIPELINE_VIEWPORT_STATE_CREATE_INFO;
+  vpInfo.pNext = nullptr;
+  // TODO: take from `config`
+  vpInfo.viewportCount = 1;
+  vpInfo.pViewports = nullptr; // dynamic
+  vpInfo.scissorCount = 1;
+  vpInfo.pScissors = nullptr; // dynamic
 
   // Define rasterization state
   VkPipelineRasterizationStateCreateInfo rzInfo;
+  rzInfo.sType = VK_STRUCTURE_TYPE_PIPELINE_RASTERIZATION_STATE_CREATE_INFO;
+  rzInfo.pNext = nullptr;
+  rzInfo.flags = 0;
+  rzInfo.depthClampEnable = false;
+  rzInfo.rasterizerDiscardEnable = false;
+  rzInfo.polygonMode = toPolygonModeVK(config.polyMode);
+  rzInfo.cullMode = toCullModeVK(config.cullMode);
+  rzInfo.frontFace = toFrontFaceVK(config.winding);
+  rzInfo.depthBiasEnable = false;
+  rzInfo.depthBiasConstantFactor = 0.0f;
+  rzInfo.depthBiasClamp = 0.0f;
+  rzInfo.depthBiasSlopeFactor = 0.0f;
+  // TODO: take from `config`
+  rzInfo.lineWidth = 1.0f;
 
   // Define multisample state
   VkPipelineMultisampleStateCreateInfo msInfo;

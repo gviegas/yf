@@ -226,7 +226,16 @@ GrStateVK::GrStateVK(const Config& config)
   cbdInfo.blendConstants[3] = 1.0f;
 
   // Define dynamic state
+  // TODO: other dynamic states
+  vector<VkDynamicState> dynStates{VK_DYNAMIC_STATE_VIEWPORT,
+                                   VK_DYNAMIC_STATE_SCISSOR};
+
   VkPipelineDynamicStateCreateInfo dynInfo;
+  dynInfo.sType = VK_STRUCTURE_TYPE_PIPELINE_DYNAMIC_STATE_CREATE_INFO;
+  dynInfo.pNext = nullptr;
+  dynInfo.flags = 0;
+  dynInfo.dynamicStateCount = dynStates.size();
+  dynInfo.pDynamicStates = dynStates.data();
 
   // TODO...
 }

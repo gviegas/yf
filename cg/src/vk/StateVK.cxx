@@ -147,7 +147,24 @@ GrStateVK::GrStateVK(const Config& config)
   rzInfo.lineWidth = 1.0f;
 
   // Define multisample state
+  // TODO: compute this value during pass creation instead
+  VkSampleCountFlagBits splCount = VK_SAMPLE_COUNT_1_BIT;
+  if (config.pass->colors_)
+    // XXX: assuming all colors have the same sample count
+    splCount = toSampleCountVK(config.pass->colors_->back().samples);
+  else
+    splCount = toSampleCountVK(config.pass->depthStencil_->samples);
+
   VkPipelineMultisampleStateCreateInfo msInfo;
+  msInfo.sType = VK_STRUCTURE_TYPE_PIPELINE_MULTISAMPLE_STATE_CREATE_INFO;
+  msInfo.pNext = nullptr;
+  msInfo.flags = 0;
+  msInfo.rasterizationSamples = splCount;
+  msInfo.sampleShadingEnable = false;
+  msInfo.minSampleShading = 0.0f;
+  msInfo.pSampleMask = nullptr;
+  msInfo.alphaToCoverageEnable = false;
+  msInfo.alphaToOneEnable = false;
 
   // Define depth/stencil state
   VkPipelineDepthStencilStateCreateInfo depInfo;

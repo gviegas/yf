@@ -45,7 +45,7 @@ enum VxFormat {
 ///
 struct VxAttr {
   VxFormat format;
-  uint64_t offset;
+  uint32_t offset;
 };
 
 /// Vertex step function.

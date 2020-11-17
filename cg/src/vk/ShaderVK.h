@@ -28,6 +28,19 @@ class ShaderVK final : public Shader {
   char name_[80] = {'\0'};
 };
 
+/// Converts from a `Stage` value.
+///
+inline VkShaderStageFlagBits toShaderStageVK(Stage stage) {
+  switch (stage) {
+  case StageVertex:   return VK_SHADER_STAGE_VERTEX_BIT;
+  case StageTesCtl:   return VK_SHADER_STAGE_FRAGMENT_BIT;
+  case StageTesEval:  return VK_SHADER_STAGE_TESSELLATION_CONTROL_BIT;
+  case StageGeometry: return VK_SHADER_STAGE_TESSELLATION_EVALUATION_BIT;
+  case StageFragment: return VK_SHADER_STAGE_FRAGMENT_BIT;
+  case StageCompute:  return VK_SHADER_STAGE_COMPUTE_BIT;
+  }
+}
+
 CG_NS_END
 
 #endif // YF_CG_SHADERVK_H

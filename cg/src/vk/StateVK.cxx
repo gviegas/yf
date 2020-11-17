@@ -82,7 +82,26 @@ GrStateVK::GrStateVK(const Config& config)
   // TODO...
 
   // Define vertex input state
+  vector<VkVertexInputBindingDescription> vxBinds;
+  vector<VkVertexInputAttributeDescription> vxAttrs;
+
+  // TODO: validate
+  for (uint32_t bind = 0; bind < config.vxInputs.size(); ++bind) {
+    const auto& in = config.vxInputs[bind];
+    vxBinds.push_back({bind, in.stride, toInputRateVK(in.stepFunction)});
+    for (const auto& at : in.attributes)
+      vxAttrs.push_back({at.first, bind, toFormatVK(at.second.format),
+                         at.second.offset});
+  }
+
   VkPipelineVertexInputStateCreateInfo vxInfo;
+  vxInfo.sType = VK_STRUCTURE_TYPE_PIPELINE_VERTEX_INPUT_STATE_CREATE_INFO;
+  vxInfo.pNext = nullptr;
+  vxInfo.flags = 0;
+  vxInfo.vertexBindingDescriptionCount = vxBinds.size();
+  vxInfo.pVertexBindingDescriptions = vxBinds.data();
+  vxInfo.vertexAttributeDescriptionCount = vxAttrs.size();
+  vxInfo.pVertexAttributeDescriptions = vxAttrs.data();
 
   // Define input assembly state
   VkPipelineInputAssemblyStateCreateInfo inpInfo;

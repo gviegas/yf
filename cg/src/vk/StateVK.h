@@ -42,6 +42,16 @@ class CpStateVK final : public CpState {
   VkPipeline pipeline_ = VK_NULL_HANDLE;
 };
 
+/// Converts from a `Primitive` value.
+///
+inline VkPrimitiveTopology toTopologyVK(Primitive primitive) {
+  switch (primitive) {
+  case PrimitivePoint:    return VK_PRIMITIVE_TOPOLOGY_POINT_LIST;
+  case PrimitiveLine:     return VK_PRIMITIVE_TOPOLOGY_LINE_LIST;
+  case PrimitiveTriangle: return VK_PRIMITIVE_TOPOLOGY_TRIANGLE_LIST;
+  }
+}
+
 /// Converts from a `VxStepFn` value.
 ///
 inline VkVertexInputRate toInputRateVK(VxStepFn stepFn) {

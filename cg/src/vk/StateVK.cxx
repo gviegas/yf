@@ -104,16 +104,26 @@ GrStateVK::GrStateVK(const Config& config)
   vxInfo.pVertexAttributeDescriptions = vxAttrs.data();
 
   // Define input assembly state
-  VkPipelineInputAssemblyStateCreateInfo inpInfo;
+  VkPipelineInputAssemblyStateCreateInfo iaInfo;
+  iaInfo.sType = VK_STRUCTURE_TYPE_PIPELINE_INPUT_ASSEMBLY_STATE_CREATE_INFO;
+  iaInfo.pNext = nullptr;
+  iaInfo.flags = 0;
+  iaInfo.topology = toTopologyVK(config.primitive);
+  iaInfo.primitiveRestartEnable = false;
 
   // Define tessellation state
   VkPipelineTessellationStateCreateInfo tesInfo;
+  tesInfo.sType = VK_STRUCTURE_TYPE_PIPELINE_TESSELLATION_STATE_CREATE_INFO;
+  tesInfo.pNext = nullptr;
+  tesInfo.flags = 0;
+  // TODO
+  tesInfo.patchControlPoints = 16;
 
   // Define viewport state
   VkPipelineViewportStateCreateInfo vpInfo;
 
   // Define rasterization state
-  VkPipelineRasterizationStateCreateInfo rasInfo;
+  VkPipelineRasterizationStateCreateInfo rzInfo;
 
   // Define multisample state
   VkPipelineMultisampleStateCreateInfo msInfo;
@@ -122,7 +132,7 @@ GrStateVK::GrStateVK(const Config& config)
   VkPipelineDepthStencilStateCreateInfo depInfo;
 
   // Define color blend state
-  VkPipelineColorBlendStateCreateInfo blnInfo;
+  VkPipelineColorBlendStateCreateInfo bndInfo;
 
   // Define dynamic state
   VkPipelineDynamicStateCreateInfo dynInfo;

@@ -34,7 +34,7 @@ struct Cmd {
     ClearScT
   };
 
-  explicit Cmd(Type cmd) : cmd(cmd) {}
+  explicit Cmd(Type cmd) : cmd(cmd) { }
   virtual ~Cmd() = default;
 
   /// The subclass of this command.
@@ -45,7 +45,7 @@ struct Cmd {
 /// Set state command for graphics.
 ///
 struct StateGrCmd : Cmd {
-  explicit StateGrCmd(GrState* state) : Cmd(StateGrT), state(state) {}
+  explicit StateGrCmd(GrState* state) : Cmd(StateGrT), state(state) { }
 
   GrState* state;
 };
@@ -53,7 +53,7 @@ struct StateGrCmd : Cmd {
 /// Set state command for compute.
 ///
 struct StateCpCmd : Cmd {
-  explicit StateCpCmd(CpState* state) : Cmd(StateCpT), state(state) {}
+  explicit StateCpCmd(CpState* state) : Cmd(StateCpT), state(state) { }
 
   CpState* state;
 };
@@ -62,7 +62,7 @@ struct StateCpCmd : Cmd {
 ///
 struct ViewportCmd : Cmd {
   ViewportCmd(Viewport viewport, uint32_t viewportIndex)
-    : Cmd(ViewportT), viewport(viewport), viewportIndex(viewportIndex) {}
+    : Cmd(ViewportT), viewport(viewport), viewportIndex(viewportIndex) { }
 
   Viewport viewport;
   uint32_t viewportIndex;
@@ -72,7 +72,7 @@ struct ViewportCmd : Cmd {
 ///
 struct ScissorCmd : Cmd {
   explicit ScissorCmd(Scissor scissor, uint32_t viewportIndex)
-    : Cmd(ScissorT), scissor(scissor), viewportIndex(viewportIndex) {}
+    : Cmd(ScissorT), scissor(scissor), viewportIndex(viewportIndex) { }
 
   Scissor scissor;
   uint32_t viewportIndex;
@@ -81,7 +81,7 @@ struct ScissorCmd : Cmd {
 /// Set render target command.
 ///
 struct TargetCmd : Cmd {
-  explicit TargetCmd(Target* target) : Cmd(TargetT), target(target) {}
+  explicit TargetCmd(Target* target) : Cmd(TargetT), target(target) { }
 
   Target* target;
 };
@@ -90,7 +90,7 @@ struct TargetCmd : Cmd {
 ///
 struct DcTableCmd : Cmd {
   DcTableCmd(uint32_t tableIndex, uint32_t allocIndex)
-    : Cmd(DcTableT), tableIndex(tableIndex), allocIndex(allocIndex) {}
+    : Cmd(DcTableT), tableIndex(tableIndex), allocIndex(allocIndex) { }
 
   uint32_t tableIndex;
   uint32_t allocIndex;
@@ -100,7 +100,7 @@ struct DcTableCmd : Cmd {
 ///
 struct VxBufferCmd : Cmd {
   VxBufferCmd(Buffer* buffer, uint64_t offset, uint32_t inputIndex)
-    : Cmd(VxBufferT), buffer(buffer), offset(offset), inputIndex(inputIndex) {}
+    : Cmd(VxBufferT), buffer(buffer), offset(offset), inputIndex(inputIndex) { }
 
   Buffer* buffer;
   uint64_t offset;
@@ -111,7 +111,7 @@ struct VxBufferCmd : Cmd {
 ///
 struct IxBufferCmd : Cmd {
   IxBufferCmd(Buffer* buffer, uint64_t offset, IndexType type)
-    : Cmd(IxBufferT), buffer(buffer), offset(offset), type(type) {}
+    : Cmd(IxBufferT), buffer(buffer), offset(offset), type(type) { }
 
   Buffer* buffer;
   uint64_t offset;
@@ -125,11 +125,8 @@ struct DrawCmd : Cmd {
           uint32_t vertexCount,
           uint32_t baseInstance,
           uint32_t instanceCount)
-          : Cmd(DrawT),
-            vertexStart(vertexStart),
-            vertexCount(vertexCount),
-            baseInstance(baseInstance),
-            instanceCount(instanceCount) {}
+    : Cmd(DrawT), vertexStart(vertexStart), vertexCount(vertexCount),
+      baseInstance(baseInstance), instanceCount(instanceCount) { }
 
   uint32_t vertexStart;
   uint32_t vertexCount;
@@ -145,12 +142,9 @@ struct DrawIxCmd : Cmd {
             int32_t vertexOffset,
             uint32_t baseInstance,
             uint32_t instanceCount)
-            : Cmd(DrawIxT),
-              indexStart(indexStart),
-              vertexCount(vertexCount),
-              vertexOffset(vertexOffset),
-              baseInstance(baseInstance),
-              instanceCount(instanceCount) {}
+    : Cmd(DrawIxT), indexStart(indexStart), vertexCount(vertexCount),
+      vertexOffset(vertexOffset), baseInstance(baseInstance),
+      instanceCount(instanceCount) { }
 
   uint32_t indexStart;
   uint32_t vertexCount;
@@ -162,7 +156,7 @@ struct DrawIxCmd : Cmd {
 /// Dispatch command.
 ///
 struct DispatchCmd : Cmd {
-  explicit DispatchCmd(Size3 size) : Cmd(DispatchT), size(size) {}
+  explicit DispatchCmd(Size3 size) : Cmd(DispatchT), size(size) { }
 
   Size3 size;
 };
@@ -171,7 +165,7 @@ struct DispatchCmd : Cmd {
 ///
 struct ClearClCmd : Cmd {
   ClearClCmd(Color value, uint32_t colorIndex)
-    : Cmd(ClearClT), value(value), colorIndex(colorIndex) {}
+    : Cmd(ClearClT), value(value), colorIndex(colorIndex) { }
 
   Color value;
   uint32_t colorIndex;
@@ -180,7 +174,7 @@ struct ClearClCmd : Cmd {
 /// Clear depth command.
 ///
 struct ClearDpCmd : Cmd {
-  explicit ClearDpCmd(float value) : Cmd(ClearDpT), value(value) {}
+  explicit ClearDpCmd(float value) : Cmd(ClearDpT), value(value) { }
 
   float value;
 };
@@ -188,7 +182,7 @@ struct ClearDpCmd : Cmd {
 /// Clear stencil command.
 ///
 struct ClearScCmd : Cmd {
-  explicit ClearScCmd(uint32_t value) : Cmd(ClearScT), value(value) {}
+  explicit ClearScCmd(uint32_t value) : Cmd(ClearScT), value(value) { }
 
   uint32_t value;
 };

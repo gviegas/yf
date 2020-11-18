@@ -33,7 +33,7 @@ const Encoding& Encoder::encoding() const {
 }
 
 // -------------------------------------------------------------------------
-// Graphics
+// GrEncoder
 
 GrEncoder::GrEncoder() : Encoder(Graphics) { }
 
@@ -111,9 +111,9 @@ void GrEncoder::clearStencil(uint32_t value) {
 }
 
 // -------------------------------------------------------------------------
-// Compute
+// CpEncoder
 
-CpEncoder::CpEncoder() : Encoder(Compute) {}
+CpEncoder::CpEncoder() : Encoder(Compute) { }
 
 void CpEncoder::setState(CpState* state) {
   impl_->encoding_
@@ -131,6 +131,6 @@ void CpEncoder::dispatch(Size3 size) {
 }
 
 // -------------------------------------------------------------------------
-// Transfer
+// TfEncoder
 
-TfEncoder::TfEncoder() : Encoder(Transfer) {}
+TfEncoder::TfEncoder() : Encoder(Transfer) { }

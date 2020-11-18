@@ -26,7 +26,8 @@ Test* queueTest();
 inline const std::vector<Test*> unitTests() {
   static std::vector<Test*> tests{
     typesTest(), deviceTest(), bufferTest(), imageTest(), shaderTest(),
-    dcTableTest(), passTest(), stateTest(), encoderTest(), queueTest()};
+    dcTableTest(), passTest(), stateTest(), encoderTest(), queueTest()
+  };
 
   return tests;
 }

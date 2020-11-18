@@ -21,7 +21,7 @@ ImageVK::ImageVK(PxFormat format,
                  uint32_t layers,
                  uint32_t levels,
                  Samples samples)
-                 : Image(format, size, layers, levels, samples) {
+  : Image(format, size, layers, levels, samples) {
 
   if (size == 0)
     throw invalid_argument("ImageVK requires size != 0");

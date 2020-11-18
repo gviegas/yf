@@ -22,7 +22,7 @@ struct PassTest : Test {
       Pass_(const vector<ColorAttach>* colors,
             const vector<ColorAttach>* resolves,
             const DepStenAttach* depthStencil)
-            : Pass(colors, resolves, depthStencil) { }
+        : Pass(colors, resolves, depthStencil) { }
 
       Target::Ptr makeTarget(Size2,
                              uint32_t,

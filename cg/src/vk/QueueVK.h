@@ -71,7 +71,7 @@ class CmdBufferVK final : public CmdBuffer {
   bool isPending();
   Queue& queue() const;
 
-  /// The command buffer handle.
+  /// Getter.
   ///
   VkCommandBuffer handle() const;
 

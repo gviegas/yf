@@ -14,8 +14,7 @@ Image::Image(PxFormat format,
              uint32_t layers,
              uint32_t levels,
              Samples samples)
-             :
-             format_(format), size_(size), layers_(layers), levels_(levels),
-             samples_(samples) { }
+  : format_(format), size_(size), layers_(layers), levels_(levels),
+    samples_(samples) { }
 
 Image::~Image() { }

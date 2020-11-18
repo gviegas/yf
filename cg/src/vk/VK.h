@@ -31,11 +31,11 @@ CG_NS_BEGIN
 ///
 bool initVK();
 
-/// Set VK instance-level procedures (null/non-null instance).
+/// Sets VK instance-level procedures (null/non-null instance).
 ///
 void setProcsVK(VkInstance instance);
 
-/// Set VK device-level procedures.
+/// Sets VK device-level procedures.
 ///
 void setProcsVK(VkDevice device);
 

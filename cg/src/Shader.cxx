@@ -13,4 +13,4 @@ using namespace std;
 Shader::Shader(Stage stage, wstring&& codeFile, wstring&& entryPoint)
   : stage_(stage), codeFile_(codeFile), entryPoint_(entryPoint) { }
 
-Shader::~Shader() {}
+Shader::~Shader() { }

@@ -21,7 +21,7 @@ using namespace std;
 PassVK::PassVK(const vector<ColorAttach>* colors,
                const vector<ColorAttach>* resolves,
                const DepStenAttach* depthStencil)
-               : Pass(colors, resolves, depthStencil) {
+  : Pass(colors, resolves, depthStencil) {
 
   vector<VkAttachmentDescription> attachDescs;
   vector<VkAttachmentReference> attachRefs;
@@ -153,8 +153,7 @@ TargetVK::TargetVK(PassVK& pass,
                    const vector<AttachImg>* colors,
                    const vector<AttachImg>* resolves,
                    const AttachImg* depthStencil)
-                   : Target(size, layers, colors, resolves, depthStencil),
-                     pass_(pass) {
+  : Target(size, layers, colors, resolves, depthStencil), pass_(pass) {
 
   if (size == 0 || layers == 0)
     throw invalid_argument("TargetVK requires size > 0 and layers > 0");

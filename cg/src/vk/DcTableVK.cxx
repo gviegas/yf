@@ -274,3 +274,10 @@ void DcTableVK::resetImgRefs() {
 VkDescriptorSetLayout DcTableVK::dsLayout() const {
   return dsLayout_;
 }
+
+VkDescriptorSet DcTableVK::ds(uint32_t index) const {
+  if (index >= sets_.size())
+    throw invalid_argument("Descriptor set index out of range");
+
+  return sets_[index];
+}

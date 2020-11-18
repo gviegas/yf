@@ -92,6 +92,9 @@ class SamplerVK final {
   SamplerVK(const SamplerVK&) = delete;
   SamplerVK& operator=(const SamplerVK&) = delete;
   ~SamplerVK();
+
+  /// Getters.
+  ///
   ImgSampler type() const;
   VkSampler handle() const;
 

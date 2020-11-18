@@ -10,6 +10,8 @@
 
 #include "QueueVK.h"
 #include "DeviceVK.h"
+#include "DcTableVK.h"
+#include "StateVK.h"
 #include "Cmd.h"
 #include "Encoder.h"
 #include "yf/Except.h"
@@ -280,6 +282,7 @@ void CmdBufferVK::encode(const Encoder& encoder) {
     begun_ = true;
   }
 
+  // TODO: handle exceptions that might be throw due to encoding failure
   switch (encoder.type()) {
   case Encoder::Graphics:
     encode(static_cast<const GrEncoder&>(encoder));
@@ -336,8 +339,7 @@ void CmdBufferVK::didExecute() {
 }
 
 void CmdBufferVK::encode(const GrEncoder& encoder) {
-  auto& encoding = encoder.encoding();
-  for (auto& cmd : encoding) {
+  for (const auto& cmd : encoder.encoding()) {
     switch (cmd->cmd) {
     case Cmd::StateGrT:
       // TODO
@@ -383,18 +385,60 @@ void CmdBufferVK::encode(const GrEncoder& encoder) {
 }
 
 void CmdBufferVK::encode(const CpEncoder& encoder) {
-  auto& encoding = encoder.encoding();
-  for (auto& cmd : encoding) {
+  CpStateVK* cst = nullptr;
+  vector<const DcTableCmd*> dtbs;
+
+  // Set cp state
+  auto setState = [&](const StateCpCmd* sub) {
+    cst = static_cast<CpStateVK*>(sub->state);
+    auto pl = cst->pipeline();
+    vkCmdBindPipeline(handle_, VK_PIPELINE_BIND_POINT_COMPUTE, pl);
+  };
+
+  // Set dc table
+  auto setDcTable = [&](const DcTableCmd* sub) {
+    dtbs.push_back(sub);
+  };
+
+  // Dispatch
+  auto dispatch = [&](const DispatchCmd* sub) {
+    if (!cst)
+      throw invalid_argument("dispatch() requires a state to be set");
+
+    if (!dtbs.empty()) {
+      auto plLay = cst->plLayout();
+
+      for (const auto& d : dtbs) {
+        auto i = d->tableIndex;
+        auto j = d->allocIndex;
+
+        if (i >= cst->config_.dcTables.size() ||
+            j >= cst->config_.dcTables[i]->allocations())
+          throw invalid_argument("setDcTable() index out of range");
+
+        auto ds = static_cast<DcTableVK*>(cst->config_.dcTables[i])->ds(j);
+        vkCmdBindDescriptorSets(handle_, VK_PIPELINE_BIND_POINT_COMPUTE,
+                                plLay, i, 1, &ds, 0, nullptr);
+      }
+
+      dtbs.clear();
+    }
+
+    // TODO: check limits
+    vkCmdDispatch(handle_, sub->size.width, sub->size.height, sub->size.depth);
+  };
+
+  for (const auto& cmd : encoder.encoding()) {
     switch (cmd->cmd) {
     case Cmd::StateCpT:
-      // TODO
-      assert(false);
+      setState(static_cast<StateCpCmd*>(cmd.get()));
+      break;
     case Cmd::DcTableT:
-      // TODO
-      assert(false);
+      setDcTable(static_cast<DcTableCmd*>(cmd.get()));
+      break;
     case Cmd::DispatchT:
-      // TODO
-      assert(false);
+      dispatch(static_cast<DispatchCmd*>(cmd.get()));
+      break;
     default:
       assert(false);
       abort();
@@ -403,8 +447,7 @@ void CmdBufferVK::encode(const CpEncoder& encoder) {
 }
 
 void CmdBufferVK::encode(const TfEncoder& encoder) {
-  auto& encoding = encoder.encoding();
-  for (auto& cmd : encoding) {
+  for (const auto& cmd : encoder.encoding()) {
     // TODO
     switch (cmd->cmd) {
     default:

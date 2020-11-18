@@ -31,6 +31,8 @@ class PassVK final : public Pass {
                          const std::vector<AttachImg>* resolves,
                          const AttachImg* depthStencil);
 
+  /// Getter.
+  ///
   VkRenderPass renderPass() const;
 
  private:

@@ -284,6 +284,14 @@ GrStateVK::~GrStateVK() {
   vkDestroyPipelineLayout(dev, plLayout_, nullptr);
 }
 
+VkShaderStageFlags GrStateVK::stgFlags() const {
+  return stgFlags_;
+}
+
+VkPipelineLayout GrStateVK::plLayout() const {
+  return plLayout_;
+}
+
 VkPipeline GrStateVK::pipeline() const {
   return pipeline_;
 }
@@ -332,6 +340,10 @@ CpStateVK::~CpStateVK() {
   auto dev = DeviceVK::get().device();
   vkDestroyPipeline(dev, pipeline_, nullptr);
   vkDestroyPipelineLayout(dev, plLayout_, nullptr);
+}
+
+VkPipelineLayout CpStateVK::plLayout() const {
+  return plLayout_;
 }
 
 VkPipeline CpStateVK::pipeline() const {

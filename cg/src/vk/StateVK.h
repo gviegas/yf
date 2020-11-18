@@ -18,8 +18,10 @@ class GrStateVK final : public GrState {
   explicit GrStateVK(const Config& config);
   ~GrStateVK();
 
-  /// Getter.
+  /// Getters.
   ///
+  VkShaderStageFlags stgFlags() const;
+  VkPipelineLayout plLayout() const;
   VkPipeline pipeline() const;
 
  private:
@@ -33,8 +35,9 @@ class CpStateVK final : public CpState {
   explicit CpStateVK(const Config& config);
   ~CpStateVK();
 
-  /// Getter.
+  /// Getters.
   ///
+  VkPipelineLayout plLayout() const;
   VkPipeline pipeline() const;
 
  private:

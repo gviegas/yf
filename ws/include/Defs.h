@@ -17,6 +17,6 @@
 
 #define WS_NS YF_NS::ws
 #define WS_NS_BEGIN namespace WS_NS {
-#deinfE WS_NS_END }
+#define WS_NS_END }
 
 #endif // YF_WS_DEFS_H

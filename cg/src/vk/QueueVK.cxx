@@ -10,7 +10,9 @@
 
 #include "QueueVK.h"
 #include "DeviceVK.h"
+#include "BufferVK.h"
 #include "DcTableVK.h"
+#include "PassVK.h"
 #include "StateVK.h"
 #include "Cmd.h"
 #include "Encoder.h"
@@ -282,17 +284,21 @@ void CmdBufferVK::encode(const Encoder& encoder) {
     begun_ = true;
   }
 
-  // TODO: handle exceptions that might be throw due to encoding failure
-  switch (encoder.type()) {
-  case Encoder::Graphics:
-    encode(static_cast<const GrEncoder&>(encoder));
-    break;
-  case Encoder::Compute:
-    encode(static_cast<const CpEncoder&>(encoder));
-    break;
-  case Encoder::Transfer:
-    encode(static_cast<const TfEncoder&>(encoder));
-    break;
+  try {
+    switch (encoder.type()) {
+    case Encoder::Graphics:
+      encode(static_cast<const GrEncoder&>(encoder));
+      break;
+    case Encoder::Compute:
+      encode(static_cast<const CpEncoder&>(encoder));
+      break;
+    case Encoder::Transfer:
+      encode(static_cast<const TfEncoder&>(encoder));
+      break;
+    }
+  } catch (...) {
+    reset();
+    throw;
   }
 }
 
@@ -339,48 +345,286 @@ void CmdBufferVK::didExecute() {
 }
 
 void CmdBufferVK::encode(const GrEncoder& encoder) {
+  enum : uint32_t {
+    SGst   = 0x01,
+    STgt   = 0x02,
+    SVport = 0x04,
+    SSciss = 0x08,
+    SVbuf  = 0x10,
+    SIbuf  = 0x20,
+
+    SDraw  = 0x1F, // Can draw?
+    SDrawi = 0x3F, // Can draw indexed?
+    SNone  = 0
+  };
+
+  uint32_t status = SNone;
+  GrStateVK* gst = nullptr;
+  TargetVK* tgt = nullptr;
+  vector<const DcTableCmd*> dtbs;
+  vector<VkClearAttachment> clears;
+
+  // Begin render pass
+  auto beginPass = [&] {
+    VkRenderPassBeginInfo info;
+    info.sType = VK_STRUCTURE_TYPE_RENDER_PASS_BEGIN_INFO;
+    info.pNext = nullptr;
+    info.renderPass = static_cast<PassVK&>(tgt->pass()).renderPass();
+    info.framebuffer = tgt->framebuffer();
+    info.renderArea = {{0, 0}, {tgt->size_.width, tgt->size_.height}};
+    // TODO
+    info.clearValueCount = 0;
+    info.pClearValues = nullptr;
+
+    vkCmdBeginRenderPass(handle_, &info, VK_SUBPASS_CONTENTS_INLINE);
+    status |= STgt;
+  };
+
+  // End render pass
+  auto endPass = [&] {
+    vkCmdEndRenderPass(handle_);
+    tgt = nullptr;
+    status &= ~STgt;
+  };
+
+  // Bind descriptor sets
+  auto bindSets = [&] {
+    auto plLay = gst->plLayout();
+
+    for (const auto& d : dtbs) {
+      auto i = d->tableIndex;
+      auto j = d->allocIndex;
+
+      if (i >= gst->config_.dcTables.size() ||
+          j >= gst->config_.dcTables[i]->allocations())
+        throw invalid_argument("setDcTable() index out of range");
+
+      auto ds = static_cast<DcTableVK*>(gst->config_.dcTables[i])->ds(j);
+      vkCmdBindDescriptorSets(handle_, VK_PIPELINE_BIND_POINT_GRAPHICS,
+                              plLay, i, 1, &ds, 0, nullptr);
+    }
+
+    dtbs.clear();
+  };
+
+  // Clear attachments
+  auto clearAttachments = [&] {
+    VkClearRect rect{
+      {{0, 0}, {tgt->size_.width, tgt->size_.height}}, 0, tgt->layers_};
+
+    vkCmdClearAttachments(handle_, clears.size(), clears.data(), 1, &rect);
+    clears.clear();
+  };
+
+  // Set graphics state
+  auto setState = [&](const StateGrCmd* sub) {
+    auto st = static_cast<GrStateVK*>(sub->state);
+
+    if (st != gst) {
+      gst = st;
+      auto pl = gst->pipeline();
+      vkCmdBindPipeline(handle_, VK_PIPELINE_BIND_POINT_GRAPHICS, pl);
+      status |= SGst;
+    }
+  };
+
+  // Set viewport
+  auto setViewport = [&](const ViewportCmd* sub) {
+    // TODO: support for multiple viewports
+    if (sub->viewportIndex != 0)
+      throw UnsupportedExcept("Multiple viewports not supported");
+
+    VkViewport vport{sub->viewport.x, sub->viewport.y,
+                     sub->viewport.width, sub->viewport.height,
+                     sub->viewport.zNear, sub->viewport.zFar};
+
+    vkCmdSetViewport(handle_, sub->viewportIndex, 1, &vport);
+    status |= SVport;
+  };
+
+  // Set scissor
+  auto setScissor = [&](const ScissorCmd* sub) {
+    // TODO: support for multiple viewports
+    if (sub->viewportIndex != 0)
+      throw UnsupportedExcept("Multiple viewports not supported");
+
+    VkRect2D sciss{{sub->scissor.offset.x, sub->scissor.offset.y},
+                   {sub->scissor.size.width, sub->scissor.size.height}};
+
+    vkCmdSetScissor(handle_, sub->viewportIndex, 1, &sciss);
+    status |= SSciss;
+  };
+
+  // Set target
+  auto setTarget = [&](const TargetCmd* sub) {
+    if (tgt) {
+      if (!clears.empty())
+        clearAttachments();
+
+      endPass();
+    }
+
+    tgt = static_cast<TargetVK*>(sub->target);
+    beginPass();
+  };
+
+  // Set descriptor table
+  auto setDcTable = [&](const DcTableCmd* sub) {
+    dtbs.push_back(sub);
+  };
+
+  // Set vertex buffer
+  auto setVxBuffer = [&](const VxBufferCmd* sub) {
+    auto buf = static_cast<BufferVK*>(sub->buffer);
+    auto bufHandle = buf->handle();
+    auto off = sub->offset;
+
+    vkCmdBindVertexBuffers(handle_, sub->inputIndex, 1, &bufHandle, &off);
+    status |= SVbuf;
+  };
+
+  // Set index buffer
+  auto setIxBuffer = [&](const IxBufferCmd* sub) {
+    auto buf = static_cast<BufferVK*>(sub->buffer);
+    auto bufHandle = buf->handle();
+    auto type = sub->type == IndexTypeU16 ? VK_INDEX_TYPE_UINT16
+                                          : VK_INDEX_TYPE_UINT32;
+
+    vkCmdBindIndexBuffer(handle_, bufHandle, sub->offset, type);
+    status |= SIbuf;
+  };
+
+  // Draw
+  auto draw = [&](const DrawCmd* sub) {
+    if ((status & SDraw) != SDraw)
+      throw invalid_argument("Invalid draw() encoding");
+
+    if (!dtbs.empty())
+      bindSets();
+
+    if (!clears.empty())
+      clearAttachments();
+
+    // TODO: check limits
+    vkCmdDraw(handle_, sub->vertexCount, sub->instanceCount,
+              sub->vertexStart, sub->baseInstance);
+  };
+
+  // Draw indexed
+  auto drawIx = [&](const DrawIxCmd* sub) {
+    if ((status & SDrawi) != SDrawi)
+      throw invalid_argument("Invalid drawIndexed() encoding");
+
+    if (!dtbs.empty())
+      bindSets();
+
+    if (!clears.empty())
+      clearAttachments();
+
+    // TODO: check limits
+    vkCmdDrawIndexed(handle_, sub->vertexCount, sub->instanceCount,
+                     sub->indexStart, sub->vertexOffset, sub->baseInstance);
+  };
+
+  // Clear color
+  auto clearCl = [&](const ClearClCmd* sub) {
+    if (!tgt)
+      throw invalid_argument("clearColor() requires a target");
+
+    if (!tgt->colors_ || tgt->colors_->size() <= sub->colorIndex)
+      throw invalid_argument("clearColor() index out of range");
+
+    VkClearValue val;
+    val.color.float32[0] = sub->value.r;
+    val.color.float32[1] = sub->value.g;
+    val.color.float32[2] = sub->value.b;
+    val.color.float32[3] = sub->value.a;
+    clears.push_back({VK_IMAGE_ASPECT_COLOR_BIT, sub->colorIndex, val});
+  };
+
+  // Clear depth
+  auto clearDp = [&](const ClearDpCmd* sub) {
+    if (!tgt)
+      throw invalid_argument("clearDepth() requires a target");
+
+    if (!tgt->depthStencil_)
+      throw invalid_argument("clearDepth() requires a depth attachment");
+
+    if (aspectOfVK(tgt->pass().depthStencil_->format) !=
+        VK_IMAGE_ASPECT_DEPTH_BIT)
+      throw invalid_argument("clearDepth() requires a depth format");
+
+    VkClearValue val;
+    val.depthStencil.depth = sub->value;
+    clears.push_back({VK_IMAGE_ASPECT_DEPTH_BIT, 0, val});
+  };
+
+  // Clear stencil
+  auto clearSc = [&](const ClearScCmd* sub) {
+    if (!tgt)
+      throw invalid_argument("clearStencil() requires a target");
+
+    if (!tgt->depthStencil_)
+      throw invalid_argument("clearStencil() requires a stencil attachment");
+
+    if (aspectOfVK(tgt->pass().depthStencil_->format) !=
+        VK_IMAGE_ASPECT_STENCIL_BIT)
+      throw invalid_argument("clearStencil() requires a stencil format");
+
+    VkClearValue val;
+    val.depthStencil.stencil = sub->value;
+    clears.push_back({VK_IMAGE_ASPECT_STENCIL_BIT, 0, val});
+  };
+
   for (const auto& cmd : encoder.encoding()) {
     switch (cmd->cmd) {
     case Cmd::StateGrT:
-      // TODO
-      assert(false);
+      setState(static_cast<StateGrCmd*>(cmd.get()));
+      break;
     case Cmd::ViewportT:
-      // TODO
-      assert(false);
+      setViewport(static_cast<ViewportCmd*>(cmd.get()));
+      break;
     case Cmd::ScissorT:
-      // TODO
-      assert(false);
+      setScissor(static_cast<ScissorCmd*>(cmd.get()));
+      break;
     case Cmd::TargetT:
-      // TODO
-      assert(false);
+      setTarget(static_cast<TargetCmd*>(cmd.get()));
+      break;
     case Cmd::DcTableT:
-      // TODO
-      assert(false);
+      setDcTable(static_cast<DcTableCmd*>(cmd.get()));
+      break;
     case Cmd::VxBufferT:
-      // TODO
-      assert(false);
+      setVxBuffer(static_cast<VxBufferCmd*>(cmd.get()));
+      break;
     case Cmd::IxBufferT:
-      // TODO
-      assert(false);
+      setIxBuffer(static_cast<IxBufferCmd*>(cmd.get()));
+      break;
     case Cmd::DrawT:
-      // TODO
-      assert(false);
+      draw(static_cast<DrawCmd*>(cmd.get()));
+      break;
     case Cmd::DrawIxT:
-      // TODO
-      assert(false);
+      drawIx(static_cast<DrawIxCmd*>(cmd.get()));
+      break;
     case Cmd::ClearClT:
-      // TODO
-      assert(false);
+      clearCl(static_cast<ClearClCmd*>(cmd.get()));
+      break;
     case Cmd::ClearDpT:
-      // TODO
-      assert(false);
+      clearDp(static_cast<ClearDpCmd*>(cmd.get()));
+      break;
     case Cmd::ClearScT:
-      // TODO
-      assert(false);
+      clearSc(static_cast<ClearScCmd*>(cmd.get()));
+      break;
     default:
       assert(false);
       abort();
     }
+  }
+
+  if (tgt) {
+    if (!clears.empty())
+      clearAttachments();
+
+    endPass();
   }
 }
 
@@ -388,14 +632,14 @@ void CmdBufferVK::encode(const CpEncoder& encoder) {
   CpStateVK* cst = nullptr;
   vector<const DcTableCmd*> dtbs;
 
-  // Set cp state
+  // Set compute state
   auto setState = [&](const StateCpCmd* sub) {
     cst = static_cast<CpStateVK*>(sub->state);
     auto pl = cst->pipeline();
     vkCmdBindPipeline(handle_, VK_PIPELINE_BIND_POINT_COMPUTE, pl);
   };
 
-  // Set dc table
+  // Set descriptor table
   auto setDcTable = [&](const DcTableCmd* sub) {
     dtbs.push_back(sub);
   };

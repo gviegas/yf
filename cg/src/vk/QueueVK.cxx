@@ -358,8 +358,9 @@ void CmdBufferVK::encode(const GrEncoder& encoder) {
   GrStateVK* gst = nullptr;
   TargetVK* tgt = nullptr;
   vector<const DcTableCmd*> dtbs;
+  vector<VkClearAttachment> clears;
 
-  // Begins render pass
+  // Begin render pass
   auto beginPass = [&] {
     VkRenderPassBeginInfo info;
     info.sType = VK_STRUCTURE_TYPE_RENDER_PASS_BEGIN_INFO;
@@ -400,6 +401,15 @@ void CmdBufferVK::encode(const GrEncoder& encoder) {
     }
 
     dtbs.clear();
+  };
+
+  // Clear attachments
+  auto clearAttachments = [&] {
+    VkClearRect rect{
+      {{0, 0}, {tgt->size_.width, tgt->size_.height}}, 0, tgt->layers_};
+
+    vkCmdClearAttachments(handle_, clears.size(), clears.data(), 1, &rect);
+    clears.clear();
   };
 
   // Set graphics state
@@ -443,8 +453,12 @@ void CmdBufferVK::encode(const GrEncoder& encoder) {
 
   // Set target
   auto setTarget = [&](const TargetCmd* sub) {
-    if (tgt)
+    if (tgt) {
+      if (!clears.empty())
+        clearAttachments();
+
       endPass();
+    }
 
     tgt = static_cast<TargetVK*>(sub->target);
     beginPass();
@@ -484,6 +498,9 @@ void CmdBufferVK::encode(const GrEncoder& encoder) {
     if (!dtbs.empty())
       bindSets();
 
+    if (!clears.empty())
+      clearAttachments();
+
     // TODO: check limits
     vkCmdDraw(handle_, sub->vertexCount, sub->instanceCount,
               sub->vertexStart, sub->baseInstance);
@@ -497,6 +514,9 @@ void CmdBufferVK::encode(const GrEncoder& encoder) {
     if (!dtbs.empty())
       bindSets();
 
+    if (!clears.empty())
+      clearAttachments();
+
     // TODO: check limits
     vkCmdDrawIndexed(handle_, sub->vertexCount, sub->instanceCount,
                      sub->indexStart, sub->vertexOffset, sub->baseInstance);
@@ -504,17 +524,52 @@ void CmdBufferVK::encode(const GrEncoder& encoder) {
 
   // Clear color
   auto clearCl = [&](const ClearClCmd* sub) {
-    // TODO
+    if (!tgt)
+      throw invalid_argument("clearColor() requires a target");
+
+    if (!tgt->colors_ || tgt->colors_->size() <= sub->colorIndex)
+      throw invalid_argument("clearColor() index out of range");
+
+    VkClearValue val;
+    val.color.float32[0] = sub->value.r;
+    val.color.float32[1] = sub->value.g;
+    val.color.float32[2] = sub->value.b;
+    val.color.float32[3] = sub->value.a;
+    clears.push_back({VK_IMAGE_ASPECT_COLOR_BIT, sub->colorIndex, val});
   };
 
   // Clear depth
   auto clearDp = [&](const ClearDpCmd* sub) {
-    // TODO
+    if (!tgt)
+      throw invalid_argument("clearDepth() requires a target");
+
+    if (!tgt->depthStencil_)
+      throw invalid_argument("clearDepth() requires a depth attachment");
+
+    if (aspectOfVK(tgt->pass().depthStencil_->format) !=
+        VK_IMAGE_ASPECT_DEPTH_BIT)
+      throw invalid_argument("clearDepth() requires a depth format");
+
+    VkClearValue val;
+    val.depthStencil.depth = sub->value;
+    clears.push_back({VK_IMAGE_ASPECT_DEPTH_BIT, 0, val});
   };
 
   // Clear stencil
   auto clearSc = [&](const ClearScCmd* sub) {
-    // TODO
+    if (!tgt)
+      throw invalid_argument("clearStencil() requires a target");
+
+    if (!tgt->depthStencil_)
+      throw invalid_argument("clearStencil() requires a stencil attachment");
+
+    if (aspectOfVK(tgt->pass().depthStencil_->format) !=
+        VK_IMAGE_ASPECT_STENCIL_BIT)
+      throw invalid_argument("clearStencil() requires a stencil format");
+
+    VkClearValue val;
+    val.depthStencil.stencil = sub->value;
+    clears.push_back({VK_IMAGE_ASPECT_STENCIL_BIT, 0, val});
   };
 
   for (const auto& cmd : encoder.encoding()) {

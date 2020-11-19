@@ -10,6 +10,7 @@
 
 #include "QueueVK.h"
 #include "DeviceVK.h"
+#include "BufferVK.h"
 #include "DcTableVK.h"
 #include "PassVK.h"
 #include "StateVK.h"
@@ -435,12 +436,23 @@ void CmdBufferVK::encode(const GrEncoder& encoder) {
 
   // Set vertex buffer
   auto setVxBuffer = [&](const VxBufferCmd* sub) {
-    // TODO
+    auto buf = static_cast<BufferVK*>(sub->buffer);
+    auto bufHandle = buf->handle();
+    auto off = sub->offset;
+
+    vkCmdBindVertexBuffers(handle_, sub->inputIndex, 1, &bufHandle, &off);
+    status |= SVbuf;
   };
 
   // Set index buffer
   auto setIxBuffer = [&](const IxBufferCmd* sub) {
-    // TODO
+    auto buf = static_cast<BufferVK*>(sub->buffer);
+    auto bufHandle = buf->handle();
+    auto type = sub->type == IndexTypeU16 ? VK_INDEX_TYPE_UINT16
+                                          : VK_INDEX_TYPE_UINT32;
+
+    vkCmdBindIndexBuffer(handle_, bufHandle, sub->offset, type);
+    status |= SIbuf;
   };
 
   // Draw

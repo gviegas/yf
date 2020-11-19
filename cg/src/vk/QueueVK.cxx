@@ -382,9 +382,30 @@ void CmdBufferVK::encode(const GrEncoder& encoder) {
     status &= ~STgt;
   };
 
+  // Bind descriptor sets
+  auto bindSets = [&] {
+    auto plLay = gst->plLayout();
+
+    for (const auto& d : dtbs) {
+      auto i = d->tableIndex;
+      auto j = d->allocIndex;
+
+      if (i >= gst->config_.dcTables.size() ||
+          j >= gst->config_.dcTables[i]->allocations())
+        throw invalid_argument("setDcTable() index out of range");
+
+      auto ds = static_cast<DcTableVK*>(gst->config_.dcTables[i])->ds(j);
+      vkCmdBindDescriptorSets(handle_, VK_PIPELINE_BIND_POINT_GRAPHICS,
+                              plLay, i, 1, &ds, 0, nullptr);
+    }
+
+    dtbs.clear();
+  };
+
   // Set graphics state
   auto setState = [&](const StateGrCmd* sub) {
     auto st = static_cast<GrStateVK*>(sub->state);
+
     if (st != gst) {
       gst = st;
       auto pl = gst->pipeline();
@@ -457,12 +478,28 @@ void CmdBufferVK::encode(const GrEncoder& encoder) {
 
   // Draw
   auto draw = [&](const DrawCmd* sub) {
-    // TODO
+    if ((status & SDraw) != SDraw)
+      throw invalid_argument("Invalid draw() encoding");
+
+    if (!dtbs.empty())
+      bindSets();
+
+    // TODO: check limits
+    vkCmdDraw(handle_, sub->vertexCount, sub->instanceCount,
+              sub->vertexStart, sub->baseInstance);
   };
 
   // Draw indexed
   auto drawIx = [&](const DrawIxCmd* sub) {
-    // TODO
+    if ((status & SDrawi) != SDrawi)
+      throw invalid_argument("Invalid drawIndexed() encoding");
+
+    if (!dtbs.empty())
+      bindSets();
+
+    // TODO: check limits
+    vkCmdDrawIndexed(handle_, sub->vertexCount, sub->instanceCount,
+                     sub->indexStart, sub->vertexOffset, sub->baseInstance);
   };
 
   // Clear color
@@ -523,6 +560,8 @@ void CmdBufferVK::encode(const GrEncoder& encoder) {
       abort();
     }
   }
+
+  // TODO...
 }
 
 void CmdBufferVK::encode(const CpEncoder& encoder) {

@@ -1,7 +1,7 @@
 #!/usr/bin/env -S make -f
 
 #
-# cg
+# CG
 # Devel.mk
 #
 # Copyright © 2020 Gustavo C. Viegas.

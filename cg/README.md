@@ -3,7 +3,7 @@
 
 
 Core interface
-----------
+--------------
 - Device
 - Buffer
 - Image

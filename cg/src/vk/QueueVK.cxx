@@ -11,6 +11,7 @@
 #include "QueueVK.h"
 #include "DeviceVK.h"
 #include "DcTableVK.h"
+#include "PassVK.h"
 #include "StateVK.h"
 #include "Cmd.h"
 #include "Encoder.h"
@@ -339,44 +340,121 @@ void CmdBufferVK::didExecute() {
 }
 
 void CmdBufferVK::encode(const GrEncoder& encoder) {
+  enum {
+    SGst   = 0x01,
+    STgt   = 0x02,
+    SVport = 0x04,
+    SSciss = 0x08,
+    SVbuf  = 0x10,
+    SIbuf  = 0x20,
+
+    SDraw  = 0x1F, // Can draw?
+    SDrawi = 0x3F, // Can draw indexed?
+    SNone  = 0
+  } status = SNone;
+
+  GrStateVK* gst = nullptr;
+  TargetVK* tgt = nullptr;
+  vector<const DcTableCmd*> dtbs;
+
+  // Set graphics state
+  auto setState = [&](const StateGrCmd* sub) {
+    // TODO
+  };
+
+  // Set viewport
+  auto setViewport = [&](const ViewportCmd* sub) {
+    // TODO
+  };
+
+  // Set scissor
+  auto setScissor = [&](const ScissorCmd* sub) {
+    // TODO
+  };
+
+  // Set target
+  auto setTarget = [&](const TargetCmd* sub) {
+    // TODO
+  };
+
+  // Set descriptor table
+  auto setDcTable = [&](const DcTableCmd* sub) {
+    // TODO
+  };
+
+  // Set vertex buffer
+  auto setVxBuffer = [&](const VxBufferCmd* sub) {
+    // TODO
+  };
+
+  // Set index buffer
+  auto setIxBuffer = [&](const IxBufferCmd* sub) {
+    // TODO
+  };
+
+  // Draw
+  auto draw = [&](const DrawCmd* sub) {
+    // TODO
+  };
+
+  // Draw indexed
+  auto drawIx = [&](const DrawIxCmd* sub) {
+    // TODO
+  };
+
+  // Clear color
+  auto clearCl = [&](const ClearClCmd* sub) {
+    // TODO
+  };
+
+  // Clear depth
+  auto clearDp = [&](const ClearDpCmd* sub) {
+    // TODO
+  };
+
+  // Clear stencil
+  auto clearSc = [&](const ClearScCmd* sub) {
+    // TODO
+  };
+
   for (const auto& cmd : encoder.encoding()) {
     switch (cmd->cmd) {
     case Cmd::StateGrT:
-      // TODO
-      assert(false);
+      setState(static_cast<StateGrCmd*>(cmd.get()));
+      break;
     case Cmd::ViewportT:
-      // TODO
-      assert(false);
+      setViewport(static_cast<ViewportCmd*>(cmd.get()));
+      break;
     case Cmd::ScissorT:
-      // TODO
-      assert(false);
+      setScissor(static_cast<ScissorCmd*>(cmd.get()));
+      break;
     case Cmd::TargetT:
-      // TODO
-      assert(false);
+      setTarget(static_cast<TargetCmd*>(cmd.get()));
+      break;
     case Cmd::DcTableT:
-      // TODO
-      assert(false);
+      setDcTable(static_cast<DcTableCmd*>(cmd.get()));
+      break;
     case Cmd::VxBufferT:
-      // TODO
-      assert(false);
+      setVxBuffer(static_cast<VxBufferCmd*>(cmd.get()));
+      break;
     case Cmd::IxBufferT:
-      // TODO
-      assert(false);
+      setIxBuffer(static_cast<IxBufferCmd*>(cmd.get()));
+      break;
     case Cmd::DrawT:
-      // TODO
-      assert(false);
+      draw(static_cast<DrawCmd*>(cmd.get()));
+      break;
     case Cmd::DrawIxT:
-      // TODO
-      assert(false);
+      drawIx(static_cast<DrawIxCmd*>(cmd.get()));
+      break;
     case Cmd::ClearClT:
-      // TODO
-      assert(false);
+      clearCl(static_cast<ClearClCmd*>(cmd.get()));
+      break;
     case Cmd::ClearDpT:
-      // TODO
-      assert(false);
+      clearDp(static_cast<ClearDpCmd*>(cmd.get()));
+      break;
     case Cmd::ClearScT:
-      // TODO
-      assert(false);
+      clearSc(static_cast<ClearScCmd*>(cmd.get()));
+      break;
     default:
       assert(false);
       abort();
@@ -388,14 +466,14 @@ void CmdBufferVK::encode(const CpEncoder& encoder) {
   CpStateVK* cst = nullptr;
   vector<const DcTableCmd*> dtbs;
 
-  // Set cp state
+  // Set compute state
   auto setState = [&](const StateCpCmd* sub) {
     cst = static_cast<CpStateVK*>(sub->state);
     auto pl = cst->pipeline();
     vkCmdBindPipeline(handle_, VK_PIPELINE_BIND_POINT_COMPUTE, pl);
   };
 
-  // Set dc table
+  // Set descriptor table
   auto setDcTable = [&](const DcTableCmd* sub) {
     dtbs.push_back(sub);
   };

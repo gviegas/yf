@@ -284,17 +284,21 @@ void CmdBufferVK::encode(const Encoder& encoder) {
     begun_ = true;
   }
 
-  // TODO: handle exceptions that might be throw due to encoding failure
-  switch (encoder.type()) {
-  case Encoder::Graphics:
-    encode(static_cast<const GrEncoder&>(encoder));
-    break;
-  case Encoder::Compute:
-    encode(static_cast<const CpEncoder&>(encoder));
-    break;
-  case Encoder::Transfer:
-    encode(static_cast<const TfEncoder&>(encoder));
-    break;
+  try {
+    switch (encoder.type()) {
+    case Encoder::Graphics:
+      encode(static_cast<const GrEncoder&>(encoder));
+      break;
+    case Encoder::Compute:
+      encode(static_cast<const CpEncoder&>(encoder));
+      break;
+    case Encoder::Transfer:
+      encode(static_cast<const TfEncoder&>(encoder));
+      break;
+    }
+  } catch (...) {
+    reset();
+    throw;
   }
 }
 
@@ -616,7 +620,12 @@ void CmdBufferVK::encode(const GrEncoder& encoder) {
     }
   }
 
-  // TODO...
+  if (tgt) {
+    if (!clears.empty())
+      clearAttachments();
+
+    endPass();
+  }
 }
 
 void CmdBufferVK::encode(const CpEncoder& encoder) {

@@ -22,7 +22,7 @@ CG_NS_BEGIN
 ///
 enum LoadOp {
   LoadOpLoad,
-  LoadOpClear,
+  //LoadOpClear,
   LoadOpDontCare
 };
 

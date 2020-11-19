@@ -67,7 +67,7 @@ class TargetVK final : public Target {
 inline VkAttachmentLoadOp toLoadOpVK(LoadOp op) {
   switch (op) {
   case LoadOpLoad:     return VK_ATTACHMENT_LOAD_OP_LOAD;
-  case LoadOpClear:    return VK_ATTACHMENT_LOAD_OP_CLEAR;
+  //case LoadOpClear:    return VK_ATTACHMENT_LOAD_OP_CLEAR;
   case LoadOpDontCare: return VK_ATTACHMENT_LOAD_OP_DONT_CARE;
   }
 }

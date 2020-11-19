@@ -358,6 +358,29 @@ void CmdBufferVK::encode(const GrEncoder& encoder) {
   TargetVK* tgt = nullptr;
   vector<const DcTableCmd*> dtbs;
 
+  // Begins render pass
+  auto beginPass = [&] {
+    VkRenderPassBeginInfo info;
+    info.sType = VK_STRUCTURE_TYPE_RENDER_PASS_BEGIN_INFO;
+    info.pNext = nullptr;
+    info.renderPass = static_cast<PassVK&>(tgt->pass()).renderPass();
+    info.framebuffer = tgt->framebuffer();
+    info.renderArea = {{0, 0}, {tgt->size_.width, tgt->size_.height}};
+    // TODO
+    info.clearValueCount = 0;
+    info.pClearValues = nullptr;
+
+    vkCmdBeginRenderPass(handle_, &info, VK_SUBPASS_CONTENTS_INLINE);
+    status |= STgt;
+  };
+
+  // End render pass
+  auto endPass = [&] {
+    vkCmdEndRenderPass(handle_);
+    tgt = nullptr;
+    status &= ~STgt;
+  };
+
   // Set graphics state
   auto setState = [&](const StateGrCmd* sub) {
     auto st = static_cast<GrStateVK*>(sub->state);
@@ -398,12 +421,16 @@ void CmdBufferVK::encode(const GrEncoder& encoder) {
 
   // Set target
   auto setTarget = [&](const TargetCmd* sub) {
-    // TODO
+    if (tgt)
+      endPass();
+
+    tgt = static_cast<TargetVK*>(sub->target);
+    beginPass();
   };
 
   // Set descriptor table
   auto setDcTable = [&](const DcTableCmd* sub) {
-    // TODO
+    dtbs.push_back(sub);
   };
 
   // Set vertex buffer

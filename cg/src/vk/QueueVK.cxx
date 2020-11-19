@@ -340,7 +340,7 @@ void CmdBufferVK::didExecute() {
 }
 
 void CmdBufferVK::encode(const GrEncoder& encoder) {
-  enum {
+  enum : uint32_t {
     SGst   = 0x01,
     STgt   = 0x02,
     SVport = 0x04,
@@ -351,25 +351,49 @@ void CmdBufferVK::encode(const GrEncoder& encoder) {
     SDraw  = 0x1F, // Can draw?
     SDrawi = 0x3F, // Can draw indexed?
     SNone  = 0
-  } status = SNone;
+  };
 
+  uint32_t status = SNone;
   GrStateVK* gst = nullptr;
   TargetVK* tgt = nullptr;
   vector<const DcTableCmd*> dtbs;
 
   // Set graphics state
   auto setState = [&](const StateGrCmd* sub) {
-    // TODO
+    auto st = static_cast<GrStateVK*>(sub->state);
+    if (st != gst) {
+      gst = st;
+      auto pl = gst->pipeline();
+      vkCmdBindPipeline(handle_, VK_PIPELINE_BIND_POINT_GRAPHICS, pl);
+      status |= SGst;
+    }
   };
 
   // Set viewport
   auto setViewport = [&](const ViewportCmd* sub) {
-    // TODO
+    // TODO: support for multiple viewports
+    if (sub->viewportIndex != 0)
+      throw UnsupportedExcept("Multiple viewports not supported");
+
+    VkViewport vport{sub->viewport.x, sub->viewport.y,
+                     sub->viewport.width, sub->viewport.height,
+                     sub->viewport.zNear, sub->viewport.zFar};
+
+    vkCmdSetViewport(handle_, sub->viewportIndex, 1, &vport);
+    status |= SVport;
   };
 
   // Set scissor
   auto setScissor = [&](const ScissorCmd* sub) {
-    // TODO
+    // TODO: support for multiple viewports
+    if (sub->viewportIndex != 0)
+      throw UnsupportedExcept("Multiple viewports not supported");
+
+    VkRect2D sciss{{sub->scissor.offset.x, sub->scissor.offset.y},
+                   {sub->scissor.size.width, sub->scissor.size.height}};
+
+    vkCmdSetScissor(handle_, sub->viewportIndex, 1, &sciss);
+    status |= SSciss;
   };
 
   // Set target

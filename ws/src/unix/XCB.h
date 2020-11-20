@@ -14,6 +14,23 @@
 
 WS_NS_BEGIN
 
+/// XCB variables.
+///
+struct VarsXCB {
+  xcb_connection_t* connection;
+  xcb_visualid_t visualId;
+  xcb_window_t root;
+  xcb_atom_t protocolAtom;
+  xcb_atom_t deleteAtom;
+  xcb_atom_t titleAtom;
+  xcb_atom_t utf8Atom;
+  xcb_atom_t classAtom;
+};
+
+/// Gets the shared variables instance.
+///
+const VarsXCB& varsXCB();
+
 /// Initializes XCB.
 ///
 void initXCB();
@@ -24,7 +41,7 @@ void deinitXCB();
 
 /// Dynamic symbols.
 ///
-extern xcb_connection_t
+extern xcb_connection_t*
 (*connectXCB)(const char*, int*);
 
 extern void
@@ -45,7 +62,7 @@ extern xcb_generic_event_t*
 extern xcb_generic_error_t*
 (*requestCheckXCB)(xcb_connection_t*, xcb_void_cookie_t);
 
-extern const struct scb_setup_t*
+extern const struct xcb_setup_t*
 (*getSetupXCB)(xcb_connection_t*);
 
 extern xcb_screen_iterator_t

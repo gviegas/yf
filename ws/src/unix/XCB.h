@@ -16,7 +16,7 @@ WS_NS_BEGIN
 
 /// Initializes XCB.
 ///
-bool initXCB();
+void initXCB();
 
 /// Deinitializes XCB.
 ///
@@ -40,13 +40,13 @@ extern uint32_t
 (*generateIdXCB)(xcb_connection_t*);
 
 extern xcb_generic_event_t*
-(poolForEventXCB)(xcb_connection_t*);
+(*pollForEventXCB)(xcb_connection_t*);
 
 extern xcb_generic_error_t*
 (*requestCheckXCB)(xcb_connection_t*, xcb_void_cookie_t);
 
 extern const struct scb_setup_t*
-(getSetupXCB)(xcb_connection_t*);
+(*getSetupXCB)(xcb_connection_t*);
 
 extern xcb_screen_iterator_t
 (*setupRootsIteratorXCB)(const xcb_setup_t*);

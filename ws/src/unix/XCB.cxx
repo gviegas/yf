@@ -5,6 +5,8 @@
 // Copyright © 2020 Gustavo C. Viegas.
 //
 
+#include <cstring>
+#include <cstdlib>
 #include <dlfcn.h>
 #define WS_LIBXCB "libxcb.so"
 
@@ -15,6 +17,10 @@ using namespace WS_NS;
 using namespace std;
 
 INTERNAL_NS_BEGIN
+
+/// VarsXCB instance.
+///
+VarsXCB vars{nullptr, 0, 0, 0, 0, 0, 0, 0};
 
 /// Lib handle.
 ///
@@ -73,10 +79,125 @@ void unloadXCB() {
 
 INTERNAL_NS_END
 
+const VarsXCB& WS_NS::varsXCB() {
+  if (!libHandle)
+    initXCB();
+
+  return vars;
+}
+
 void WS_NS::initXCB() {
   loadXCB();
 
-  // TODO...
+  const char protoName[] = "WM_PROTOCOLS";
+  const char delName[] = "WM_DELETE_WINDOW";
+  const char titleName[] = "WM_NAME";
+  const char utf8Name[] = "UTF8_STRING";
+  const char className[] = "WM_CLASS";
+
+  xcb_connection_t* conn = nullptr;
+  xcb_generic_error_t* err = nullptr;
+  xcb_intern_atom_cookie_t atomCookie;
+  xcb_intern_atom_reply_t* atomReply = nullptr;
+  int res;
+
+  auto deinit = [&] {
+    free(err);
+    if (conn)
+      disconnectXCB(conn);
+  };
+
+  // Connect
+  conn = connectXCB(nullptr, nullptr);
+  res = connectionHasErrorXCB(conn);
+  if (res != 0) {
+    deinit();
+    throw runtime_error("connectXCB failed");
+  }
+
+  // Get visualID & root window
+  auto setup = getSetupXCB(conn);
+  if (!setup) {
+    deinit();
+    throw runtime_error("getSetupXCB failed");
+  }
+  auto screenIt = setupRootsIteratorXCB(setup);
+  vars.visualId = screenIt.data->root_visual;
+  vars.root = screenIt.data->root;
+
+  // Get protocol atom
+  atomCookie = internAtomXCB(conn, 0, strlen(protoName), protoName);
+  atomReply = internAtomReplyXCB(conn, atomCookie, &err);
+  if (err || !atomReply) {
+    deinit();
+    throw runtime_error("internAtomReplyXCB failed");
+  }
+  vars.protocolAtom = atomReply->atom;
+  free(atomReply);
+  atomReply = nullptr;
+
+  // Get delete atom
+  atomCookie = internAtomXCB(conn, 0, strlen(delName), delName);
+  atomReply = internAtomReplyXCB(conn, atomCookie, &err);
+  if (err || !atomReply) {
+    deinit();
+    throw runtime_error("internAtomReplyXCB failed");
+  }
+  vars.deleteAtom = atomReply->atom;
+  free(atomReply);
+  atomReply = nullptr;
+
+  // Get title atom
+  atomCookie = internAtomXCB(conn, 0, strlen(titleName), titleName);
+  atomReply = internAtomReplyXCB(conn, atomCookie, &err);
+  if (err || !atomReply) {
+    deinit();
+    throw runtime_error("internAtomReplyXCB failed");
+  }
+  vars.titleAtom = atomReply->atom;
+  free(atomReply);
+  atomReply = nullptr;
+
+  // Get utf8 atom
+  atomCookie = internAtomXCB(conn, 0, strlen(utf8Name), utf8Name);
+  atomReply = internAtomReplyXCB(conn, atomCookie, &err);
+  if (err || !atomReply) {
+    deinit();
+    throw runtime_error("internAtomReplyXCB failed");
+  }
+  vars.utf8Atom = atomReply->atom;
+  free(atomReply);
+  atomReply = nullptr;
+
+  // Get class atom
+  atomCookie = internAtomXCB(conn, 0, strlen(className), className);
+  atomReply = internAtomReplyXCB(conn, atomCookie, &err);
+  if (err || !atomReply) {
+    deinit();
+    throw runtime_error("internAtomReplyXCB failed");
+  }
+  vars.classAtom = atomReply->atom;
+  free(atomReply);
+  atomReply = nullptr;
+
+  // Disable keyboard auto repeat
+  auto valMask = XCB_KB_AUTO_REPEAT_MODE;
+  auto valList = XCB_AUTO_REPEAT_MODE_OFF;
+  auto cookie = changeKeyboardControlCheckedXCB(conn, valMask, &valList);
+  err = requestCheckXCB(conn, cookie);
+  if (err) {
+    deinit();
+    throw runtime_error("changeKeyboardControlCheckedXCB failed");
+  }
+
+  // Flush
+  res = flushXCB(conn);
+  if (res <= 0) {
+    deinit();
+    throw runtime_error("flushXCB failed");
+  }
+
+  vars.connection = conn;
 }
 
 void WS_NS::deinitXCB() {
@@ -87,7 +208,7 @@ void WS_NS::deinitXCB() {
 
 WS_NS_BEGIN
 
-xcb_connection_t
+xcb_connection_t*
 (*connectXCB)(const char*, int*);
 
 void
@@ -108,7 +229,7 @@ xcb_generic_event_t*
 xcb_generic_error_t*
 (*requestCheckXCB)(xcb_connection_t*, xcb_void_cookie_t);
 
-const struct scb_setup_t*
+const struct xcb_setup_t*
 (*getSetupXCB)(xcb_connection_t*);
 
 xcb_screen_iterator_t

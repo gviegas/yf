@@ -19,12 +19,9 @@ WindowXCB::WindowXCB(uint32_t width,
                      uint32_t height,
                      const wstring& title,
                      CreationMask mask)
-  : width_(width), height_(height), title_(title), mask_(mask) {
+  : width_(width), height_(height), /*title_(title),*/ mask_(mask) {
 
   const auto& vars = varsXCB();
-
-  window_ = generateIdXCB(vars.connection);
-
   xcb_void_cookie_t cookie;
   xcb_generic_error_t* err = nullptr;
 
@@ -33,6 +30,9 @@ WindowXCB::WindowXCB(uint32_t width,
     if (window_)
       destroyWindowXCB(vars.connection, window_);
   };
+
+  // Create window
+  window_ = generateIdXCB(vars.connection);
 
   uint32_t valMask = XCB_CW_BACK_PIXEL | XCB_CW_EVENT_MASK;
   uint32_t valList[2];
@@ -60,10 +60,12 @@ WindowXCB::WindowXCB(uint32_t width,
     throw runtime_error("createWindowCheckedXCB failed");
   }
 
-  // TODO: change properties
+  // TODO: change properties (delete/class)
 
+  // Set title
   setTitle(title);
 
+  // Check flags
   if (mask & Fullscreen)
     // TODO
     throw runtime_error("Unimplemented");
@@ -79,6 +81,7 @@ WindowXCB::WindowXCB(uint32_t width,
   if (!(mask & Hidden))
     open();
 
+  // Flush
   if (flushXCB(vars.connection) <= 0) {
     deinit();
     throw runtime_error("flushXCB failed");
@@ -86,7 +89,8 @@ WindowXCB::WindowXCB(uint32_t width,
 }
 
 WindowXCB::~WindowXCB() {
-  // TODO
+  // XXX: this must happen before deinitXCB()
+  destroyWindowXCB(varsXCB().connection, window_);
 }
 
 void WindowXCB::open() {

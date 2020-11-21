@@ -201,9 +201,12 @@ void WS_NS::initXCB() {
 }
 
 void WS_NS::deinitXCB() {
-  unloadXCB();
+  if (vars.connection) {
+    disconnectXCB(vars.connection);
+    memset(&vars, 0, sizeof vars);
+  }
 
-  // TODO...
+  unloadXCB();
 }
 
 WS_NS_BEGIN

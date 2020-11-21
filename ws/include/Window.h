@@ -32,6 +32,7 @@ class Window {
     Hidden     = 0x08
   };
 
+  Window() = default;
   Window(const Window&) = delete;
   Window& operator=(const Window&) = delete;
   virtual ~Window();
@@ -62,8 +63,8 @@ class Window {
 
   /// Getters.
   ///
-  virtual uint32_t width() = 0;
-  virtual uint32_t height() = 0;
+  virtual uint32_t width() const = 0;
+  virtual uint32_t height() const = 0;
 };
 
 WS_NS_END

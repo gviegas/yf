@@ -33,6 +33,10 @@ class Window {
     Hidden     = 0x08
   };
 
+  /// Maximum length of window title, in bytes.
+  ///
+  static constexpr uint32_t TitleLen = 60;
+
   Window() = default;
   Window(const Window&) = delete;
   Window& operator=(const Window&) = delete;

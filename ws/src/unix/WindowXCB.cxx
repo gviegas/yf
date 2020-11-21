@@ -6,6 +6,8 @@
 //
 
 #include <cstdlib>
+#include <cstring>
+#include <cwchar>
 
 #include "WindowXCB.h"
 #include "yf/Except.h"
@@ -59,6 +61,8 @@ WindowXCB::WindowXCB(uint32_t width,
   }
 
   // TODO: change properties
+
+  setTitle(title);
 
   if (mask & Fullscreen)
     // TODO
@@ -118,7 +122,30 @@ void WindowXCB::close() {
 }
 
 void WindowXCB::setTitle(const std::wstring& title) {
-  // TODO
+  mbstate_t state;
+  memset(&state, 0, sizeof state);
+  char str[TitleLen];
+  auto src = title.data();
+  auto len = wcsrtombs(str, &src, TitleLen, &state);
+
+  if (src)
+    throw LimitExcept("Could not set window title");
+
+  const auto& vars = varsXCB();
+
+  auto cookie = changePropertyCheckedXCB(vars.connection,
+                                         XCB_PROP_MODE_REPLACE,
+                                         window_, vars.titleAtom,
+                                         vars.utf8Atom, 8, len, str);
+
+  auto err = requestCheckXCB(vars.connection, cookie);
+
+  if (err) {
+    free(err);
+    throw runtime_error("changePropertyCheckedXCB failed");
+  }
+
+  title_ = title;
 }
 
 void WindowXCB::toggleFullscreen() {
@@ -138,6 +165,7 @@ void WindowXCB::resize(uint32_t width, uint32_t height) {
 
   auto cookie = configureWindowCheckedXCB(vars.connection, window_,
                                           valMask, valList);
+
   auto err = requestCheckXCB(vars.connection, cookie);
 
   if (err) {

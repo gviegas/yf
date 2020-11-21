@@ -119,7 +119,27 @@ void WindowXCB::toggleFullscreen() {
 }
 
 void WindowXCB::resize(uint32_t width, uint32_t height) {
-  // TODO
+  if (!(mask_ & Resizable))
+    return;
+
+  if (width == 0 || height == 0)
+    throw invalid_argument("WindowXCB resize() requires dimensions > 0");
+
+  const auto& vars = varsXCB();
+  uint32_t valMask = XCB_CONFIG_WINDOW_WIDTH | XCB_CONFIG_WINDOW_HEIGHT;
+  uint32_t valList[] = {width, height};
+
+  auto cookie = configureWindowCheckedXCB(vars.connection, window_,
+                                          valMask, valList);
+  auto err = requestCheckXCB(vars.connection, cookie);
+
+  if (err) {
+    free(err);
+    throw runtime_error("configureWindowCheckedXCB failed");
+  }
+
+  width_ = width;
+  height_ = height;
 }
 
 uint32_t WindowXCB::width() const {

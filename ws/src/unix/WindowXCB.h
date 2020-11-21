@@ -17,11 +17,10 @@ class WindowXCB final : public Window {
  public:
   WindowXCB(uint32_t width, uint32_t height, CreationMask mask);
   ~WindowXCB();
+  void open();
   void close();
   void toggleFullscreen();
   void resize(uint32_t, uint32_t);
-  void show();
-  void hide();
   uint32_t width() const;
   uint32_t height() const;
 
@@ -31,6 +30,7 @@ class WindowXCB final : public Window {
   uint32_t height_ = 0;
   CreationMask mask_ = 0;
   bool fullscreen_ = false;
+  bool mapped_ = false;
 };
 
 WS_NS_END

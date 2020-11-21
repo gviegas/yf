@@ -57,7 +57,20 @@ WindowXCB::WindowXCB(uint32_t width, uint32_t height, CreationMask mask)
 
   // TODO: change properties
 
-  // TODO: check mask
+  if (mask & Fullscreen)
+    // TODO
+    throw runtime_error("Unimplemented");
+
+  if (mask & Borderless)
+    // TODO
+    throw runtime_error("Unimplemented");
+
+  if (!(mask & Resizable))
+    // TODO
+    throw runtime_error("Unimplemented");
+
+  if (!(mask & Hidden))
+    open();
 
   if (flushXCB(vars.connection) <= 0) {
     deinit();
@@ -69,8 +82,36 @@ WindowXCB::~WindowXCB() {
   // TODO
 }
 
+void WindowXCB::open() {
+  if (mapped_)
+    return;
+
+  const auto& vars = varsXCB();
+  auto cookie = mapWindowCheckedXCB(vars.connection, window_);
+  auto err = requestCheckXCB(vars.connection, cookie);
+
+  if (err) {
+    free(err);
+    throw runtime_error("mapWindowCheckedXCB failed");
+  }
+
+  mapped_ = true;
+}
+
 void WindowXCB::close() {
-  // TODO
+  if (!mapped_)
+    return;
+
+  const auto& vars = varsXCB();
+  auto cookie = unmapWindowCheckedXCB(vars.connection, window_);
+  auto err = requestCheckXCB(vars.connection, cookie);
+
+  if (err) {
+    free(err);
+    throw runtime_error("unmapWindowCheckedXCB failed");
+  }
+
+  mapped_ = false;
 }
 
 void WindowXCB::toggleFullscreen() {
@@ -78,14 +119,6 @@ void WindowXCB::toggleFullscreen() {
 }
 
 void WindowXCB::resize(uint32_t width, uint32_t height) {
-  // TODO
-}
-
-void WindowXCB::show() {
-  // TODO
-}
-
-void WindowXCB::hide() {
   // TODO
 }
 

@@ -41,6 +41,10 @@ class Window {
   ///
   static Ptr make(uint32_t width, uint32_t height, CreationMask mask);
 
+  /// Opens the window.
+  ///
+  virtual void open() = 0;
+
   /// Closes the window.
   ///
   virtual void close() = 0;
@@ -52,14 +56,6 @@ class Window {
   /// Resizes the window.
   ///
   virtual void resize(uint32_t width, uint32_t height) = 0;
-
-  /// Shows the window.
-  ///
-  virtual void show() = 0;
-
-  /// Hides the window.
-  ///
-  virtual void hide() = 0;
 
   /// Getters.
   ///

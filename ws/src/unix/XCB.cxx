@@ -20,7 +20,7 @@ INTERNAL_NS_BEGIN
 
 /// VarsXCB instance.
 ///
-VarsXCB vars{nullptr, 0, 0, 0, 0, 0, 0, 0};
+VarsXCB vars{nullptr, 0, 0, 0, 0, 0, 0, 0, 0, 0};
 
 /// Lib handle.
 ///
@@ -124,6 +124,8 @@ void WS_NS::initXCB() {
   auto screenIt = setupRootsIteratorXCB(setup);
   vars.visualId = screenIt.data->root_visual;
   vars.root = screenIt.data->root;
+  vars.whitePixel = screenIt.data->white_pixel;
+  vars.blackPixel = screenIt.data->black_pixel;
 
   // Get protocol atom
   atomCookie = internAtomXCB(conn, 0, strlen(protoName), protoName);

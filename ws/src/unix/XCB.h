@@ -20,6 +20,8 @@ struct VarsXCB {
   xcb_connection_t* connection;
   xcb_visualid_t visualId;
   xcb_window_t root;
+  uint32_t whitePixel;
+  uint32_t blackPixel;
   xcb_atom_t protocolAtom;
   xcb_atom_t deleteAtom;
   xcb_atom_t titleAtom;

@@ -13,8 +13,11 @@
 using namespace WS_NS;
 using namespace std;
 
-WindowXCB::WindowXCB(uint32_t width, uint32_t height, CreationMask mask)
-  : width_(width), height_(height), mask_(mask) {
+WindowXCB::WindowXCB(uint32_t width,
+                     uint32_t height,
+                     const wstring& title,
+                     CreationMask mask)
+  : width_(width), height_(height), title_(title), mask_(mask) {
 
   const auto& vars = varsXCB();
 
@@ -114,6 +117,10 @@ void WindowXCB::close() {
   mapped_ = false;
 }
 
+void WindowXCB::setTitle(const std::wstring& title) {
+  // TODO
+}
+
 void WindowXCB::toggleFullscreen() {
   // TODO
 }
@@ -148,4 +155,8 @@ uint32_t WindowXCB::width() const {
 
 uint32_t WindowXCB::height() const {
   return height_;
+}
+
+const wstring& WindowXCB::title() const {
+  return title_;
 }

@@ -14,6 +14,7 @@ TEST_NS_BEGIN
 
 Test* typesTest();
 Test* deviceTest();
+Test* queueTest();
 Test* bufferTest();
 Test* imageTest();
 Test* shaderTest();
@@ -21,12 +22,13 @@ Test* dcTableTest();
 Test* passTest();
 Test* stateTest();
 Test* encoderTest();
-Test* queueTest();
+Test* wsiTest();
 
 inline const std::vector<Test*>& unitTests() {
   static std::vector<Test*> tests{
-    typesTest(), deviceTest(), bufferTest(), imageTest(), shaderTest(),
-    dcTableTest(), passTest(), stateTest(), encoderTest(), queueTest()};
+    typesTest(), deviceTest(), queueTest(), bufferTest(),
+    imageTest(), shaderTest(), dcTableTest(), passTest(),
+    stateTest(), encoderTest(), wsiTest()};
 
   return tests;
 }

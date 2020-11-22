@@ -333,6 +333,14 @@ const VkPhysicalDeviceLimits& DeviceVK::limits() const {
   return physProperties_.limits;
 }
 
+Queue& DeviceVK::defaultQueue() {
+  return *queue_;
+}
+
+Queue& DeviceVK::queue(Queue::CapabilityMask) {
+  return *queue_;
+}
+
 Buffer::Ptr DeviceVK::makeBuffer(uint64_t size) {
   return make_unique<BufferVK>(size);
 }
@@ -372,10 +380,7 @@ CpState::Ptr DeviceVK::makeState(const CpState::Config& config) {
   return make_unique<CpStateVK>(config);
 }
 
-Queue& DeviceVK::defaultQueue() {
-  return *queue_;
-}
-
-Queue& DeviceVK::queue(Queue::CapabilityMask) {
-  return *queue_;
+Wsi::Ptr DeviceVK::makeWsi(WS_NS::Window* window) {
+  // TODO
+  throw runtime_error("Unimplemented");
 }

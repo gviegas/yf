@@ -26,6 +26,10 @@ class WindowXCB final : public Window {
   uint32_t height() const;
   const std::wstring& title() const;
 
+  /// Getter.
+  ///
+  xcb_window_t window() const;
+
  private:
   xcb_window_t window_ = 0;
   uint32_t width_ = 0;

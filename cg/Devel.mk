@@ -35,7 +35,7 @@ DEP := $(OBJ:.o=.d)
 CXX := /usr/bin/clang++
 CXX_FLAGS := -std=gnu++17 -Wpedantic -Wall -Wextra -g
 
-LD_LIBS := -ldl
+LD_LIBS := -ldl -lyf-ws
 LD_FLAGS := -iquote $(BASE_DIR) -iquote $(INCLUDE_DIR) -iquote $(SRC_DIR)
 
 PP := $(CXX) -E

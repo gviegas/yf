@@ -192,3 +192,7 @@ uint32_t WindowXCB::height() const {
 const wstring& WindowXCB::title() const {
   return title_;
 }
+
+xcb_window_t WindowXCB::window() const {
+  return window_;
+}

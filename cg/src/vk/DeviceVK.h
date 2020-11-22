@@ -22,6 +22,9 @@ class DeviceVK final : public Device {
 
   static DeviceVK& get();
 
+  Queue& defaultQueue();
+  Queue& queue(Queue::CapabilityMask capabilities);
+
   Buffer::Ptr makeBuffer(uint64_t size);
 
   Image::Ptr makeImage(PxFormat format,
@@ -43,8 +46,7 @@ class DeviceVK final : public Device {
   GrState::Ptr makeState(const GrState::Config& config);
   CpState::Ptr makeState(const CpState::Config& config);
 
-  Queue& defaultQueue();
-  Queue& queue(Queue::CapabilityMask capabilities);
+  Wsi::Ptr makeWsi(WS_NS::Window* window);
 
   /// Getters.
   ///

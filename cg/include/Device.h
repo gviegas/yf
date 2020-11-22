@@ -12,13 +12,14 @@
 #include <cstdint>
 
 #include "yf/cg/Defs.h"
+#include "yf/cg/Queue.h"
 #include "yf/cg/Buffer.h"
 #include "yf/cg/Image.h"
 #include "yf/cg/Shader.h"
 #include "yf/cg/DcTable.h"
 #include "yf/cg/Pass.h"
 #include "yf/cg/State.h"
-#include "yf/cg/Queue.h"
+#include "yf/cg/Wsi.h"
 
 CG_NS_BEGIN
 
@@ -28,9 +29,14 @@ class Device {
  public:
   virtual ~Device();
 
-  /// Retrieves the device instance.
+  /// Gets the device instance.
   ///
   static Device& get();
+
+  /// Gets execution queues.
+  ///
+  virtual Queue& defaultQueue() = 0;
+  virtual Queue& queue(Queue::CapabilityMask capabilities) = 0;
 
   /// Makes a new buffer object.
   ///
@@ -65,10 +71,9 @@ class Device {
   virtual GrState::Ptr makeState(const GrState::Config& config) = 0;
   virtual CpState::Ptr makeState(const CpState::Config& config) = 0;
 
-  /// Retrieves execution queues.
+  /// Makes a new wsi object.
   ///
-  virtual Queue& defaultQueue() = 0;
-  virtual Queue& queue(Queue::CapabilityMask capabilities) = 0;
+  virtual Wsi::Ptr makeWsi(WS_NS::Window* window) = 0;
 };
 
 CG_NS_END

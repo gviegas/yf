@@ -11,10 +11,17 @@
 #define WS_LIBXCB "libxcb.so"
 
 #include "XCB.h"
+#include "Platform.h"
 #include "yf/Except.h"
 
 using namespace WS_NS;
 using namespace std;
+
+WS_NS_BEGIN
+
+void setPlatform(Platform);
+
+WS_NS_END
 
 INTERNAL_NS_BEGIN
 
@@ -200,6 +207,8 @@ void WS_NS::initXCB() {
   }
 
   vars.connection = conn;
+
+  setPlatform(PlatformXCB);
 }
 
 void WS_NS::deinitXCB() {
@@ -209,6 +218,8 @@ void WS_NS::deinitXCB() {
   }
 
   unloadXCB();
+
+  setPlatform(PlatformNone);
 }
 
 WS_NS_BEGIN

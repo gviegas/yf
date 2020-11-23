@@ -21,7 +21,17 @@ class WsiVK final : Wsi {
   Image* nextImage();
   void present();
 
+  /// Checks whether a given physical device supports presentation.
+  ///
+  static bool checkPhysicalDevice(VkPhysicalDevice device, int32_t family);
+
+  /// Sets the presentation queue.
+  ///
+  static void setQueue(VkQueue queue, int32_t family);
+
  private:
+  static VkQueue queue_;
+  static int32_t family_;
   VkSurfaceKHR surface_ = VK_NULL_HANDLE;
   VkSwapchainKHR swapchain_ = VK_NULL_HANDLE;
   std::vector<Image*> images_{};

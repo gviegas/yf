@@ -35,7 +35,7 @@ void* libHandle = nullptr;
 
 /// Loads XCB lib and set dynamic symbols.
 ///
-void loadXCB() {
+inline void loadXCB() {
   if (libHandle)
     return;
 
@@ -77,7 +77,7 @@ if (!fp) { \
 
 /// Unloads XCB lib.
 ///
-void unloadXCB() {
+inline void unloadXCB() {
   if (libHandle) {
     dlclose(libHandle);
     libHandle = nullptr;

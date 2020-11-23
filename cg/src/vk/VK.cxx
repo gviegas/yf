@@ -117,6 +117,18 @@ void CG_NS::setProcsVK(VkInstance instance) {
     CG_INSTPROCVK(instance, vkGetPhysicalDeviceSurfaceCapabilitiesKHR);
     CG_INSTPROCVK(instance, vkGetPhysicalDeviceSurfaceFormatsKHR);
     CG_INSTPROCVK(instance, vkGetPhysicalDeviceSurfacePresentModesKHR);
+#ifdef VK_USE_PLATFORM_WAYLAND_KHR
+    CG_INSTPROCVK(instance, vkCreateWaylandSurfaceKHR);
+#endif
+#ifdef VK_USE_PLATFORM_WIN32_KHR
+    CG_INSTPROCVK(instance, vkCreateWin32SurfaceKHR);
+#endif
+#ifdef VK_USE_PLATFORM_XCB_KHR
+    CG_INSTPROCVK(instance, vkCreateXcbSurfaceKHR);
+#endif
+#ifdef VK_USE_PLATFORM_METAL_EXT
+    CG_INSTPROCVK(instance, vkCreateMetalSurfaceEXT);
+#endif
     CG_INSTPROCVK(instance, vkGetDeviceProcAddr);
   }
 }
@@ -272,6 +284,18 @@ CG_DEFVK(vkGetPhysicalDeviceSurfaceSupportKHR); // VK_KHR_surface
 CG_DEFVK(vkGetPhysicalDeviceSurfaceCapabilitiesKHR); // VK_KHR_surface
 CG_DEFVK(vkGetPhysicalDeviceSurfaceFormatsKHR); // VK_KHR_surface
 CG_DEFVK(vkGetPhysicalDeviceSurfacePresentModesKHR); // VK_KHR_surface
+#ifdef VK_USE_PLATFORM_WAYLAND_KHR
+CG_DEFVK(vkCreateWaylandSurfaceKHR); // VK_KHR_wayland_surface
+#endif
+#ifdef VK_USE_PLATFORM_WIN32_KHR
+CG_DEFVK(vkCreateWin32SurfaceKHR); // VK_KHR_win32_surface
+#endif
+#ifdef VK_USE_PLATFORM_XCB_KHR
+CG_DEFVK(vkCreateXcbSurfaceKHR); // VK_KHR_xcb_surface
+#endif
+#ifdef VK_USE_PLATFORM_METAL_EXT
+CG_DEFVK(vkCreateMetalSurfaceEXT); // VK_EXT_metal_surface
+#endif
 
 /// Device-level procedures.
 ///

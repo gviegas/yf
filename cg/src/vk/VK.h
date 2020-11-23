@@ -83,12 +83,15 @@ CG_DECLVK(vkGetPhysicalDeviceSurfaceFormatsKHR); // VK_KHR_surface
 CG_DECLVK(vkGetPhysicalDeviceSurfacePresentModesKHR); // VK_KHR_surface
 #ifdef VK_USE_PLATFORM_WAYLAND_KHR
 CG_DECLVK(vkCreateWaylandSurfaceKHR); // VK_KHR_wayland_surface
+CG_DECLVK(vkGetPhysicalDeviceWaylandPresentationSupportKHR); // VK_KHR_wayland_surface
 #endif
 #ifdef VK_USE_PLATFORM_WIN32_KHR
 CG_DECLVK(vkCreateWin32SurfaceKHR); // VK_KHR_win32_surface
+CG_DECLVK(vkGetPhysicalDeviceWin32PresentationSupportKHR); // VK_KHR_win32_surface
 #endif
 #ifdef VK_USE_PLATFORM_XCB_KHR
 CG_DECLVK(vkCreateXcbSurfaceKHR); // VK_KHR_xcb_surface
+CG_DECLVK(vkGetPhysicalDeviceXcbPresentationSupportKHR); // VK_KHR_xcb_surface
 #endif
 #ifdef VK_USE_PLATFORM_METAL_EXT
 CG_DECLVK(vkCreateMetalSurfaceEXT); // VK_EXT_metal_surface

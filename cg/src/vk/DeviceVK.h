@@ -69,7 +69,7 @@ class DeviceVK final : public Device {
   bool checkDeviceExtensions();
   void initInstance();
   void initPhysicalDevice();
-  void initDevice(int32_t);
+  void initDevice(int32_t, int32_t);
 
   VkInstance instance_ = nullptr;
   uint32_t instVersion_ = 0;

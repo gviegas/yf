@@ -23,7 +23,7 @@ class CmdBufferVK;
 
 class QueueVK final : public Queue {
  public:
-  QueueVK(int32_t family, VkQueue handle);
+  QueueVK(VkQueue handle, int32_t family);
   ~QueueVK();
 
   CmdBuffer::Ptr makeCmdBuffer();
@@ -45,8 +45,8 @@ class QueueVK final : public Queue {
   VkCommandPool initPool();
   void deinitPool(VkCommandPool);
 
-  int32_t family_ = -1;
   VkQueue handle_ = nullptr;
+  int32_t family_ = -1;
   std::unordered_map<CmdBufferVK*, VkCommandPool> pools_{};
   std::unordered_set<CmdBufferVK*> pending_{};
 

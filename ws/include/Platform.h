@@ -25,9 +25,11 @@ WS_NS_BEGIN
 /// Platforms.
 ///
 enum Platform {
-  // TODO: other platforms
   PlatformNone,
-  PlatformXCB
+  PlatformWL,
+  PlatformW32,
+  PlatformXCB,
+  PlatformMAC
 };
 
 /// Identifies the platform at runtime.

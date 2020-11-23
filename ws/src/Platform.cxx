@@ -23,11 +23,26 @@ WS_NS_BEGIN
 
 /// Sets the current platform.
 ///
+/// System-specific `init*()` will call this function.
+///
 void setPlatform(Platform pfm) {
   curPfm = pfm;
 }
 
 Platform platform() {
+  // Try to initialize a platform if have none
+  if (curPfm == PlatformNone) {
+#if defined(__linux__)
+    if (getenv("WAYLAND_DISPLAY"))
+      // TODO: replace with `initWL` when implemented
+      initXCB();
+    else if (getenv("DISPLAY"))
+      initXCB();
+#else
+// TODO: other systems
+#endif
+  }
+
   return curPfm;
 }
 

@@ -31,9 +31,7 @@ DeviceVK& DeviceVK::get() {
 }
 
 DeviceVK::DeviceVK() {
-  if (!initVK())
-    throw runtime_error("Failed to initialize VK lib");
-
+  initVK();
   initInstance();
 }
 
@@ -44,8 +42,8 @@ DeviceVK::~DeviceVK() {
     delete queue_;
     vkDestroyDevice(device_, nullptr);
   }
-  if (instance_ != nullptr)
-    vkDestroyInstance(instance_, nullptr);
+  vkDestroyInstance(instance_, nullptr);
+  deinitVK();
 }
 
 bool DeviceVK::checkInstanceExtensions() {

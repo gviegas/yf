@@ -35,24 +35,22 @@ void* libHandle = nullptr;
 #if defined(__linux__) || defined(__APPLE__)
 /// Loads VK lib and retrieves `vkGetInstanceProcAddr` symbol.
 ///
-inline bool loadVK() {
+inline void loadVK() {
   if (libHandle)
-    return true;
+    return;
 
   void* handle = dlopen(CG_LIBVK, RTLD_LAZY);
   if (!handle)
-    return false;
+    throw runtime_error("Could not open VK lib");
 
   void* sym = dlsym(handle, "vkGetInstanceProcAddr");
   if (!sym) {
     dlclose(handle);
-    return false;
+    throw runtime_error("Could not load VK symbol: vkGetInstanceProcAddr");
   }
 
   libHandle = handle;
   vkGetInstanceProcAddr = reinterpret_cast<PFN_vkGetInstanceProcAddr>(sym);
-
-  return true;
 }
 
 /// Unloads VK lib.
@@ -83,13 +81,13 @@ inline void unloadVK() {
 
 INTERNAL_NS_END
 
-bool CG_NS::initVK() {
-  return loadVK();
+void CG_NS::initVK() {
+  loadVK();
 }
 
 void CG_NS::setProcsVK(VkInstance instance) {
-  if (!libHandle && !loadVK())
-    throw runtime_error("Failed to load VK lib");
+  if (!libHandle)
+    loadVK();
 
   if (!instance) {
     CG_INSTPROCVK(nullptr, vkGetInstanceProcAddr);
@@ -140,8 +138,8 @@ void CG_NS::setProcsVK(VkDevice device) {
   if (!device)
     throw invalid_argument("setProcsVK() expects a valid device handle");
 
-  if (!libHandle || !loadVK())
-    throw runtime_error("Failed to load VK lib");
+  if (!libHandle)
+    loadVK();
 
   CG_DEVPROCVK(device, vkGetDeviceProcAddr);
   CG_DEVPROCVK(device, vkDestroyDevice);

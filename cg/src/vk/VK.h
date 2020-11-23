@@ -29,7 +29,7 @@ CG_NS_BEGIN
 
 /// Initializes VK.
 ///
-bool initVK();
+void initVK();
 
 /// Sets VK instance-level procedures (null/non-null instance).
 ///

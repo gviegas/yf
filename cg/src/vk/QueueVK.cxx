@@ -24,11 +24,11 @@ using namespace std;
 // ------------------------------------------------------------------------
 // QueueVK
 
-QueueVK::QueueVK(int32_t family, VkQueue handle)
-  : Queue(Graphics|Compute|Transfer), family_(family), handle_(handle) {
+QueueVK::QueueVK(VkQueue handle, int32_t family)
+  : Queue(Graphics|Compute|Transfer), handle_(handle), family_(family) {
 
-  assert(family > -1);
   assert(handle != nullptr);
+  assert(family > -1);
 
   // XXX: `DeviceVK` not fully constructed yet
 }

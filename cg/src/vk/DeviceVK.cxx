@@ -19,6 +19,7 @@
 #include "DcTableVK.h"
 #include "PassVK.h"
 #include "StateVK.h"
+#include "WsiVK.h"
 #include "yf/Except.h"
 
 using namespace CG_NS;
@@ -53,17 +54,18 @@ bool DeviceVK::checkInstanceExtensions() {
   setProcsVK(static_cast<VkInstance>(nullptr));
 
   // Set required extensions
-  instExtensions_.push_back(VK_KHR_DEVICE_GROUP_CREATION_EXTENSION_NAME);
   instExtensions_.push_back(VK_KHR_SURFACE_EXTENSION_NAME);
-#if defined(__linux__)
+#ifdef VK_USE_PLATFORM_WAYLAND_KHR
   instExtensions_.push_back(VK_KHR_WAYLAND_SURFACE_EXTENSION_NAME);
-  instExtensions_.push_back(VK_KHR_XCB_SURFACE_EXTENSION_NAME);
-#elif defined(__APPLE__)
-  instExtensions_.push_back(VK_EXT_METAL_SURFACE_EXTENSION_NAME);
-#elif defined(_WIN32)
+#endif
+#ifdef VK_USE_PLATFORM_WIN32_KHR
   instExtensions_.push_back(VK_KHR_WIN32_SURFACE_EXTENSION_NAME);
-#else
-# error "Invalid platform"
+#endif
+#ifdef VK_USE_PLATFORM_XCB_KHR
+  instExtensions_.push_back(VK_KHR_XCB_SURFACE_EXTENSION_NAME);
+#endif
+#ifdef VK_USE_PLATFORM_METAL_EXT
+  instExtensions_.push_back(VK_EXT_METAL_SURFACE_EXTENSION_NAME);
 #endif
 
   // Get available extensions
@@ -207,6 +209,7 @@ void DeviceVK::initPhysicalDevice() {
 
   // Find a physical device that supports both graphics and compute
   int32_t queueFamily = -1;
+  int32_t presFamily = -1;
   for (const auto& p : physProps) {
     vector<VkQueueFamilyProperties> families;
     uint32_t familyN;
@@ -232,6 +235,16 @@ void DeviceVK::initPhysicalDevice() {
     if (queueFamily > -1) {
       physicalDev_ = phys[p.first];
       physProperties_ = p.second;
+
+      // Find a queue family on this device that supports presentation
+      for (uint32_t i = 0; i < familyN; ++i) {
+        auto nextFamily = (queueFamily + i) % familyN;
+        if (WsiVK::checkPhysicalDevice(physicalDev_, nextFamily)) {
+          presFamily = nextFamily;
+          break;
+        }
+      }
+
       break;
     }
   }
@@ -242,10 +255,10 @@ void DeviceVK::initPhysicalDevice() {
   vkGetPhysicalDeviceMemoryProperties(physicalDev_, &memProperties_);
 
   // Now the logical device can be initialized
-  initDevice(queueFamily);
+  initDevice(queueFamily, presFamily);
 }
 
-void DeviceVK::initDevice(int32_t queueFamily) {
+void DeviceVK::initDevice(int32_t queueFamily, int32_t presFamily) {
   assert(queueFamily > -1);
   assert(physicalDev_ != nullptr);
   assert(device_ == nullptr);
@@ -254,23 +267,28 @@ void DeviceVK::initDevice(int32_t queueFamily) {
   if (!checkDeviceExtensions())
     throw UnsupportedExcept("Missing required device extension(s)");
 
-  // Define queue
+  // Define queues
   const float queuePrio = 0.0f;
-  VkDeviceQueueCreateInfo queueInfo;
-  queueInfo.sType = VK_STRUCTURE_TYPE_DEVICE_QUEUE_CREATE_INFO;
-  queueInfo.pNext = nullptr;
-  queueInfo.flags = 0;
-  queueInfo.queueFamilyIndex = queueFamily;
-  queueInfo.queueCount = 1;
-  queueInfo.pQueuePriorities = &queuePrio;
+  vector<VkDeviceQueueCreateInfo> queueInfos{1};
+  queueInfos[0].sType = VK_STRUCTURE_TYPE_DEVICE_QUEUE_CREATE_INFO;
+  queueInfos[0].pNext = nullptr;
+  queueInfos[0].flags = 0;
+  queueInfos[0].queueFamilyIndex = queueFamily;
+  queueInfos[0].queueCount = 1;
+  queueInfos[0].pQueuePriorities = &queuePrio;
+
+  if (presFamily > -1 && presFamily != queueFamily) {
+    queueInfos.push_back(queueInfos[0]);
+    queueInfos[1].queueFamilyIndex = presFamily;
+  }
 
   // Create device
   VkDeviceCreateInfo devInfo;
   devInfo.sType = VK_STRUCTURE_TYPE_DEVICE_CREATE_INFO;
   devInfo.pNext = nullptr;
   devInfo.flags = 0;
-  devInfo.queueCreateInfoCount = 1;
-  devInfo.pQueueCreateInfos = &queueInfo;
+  devInfo.queueCreateInfoCount = queueInfos.size();
+  devInfo.pQueueCreateInfos = queueInfos.data();
   devInfo.enabledLayerCount = 0;
   devInfo.ppEnabledLayerNames = nullptr;
   devInfo.enabledExtensionCount = devExtensions_.size();
@@ -286,7 +304,15 @@ void DeviceVK::initDevice(int32_t queueFamily) {
   setProcsVK(device_);
   VkQueue queue;
   vkGetDeviceQueue(device_, queueFamily, 0, &queue);
-  queue_ = new QueueVK(queueFamily, queue);
+  queue_ = new QueueVK(queue, queueFamily);
+  if (presFamily < 0) {
+    // Cannot present
+    WsiVK::setQueue(nullptr, -1);
+  } else {
+    if (presFamily != queueFamily)
+      vkGetDeviceQueue(device_, presFamily, 0, &queue);
+    WsiVK::setQueue(queue, presFamily);
+  }
 }
 
 VkInstance DeviceVK::instance() const {

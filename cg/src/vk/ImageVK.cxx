@@ -21,7 +21,7 @@ ImageVK::ImageVK(PxFormat format,
                  uint32_t layers,
                  uint32_t levels,
                  Samples samples)
-  : Image(format, size, layers, levels, samples) {
+  : Image(format, size, layers, levels, samples), owned_(true) {
 
   if (size == 0)
     throw invalid_argument("ImageVK requires size != 0");
@@ -135,11 +135,43 @@ ImageVK::ImageVK(PxFormat format,
   }
 }
 
+ImageVK::ImageVK(PxFormat format,
+                 Size2 size,
+                 uint32_t layers,
+                 uint32_t levels,
+                 Samples samples,
+                 VkImageType type,
+                 VkImageTiling tiling,
+                 VkImageUsageFlags usage,
+                 VkImage handle,
+                 void* data,
+                 VkImageLayout layout,
+                 bool owned)
+  : Image(format, size, layers, levels, samples), owned_(owned),
+    type_(type), tiling_(tiling), usage_(usage), handle_(handle),
+    data_(data), layout_(layout), nextLayout_(layout) {
+
+  if (size == 0)
+    throw invalid_argument("ImageVK requires size != 0");
+  if (layers == 0)
+    throw invalid_argument("ImageVK requires layers != 0");
+  if (levels == 0)
+    throw invalid_argument("ImageVK requires levels != 0");
+  if (toFormatVK(format) == VK_FORMAT_UNDEFINED)
+    throw invalid_argument("ImageVK requires a valid format");
+  if (handle == VK_NULL_HANDLE)
+    throw invalid_argument("ImageVK requires a valid handle");
+  if (tiling == VK_IMAGE_TILING_LINEAR && !data)
+    throw invalid_argument("ImageVK linear tiling requires non-null data");
+}
+
 ImageVK::~ImageVK() {
   // TODO: notify
-  auto dev = DeviceVK::get().device();
-  vkDestroyImage(dev, handle_, nullptr);
-  deallocateVK(memory_);
+  if (owned_) {
+    auto dev = DeviceVK::get().device();
+    vkDestroyImage(dev, handle_, nullptr);
+    deallocateVK(memory_);
+  }
 }
 
 void ImageVK::write(Offset2 offset,

@@ -24,6 +24,21 @@ class ImageVK final : public Image {
           uint32_t levels,
           Samples samples);
 
+  /// Wraps an existing `VkImage` on a `ImageVK` object.
+  ///
+  ImageVK(PxFormat format,
+          Size2 size,
+          uint32_t layers,
+          uint32_t levels,
+          Samples samples,
+          VkImageType type,
+          VkImageTiling tiling,
+          VkImageUsageFlags usage,
+          VkImage handle,
+          void* data,
+          VkImageLayout layout,
+          bool owned);
+
   ~ImageVK();
 
   void write(Offset2 offset,
@@ -73,6 +88,7 @@ class ImageVK final : public Image {
                     uint32_t levelCount);
 
  private:
+  const bool owned_ = true;
   VkImageType type_ = VK_IMAGE_TYPE_2D;
   VkImageTiling tiling_ = VK_IMAGE_TILING_OPTIMAL;
   VkImageUsageFlags usage_ = 0;

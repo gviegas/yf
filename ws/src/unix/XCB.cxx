@@ -87,13 +87,16 @@ void unloadXCB() {
 INTERNAL_NS_END
 
 const VarsXCB& WS_NS::varsXCB() {
-  if (!libHandle)
+  if (!vars.connection)
     initXCB();
 
   return vars;
 }
 
 void WS_NS::initXCB() {
+  if (vars.connection)
+    return;
+
   loadXCB();
 
   const char protoName[] = "WM_PROTOCOLS";

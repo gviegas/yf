@@ -6,9 +6,11 @@
 //
 
 #include <cassert>
+#include <array>
 
 #include "WsiVK.h"
 #include "DeviceVK.h"
+#include "ImageVK.h"
 #include "yf/ws/Platform.h"
 #include "yf/Except.h"
 
@@ -188,7 +190,59 @@ void WsiVK::initSwapchain() {
   assert(surface_ != VK_NULL_HANDLE);
   assert(swapchain_ == VK_NULL_HANDLE);
 
-  // TODO
+  auto physDev = DeviceVK::get().physicalDev();
+  VkResult res;
+
+  // Get surface capabilities
+  VkSurfaceCapabilitiesKHR capab;
+  res = vkGetPhysicalDeviceSurfaceCapabilitiesKHR(physDev, surface_, &capab);
+  if (res != VK_SUCCESS)
+    throw DeviceExcept("Could not query surface capabilities");
+
+  // Get surface formats
+  vector<VkSurfaceFormatKHR> fmts;
+  uint32_t fmtN;
+  res = vkGetPhysicalDeviceSurfaceFormatsKHR(physDev, surface_, &fmtN, nullptr);
+  if (res != VK_SUCCESS)
+    throw DeviceExcept("Could not query surface formats");
+  fmts.resize(fmtN);
+  res = vkGetPhysicalDeviceSurfaceFormatsKHR(physDev, surface_, &fmtN,
+                                             fmts.data());
+  if (res != VK_SUCCESS)
+    throw DeviceExcept("Could not query surface formats");
+
+  // Choose a suitable format for the swapchain
+  array<VkFormat, 2> prefFmts{VK_FORMAT_B8G8R8A8_SRGB, VK_FORMAT_R8G8B8A8_SRGB};
+
+  auto fmtIt = find_first_of(fmts.begin(), fmts.end(),
+                             prefFmts.begin(), prefFmts.end(),
+                             [](const auto& fmt, const auto& pref) {
+                               return fmt.format == pref &&
+                                      fmt.colorSpace ==
+                                      VK_COLOR_SPACE_SRGB_NONLINEAR_KHR; });
+
+  if (fmtIt == fmts.end()) {
+    fmtIt = find_if(fmts.begin(), fmts.end(),
+                    [](const auto& fmt) { return fromFormatVK(fmt.format) !=
+                                                 PxFormatUndefined; });
+    if (fmtIt == fmts.end())
+      throw UnsupportedExcept("No supported format found for swapchain");
+  }
+
+  // Get surface presentation modes
+  vector<VkPresentModeKHR> presModes;
+  uint32_t presModeN;
+  res = vkGetPhysicalDeviceSurfacePresentModesKHR(physDev, surface_, &presModeN,
+                                                  nullptr);
+  if (res != VK_SUCCESS)
+    throw DeviceExcept("Could not query surface present modes");
+  presModes.resize(presModeN);
+  res = vkGetPhysicalDeviceSurfacePresentModesKHR(physDev, surface_, &presModeN,
+                                                  presModes.data());
+  if (res != VK_SUCCESS)
+    throw DeviceExcept("Could not query surface present modes");
+
+  // TODO...
 }
 
 const vector<Image*>& WsiVK::images() const {

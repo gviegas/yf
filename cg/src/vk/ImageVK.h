@@ -130,10 +130,46 @@ class SamplerVK final {
 ///
 inline VkFormat toFormatVK(PxFormat pxFormat) {
   switch (pxFormat) {
-  case PxFormatUndefined:  return VK_FORMAT_UNDEFINED;
-  case PxFormatBgra8Srgb:  return VK_FORMAT_B8G8R8A8_SRGB;
+  case PxFormatUndefined: return VK_FORMAT_UNDEFINED;
+
+  case PxFormatR8Unorm: return VK_FORMAT_R8_UNORM;
+  case PxFormatR8Uint:  return VK_FORMAT_R8_UINT;
+  case PxFormatR8Srgb:  return VK_FORMAT_R8_SRGB;
+
+  case PxFormatRg8Unorm: return VK_FORMAT_R8G8_UNORM;
+  case PxFormatRg8Uint:  return VK_FORMAT_R8G8_UINT;
+  case PxFormatRg8Srgb:  return VK_FORMAT_R8G8_SRGB;
+
+  case PxFormatRgb8Unorm: return VK_FORMAT_R8G8B8_UNORM;
+  case PxFormatRgb8Uint:  return VK_FORMAT_R8G8B8_UINT;
+  case PxFormatRgb8Srgb:  return VK_FORMAT_R8G8B8_SRGB;
+  case PxFormatBgr8Unorm: return VK_FORMAT_B8G8R8_UNORM;
+  case PxFormatBgr8Uint:  return VK_FORMAT_B8G8R8_UINT;
+  case PxFormatBgr8Srgb:  return VK_FORMAT_B8G8R8_SRGB;
+
   case PxFormatRgba8Unorm: return VK_FORMAT_R8G8B8A8_UNORM;
-  case PxFormatD16Unorm:   return VK_FORMAT_D16_UNORM;
+  case PxFormatRgba8Uint:  return VK_FORMAT_R8G8B8A8_UINT;
+  case PxFormatRgba8Srgb:  return VK_FORMAT_R8G8B8A8_SRGB;
+  case PxFormatBgra8Unorm: return VK_FORMAT_B8G8R8A8_UNORM;
+  case PxFormatBgra8Uint:  return VK_FORMAT_B8G8R8A8_UINT;
+  case PxFormatBgra8Srgb:  return VK_FORMAT_B8G8R8A8_SRGB;
+
+  case PxFormatR16Unorm: return VK_FORMAT_R16_UNORM;
+  case PxFormatR16Uint:  return VK_FORMAT_R16_UINT;
+
+  case PxFormatRg16Unorm: return VK_FORMAT_R16G16_UNORM;
+  case PxFormatRg16Uint:  return VK_FORMAT_R16G16_UINT;
+
+  case PxFormatR32Uint: return VK_FORMAT_R32_UINT;
+  case PxFormatR32Flt:  return VK_FORMAT_R32_SFLOAT;
+
+  case PxFormatD16Unorm: return VK_FORMAT_D16_UNORM;
+  case PxFormatD32Flt:   return VK_FORMAT_D32_SFLOAT;
+
+  case PxFormatS8Uint: return VK_FORMAT_S8_UINT;
+
+  case PxFormatD16UnormS8Uint: return VK_FORMAT_D16_UNORM_S8_UINT;
+  case PxFormatD24UnormS8Uint: return VK_FORMAT_D24_UNORM_S8_UINT;
   }
 }
 

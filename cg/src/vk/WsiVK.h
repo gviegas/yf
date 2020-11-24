@@ -30,6 +30,9 @@ class WsiVK final : Wsi {
   static void setQueue(VkQueue queue, int32_t family);
 
  private:
+  void initSurface();
+  void initSwapchain();
+
   static VkQueue queue_;
   static int32_t family_;
   VkSurfaceKHR surface_ = VK_NULL_HANDLE;

@@ -19,11 +19,46 @@ CG_NS_BEGIN
 /// Pixel formats.
 ///
 enum PxFormat {
-  // TODO
   PxFormatUndefined,
-  PxFormatBgra8Srgb,
+
+  PxFormatR8Unorm,
+  PxFormatR8Uint,
+  PxFormatR8Srgb,
+
+  PxFormatRg8Unorm,
+  PxFormatRg8Uint,
+  PxFormatRg8Srgb,
+
+  PxFormatRgb8Unorm,
+  PxFormatRgb8Uint,
+  PxFormatRgb8Srgb,
+  PxFormatBgr8Unorm,
+  PxFormatBgr8Uint,
+  PxFormatBgr8Srgb,
+
   PxFormatRgba8Unorm,
-  PxFormatD16Unorm
+  PxFormatRgba8Uint,
+  PxFormatRgba8Srgb,
+  PxFormatBgra8Unorm,
+  PxFormatBgra8Uint,
+  PxFormatBgra8Srgb,
+
+  PxFormatR16Unorm,
+  PxFormatR16Uint,
+
+  PxFormatRg16Unorm,
+  PxFormatRg16Uint,
+
+  PxFormatR32Uint,
+  PxFormatR32Flt,
+
+  PxFormatD16Unorm,
+  PxFormatD32Flt,
+
+  PxFormatS8Uint,
+
+  PxFormatD16UnormS8Uint,
+  PxFormatD24UnormS8Uint
 };
 
 /// Sample count.

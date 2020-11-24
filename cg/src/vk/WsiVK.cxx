@@ -87,6 +87,8 @@ int32_t WsiVK::family_ = -1;
 WsiVK::WsiVK(WS_NS::Window* window) : Wsi(window) {
   if (!window_)
     throw invalid_argument("WsiVK requires a valid window object");
+  if (!queue_ || family_ < 0)
+    throw UnsupportedExcept("Wsi not supported");
 
   initSurface();
   initSwapchain();
@@ -101,6 +103,7 @@ void WsiVK::initSurface() {
 
   auto pfm = WS_NS::platform();
   auto inst = DeviceVK::get().instance();
+  VkResult res;
 
 #if defined(VK_USE_PLATFORM_WAYLAND_KHR)
 // Wayland and XCB
@@ -118,7 +121,7 @@ void WsiVK::initSurface() {
       WS_NS::connectionXCB(),
       WS_NS::windowXCB(window_)
     };
-    auto res = vkCreateXcbSurfaceKHR(inst, &info, nullptr, &surface_);
+    res = vkCreateXcbSurfaceKHR(inst, &info, nullptr, &surface_);
     if (res != VK_SUCCESS)
       throw DeviceExcept("Could not create XCB surface");
     } break;
@@ -154,7 +157,7 @@ void WsiVK::initSurface() {
     WS_NS::connectionXCB(),
     WS_NS::windowXCB(window_)
   };
-  auto res = vkCreateXcbSurfaceKHR(inst, &info, nullptr, &surface_);
+  res = vkCreateXcbSurfaceKHR(inst, &info, nullptr, &surface_);
   if (res != VK_SUCCESS)
     throw DeviceExcept("Could not create XCB surface");
 
@@ -169,6 +172,16 @@ void WsiVK::initSurface() {
 #else
 # error "Invalid platform"
 #endif // defined(VK_USE_PLATFORM_WAYLAND_KHR)
+
+  // Check presentation support
+  auto physDev = DeviceVK::get().physicalDev();
+  VkBool32 supported;
+  res = vkGetPhysicalDeviceSurfaceSupportKHR(physDev, family_, surface_,
+                                             &supported);
+  if (res != VK_SUCCESS)
+    throw DeviceExcept("Could not check presentation support for surface");
+  if (!supported)
+    throw UnsupportedExcept("Surface does not support presentation");
 }
 
 void WsiVK::initSwapchain() {

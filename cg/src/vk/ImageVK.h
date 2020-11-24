@@ -193,11 +193,43 @@ inline VkImageAspectFlags aspectOfVK(PxFormat pxFormat) {
   switch (pxFormat) {
   case PxFormatUndefined:
     return 0;
-  case PxFormatBgra8Srgb:
+
+  case PxFormatR8Unorm:
+  case PxFormatR8Uint:
+  case PxFormatR8Srgb:
+  case PxFormatRg8Unorm:
+  case PxFormatRg8Uint:
+  case PxFormatRg8Srgb:
+  case PxFormatRgb8Unorm:
+  case PxFormatRgb8Uint:
+  case PxFormatRgb8Srgb:
+  case PxFormatBgr8Unorm:
+  case PxFormatBgr8Uint:
+  case PxFormatBgr8Srgb:
   case PxFormatRgba8Unorm:
+  case PxFormatRgba8Uint:
+  case PxFormatRgba8Srgb:
+  case PxFormatBgra8Unorm:
+  case PxFormatBgra8Uint:
+  case PxFormatBgra8Srgb:
+  case PxFormatR16Unorm:
+  case PxFormatR16Uint:
+  case PxFormatRg16Unorm:
+  case PxFormatRg16Uint:
+  case PxFormatR32Uint:
+  case PxFormatR32Flt:
     return VK_IMAGE_ASPECT_COLOR_BIT;
+
   case PxFormatD16Unorm:
+  case PxFormatD32Flt:
     return VK_IMAGE_ASPECT_DEPTH_BIT;
+
+  case PxFormatS8Uint:
+    return VK_IMAGE_ASPECT_STENCIL_BIT;
+
+  case PxFormatD16UnormS8Uint:
+  case PxFormatD24UnormS8Uint:
+    return VK_IMAGE_ASPECT_DEPTH_BIT | VK_IMAGE_ASPECT_STENCIL_BIT;
   }
 }
 

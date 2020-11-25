@@ -31,14 +31,17 @@ class WsiVK final : Wsi {
 
  private:
   void initSurface();
-  void initSwapchain();
+  void querySurface();
+  void createSwapchain();
 
   static VkQueue queue_;
   static int32_t family_;
   VkSurfaceKHR surface_ = VK_NULL_HANDLE;
   VkSwapchainKHR swapchain_ = VK_NULL_HANDLE;
+  VkSwapchainCreateInfoKHR scInfo_{};
   std::vector<Image*> images_{};
   int32_t next_ = -1;
+  VkSemaphore nextSem_ = VK_NULL_HANDLE;
 };
 
 CG_NS_END

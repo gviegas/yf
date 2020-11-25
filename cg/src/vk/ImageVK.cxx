@@ -16,6 +16,9 @@
 using namespace CG_NS;
 using namespace std;
 
+// ------------------------------------------------------------------------
+// ImageVK
+
 ImageVK::ImageVK(PxFormat format,
                  Size2 size,
                  uint32_t layers,
@@ -225,23 +228,39 @@ void ImageVK::changeLayout(VkImageLayout newLayout, bool defer) {
   if (layout_ != nextLayout_)
     throw runtime_error("Multiple layout transitions requested");
 
-  nextLayout_ = newLayout;
+  VkImageMemoryBarrier barrier;
+  barrier.sType = VK_STRUCTURE_TYPE_IMAGE_MEMORY_BARRIER;
+  barrier.pNext = nullptr;
+  barrier.srcAccessMask = VK_ACCESS_MEMORY_WRITE_BIT;
+  barrier.dstAccessMask = VK_ACCESS_MEMORY_READ_BIT;
+  barrier.oldLayout = layout_;
+  barrier.newLayout = newLayout;
+  barrier.srcQueueFamilyIndex = VK_QUEUE_FAMILY_IGNORED;
+  barrier.dstQueueFamilyIndex = VK_QUEUE_FAMILY_IGNORED;
+  barrier.image = handle_;
+  barrier.subresourceRange.aspectMask = aspectOfVK(format_);
+  barrier.subresourceRange.baseMipLevel = 0;
+  barrier.subresourceRange.levelCount = levels_;
+  barrier.subresourceRange.baseArrayLayer = 0;
+  barrier.subresourceRange.layerCount = layers_;
 
-  VkImageMemoryBarrier imb;
-  imb.sType = VK_STRUCTURE_TYPE_IMAGE_MEMORY_BARRIER;
-  imb.pNext = nullptr;
-  imb.srcAccessMask = VK_ACCESS_MEMORY_WRITE_BIT;
-  imb.dstAccessMask = VK_ACCESS_MEMORY_READ_BIT;
-  imb.oldLayout = layout_;
-  imb.newLayout = newLayout;
-  imb.srcQueueFamilyIndex = VK_QUEUE_FAMILY_IGNORED;
-  imb.dstQueueFamilyIndex = VK_QUEUE_FAMILY_IGNORED;
-  imb.image = handle_;
-  imb.subresourceRange.aspectMask = aspectOfVK(format_);
-  imb.subresourceRange.baseMipLevel = 0;
-  imb.subresourceRange.levelCount = levels_;
-  imb.subresourceRange.baseArrayLayer = 0;
-  imb.subresourceRange.layerCount = layers_;
+  barrier_ = barrier;
+  changeLayout(defer);
+}
+
+void ImageVK::changeLayout(const VkImageMemoryBarrier& barrier, bool defer) {
+  if (nextLayout_ == barrier.newLayout)
+    return;
+
+  if (layout_ != nextLayout_)
+    throw runtime_error("Multiple layout transitions requested");
+
+  barrier_ = barrier;
+  changeLayout(defer);
+}
+
+void ImageVK::changeLayout(bool defer) {
+  nextLayout_ = barrier_.newLayout;
 
   auto& queue = static_cast<QueueVK&>(DeviceVK::get().defaultQueue());
   auto cb = queue.getPriority([&](bool result) {
@@ -253,13 +272,24 @@ void ImageVK::changeLayout(VkImageLayout newLayout, bool defer) {
 
   vkCmdPipelineBarrier(cb, VK_PIPELINE_STAGE_TOP_OF_PIPE_BIT,
                        VK_PIPELINE_STAGE_ALL_COMMANDS_BIT, 0,
-                       0, nullptr, 0, nullptr, 1, &imb);
+                       0, nullptr, 0, nullptr, 1, &barrier_);
   if (!defer)
     queue.submit();
 }
 
+void ImageVK::layoutChanged(VkImageLayout newLayout) {
+  if (layout_ != nextLayout_)
+    throw runtime_error("Bad layout transition");
+
+  layout_ = nextLayout_ = newLayout;
+}
+
 VkImage ImageVK::handle() const {
   return handle_;
+}
+
+pair<VkImageLayout, VkImageLayout> ImageVK::layout() const {
+  return {layout_, nextLayout_};
 }
 
 ImageVK::View::Ptr ImageVK::getView(uint32_t firstLayer,
@@ -368,6 +398,9 @@ uint32_t ImageVK::View::firstLevel() const {
 uint32_t ImageVK::View::levelCount() const {
   return levelCount_;
 }
+
+// ------------------------------------------------------------------------
+// SamplerVK
 
 SamplerVK::Ptr SamplerVK::make(ImgSampler type) {
   return Ptr(new SamplerVK(type));

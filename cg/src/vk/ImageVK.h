@@ -50,10 +50,16 @@ class ImageVK final : public Image {
   /// Performs a layout transition.
   ///
   void changeLayout(VkImageLayout newLayout, bool defer);
+  void changeLayout(const VkImageMemoryBarrier& barrier, bool defer);
 
-  /// Getter.
+  /// Notifies the image that it has transitioned to a new layout.
+  ///
+  void layoutChanged(VkImageLayout newLayout);
+
+  /// Getters.
   ///
   VkImage handle() const;
+  std::pair<VkImageLayout, VkImageLayout> layout() const;
 
   /// Image view.
   ///
@@ -88,15 +94,22 @@ class ImageVK final : public Image {
                     uint32_t levelCount);
 
  private:
+  void changeLayout(bool);
+
   const bool owned_ = true;
+
   VkImageType type_ = VK_IMAGE_TYPE_2D;
   VkImageTiling tiling_ = VK_IMAGE_TILING_OPTIMAL;
   VkImageUsageFlags usage_ = 0;
+
   VkDeviceMemory memory_ = VK_NULL_HANDLE;
   VkImage handle_ = VK_NULL_HANDLE;
   void* data_ = nullptr;
+
   VkImageLayout layout_ = VK_IMAGE_LAYOUT_UNDEFINED;
   VkImageLayout nextLayout_ = VK_IMAGE_LAYOUT_UNDEFINED;
+  VkImageMemoryBarrier barrier_{};
+
   //std::unordered_map<VkImageView, uint32_t> views_{};
 };
 

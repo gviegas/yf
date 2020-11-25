@@ -238,7 +238,8 @@ void WsiVK::querySurface() {
     throw DeviceExcept("Could not query surface formats");
 
   // Choose a suitable format
-  array<VkFormat, 2> prefFmts{VK_FORMAT_B8G8R8A8_SRGB, VK_FORMAT_B8G8R8A8_UNORM};
+  array<VkFormat, 2> prefFmts{VK_FORMAT_B8G8R8A8_SRGB,
+                              VK_FORMAT_B8G8R8A8_UNORM};
 
   auto fmtIt = find_first_of(fmts.begin(), fmts.end(),
                              prefFmts.begin(), prefFmts.end(),
@@ -301,6 +302,16 @@ void WsiVK::querySurface() {
   scInfo_.presentMode = presMode;
   scInfo_.clipped = true;
   scInfo_.oldSwapchain = VK_NULL_HANDLE;
+
+  // [1.2.146 c32.9]
+  // "An image will eventually be acquired if the number of images that the
+  // application has currently acquired (but not yet presented) is less than
+  // or equal to the difference between the number of images in swapchain
+  // and the value of VkSurfaceCapabilitiesKHR::minImageCount. If the number
+  // of currently acquired images is greater than this, vkAcquireNextImageKHR
+  // should not be called; if it is, timeout must not be UINT64_MAX."
+
+  minImgN_ = capab.minImageCount;
 }
 
 void WsiVK::createSwapchain() {
@@ -333,7 +344,7 @@ void WsiVK::createSwapchain() {
     throw DeviceExcept("Could not get swapchain images");
 
   // Wrap image handles
-  for_each(images_.begin(), images_.end(), [](auto img) { delete img; });
+  for_each(images_.begin(), images_.end(), [](auto& img) { delete img; });
   images_.clear();
   auto fmt = fromFormatVK(scInfo_.imageFormat);
   Size2 sz{scInfo_.imageExtent.width, scInfo_.imageExtent.height};
@@ -343,17 +354,34 @@ void WsiVK::createSwapchain() {
                                   scInfo_.imageUsage, ih, nullptr,
                                   VK_IMAGE_LAYOUT_UNDEFINED, false));
 
-  // Create image acquisition semaphore
-  if (nextSem_ == VK_NULL_HANDLE) {
-    VkSemaphoreCreateInfo semInfo;
-    semInfo.sType = VK_STRUCTURE_TYPE_SEMAPHORE_CREATE_INFO;
-    semInfo.pNext = nullptr;
-    semInfo.flags = 0;
+  // Map image objects to indices
+  indices_.clear();
+  for (uint32_t i = 0; i < images_.size(); ++i)
+    indices_.emplace(images_[i], i);
 
-    res = vkCreateSemaphore(dev, &semInfo, nullptr, &nextSem_);
+  // Clear image acquisitions & set new limit
+  acquisitions_.clear();
+  acqLimit_ = 1 + images_.size() - minImgN_;
+
+  // Create image acquisition semaphores
+  for_each(acqSemaphores_.begin(), acqSemaphores_.end(), [&](auto& sem) {
+    vkDestroySemaphore(dev, sem, nullptr);
+  });
+  acqSemaphores_.clear();
+
+  VkSemaphoreCreateInfo semInfo;
+  semInfo.sType = VK_STRUCTURE_TYPE_SEMAPHORE_CREATE_INFO;
+  semInfo.pNext = nullptr;
+  semInfo.flags = 0;
+
+  VkSemaphore sem;
+  auto semN = images_.size();
+  do {
+    res = vkCreateSemaphore(dev, &semInfo, nullptr, &sem);
     if (res != VK_SUCCESS)
       throw DeviceExcept("Could not create image acquisition semaphore");
-  }
+    acqSemaphores_.push_back(sem);
+  } while (--semN);
 }
 
 const vector<Image*>& WsiVK::images() const {

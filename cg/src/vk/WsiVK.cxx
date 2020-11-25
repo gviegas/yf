@@ -94,7 +94,8 @@ WsiVK::WsiVK(WS_NS::Window* window) : Wsi(window) {
     throw UnsupportedExcept("Wsi not supported");
 
   initSurface();
-  initSwapchain();
+  querySurface();
+  createSwapchain();
 }
 
 WsiVK::~WsiVK() {
@@ -187,9 +188,8 @@ void WsiVK::initSurface() {
     throw UnsupportedExcept("Surface does not support presentation");
 }
 
-void WsiVK::initSwapchain() {
+void WsiVK::querySurface() {
   assert(surface_ != VK_NULL_HANDLE);
-  assert(swapchain_ == VK_NULL_HANDLE);
 
   auto physDev = DeviceVK::get().physicalDev();
   VkResult res;
@@ -301,9 +301,6 @@ void WsiVK::initSwapchain() {
   scInfo_.presentMode = presMode;
   scInfo_.clipped = true;
   scInfo_.oldSwapchain = VK_NULL_HANDLE;
-
-  // Create swapchain object & images
-  createSwapchain();
 }
 
 void WsiVK::createSwapchain() {
@@ -345,6 +342,18 @@ void WsiVK::createSwapchain() {
                                   VK_IMAGE_TYPE_2D, VK_IMAGE_TILING_OPTIMAL,
                                   scInfo_.imageUsage, ih, nullptr,
                                   VK_IMAGE_LAYOUT_UNDEFINED, false));
+
+  // Create image acquisition semaphore
+  if (nextSem_ == VK_NULL_HANDLE) {
+    VkSemaphoreCreateInfo semInfo;
+    semInfo.sType = VK_STRUCTURE_TYPE_SEMAPHORE_CREATE_INFO;
+    semInfo.pNext = nullptr;
+    semInfo.flags = 0;
+
+    res = vkCreateSemaphore(dev, &semInfo, nullptr, &nextSem_);
+    if (res != VK_SUCCESS)
+      throw DeviceExcept("Could not create image acquisition semaphore");
+  }
 }
 
 const vector<Image*>& WsiVK::images() const {

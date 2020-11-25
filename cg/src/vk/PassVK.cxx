@@ -29,8 +29,10 @@ PassVK::PassVK(const vector<ColorAttach>* colors,
   // Define attachments
   if (colors) {
     auto add = [&](const vector<ColorAttach>& attachs) {
-      // TODO: validate parameters
       for (const auto& attach : attachs) {
+        if (aspectOfVK(attach.format) != VK_IMAGE_ASPECT_COLOR_BIT)
+          throw invalid_argument("Invalid format for color attachment");
+
         attachDescs.push_back({});
 
         auto desc = attachDescs.back();
@@ -41,8 +43,9 @@ PassVK::PassVK(const vector<ColorAttach>* colors,
         desc.storeOp = toStoreOpVK(attach.storeOp);
         desc.stencilLoadOp = VK_ATTACHMENT_LOAD_OP_DONT_CARE;
         desc.stencilStoreOp = VK_ATTACHMENT_STORE_OP_DONT_CARE;
+        // XXX: won't work if an image view is used in more than one pass
         desc.initialLayout = VK_IMAGE_LAYOUT_UNDEFINED;
-        desc.finalLayout = VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL;
+        desc.finalLayout = VK_IMAGE_LAYOUT_GENERAL;
 
         attachRefs.push_back({static_cast<uint32_t>(attachDescs.size()-1),
                               VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL});
@@ -60,7 +63,10 @@ PassVK::PassVK(const vector<ColorAttach>* colors,
   }
 
   if (depthStencil) {
-    // TODO: validate parameters
+    auto aspect = aspectOfVK(depthStencil->format);
+    if (!(aspect & (VK_IMAGE_ASPECT_DEPTH_BIT | VK_IMAGE_ASPECT_STENCIL_BIT)))
+      throw invalid_argument("Invalid format for depth/stencil attachment");
+
     attachDescs.push_back({});
 
     auto desc = attachDescs.back();
@@ -71,12 +77,12 @@ PassVK::PassVK(const vector<ColorAttach>* colors,
     desc.storeOp = toStoreOpVK(depthStencil->depStoreOp);
     desc.stencilLoadOp = toLoadOpVK(depthStencil->stenLoadOp);
     desc.stencilStoreOp = toStoreOpVK(depthStencil->stenStoreOp);
+    // XXX: won't work if an image view is used in more than one pass
     desc.initialLayout = VK_IMAGE_LAYOUT_UNDEFINED;
-    // TODO: check format aspect and set layout accordingly
     desc.finalLayout = VK_IMAGE_LAYOUT_GENERAL;
 
     attachRefs.push_back({static_cast<uint32_t>(attachDescs.size()-1),
-                          VK_IMAGE_LAYOUT_GENERAL});
+                          VK_IMAGE_LAYOUT_DEPTH_STENCIL_ATTACHMENT_OPTIMAL});
   }
 
   // Define subpass

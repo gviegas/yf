@@ -10,6 +10,7 @@
 
 #include "WsiVK.h"
 #include "DeviceVK.h"
+#include "QueueVK.h"
 #include "ImageVK.h"
 #include "yf/ws/Platform.h"
 #include "yf/Except.h"
@@ -199,6 +200,31 @@ void WsiVK::initSwapchain() {
   if (res != VK_SUCCESS)
     throw DeviceExcept("Could not query surface capabilities");
 
+  // Choose a suitable image count
+  uint32_t imgCount = capab.minImageCount;
+  if (capab.maxImageCount == 0)
+    // Triple buffered or more
+    imgCount = max(capab.minImageCount, 3U);
+
+  // Choose a suitable composite alpha
+  VkCompositeAlphaFlagBitsKHR compAlpha = VK_COMPOSITE_ALPHA_INHERIT_BIT_KHR;
+  if (!(compAlpha & capab.supportedCompositeAlpha)) {
+    compAlpha = VK_COMPOSITE_ALPHA_OPAQUE_BIT_KHR;
+
+    if (!(compAlpha & capab.supportedCompositeAlpha))
+      throw UnsupportedExcept("No suitable alpha compositing mode available");
+  }
+
+  // Ensure correct dimensions
+  VkExtent2D extent{window_->width(), window_->height()};
+  if (capab.currentExtent.width == 0xFFFFFFFF) {
+    extent.width = clamp(extent.width, capab.minImageExtent.width,
+                         capab.maxImageExtent.width);
+
+    extent.height = clamp(extent.height, capab.minImageExtent.height,
+                          capab.maxImageExtent.height);
+  }
+
   // Get surface formats
   vector<VkSurfaceFormatKHR> fmts;
   uint32_t fmtN;
@@ -211,8 +237,8 @@ void WsiVK::initSwapchain() {
   if (res != VK_SUCCESS)
     throw DeviceExcept("Could not query surface formats");
 
-  // Choose a suitable format for the swapchain
-  array<VkFormat, 2> prefFmts{VK_FORMAT_B8G8R8A8_SRGB, VK_FORMAT_R8G8B8A8_SRGB};
+  // Choose a suitable format
+  array<VkFormat, 2> prefFmts{VK_FORMAT_B8G8R8A8_SRGB, VK_FORMAT_B8G8R8A8_UNORM};
 
   auto fmtIt = find_first_of(fmts.begin(), fmts.end(),
                              prefFmts.begin(), prefFmts.end(),
@@ -226,23 +252,63 @@ void WsiVK::initSwapchain() {
                     [](const auto& fmt) { return fromFormatVK(fmt.format) !=
                                                  PxFormatUndefined; });
     if (fmtIt == fmts.end())
-      throw UnsupportedExcept("No supported format found for swapchain");
+      throw UnsupportedExcept("Surface format(s) not supported");
   }
 
-  // Get surface presentation modes
-  vector<VkPresentModeKHR> presModes;
-  uint32_t presModeN;
-  res = vkGetPhysicalDeviceSurfacePresentModesKHR(physDev, surface_, &presModeN,
-                                                  nullptr);
-  if (res != VK_SUCCESS)
-    throw DeviceExcept("Could not query surface present modes");
-  presModes.resize(presModeN);
-  res = vkGetPhysicalDeviceSurfacePresentModesKHR(physDev, surface_, &presModeN,
-                                                  presModes.data());
-  if (res != VK_SUCCESS)
-    throw DeviceExcept("Could not query surface present modes");
+//  // Get surface presentation modes
+//  vector<VkPresentModeKHR> presModes;
+//  uint32_t presModeN;
+//  res = vkGetPhysicalDeviceSurfacePresentModesKHR(physDev, surface_, &presModeN,
+//                                                  nullptr);
+//  if (res != VK_SUCCESS)
+//    throw DeviceExcept("Could not query surface present modes");
+//  presModes.resize(presModeN);
+//  res = vkGetPhysicalDeviceSurfacePresentModesKHR(physDev, surface_, &presModeN,
+//                                                  presModes.data());
+//  if (res != VK_SUCCESS)
+//    throw DeviceExcept("Could not query surface present modes");
 
-  // TODO...
+  // No compelling reason to use a different present mode currently
+  VkPresentModeKHR presMode = VK_PRESENT_MODE_FIFO_KHR;
+
+  // Define sharing mode
+  uint32_t families[2];
+  uint32_t familyN = 0;
+  VkSharingMode sharMode = VK_SHARING_MODE_EXCLUSIVE;
+  auto& queue = static_cast<QueueVK&>(DeviceVK::get().defaultQueue());
+  if (family_ != queue.family()) {
+    families[0] = queue.family();
+    families[1] = family_;
+    sharMode = VK_SHARING_MODE_CONCURRENT;
+  }
+
+  // Set swapchain create info
+  scInfo_.sType = VK_STRUCTURE_TYPE_SWAPCHAIN_CREATE_INFO_KHR;
+  scInfo_.pNext = nullptr;
+  scInfo_.flags = 0;
+  scInfo_.surface = surface_;
+  scInfo_.minImageCount = imgCount;
+  scInfo_.imageFormat = fmtIt->format;
+  scInfo_.imageColorSpace = fmtIt->colorSpace;
+  scInfo_.imageExtent = extent;
+  scInfo_.imageArrayLayers = 1;
+  scInfo_.imageUsage = VK_IMAGE_USAGE_COLOR_ATTACHMENT_BIT;
+  scInfo_.imageSharingMode = sharMode;
+  scInfo_.queueFamilyIndexCount = familyN;
+  scInfo_.pQueueFamilyIndices = families;
+  scInfo_.preTransform = capab.currentTransform;
+  scInfo_.compositeAlpha = compAlpha;
+  scInfo_.presentMode = presMode;
+  scInfo_.clipped = true;
+  scInfo_.oldSwapchain = VK_NULL_HANDLE;
+
+  // Create swapchain object & images
+  createSwapchain();
+}
+
+void WsiVK::createSwapchain() {
+  assert(surface_ != VK_NULL_HANDLE);
+  // TODO
 }
 
 const vector<Image*>& WsiVK::images() const {

@@ -41,6 +41,11 @@ class QueueVK final : public Queue {
   ///
   VkCommandBuffer getPriority(std::function<void (bool)> completionHandler);
 
+  /// Getters.
+  ///
+  VkQueue handle() const;
+  int32_t family() const;
+
  private:
   VkCommandPool initPool();
   void deinitPool(VkCommandPool);

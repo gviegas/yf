@@ -252,6 +252,14 @@ VkCommandBuffer QueueVK::getPriority(function<void (bool)> completionHandler) {
   return cmdPrio_;
 }
 
+VkQueue QueueVK::handle() const {
+  return handle_;
+}
+
+int32_t QueueVK::family() const {
+  return family_;
+}
+
 // ------------------------------------------------------------------------
 // CmdBufferVK
 

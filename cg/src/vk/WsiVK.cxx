@@ -308,7 +308,43 @@ void WsiVK::initSwapchain() {
 
 void WsiVK::createSwapchain() {
   assert(surface_ != VK_NULL_HANDLE);
-  // TODO
+
+  auto dev = DeviceVK::get().device();
+  VkResult res;
+
+  // Create swapchain
+  if (swapchain_ != VK_NULL_HANDLE) {
+    scInfo_.oldSwapchain = swapchain_;
+    res = vkCreateSwapchainKHR(dev, &scInfo_, nullptr, &swapchain_);
+    vkDestroySwapchainKHR(dev, scInfo_.oldSwapchain, nullptr);
+  } else {
+    res = vkCreateSwapchainKHR(dev, &scInfo_, nullptr, &swapchain_);
+  }
+  if (res != VK_SUCCESS)
+    throw DeviceExcept("Could not create swapchain");
+
+  // Get image handles
+  vector<VkImage> imgHandles;
+  uint32_t imgHandleN;
+  res = vkGetSwapchainImagesKHR(dev, swapchain_, &imgHandleN, nullptr);
+  if (res != VK_SUCCESS)
+    throw DeviceExcept("Could not get swapchain images");
+  imgHandles.resize(imgHandleN);
+  res = vkGetSwapchainImagesKHR(dev, swapchain_, &imgHandleN,
+                                imgHandles.data());
+  if (res != VK_SUCCESS)
+    throw DeviceExcept("Could not get swapchain images");
+
+  // Wrap image handles
+  for_each(images_.begin(), images_.end(), [](auto img) { delete img; });
+  images_.clear();
+  auto fmt = fromFormatVK(scInfo_.imageFormat);
+  Size2 sz{scInfo_.imageExtent.width, scInfo_.imageExtent.height};
+  for (auto& ih : imgHandles)
+    images_.push_back(new ImageVK(fmt, sz, 1, 1, Samples1,
+                                  VK_IMAGE_TYPE_2D, VK_IMAGE_TILING_OPTIMAL,
+                                  scInfo_.imageUsage, ih, nullptr,
+                                  VK_IMAGE_LAYOUT_UNDEFINED, false));
 }
 
 const vector<Image*>& WsiVK::images() const {

@@ -238,7 +238,8 @@ void WsiVK::querySurface() {
     throw DeviceExcept("Could not query surface formats");
 
   // Choose a suitable format
-  array<VkFormat, 2> prefFmts{VK_FORMAT_B8G8R8A8_SRGB, VK_FORMAT_B8G8R8A8_UNORM};
+  array<VkFormat, 2> prefFmts{VK_FORMAT_B8G8R8A8_SRGB,
+                              VK_FORMAT_B8G8R8A8_UNORM};
 
   auto fmtIt = find_first_of(fmts.begin(), fmts.end(),
                              prefFmts.begin(), prefFmts.end(),
@@ -301,6 +302,16 @@ void WsiVK::querySurface() {
   scInfo_.presentMode = presMode;
   scInfo_.clipped = true;
   scInfo_.oldSwapchain = VK_NULL_HANDLE;
+
+  // [1.2.146 c32.9]
+  // "An image will eventually be acquired if the number of images that the
+  // application has currently acquired (but not yet presented) is less than
+  // or equal to the difference between the number of images in swapchain
+  // and the value of VkSurfaceCapabilitiesKHR::minImageCount. If the number
+  // of currently acquired images is greater than this, vkAcquireNextImageKHR
+  // should not be called; if it is, timeout must not be UINT64_MAX."
+
+  minImgN_ = capab.minImageCount;
 }
 
 void WsiVK::createSwapchain() {
@@ -333,7 +344,7 @@ void WsiVK::createSwapchain() {
     throw DeviceExcept("Could not get swapchain images");
 
   // Wrap image handles
-  for_each(images_.begin(), images_.end(), [](auto img) { delete img; });
+  for_each(images_.begin(), images_.end(), [](auto& img) { delete img; });
   images_.clear();
   auto fmt = fromFormatVK(scInfo_.imageFormat);
   Size2 sz{scInfo_.imageExtent.width, scInfo_.imageExtent.height};
@@ -343,17 +354,34 @@ void WsiVK::createSwapchain() {
                                   scInfo_.imageUsage, ih, nullptr,
                                   VK_IMAGE_LAYOUT_UNDEFINED, false));
 
-  // Create image acquisition semaphore
-  if (nextSem_ == VK_NULL_HANDLE) {
-    VkSemaphoreCreateInfo semInfo;
-    semInfo.sType = VK_STRUCTURE_TYPE_SEMAPHORE_CREATE_INFO;
-    semInfo.pNext = nullptr;
-    semInfo.flags = 0;
+  // Map image objects to indices
+  indices_.clear();
+  for (uint32_t i = 0; i < images_.size(); ++i)
+    indices_.emplace(images_[i], i);
 
-    res = vkCreateSemaphore(dev, &semInfo, nullptr, &nextSem_);
+  // Clear image acquisitions & set new limit
+  acquisitions_.clear();
+  acqLimit_ = 1 + images_.size() - minImgN_;
+
+  // Create image acquisition semaphores
+  for_each(acqSemaphores_.begin(), acqSemaphores_.end(), [&](auto& sem) {
+    vkDestroySemaphore(dev, sem, nullptr);
+  });
+  acqSemaphores_.clear();
+
+  VkSemaphoreCreateInfo semInfo;
+  semInfo.sType = VK_STRUCTURE_TYPE_SEMAPHORE_CREATE_INFO;
+  semInfo.pNext = nullptr;
+  semInfo.flags = 0;
+
+  VkSemaphore sem;
+  auto semN = images_.size();
+  do {
+    res = vkCreateSemaphore(dev, &semInfo, nullptr, &sem);
     if (res != VK_SUCCESS)
       throw DeviceExcept("Could not create image acquisition semaphore");
-  }
+    acqSemaphores_.push_back(sem);
+  } while (--semN);
 }
 
 const vector<Image*>& WsiVK::images() const {
@@ -361,8 +389,50 @@ const vector<Image*>& WsiVK::images() const {
 }
 
 Image* WsiVK::nextImage() {
-  // TODO
-  throw runtime_error("Unimplemented");
+  if (acquisitions_.size() == acqLimit_)
+    return nullptr;
+
+  // TODO: provide a parameter to allow blocked wait
+  static constexpr uint64_t timeout = 0;
+
+  VkSemaphore sem;
+  uint32_t semIx = 0;
+  for (;; ++semIx) {
+    if (acquisitions_.find(semIx) == acquisitions_.end()) {
+      sem = acqSemaphores_[semIx];
+      break;
+    }
+  }
+  uint32_t imgIx;
+  auto dev = DeviceVK::get().device();
+  auto res = vkAcquireNextImageKHR(dev, swapchain_, timeout,
+                                   sem, VK_NULL_HANDLE, &imgIx);
+
+  switch (res) {
+  case VK_SUCCESS:
+    if (semIx != imgIx)
+      swap(acqSemaphores_[semIx], acqSemaphores_[imgIx]);
+    acquisitions_.insert(imgIx);
+    return images_[imgIx];
+
+  case VK_TIMEOUT:
+  case VK_NOT_READY:
+    return nullptr;
+
+  case VK_SUBOPTIMAL_KHR:
+  case VK_ERROR_OUT_OF_DATE_KHR:
+    // TODO: notify and recreate swapchain
+    throw runtime_error("Broken swapchain handling not implemented");
+
+  case VK_ERROR_SURFACE_LOST_KHR:
+    // TODO: notify and (try to) recreate surface and swapchain
+    throw runtime_error("Lost surface handling not implemented");
+
+//  case VK_ERROR_FULL_SCREEN_EXCLUSIVE_MODE_LOST_EXT:
+
+  default:
+    throw DeviceExcept("Could not acquire swapchain image");
+  }
 }
 
 void WsiVK::present() {

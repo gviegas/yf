@@ -8,6 +8,9 @@
 #ifndef YF_CG_WSIVK_H
 #define YF_CG_WSIVK_H
 
+#include <unordered_map>
+#include <unordered_set>
+
 #include "Wsi.h"
 #include "VK.h"
 
@@ -39,9 +42,12 @@ class WsiVK final : Wsi {
   VkSurfaceKHR surface_ = VK_NULL_HANDLE;
   VkSwapchainKHR swapchain_ = VK_NULL_HANDLE;
   VkSwapchainCreateInfoKHR scInfo_{};
+  uint32_t minImgN_ = 0;
   std::vector<Image*> images_{};
-  int32_t next_ = -1;
-  VkSemaphore nextSem_ = VK_NULL_HANDLE;
+  std::unordered_map<Image*, uint32_t> indices_{};
+  std::unordered_set<uint32_t> acquisitions_{};
+  uint32_t acqLimit_ = 0;
+  std::vector<VkSemaphore> acqSemaphores_{};
 };
 
 CG_NS_END

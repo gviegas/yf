@@ -389,8 +389,50 @@ const vector<Image*>& WsiVK::images() const {
 }
 
 Image* WsiVK::nextImage() {
-  // TODO
-  throw runtime_error("Unimplemented");
+  if (acquisitions_.size() == acqLimit_)
+    return nullptr;
+
+  // TODO: provide a parameter to allow blocked wait
+  static constexpr uint64_t timeout = 0;
+
+  VkSemaphore sem;
+  uint32_t semIx = 0;
+  for (;; ++semIx) {
+    if (acquisitions_.find(semIx) == acquisitions_.end()) {
+      sem = acqSemaphores_[semIx];
+      break;
+    }
+  }
+  uint32_t imgIx;
+  auto dev = DeviceVK::get().device();
+  auto res = vkAcquireNextImageKHR(dev, swapchain_, timeout,
+                                   sem, VK_NULL_HANDLE, &imgIx);
+
+  switch (res) {
+  case VK_SUCCESS:
+    if (semIx != imgIx)
+      swap(acqSemaphores_[semIx], acqSemaphores_[imgIx]);
+    acquisitions_.insert(imgIx);
+    return images_[imgIx];
+
+  case VK_TIMEOUT:
+  case VK_NOT_READY:
+    return nullptr;
+
+  case VK_SUBOPTIMAL_KHR:
+  case VK_ERROR_OUT_OF_DATE_KHR:
+    // TODO: notify and recreate swapchain
+    throw runtime_error("Broken swapchain handling not implemented");
+
+  case VK_ERROR_SURFACE_LOST_KHR:
+    // TODO: notify and (try to) recreate surface and swapchain
+    throw runtime_error("Lost surface handling not implemented");
+
+//  case VK_ERROR_FULL_SCREEN_EXCLUSIVE_MODE_LOST_EXT:
+
+  default:
+    throw DeviceExcept("Could not acquire swapchain image");
+  }
 }
 
 void WsiVK::present() {

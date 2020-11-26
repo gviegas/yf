@@ -405,6 +405,5 @@ CpState::Ptr DeviceVK::makeState(const CpState::Config& config) {
 }
 
 Wsi::Ptr DeviceVK::makeWsi(WS_NS::Window* window) {
-  // TODO
-  throw runtime_error("Unimplemented");
+  return make_unique<WsiVK>(window);
 }

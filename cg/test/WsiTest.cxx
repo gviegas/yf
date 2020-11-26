@@ -35,7 +35,7 @@ struct WsiTest : Test {
     Wsi_ wsi(win.get());
 
     wsi.window_->open();
-    this_thread::sleep_for(chrono::seconds(2));
+    this_thread::sleep_for(chrono::seconds(1));
     wsi.window_->close();
     this_thread::sleep_for(chrono::milliseconds(500));
 

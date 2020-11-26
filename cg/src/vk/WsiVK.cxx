@@ -435,7 +435,76 @@ Image* WsiVK::nextImage() {
   }
 }
 
-void WsiVK::present() {
-  // TODO
-  throw runtime_error("Unimplemented");
+void WsiVK::present(Image* image) {
+  auto it = indices_.find(image);
+
+  if (it == indices_.end())
+    throw invalid_argument("Cannot present an image not owned by Wsi");
+  if (acquisitions_.erase(it->second) == 0)
+    throw invalid_argument("Cannot present an image that was not acquired");
+
+  auto img = static_cast<ImageVK*>(image);
+  auto imgIx = it->second;
+  auto imgLay = img->layout();
+
+  if (imgLay.first != imgLay.second)
+    throw runtime_error("Cannot present an image pending transition");
+
+  // Change layout for presentation (expects general layout as the current one)
+  VkImageMemoryBarrier barrier;
+  barrier.sType = VK_STRUCTURE_TYPE_IMAGE_MEMORY_BARRIER;
+  barrier.pNext = nullptr;
+  barrier.srcAccessMask = VK_ACCESS_MEMORY_WRITE_BIT;
+  barrier.dstAccessMask = 0;
+  barrier.oldLayout = imgLay.first;
+  barrier.newLayout = VK_IMAGE_LAYOUT_PRESENT_SRC_KHR;
+  barrier.srcQueueFamilyIndex = VK_QUEUE_FAMILY_IGNORED;
+  barrier.dstQueueFamilyIndex = VK_QUEUE_FAMILY_IGNORED;
+  barrier.image = img->handle();
+  barrier.subresourceRange.aspectMask = aspectOfVK(img->format_);
+  barrier.subresourceRange.baseMipLevel = 0;
+  barrier.subresourceRange.levelCount = 1;
+  barrier.subresourceRange.baseArrayLayer = 0;
+  barrier.subresourceRange.layerCount = 1;
+
+  // XXX: the following assumes that all work has been submitted for execution
+  // and there's nothing pending in the priority buffer (this will have to be
+  // amended eventually)
+
+  // Ideally, this transition should be encoded after the last use of image
+  img->changeLayout(barrier, false);
+
+  // Present
+  VkPresentInfoKHR info;
+  info.sType = VK_STRUCTURE_TYPE_PRESENT_INFO_KHR;
+  info.pNext = nullptr;
+  info.waitSemaphoreCount = 0;
+  info.pWaitSemaphores = nullptr;
+  info.swapchainCount = 1;
+  info.pSwapchains = &swapchain_;
+  info.pImageIndices = &imgIx;
+  info.pResults = nullptr;
+
+  auto res = vkQueuePresentKHR(queue_, &info);
+
+  // XXX: may want to change layout back to general
+
+  switch (res) {
+  case VK_SUCCESS:
+    return;
+
+  case VK_SUBOPTIMAL_KHR:
+  case VK_ERROR_OUT_OF_DATE_KHR:
+    // TODO: notify and recreate swapchain
+    throw runtime_error("Broken swapchain handling not implemented");
+
+  case VK_ERROR_SURFACE_LOST_KHR:
+    // TODO: notify and (try to) recreate surface and swapchain
+    throw runtime_error("Lost surface handling not implemented");
+
+//  case VK_ERROR_FULL_SCREEN_EXCLUSIVE_MODE_LOST_EXT:
+
+  default:
+    throw DeviceExcept("Could not present image");
+  }
 }

@@ -16,7 +16,7 @@
 
 CG_NS_BEGIN
 
-class WsiVK final : Wsi {
+class WsiVK final : public Wsi {
  public:
   WsiVK(WS_NS::Window* window);
   ~WsiVK();

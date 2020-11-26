@@ -5,6 +5,8 @@
 // Copyright © 2020 Gustavo C. Viegas.
 //
 
+#include <thread>
+
 #include "UnitTests.h"
 #include "Device.h"
 
@@ -38,11 +40,17 @@ struct DeviceTest : Test {
       WindingCounterCw
     };
     auto state = dev.makeState(config);
+    auto win = WS_NS::Window::make(400, 400, L"Device Test",
+                                   WS_NS::Window::Resizable);
+    auto wsi = dev.makeWsi(win.get());
+
+    this_thread::sleep_for(chrono::seconds(1));
 
     a.push_back({L"Device::get()", true});
     a.push_back({L"dev.makeShader(...)", vert != nullptr && frag != nullptr});
     a.push_back({L"dev.makePass(...)", pass != nullptr});
     a.push_back({L"dev.makeState(...)", state != nullptr});
+    a.push_back({L"dev.makeWsi(...)", wsi != nullptr});
 
     return a;
   }

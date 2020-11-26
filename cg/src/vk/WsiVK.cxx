@@ -99,7 +99,26 @@ WsiVK::WsiVK(WS_NS::Window* window) : Wsi(window) {
 }
 
 WsiVK::~WsiVK() {
-  // TODO
+  // Flush and present acquired images
+  if (!acquisitions_.empty()) {
+    DeviceVK::get().defaultQueue().submit();
+
+    for_each(acquisitions_.begin(), acquisitions_.end(), [&](auto& i) {
+      present(images_[i]);
+    });
+  }
+
+  // Wait until finished
+  vkQueueWaitIdle(queue_);
+
+  // Destroy objects
+  auto dev = DeviceVK::get().device();
+  vkDestroySwapchainKHR(dev, swapchain_, nullptr);
+  vkDestroySurfaceKHR(DeviceVK::get().instance(), surface_, nullptr);
+  for_each(images_.begin(), images_.end(), [](auto& img) { delete img; });
+  for_each(acqSemaphores_.begin(), acqSemaphores_.end(), [&](auto& sem) {
+    vkDestroySemaphore(dev, sem, nullptr);
+  });
 }
 
 void WsiVK::initSurface() {

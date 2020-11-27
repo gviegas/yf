@@ -415,8 +415,6 @@ Image* WsiVK::nextImage(bool nonblocking) {
   if (acquisitions_.size() == acqLimit_)
     throw LimitExcept("Limit for Wsi image acquisitions reached");
 
-  // TODO: set acquisition semaphores on queue submission
-
   const uint64_t timeout = nonblocking ? 0 : UINT64_MAX;
 
   VkSemaphore sem;
@@ -432,10 +430,13 @@ Image* WsiVK::nextImage(bool nonblocking) {
   auto res = vkAcquireNextImageKHR(dev, swapchain_, timeout,
                                    sem, VK_NULL_HANDLE, &imgIx);
 
+  auto& que = static_cast<QueueVK&>(DeviceVK::get().defaultQueue());
+
   switch (res) {
   case VK_SUCCESS:
     if (semIx != imgIx)
       swap(acqSemaphores_[semIx], acqSemaphores_[imgIx]);
+    que.waitFor(sem, VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT);
     acquisitions_.insert(imgIx);
     return images_[imgIx];
 

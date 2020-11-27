@@ -21,6 +21,7 @@ class WsiVK final : public Wsi {
   WsiVK(WS_NS::Window* window);
   ~WsiVK();
   const std::vector<Image*>& images() const;
+  uint32_t maxImages() const;
   Image* nextImage(bool nonblocking);
   void present(Image* image);
 

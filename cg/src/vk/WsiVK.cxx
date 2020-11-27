@@ -407,9 +407,13 @@ const vector<Image*>& WsiVK::images() const {
   return images_;
 }
 
+uint32_t WsiVK::maxImages() const {
+  return acqLimit_;
+}
+
 Image* WsiVK::nextImage(bool nonblocking) {
   if (acquisitions_.size() == acqLimit_)
-    return nullptr;
+    throw LimitExcept("Limit for Wsi image acquisitions reached");
 
   // TODO: set acquisition semaphores on queue submission
 

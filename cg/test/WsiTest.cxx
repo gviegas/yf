@@ -6,6 +6,7 @@
 //
 
 #include <thread>
+#include <cassert>
 
 #include "UnitTests.h"
 #include "Wsi.h"
@@ -22,7 +23,8 @@ struct WsiTest : Test {
   Assertions run(const vector<string>&) {
     struct Wsi_ : Wsi {
       Wsi_(WS_NS::Window* win) : Wsi(win) { }
-      const vector<Image*>& images() const { abort(); }
+      const vector<Image*>& images() const { assert(false); }
+      uint32_t maxImages() const { return 0; }
       Image* nextImage(bool) { return nullptr; }
       void present(Image*) { }
     };

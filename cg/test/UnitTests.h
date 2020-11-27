@@ -12,6 +12,12 @@
 
 TEST_NS_BEGIN
 
+#if defined(YF_CG_TEST_API)
+# define unitTests unitTests0
+#else
+# define unitTests unitTests1
+#endif
+
 Test* typesTest();
 Test* deviceTest();
 Test* queueTest();
@@ -24,14 +30,18 @@ Test* stateTest();
 Test* encoderTest();
 Test* wsiTest();
 
+inline const std::vector<Test*>& unitTests0() {
+  static std::vector<Test*> tests{
+    typesTest(), deviceTest(), queueTest(), bufferTest(),
+    imageTest(), shaderTest(), dcTableTest(), passTest(),
+    stateTest(), encoderTest(), wsiTest()};
+
+  return tests;
+}
+
 Test* drawTest();
 
-inline const std::vector<Test*>& unitTests() {
-//  static std::vector<Test*> tests{
-//    typesTest(), deviceTest(), queueTest(), bufferTest(),
-//    imageTest(), shaderTest(), dcTableTest(), passTest(),
-//    stateTest(), encoderTest(), wsiTest()};
-
+inline const std::vector<Test*>& unitTests1() {
   static std::vector<Test*> tests{drawTest()};
   return tests;
 }

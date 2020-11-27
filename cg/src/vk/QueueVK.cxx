@@ -98,6 +98,9 @@ void QueueVK::submit() {
       cb->didExecute();
     pending_.clear();
 
+    semaphores_.clear();
+    stageMasks_.clear();
+
     vkDestroySemaphore(dev, sem, nullptr);
   };
 
@@ -154,6 +157,7 @@ void QueueVK::submit() {
 
   // Sync. setup
   VkPipelineStageFlags waitDst = VK_PIPELINE_STAGE_ALL_COMMANDS_BIT;
+
   if (infoN == 2) {
     VkSemaphoreCreateInfo info;
     info.sType = VK_STRUCTURE_TYPE_SEMAPHORE_CREATE_INFO;
@@ -172,6 +176,12 @@ void QueueVK::submit() {
     infos[1].waitSemaphoreCount = 1;
     infos[1].pWaitSemaphores = &sem;
     infos[1].pWaitDstStageMask = &waitDst;
+  }
+
+  if (!semaphores_.empty()) {
+    infos[0].waitSemaphoreCount = semaphores_.size();
+    infos[0].pWaitSemaphores = semaphores_.data();
+    infos[0].pWaitDstStageMask = stageMasks_.data();
   }
 
   // Submit and wait completion
@@ -250,6 +260,11 @@ VkCommandBuffer QueueVK::getPriority(function<void (bool)> completionHandler) {
   callbsPrio_.push_back(completionHandler);
   pendPrio_ = true;
   return cmdPrio_;
+}
+
+void QueueVK::waitFor(VkSemaphore semaphore, VkPipelineStageFlags stageMask) {
+  semaphores_.push_back(semaphore);
+  stageMasks_.push_back(stageMask);
 }
 
 VkQueue QueueVK::handle() const {

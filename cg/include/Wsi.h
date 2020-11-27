@@ -29,6 +29,10 @@ class Wsi {
   ///
   virtual const std::vector<Image*>& images() const = 0;
 
+  /// Gets the maximum number of images that can be acquired.
+  ///
+  virtual uint32_t maxImages() const = 0;
+
   /// Gets the next writable image.
   ///
   virtual Image* nextImage(bool nonblocking = true) = 0;

@@ -83,7 +83,7 @@ struct DrawTest : Test {
     auto cb = que.makeCmdBuffer();
 
     // Enter rendering loop
-    const auto tm = chrono::system_clock::now() + chrono::seconds(5);
+    const auto tm = chrono::system_clock::now() + chrono::seconds(3);
     while (chrono::system_clock::now() < tm) {
       // Acquire next drawable image
       Image* img;

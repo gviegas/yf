@@ -23,7 +23,7 @@ struct WsiTest : Test {
     struct Wsi_ : Wsi {
       Wsi_(WS_NS::Window* win) : Wsi(win) { }
       const vector<Image*>& images() const { abort(); }
-      Image* nextImage() { return nullptr; }
+      Image* nextImage(bool) { return nullptr; }
       void present(Image*) { }
     };
 

@@ -21,7 +21,7 @@ class WsiVK final : public Wsi {
   WsiVK(WS_NS::Window* window);
   ~WsiVK();
   const std::vector<Image*>& images() const;
-  Image* nextImage();
+  Image* nextImage(bool nonblocking);
   void present(Image* image);
 
   /// Checks whether a given physical device supports presentation.

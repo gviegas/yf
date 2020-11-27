@@ -262,17 +262,20 @@ void ImageVK::changeLayout(const VkImageMemoryBarrier& barrier, bool defer) {
 void ImageVK::changeLayout(bool defer) {
   nextLayout_ = barrier_.newLayout;
 
+  // TODO: improve this
+  VkPipelineStageFlags srcMask = VK_PIPELINE_STAGE_TOP_OF_PIPE_BIT;
+  VkPipelineStageFlags dstMask = VK_PIPELINE_STAGE_ALL_COMMANDS_BIT;
+
   auto& queue = static_cast<QueueVK&>(DeviceVK::get().defaultQueue());
-  auto cb = queue.getPriority([&](bool result) {
+  auto cb = queue.getPriority(dstMask, [&](bool result) {
     if (result)
       layout_ = nextLayout_;
     else
       nextLayout_ = layout_;
   });
 
-  vkCmdPipelineBarrier(cb, VK_PIPELINE_STAGE_TOP_OF_PIPE_BIT,
-                       VK_PIPELINE_STAGE_ALL_COMMANDS_BIT, 0,
-                       0, nullptr, 0, nullptr, 1, &barrier_);
+  vkCmdPipelineBarrier(cb, srcMask, dstMask, 0, 0, nullptr, 0, nullptr, 1,
+                       &barrier_);
   if (!defer)
     queue.submit();
 }

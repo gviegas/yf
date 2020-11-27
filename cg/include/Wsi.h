@@ -31,7 +31,7 @@ class Wsi {
 
   /// Gets the next writable image.
   ///
-  virtual Image* nextImage() = 0;
+  virtual Image* nextImage(bool nonblocking = true) = 0;
 
   /// Presents a previously acquired image.
   ///

@@ -407,12 +407,13 @@ const vector<Image*>& WsiVK::images() const {
   return images_;
 }
 
-Image* WsiVK::nextImage() {
+Image* WsiVK::nextImage(bool nonblocking) {
   if (acquisitions_.size() == acqLimit_)
     return nullptr;
 
-  // TODO: provide a parameter to allow blocked wait
-  static constexpr uint64_t timeout = 0;
+  // TODO: set acquisition semaphores on queue submission
+
+  const uint64_t timeout = nonblocking ? 0 : UINT64_MAX;
 
   VkSemaphore sem;
   uint32_t semIx = 0;

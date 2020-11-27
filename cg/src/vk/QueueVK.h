@@ -39,7 +39,8 @@ class QueueVK final : public Queue {
 
   /// Gets a command buffer handle that executes before the next batch.
   ///
-  VkCommandBuffer getPriority(std::function<void (bool)> completionHandler);
+  VkCommandBuffer getPriority(VkPipelineStageFlags stageMask,
+                              std::function<void (bool)> completionHandler);
 
   /// Sets a semaphore upon which to wait in the next submission.
   ///
@@ -61,6 +62,7 @@ class QueueVK final : public Queue {
 
   VkCommandPool poolPrio_ = VK_NULL_HANDLE;
   VkCommandBuffer cmdPrio_ = VK_NULL_HANDLE;
+  VkPipelineStageFlags maskPrio_ = 0;
   std::vector<std::function<void (bool)>> callbsPrio_{};
   bool pendPrio_ = false;
 

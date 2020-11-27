@@ -75,14 +75,14 @@ struct DrawTest : Test {
                            },
                            PrimitiveTriangle,
                            PolyModeFill,
-                           CullModeNone,
+                           CullModeBack,
                            WindingCounterCw};
     auto state = dev.makeState(config);
 
     // Create command buffer
     auto cb = que.makeCmdBuffer();
 
-    // Render loop
+    // Enter rendering loop
     const auto tm = chrono::system_clock::now() + chrono::seconds(5);
     while (chrono::system_clock::now() < tm) {
       // Acquire next drawable image
@@ -98,17 +98,17 @@ struct DrawTest : Test {
       GrEncoder enc;
       enc.setState(state.get());
       enc.setViewport({0.0f, 0.0f, 400.0f, 400.0f, 0.0f, 1.0f});
-      enc.setScissor({{0, 0}, winSz});
+      enc.setScissor({{0}, winSz});
       enc.setTarget(tgtIt->get());
       enc.setVertexBuffer(buf.get(), 0);
       enc.clearColor({1.0f, 0.0f, 0.0f, 1.0f});
       enc.clearDepth(1.0f);
       enc.draw(0, 3, 0, 1);
 
-      // Apply encodings to command buffer
+      // Apply encoding to command buffer
       cb->encode(enc);
 
-      // Enqueue command buffer for execution
+      // Enqueue command buffer
       cb->enqueue();
 
       // Submit for execution

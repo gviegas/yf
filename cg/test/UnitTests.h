@@ -24,12 +24,15 @@ Test* stateTest();
 Test* encoderTest();
 Test* wsiTest();
 
-inline const std::vector<Test*>& unitTests() {
-  static std::vector<Test*> tests{
-    typesTest(), deviceTest(), queueTest(), bufferTest(),
-    imageTest(), shaderTest(), dcTableTest(), passTest(),
-    stateTest(), encoderTest(), wsiTest()};
+Test* drawTest();
 
+inline const std::vector<Test*>& unitTests() {
+//  static std::vector<Test*> tests{
+//    typesTest(), deviceTest(), queueTest(), bufferTest(),
+//    imageTest(), shaderTest(), dcTableTest(), passTest(),
+//    stateTest(), encoderTest(), wsiTest()};
+
+  static std::vector<Test*> tests{drawTest()};
   return tests;
 }
 

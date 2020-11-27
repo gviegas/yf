@@ -41,6 +41,10 @@ class QueueVK final : public Queue {
   ///
   VkCommandBuffer getPriority(std::function<void (bool)> completionHandler);
 
+  /// Sets a semaphore upon which to wait in the next submission.
+  ///
+  void waitFor(VkSemaphore semaphore, VkPipelineStageFlags stageMask);
+
   /// Getters.
   ///
   VkQueue handle() const;
@@ -59,6 +63,9 @@ class QueueVK final : public Queue {
   VkCommandBuffer cmdPrio_ = VK_NULL_HANDLE;
   std::vector<std::function<void (bool)>> callbsPrio_{};
   bool pendPrio_ = false;
+
+  std::vector<VkSemaphore> semaphores_{};
+  std::vector<VkPipelineStageFlags> stageMasks_{};
 };
 
 class GrEncoder;

@@ -26,8 +26,7 @@ struct DeviceTest : Test {
     auto vert = dev.makeShader(StageVertex, L"tmp/vert");
     auto frag = dev.makeShader(StageFragment, L"tmp/frag");
     vector<ColorAttach> clrs{
-      {PxFormatRgba8Unorm, Samples1, LoadOpLoad,StoreOpStore}
-    };
+      {PxFormatRgba8Unorm, Samples1, LoadOpLoad, StoreOpStore}};
     auto pass = dev.makePass(&clrs, nullptr, nullptr);
     GrState::Config config{
       pass.get(),

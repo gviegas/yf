@@ -347,9 +347,9 @@ ImageVK::View::View(ImageVK& image,
                     uint32_t layerCount,
                     uint32_t firstLevel,
                     uint32_t levelCount)
-                    : image_(image), handle_(handle),
-                      firstLayer_(firstLayer), layerCount_(layerCount),
-                      firstLevel_(firstLevel), levelCount_(levelCount) { }
+  : image_(image), handle_(handle),
+    firstLayer_(firstLayer), layerCount_(layerCount),
+    firstLevel_(firstLevel), levelCount_(levelCount) { }
 
 ImageVK::View::~View() {
   // [1.2.146 c2.3]

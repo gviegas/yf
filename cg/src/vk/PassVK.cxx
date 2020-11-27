@@ -35,7 +35,7 @@ PassVK::PassVK(const vector<ColorAttach>* colors,
 
         attachDescs.push_back({});
 
-        auto desc = attachDescs.back();
+        auto& desc = attachDescs.back();
         desc.flags = 0;
         desc.format = toFormatVK(attach.format);
         desc.samples = toSampleCountVK(attach.samples);
@@ -69,7 +69,7 @@ PassVK::PassVK(const vector<ColorAttach>* colors,
 
     attachDescs.push_back({});
 
-    auto desc = attachDescs.back();
+    auto& desc = attachDescs.back();
     desc.flags = 0;
     desc.format = toFormatVK(depthStencil->format);
     desc.samples = toSampleCountVK(depthStencil->samples);

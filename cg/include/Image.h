@@ -102,6 +102,10 @@ class Image {
   const uint32_t layers_;
   const uint32_t levels_;
   const Samples samples_;
+
+  /// The number of bits per texel in the image format.
+  ///
+  const uint32_t bitsPerTexel_;
 };
 
 /// Image sampler types.

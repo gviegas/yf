@@ -58,21 +58,47 @@ struct DrawTest : Test {
       tgts.push_back(pass->makeTarget(winSz, 1, &clrImgs, nullptr, &dsImg));
     }
 
-    // Create buffer and fill with vertex data
-    auto buf = dev.makeBuffer(512);
-    float vertData[] = {-1.0f,  1.0f, 0.5f,
-                         1.0f,  1.0f, 0.5f,
-                         0.0f, -1.0f, 0.5f};
-    buf->write(0, sizeof vertData, vertData);
-    uint32_t strd = sizeof vertData / 3;
+    // Create buffer and fill with data
+    struct Vertex { float pos[3]; float tc[2]; };
+    Vertex vdata[] = {{{-1.0f,  1.0f, 0.5f}, {0.0f, 0.0f}},
+                      {{ 1.0f,  1.0f, 0.5f}, {1.0f, 0.0f}},
+                      {{ 0.0f, -1.0f, 0.5f}, {0.5f, 1.0f}}};
+
+    float mdata[] = {0.8f, 0.0f, 0.0f, 0.0f,
+                     0.0f, 0.8f, 0.0f, 0.0f,
+                     0.0f, 0.0f, 0.8f, 0.0f,
+                     0.0f, 0.0f, 0.0f, 1.0f};
+
+    uint32_t voff = offsetof(Vertex, tc);
+    uint32_t vstrd = sizeof(Vertex);
+
+    auto buf = dev.makeBuffer(1024);
+    buf->write(0, sizeof vdata, vdata);
+    buf->write(sizeof vdata, sizeof mdata, mdata);
+
+    // Create sampling image and fill with data
+    uint8_t pdata[][3] = {{0xFF, 0xFF, 0x00}, {0x1F, 0x1F, 0x00},
+                          {0x00, 0xFF, 0xFF}, {0x00, 0x1F, 0x1F},
+                          {0xFF, 0x00, 0xFF}, {0x1F, 0x00, 0x1F}};
+
+    auto tex = dev.makeImage(PxFormatRgb8Unorm, {2, 3}, 1, 1, Samples1);
+    tex->write({0}, {2, 3}, 0, 0, pdata);
+
+    // Create descriptor table, allocate resources and copy data
+    DcEntries dcs{{0, {DcTypeUniform, 1}},
+                  {1, {DcTypeImgSampler, 1}}};
+    auto dtb = dev.makeDcTable(dcs);
+    dtb->allocate(1);
+    dtb->write(0, 0, 0, *buf, sizeof vdata, sizeof mdata);
+    dtb->write(0, 1, 0, *tex, 0, 0, ImgSamplerBasic);
 
     // Create graphics state
     GrState::Config config{pass.get(),
                            {vert.get(), frag.get()},
-                           {},
-                           {
-                             { {{0, {VxFormatFlt3, 0}}}, strd, VxStepFnVertex }
-                           },
+                           {dtb.get()},
+                           { { {{0, {VxFormatFlt3, 0}},
+                                {1, {VxFormatFlt2, voff}}},
+                               vstrd, VxStepFnVertex } },
                            PrimitiveTriangle,
                            PolyModeFill,
                            CullModeBack,
@@ -100,8 +126,9 @@ struct DrawTest : Test {
       enc.setViewport({0.0f, 0.0f, 400.0f, 400.0f, 0.0f, 1.0f});
       enc.setScissor({{0}, winSz});
       enc.setTarget(tgtIt->get());
+      enc.setDcTable(0, 0);
       enc.setVertexBuffer(buf.get(), 0);
-      enc.clearColor({1.0f, 0.0f, 0.0f, 1.0f});
+      enc.clearColor({0.75f, 0.75f, 0.5f, 1.0f});
       enc.clearDepth(1.0f);
       enc.draw(0, 3, 0, 1);
 

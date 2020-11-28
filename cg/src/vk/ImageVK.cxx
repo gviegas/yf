@@ -206,13 +206,15 @@ void ImageVK::write(Offset2 offset,
     // TODO: consider getting all required layouts once on creation
     vkGetImageSubresourceLayout(dev, handle_, &subres, &layout);
 
+    const auto len = (bitsPerTexel_ >> 3) * size.width;
+    auto src = reinterpret_cast<const uint8_t*>(data);
     auto dst = reinterpret_cast<uint8_t*>(data_);
     dst += layout.offset + layout.arrayPitch*layer;
-    auto src = reinterpret_cast<const uint8_t*>(data);
+
     for (uint32_t row = 0; row < size.height; ++row) {
-      memcpy(dst, src, size.width);
+      memcpy(dst, src, len);
       dst += layout.rowPitch;
-      src += size.width;
+      src += len;
     }
 
   } else {

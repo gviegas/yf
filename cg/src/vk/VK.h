@@ -68,6 +68,7 @@ CG_DECLVK(vkGetPhysicalDeviceProperties);
 CG_DECLVK(vkGetPhysicalDeviceQueueFamilyProperties);
 CG_DECLVK(vkGetPhysicalDeviceMemoryProperties);
 CG_DECLVK(vkGetPhysicalDeviceFormatProperties);
+CG_DECLVK(vkGetPhysicalDeviceImageFormatProperties);
 CG_DECLVK(vkGetPhysicalDeviceFeatures);
 CG_DECLVK(vkGetPhysicalDeviceProperties2); // 1.1
 CG_DECLVK(vkGetPhysicalDeviceQueueFamilyProperties2); // 1.1

@@ -196,10 +196,14 @@ void ImageVK::write(Offset2 offset,
 
   if (tiling_ == VK_IMAGE_TILING_LINEAR) {
     VkImageSubresource subres;
-    // TODO: ensure that a single aspect is set (no combined depth/stencil)
     subres.aspectMask = aspectOfVK(format_);
     subres.mipLevel = level;
     subres.arrayLayer = 0;//layer;
+
+    if (subres.aspectMask != VK_IMAGE_ASPECT_COLOR_BIT &&
+        subres.aspectMask != VK_IMAGE_ASPECT_DEPTH_BIT &&
+        subres.aspectMask != VK_IMAGE_ASPECT_STENCIL_BIT)
+      throw runtime_error("Invalid aspect mask for image write");
 
     auto dev = DeviceVK::get().device();
     VkSubresourceLayout layout;

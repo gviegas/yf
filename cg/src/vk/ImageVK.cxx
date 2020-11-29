@@ -83,8 +83,8 @@ ImageVK::ImageVK(PxFormat format,
         usage_ |= VK_IMAGE_USAGE_TRANSFER_DST_BIT;
     } else {
       // XXX: not in v1.0
-      usage_ |= VK_FORMAT_FEATURE_TRANSFER_SRC_BIT |
-                VK_FORMAT_FEATURE_TRANSFER_DST_BIT;
+      usage_ |= VK_IMAGE_USAGE_TRANSFER_SRC_BIT |
+                VK_IMAGE_USAGE_TRANSFER_DST_BIT;
     }
 
     return true;
@@ -244,7 +244,7 @@ void ImageVK::write(Offset2 offset,
     VkImageSubresource subres;
     subres.aspectMask = aspectOfVK(format_);
     subres.mipLevel = level;
-    subres.arrayLayer = 0;//layer;
+    subres.arrayLayer = layer;
 
     if (subres.aspectMask != VK_IMAGE_ASPECT_COLOR_BIT &&
         subres.aspectMask != VK_IMAGE_ASPECT_DEPTH_BIT &&

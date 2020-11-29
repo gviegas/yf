@@ -15,22 +15,24 @@
 using namespace CG_NS;
 using namespace std;
 
-BufferVK::BufferVK(uint64_t size) : Buffer(size) {
+BufferVK::BufferVK(uint64_t size, VkBufferUsageFlags usage) : Buffer(size) {
   if (size == 0)
     throw invalid_argument("BufferVK requires size > 0");
 
   auto dev = DeviceVK::get().device();
   VkResult res;
 
-  VkBufferUsageFlags usage = VK_BUFFER_USAGE_TRANSFER_SRC_BIT |
-                             VK_BUFFER_USAGE_TRANSFER_DST_BIT |
-                             //VK_BUFFER_USAGE_UNIFORM_TEXEL_BUFFER_BIT |
-                             //VK_BUFFER_USAGE_STORAGE_TEXEL_BUFFER_BIT |
-                             VK_BUFFER_USAGE_UNIFORM_BUFFER_BIT |
-                             VK_BUFFER_USAGE_STORAGE_BUFFER_BIT |
-                             VK_BUFFER_USAGE_INDEX_BUFFER_BIT |
-                             VK_BUFFER_USAGE_VERTEX_BUFFER_BIT |
-                             VK_BUFFER_USAGE_INDIRECT_BUFFER_BIT;
+  if (usage == 0) {
+    usage = VK_BUFFER_USAGE_TRANSFER_SRC_BIT |
+            VK_BUFFER_USAGE_TRANSFER_DST_BIT |
+            //VK_BUFFER_USAGE_UNIFORM_TEXEL_BUFFER_BIT |
+            //VK_BUFFER_USAGE_STORAGE_TEXEL_BUFFER_BIT |
+            VK_BUFFER_USAGE_UNIFORM_BUFFER_BIT |
+            VK_BUFFER_USAGE_STORAGE_BUFFER_BIT |
+            VK_BUFFER_USAGE_INDEX_BUFFER_BIT |
+            VK_BUFFER_USAGE_VERTEX_BUFFER_BIT |
+            VK_BUFFER_USAGE_INDIRECT_BUFFER_BIT;
+  }
 
   VkBufferCreateInfo info;
   info.sType = VK_STRUCTURE_TYPE_BUFFER_CREATE_INFO;

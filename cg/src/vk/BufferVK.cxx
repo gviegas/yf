@@ -19,6 +19,7 @@ BufferVK::BufferVK(uint64_t size, VkBufferUsageFlags usage) : Buffer(size) {
   if (size == 0)
     throw invalid_argument("BufferVK requires size > 0");
 
+  // Create buffer
   auto dev = DeviceVK::get().device();
   VkResult res;
 
@@ -48,17 +49,30 @@ BufferVK::BufferVK(uint64_t size, VkBufferUsageFlags usage) : Buffer(size) {
   if (res != VK_SUCCESS)
     throw DeviceExcept("Could not create buffer");
 
+  // Allocate/bind/map memory
   VkMemoryRequirements memReq;
   vkGetBufferMemoryRequirements(dev, handle_, &memReq);
-  memory_ = allocateVK(memReq, true);
+
+  try {
+    memory_ = allocateVK(memReq, true);
+  } catch (...) {
+    vkDestroyBuffer(dev, handle_, nullptr);
+    throw;
+  }
 
   res = vkBindBufferMemory(dev, handle_, memory_, 0);
-  if (res != VK_SUCCESS)
+  if (res != VK_SUCCESS) {
+    vkDestroyBuffer(dev, handle_, nullptr);
+    deallocateVK(memory_);
     throw DeviceExcept("Failed to bind memory to buffer");
+  }
 
   res = vkMapMemory(dev, memory_, 0, VK_WHOLE_SIZE, 0, &data_);
-  if (res != VK_SUCCESS)
+  if (res != VK_SUCCESS) {
+    vkDestroyBuffer(dev, handle_, nullptr);
+    deallocateVK(memory_);
     throw DeviceExcept("Failed to map buffer memory");
+  }
 }
 
 BufferVK::~BufferVK() {

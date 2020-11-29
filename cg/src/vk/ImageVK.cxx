@@ -69,7 +69,7 @@ ImageVK::ImageVK(PxFormat format,
       usage_ |= VK_IMAGE_USAGE_DEPTH_STENCIL_ATTACHMENT_BIT;
 
     // XXX: this check assumes that multisample storage is not supported,
-    // since it may spoil additional capabilities query otherwise
+    // since it could spoil additional capabilities query otherwise
     if (samples == Samples1 && (feat & VK_FORMAT_FEATURE_STORAGE_IMAGE_BIT))
       usage_ |= VK_IMAGE_USAGE_STORAGE_BIT;
 
@@ -161,7 +161,7 @@ ImageVK::ImageVK(PxFormat format,
   vkGetImageMemoryRequirements(dev, handle_, &memReq);
 
   try {
-    memory_ = allocateVK(memReq, tiling_ == VK_IMAGE_TILING_OPTIMAL);
+    memory_ = allocateVK(memReq, tiling_ == VK_IMAGE_TILING_LINEAR);
   } catch (...) {
     vkDestroyImage(dev, handle_, nullptr);
     throw;

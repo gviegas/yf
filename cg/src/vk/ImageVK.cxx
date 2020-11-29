@@ -33,60 +33,105 @@ ImageVK::ImageVK(PxFormat format,
   if (levels == 0)
     throw invalid_argument("ImageVK requires levels != 0");
 
+  // Convert to format
   VkFormat fmt = toFormatVK(format);
   if (fmt == VK_FORMAT_UNDEFINED)
     throw invalid_argument("ImageVK requires a valid format");
 
+  // Convert to sample count
   VkSampleCountFlagBits smpl = toSampleCountVK(samples);
 
+  // Set image type
   if (size.height > 1)
     type_ = VK_IMAGE_TYPE_2D;
   else
     type_ = VK_IMAGE_TYPE_1D;
 
+  // Get format properties
   auto phys = DeviceVK::get().physicalDev();
   VkFormatProperties fmtProp;
   vkGetPhysicalDeviceFormatProperties(phys, fmt, &fmtProp);
 
-  auto getUsage = [](VkFormatFeatureFlags feat) {
-    VkImageUsageFlags usage = 0;
+  // Set valid usage mask for use with `tiling`
+  auto setUsage = [&](VkImageTiling tiling) {
+    usage_ = 0;
+    VkFormatFeatureFlags feat;
+    if (tiling == VK_IMAGE_TILING_LINEAR)
+      feat = fmtProp.linearTilingFeatures;
+    else
+      feat = fmtProp.optimalTilingFeatures;
 
     if (feat & VK_FORMAT_FEATURE_SAMPLED_IMAGE_BIT)
-      usage |= VK_IMAGE_USAGE_SAMPLED_BIT;
-    if (feat & VK_FORMAT_FEATURE_STORAGE_IMAGE_BIT)
-      usage |= VK_IMAGE_USAGE_STORAGE_BIT;
+      usage_ |= VK_IMAGE_USAGE_SAMPLED_BIT;
     if (feat & VK_FORMAT_FEATURE_COLOR_ATTACHMENT_BIT)
-      usage |= VK_IMAGE_USAGE_COLOR_ATTACHMENT_BIT;
+      usage_ |= VK_IMAGE_USAGE_COLOR_ATTACHMENT_BIT;
     if (feat & VK_FORMAT_FEATURE_DEPTH_STENCIL_ATTACHMENT_BIT)
-      usage |= VK_IMAGE_USAGE_DEPTH_STENCIL_ATTACHMENT_BIT;
+      usage_ |= VK_IMAGE_USAGE_DEPTH_STENCIL_ATTACHMENT_BIT;
+
+    // XXX: this check assumes that multisample storage is not supported,
+    // since it may spoil additional capabilities query otherwise
+    if (samples == Samples1 && (feat & VK_FORMAT_FEATURE_STORAGE_IMAGE_BIT))
+      usage_ |= VK_IMAGE_USAGE_STORAGE_BIT;
+
+    if (usage_ == 0)
+      return false;
 
     if (DeviceVK::get().devVersion() >= VK_API_VERSION_1_1) {
       if (feat & VK_FORMAT_FEATURE_TRANSFER_SRC_BIT)
-        usage |= VK_IMAGE_USAGE_TRANSFER_SRC_BIT;
+        usage_ |= VK_IMAGE_USAGE_TRANSFER_SRC_BIT;
       if (feat & VK_FORMAT_FEATURE_TRANSFER_DST_BIT)
-        usage |= VK_IMAGE_USAGE_TRANSFER_DST_BIT;
+        usage_ |= VK_IMAGE_USAGE_TRANSFER_DST_BIT;
     } else {
       // XXX: not in v1.0
-      usage |= VK_FORMAT_FEATURE_TRANSFER_SRC_BIT |
-               VK_FORMAT_FEATURE_TRANSFER_DST_BIT;
+      usage_ |= VK_FORMAT_FEATURE_TRANSFER_SRC_BIT |
+                VK_FORMAT_FEATURE_TRANSFER_DST_BIT;
     }
 
-    return usage;
+    return true;
   };
 
-  // TODO: improve this
-  usage_ = getUsage(fmtProp.linearTilingFeatures);
-  if (usage_ != 0) {
-    tiling_ = VK_IMAGE_TILING_LINEAR;
-    layout_ = nextLayout_ = VK_IMAGE_LAYOUT_PREINITIALIZED;
-  } else {
-    usage_ = fmtProp.optimalTilingFeatures;
-    if (usage_ == 0)
+  // Set image tiling and layout properties
+  auto setTiling = [&](VkImageTiling tiling) {
+    VkImageFormatProperties prop;
+    auto res = vkGetPhysicalDeviceImageFormatProperties(phys, fmt, type_,
+                                                        tiling, usage_, 0,
+                                                        &prop);
+    switch (res) {
+    case VK_SUCCESS:
+      if (prop.maxExtent.width < size.width ||
+          prop.maxExtent.height < size.height ||
+          prop.maxMipLevels < levels ||
+          prop.maxArrayLayers < layers ||
+          !(prop.sampleCounts & smpl))
+        return false;
+
+      tiling_ = tiling;
+      if (tiling == VK_IMAGE_TILING_LINEAR)
+        layout_ = nextLayout_ = VK_IMAGE_LAYOUT_PREINITIALIZED;
+      else
+        layout_ = nextLayout_ = VK_IMAGE_LAYOUT_UNDEFINED;
+      return true;
+
+    case VK_ERROR_FORMAT_NOT_SUPPORTED:
+      return false;
+
+    default:
+      throw DeviceExcept("Could not query image format properties");
+    }
+  };
+
+  // Check if image creation with linear tiling _might_ work
+  if (samples != Samples1 ||
+      !setUsage(VK_IMAGE_TILING_LINEAR) ||
+      !setTiling(VK_IMAGE_TILING_LINEAR)) {
+
+    // No chance of linear tiling working, try optimal tiling
+    if (!setUsage(VK_IMAGE_TILING_OPTIMAL) ||
+        !setTiling(VK_IMAGE_TILING_OPTIMAL))
       throw UnsupportedExcept("Format not supported by ImageVK");
-    tiling_ = VK_IMAGE_TILING_OPTIMAL;
-    layout_ = nextLayout_ = VK_IMAGE_LAYOUT_UNDEFINED;
   }
 
+  // Create image
   auto dev = DeviceVK::get().device();
   VkResult res;
 
@@ -111,6 +156,7 @@ ImageVK::ImageVK(PxFormat format,
   if (res != VK_SUCCESS)
     throw DeviceExcept("Could not create image");
 
+  // Allocate/bind/map memory
   VkMemoryRequirements memReq;
   vkGetImageMemoryRequirements(dev, handle_, &memReq);
 

@@ -102,6 +102,7 @@ void CG_NS::setProcsVK(VkInstance instance) {
     CG_INSTPROCVK(instance, vkGetPhysicalDeviceQueueFamilyProperties);
     CG_INSTPROCVK(instance, vkGetPhysicalDeviceMemoryProperties);
     CG_INSTPROCVK(instance, vkGetPhysicalDeviceFormatProperties);
+    CG_INSTPROCVK(instance, vkGetPhysicalDeviceImageFormatProperties);
     CG_INSTPROCVK(instance, vkGetPhysicalDeviceFeatures);
     CG_INSTPROCVK(instance, vkGetPhysicalDeviceProperties2);
     CG_INSTPROCVK(instance, vkGetPhysicalDeviceQueueFamilyProperties2);
@@ -272,6 +273,7 @@ CG_DEFVK(vkGetPhysicalDeviceProperties);
 CG_DEFVK(vkGetPhysicalDeviceQueueFamilyProperties);
 CG_DEFVK(vkGetPhysicalDeviceMemoryProperties);
 CG_DEFVK(vkGetPhysicalDeviceFormatProperties);
+CG_DEFVK(vkGetPhysicalDeviceImageFormatProperties);
 CG_DEFVK(vkGetPhysicalDeviceFeatures);
 CG_DEFVK(vkGetPhysicalDeviceProperties2); // 1.1
 CG_DEFVK(vkGetPhysicalDeviceQueueFamilyProperties2); // 1.1

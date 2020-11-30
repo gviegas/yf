@@ -236,14 +236,16 @@ void ImageVK::write(Offset2 offset,
       !data)
     throw invalid_argument("ImageVK write()");
 
-  if (layout_ != VK_IMAGE_LAYOUT_PREINITIALIZED &&
-      layout_ != VK_IMAGE_LAYOUT_GENERAL)
-    changeLayout(VK_IMAGE_LAYOUT_GENERAL, false);
-
   if (tiling_ == VK_IMAGE_TILING_LINEAR) {
     // For linear tiling, just query subresource layout and then write
     // contents to memory (through `data_` pointer) directly
 
+    // Must be host-visible
+    if (layout_ != VK_IMAGE_LAYOUT_PREINITIALIZED &&
+        layout_ != VK_IMAGE_LAYOUT_GENERAL)
+      changeLayout(VK_IMAGE_LAYOUT_GENERAL, false);
+
+    // Query subresource layout
     VkImageSubresource subres;
     subres.aspectMask = aspectOfVK(format_);
     subres.mipLevel = level;
@@ -259,10 +261,12 @@ void ImageVK::write(Offset2 offset,
     // TODO: consider getting all required layouts once on creation
     vkGetImageSubresourceLayout(dev, handle_, &subres, &layout);
 
+    // Write data to image memory
     const auto len = (bitsPerTexel_ >> 3) * size.width;
     auto src = reinterpret_cast<const uint8_t*>(data);
     auto dst = reinterpret_cast<uint8_t*>(data_);
     dst += layout.offset + layout.arrayPitch*layer;
+    dst += offset.y * layout.rowPitch + offset.x * (bitsPerTexel_ >> 3);
 
     for (uint32_t row = 0; row < size.height; ++row) {
       memcpy(dst, src, len);
@@ -273,6 +277,9 @@ void ImageVK::write(Offset2 offset,
   } else {
     // For optimal tiling, create a staging buffer into which the data
     // will be written and then issue a buffer-to-image copy command
+
+    if (layout_ != VK_IMAGE_LAYOUT_GENERAL)
+      changeLayout(VK_IMAGE_LAYOUT_GENERAL, true);
 
     const uint32_t txSz = (bitsPerTexel_ >> 3);
     BufferVK* buf = nullptr;
@@ -294,9 +301,8 @@ void ImageVK::write(Offset2 offset,
       off += (size_.width >> i) * (size_.height >> i) * txSz;
       off = (off-1 & ~3) + 4;
     }
-    if (offset != 0) {
-      off += offset.y * (size_.width >> level) + offset.x;
-    }
+    if (offset != 0)
+      off += offset.y * (size_.width >> level) * txSz + offset.x * txSz;
     uint64_t sz = (size.width >> level) * (size.height >> level) * txSz;
 
     // TODO: might want to check if write area falls inside the level bounds
@@ -370,15 +376,15 @@ void ImageVK::changeLayout(bool defer) {
   VkPipelineStageFlags dstMask = VK_PIPELINE_STAGE_ALL_COMMANDS_BIT;
 
   auto& queue = static_cast<QueueVK&>(DeviceVK::get().defaultQueue());
-  auto cb = queue.getPriority(dstMask, [&](bool result) {
+  auto cbuf = queue.getPriority(dstMask, [&](bool result) {
     if (result)
       layout_ = nextLayout_;
     else
       nextLayout_ = layout_;
   });
 
-  vkCmdPipelineBarrier(cb, srcMask, dstMask, 0, 0, nullptr, 0, nullptr, 1,
-                       &barrier_);
+  vkCmdPipelineBarrier(cbuf, srcMask, dstMask, 0, 0, nullptr, 0, nullptr,
+                       1, &barrier_);
   if (!defer)
     queue.submit();
 }
@@ -442,7 +448,7 @@ ImageVK::View::Ptr ImageVK::getView(uint32_t firstLayer,
   if (res != VK_SUCCESS)
     throw DeviceExcept("Could not create image view");
 
-  //views_.emplace(iv, 0).first->second++;
+//  views_.emplace(iv, 0).first->second++;
   return make_unique<View>(*this, iv, firstLayer, layerCount,
                            firstLevel, levelCount);
 }

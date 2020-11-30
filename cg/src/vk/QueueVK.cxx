@@ -119,23 +119,19 @@ void QueueVK::submit() {
   VkSubmitInfo infos[2];
   uint32_t infoN = 0;
   vector<VkCommandBuffer> handles;
-  uint32_t handleN = 0;
 
   if (pendPrio_) {
-    handles.push_back(cmdPrio_);
-
     infos[infoN].sType = VK_STRUCTURE_TYPE_SUBMIT_INFO;
     infos[infoN].pNext = nullptr;
     infos[infoN].waitSemaphoreCount = 0;
     infos[infoN].pWaitSemaphores = nullptr;
     infos[infoN].pWaitDstStageMask = nullptr;
     infos[infoN].commandBufferCount = 1;
-    infos[infoN].pCommandBuffers = handles.data();
+    infos[infoN].pCommandBuffers = &cmdPrio_;
     infos[infoN].signalSemaphoreCount = 0;
     infos[infoN].pSignalSemaphores = nullptr;
 
     ++infoN;
-    ++handleN;
   }
 
   if (!pending_.empty()) {
@@ -147,8 +143,8 @@ void QueueVK::submit() {
     infos[infoN].waitSemaphoreCount = 0;
     infos[infoN].pWaitSemaphores = nullptr;
     infos[infoN].pWaitDstStageMask = nullptr;
-    infos[infoN].commandBufferCount = pending_.size();
-    infos[infoN].pCommandBuffers = handles.data()+handleN;
+    infos[infoN].commandBufferCount = handles.size();
+    infos[infoN].pCommandBuffers = handles.data();
     infos[infoN].signalSemaphoreCount = 0;
     infos[infoN].pSignalSemaphores = nullptr;
 

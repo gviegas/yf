@@ -12,6 +12,7 @@
 
 #include "Image.h"
 #include "VK.h"
+#include "BufferVK.h"
 
 CG_NS_BEGIN
 
@@ -24,7 +25,7 @@ class ImageVK final : public Image {
           uint32_t levels,
           Samples samples);
 
-  /// Wraps an existing `VkImage` on a `ImageVK` object.
+  /// Wraps an existing `VkImage` on an `ImageVK` object.
   ///
   ImageVK(PxFormat format,
           Size2 size,
@@ -105,6 +106,7 @@ class ImageVK final : public Image {
   VkDeviceMemory memory_ = VK_NULL_HANDLE;
   VkImage handle_ = VK_NULL_HANDLE;
   void* data_ = nullptr;
+  std::unordered_map<uint32_t, std::unique_ptr<BufferVK>> staging_{};
 
   VkImageLayout layout_ = VK_IMAGE_LAYOUT_UNDEFINED;
   VkImageLayout nextLayout_ = VK_IMAGE_LAYOUT_UNDEFINED;

@@ -241,6 +241,9 @@ void ImageVK::write(Offset2 offset,
     changeLayout(VK_IMAGE_LAYOUT_GENERAL, false);
 
   if (tiling_ == VK_IMAGE_TILING_LINEAR) {
+    // For linear tiling, just query subresource layout and then write
+    // contents to memory (through `data_` pointer) directly
+
     VkImageSubresource subres;
     subres.aspectMask = aspectOfVK(format_);
     subres.mipLevel = level;
@@ -268,8 +271,56 @@ void ImageVK::write(Offset2 offset,
     }
 
   } else {
-    // TODO
-    throw runtime_error("Unimplemented");
+    // For optimal tiling, create a staging buffer into which the data
+    // will be written and then issue a buffer-to-image copy command
+
+    const uint32_t txSz = (bitsPerTexel_ >> 3);
+    BufferVK* buf = nullptr;
+
+    // One staging buffer per layer
+    if (staging_.find(layer) == staging_.end()) {
+      uint64_t sz = size_.width * size_.height * txSz;
+      sz = (sz & ~255) + 256;
+      if (levels_ > 1)
+        sz <<= 1;
+      VkBufferUsageFlags usage = VK_BUFFER_USAGE_TRANSFER_SRC_BIT;
+      auto tp = staging_.emplace(layer, make_unique<BufferVK>(sz, usage));
+      buf = tp.first->second.get();
+    }
+
+    // The mipmap chain is stored contiguosly in the buffer
+    uint64_t off = 0;
+    for (uint32_t i = 0; i < level; ++i) {
+      off += (size_.width >> i) * (size_.height >> i) * txSz;
+      off = (off-1 & ~3) + 4;
+    }
+    if (offset != 0) {
+      off += offset.y * (size_.width >> level) + offset.x;
+    }
+    uint64_t sz = (size.width >> level) * (size.height >> level) * txSz;
+
+    // TODO: might want to check if write area falls inside the level bounds
+
+    // Write data to staging buffer
+    buf->write(off, sz, data);
+
+    // Get priority buffer into which the transfer will be encoded
+    // TODO: improve staging buffer management
+    auto& queue = static_cast<QueueVK&>(DeviceVK::get().defaultQueue());
+    auto cbuf = queue.getPriority(VK_PIPELINE_STAGE_ALL_COMMANDS_BIT,
+                                  [&](bool) { staging_.clear(); });
+
+    // Encode transfer command
+    VkBufferImageCopy region;
+    region.bufferOffset = off;
+    region.bufferRowLength = 0;
+    region.bufferImageHeight = 0;
+    region.imageSubresource = {aspectOfVK(format_), level, layer, 1};
+    region.imageOffset = {offset.x, offset.y, 1};
+    region.imageExtent = {size.width, size.height, 1};
+
+    vkCmdCopyBufferToImage(cbuf, buf->handle(), handle_, nextLayout_,
+                           1, &region);
   }
 }
 

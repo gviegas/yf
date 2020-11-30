@@ -112,7 +112,7 @@ class ImageVK final : public Image {
   VkImageLayout nextLayout_ = VK_IMAGE_LAYOUT_UNDEFINED;
   VkImageMemoryBarrier barrier_{};
 
-  //std::unordered_map<VkImageView, uint32_t> views_{};
+//  std::unordered_map<VkImageView, uint32_t> views_{};
 };
 
 /// Sampler.

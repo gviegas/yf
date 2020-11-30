@@ -236,13 +236,14 @@ void ImageVK::write(Offset2 offset,
       !data)
     throw invalid_argument("ImageVK write()");
 
-  if (layout_ != VK_IMAGE_LAYOUT_PREINITIALIZED &&
-      layout_ != VK_IMAGE_LAYOUT_GENERAL)
-    changeLayout(VK_IMAGE_LAYOUT_GENERAL, false);
-
   if (tiling_ == VK_IMAGE_TILING_LINEAR) {
     // For linear tiling, just query subresource layout and then write
     // contents to memory (through `data_` pointer) directly
+
+    // Must be host-visible
+    if (layout_ != VK_IMAGE_LAYOUT_PREINITIALIZED &&
+        layout_ != VK_IMAGE_LAYOUT_GENERAL)
+      changeLayout(VK_IMAGE_LAYOUT_GENERAL, false);
 
     // Query subresource layout
     VkImageSubresource subres;
@@ -276,6 +277,9 @@ void ImageVK::write(Offset2 offset,
   } else {
     // For optimal tiling, create a staging buffer into which the data
     // will be written and then issue a buffer-to-image copy command
+
+    if (layout_ != VK_IMAGE_LAYOUT_GENERAL)
+      changeLayout(VK_IMAGE_LAYOUT_GENERAL, true);
 
     const uint32_t txSz = (bitsPerTexel_ >> 3);
     BufferVK* buf = nullptr;
@@ -444,7 +448,7 @@ ImageVK::View::Ptr ImageVK::getView(uint32_t firstLayer,
   if (res != VK_SUCCESS)
     throw DeviceExcept("Could not create image view");
 
-  //views_.emplace(iv, 0).first->second++;
+//  views_.emplace(iv, 0).first->second++;
   return make_unique<View>(*this, iv, firstLayer, layerCount,
                            firstLevel, levelCount);
 }

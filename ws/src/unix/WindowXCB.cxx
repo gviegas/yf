@@ -8,12 +8,26 @@
 #include <cstdlib>
 #include <cstring>
 #include <cwchar>
+#include <unordered_map>
 
 #include "WindowXCB.h"
 #include "yf/Except.h"
 
 using namespace WS_NS;
 using namespace std;
+
+INTERNAL_NS_BEGIN
+
+/// Mapping between window ids and objects.
+///
+unordered_map<xcb_window_t, WindowXCB*> winMap{};
+
+INTERNAL_NS_END
+
+WindowXCB* WindowXCB::fromId(xcb_window_t id) {
+  auto it = winMap.find(id);
+  return it == winMap.end() ? nullptr : it->second;
+}
 
 WindowXCB::WindowXCB(uint32_t width,
                      uint32_t height,
@@ -86,9 +100,13 @@ WindowXCB::WindowXCB(uint32_t width,
     deinit();
     throw runtime_error("flushXCB failed");
   }
+
+  // Insert mapping
+  winMap.emplace(window_, this);
 }
 
 WindowXCB::~WindowXCB() {
+  winMap.erase(window_);
   // XXX: this must happen before deinitXCB()
   destroyWindowXCB(varsXCB().connection, window_);
 }

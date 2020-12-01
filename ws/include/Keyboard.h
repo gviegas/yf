@@ -8,6 +8,7 @@
 #ifndef YF_WS_KEYBOARD_H
 #define YF_WS_KEYBOARD_H
 
+#include <functional>
 #include <cstdint>
 
 #include "yf/ws/Defs.h"
@@ -151,6 +152,24 @@ using KeyModMask = uint32_t;
 enum KeyState {
   KeyStateReleased = 0,
   KeyStatePressed  = 1
+};
+
+class Window;
+
+/// Keyboard event delegate.
+///
+struct KbDelegate {
+  /// Enter window event (focus gained).
+  ///
+  std::function<void (Window*)> enter;
+
+  /// Leave window event (focus lost).
+  ///
+  std::function<void (Window*)> leave;
+
+  /// Key press/release event.
+  ///
+  std::function<void (KeyCode, KeyState, KeyModMask)> key;
 };
 
 WS_NS_END

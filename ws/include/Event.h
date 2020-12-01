@@ -8,7 +8,7 @@
 #ifndef YF_WS_EVENT_H
 #define YF_WS_EVENT_H
 
-#include "yf/ws/Defs.h"
+#include "yf/ws/Keyboard.h"
 
 WS_NS_BEGIN
 
@@ -25,6 +25,10 @@ class Event {
   /// Dispatches events.
   ///
   virtual void dispatch() = 0;
+
+  /// Sets a delegate to handle keyboard events.
+  ///
+  virtual void setDelegate(const KbDelegate& delegate) = 0;
 };
 
 WS_NS_END

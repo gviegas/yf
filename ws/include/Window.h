@@ -84,11 +84,11 @@ class Window {
 struct WdDelegate {
   /// Close event.
   ///
-  std::function<void ()> close;
+  std::function<void (Window*)> close;
 
   /// Resize event.
   ///
-  std::function<void (uint32_t w, uint32_t h)> resize;
+  std::function<void (Window*, uint32_t w, uint32_t h)> resize;
 };
 
 WS_NS_END

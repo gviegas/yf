@@ -13,9 +13,10 @@
 TEST_NS_BEGIN
 
 Test* windowTest();
+Test* eventTest();
 
 inline const std::vector<Test*>& unitTests() {
-  static std::vector<Test*> tests{windowTest()};
+  static std::vector<Test*> tests{windowTest(), eventTest()};
 
   return tests;
 }

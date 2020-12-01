@@ -63,7 +63,32 @@ void EventXCB::dispatch() {
   // Handle BUTTON_PRESS/BUTTON_RELEASE
   auto button = [&] {
     auto ev = reinterpret_cast<xcb_button_press_event_t*>(event);
-    // TODO...
+
+    Button btn;
+    switch (ev->detail) {
+    case XCB_BUTTON_INDEX_1:
+      btn = ButtonLeft;
+      break;
+    case XCB_BUTTON_INDEX_2:
+      btn = ButtonMiddle;
+      break;
+    case XCB_BUTTON_INDEX_3:
+      btn = ButtonRight;
+      break;
+    case XCB_BUTTON_INDEX_4:
+    case XCB_BUTTON_INDEX_5:
+      // TODO: scroll
+    default:
+      btn = ButtonUnknown;
+    }
+
+    BtnState state;
+    if (type == XCB_BUTTON_PRESS)
+      state = BtnStatePressed;
+    else
+      state = BtnStateReleased;
+
+    ptDeleg_.button(btn, state, ev->event_x, ev->event_y);
   };
 
   // Handle MOTION_NOTIFY

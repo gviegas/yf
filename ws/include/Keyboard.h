@@ -18,7 +18,7 @@ WS_NS_BEGIN
 /// Key codes.
 ///
 enum KeyCode {
-  KeyCodeUnknown,
+  KeyCodeUnknown = 0,
   KeyCodeGrave,
   KeyCode1,
   KeyCode2,

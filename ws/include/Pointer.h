@@ -19,7 +19,7 @@ WS_NS_BEGIN
 /// Pointer buttons.
 ///
 enum Button {
-  ButtonUnknown,
+  ButtonUnknown = 0,
   ButtonLeft,
   ButtonRight,
   ButtonMiddle,

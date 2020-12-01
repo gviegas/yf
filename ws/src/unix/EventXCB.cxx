@@ -9,6 +9,7 @@
 
 #include "EventXCB.h"
 #include "WindowXCB.h"
+#include "KeymapUNIX.h"
 
 using namespace WS_NS;
 
@@ -26,9 +27,7 @@ void EventXCB::dispatch() {
   auto key = [&] {
     auto ev = reinterpret_cast<xcb_key_press_event_t*>(event);
 
-    // TODO
-    // = toKeyCode(event->detail - 8);
-    KeyCode code = KeyCodeUnknown;
+    KeyCode code = toKeyCodeUNIX(ev->detail - 8);
 
     KeyState state;
     if (type == XCB_KEY_PRESS)

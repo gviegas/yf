@@ -18,7 +18,7 @@ EventXCB& EventXCB::get() {
 }
 
 void EventXCB::dispatch() {
-  auto conn = varsXCB().connection;
+  const auto& vars = varsXCB();
   xcb_generic_event_t* event = nullptr;
   uint32_t type;
 
@@ -130,18 +130,21 @@ void EventXCB::dispatch() {
   // Handle CONFIGURE_NOTIFY
   auto config = [&] {
     auto ev = reinterpret_cast<xcb_configure_notify_event_t*>(event);
-    // TODO...
+    wdDeleg_.resize(WindowXCB::fromId(ev->event), ev->width, ev->height);
+    // TODO: notify window object
   };
 
   // Handle CLIENT_MESSAGE
   auto client = [&] {
     auto ev = reinterpret_cast<xcb_client_message_event_t*>(event);
-    // TODO...
+
+    if (ev->type == vars.protocolAtom && ev->data.data32[0] == vars.deleteAtom)
+      wdDeleg_.close(WindowXCB::fromId(ev->window));
   };
 
   // Poll events
   do {
-    event = pollForEventXCB(conn);
+    event = pollForEventXCB(vars.connection);
     if (!event)
       break;
     type = event->response_type & ~0x80;

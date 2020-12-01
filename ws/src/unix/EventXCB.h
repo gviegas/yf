@@ -12,7 +12,6 @@
 #include "Window.h"
 #include "Keyboard.h"
 #include "Pointer.h"
-#include "XCB.h"
 
 WS_NS_BEGIN
 
@@ -47,9 +46,6 @@ class EventXCB final : public Event {
   WdDelegate wdDeleg_{};
   KbDelegate kbDeleg_{};
   PtDelegate ptDeleg_{};
-  xcb_window_t window_ = 0;
-  int32_t x_ = -1;
-  int32_t y_ = -1;
 };
 
 WS_NS_END

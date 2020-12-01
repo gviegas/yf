@@ -8,11 +8,13 @@
 #ifndef YF_WS_EVENT_H
 #define YF_WS_EVENT_H
 
-#include "yf/ws/Window.h"
-#include "yf/ws/Keyboard.h"
-#include "yf/ws/Pointer.h"
+#include "yf/ws/Defs.h"
 
 WS_NS_BEGIN
+
+struct WdDelegate;
+struct KbDelegate;
+struct PtDelegate;
 
 /// Event manager.
 ///

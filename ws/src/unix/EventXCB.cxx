@@ -8,6 +8,7 @@
 #include <cstdlib>
 
 #include "EventXCB.h"
+#include "WindowXCB.h"
 
 using namespace WS_NS;
 
@@ -94,31 +95,31 @@ void EventXCB::dispatch() {
   // Handle MOTION_NOTIFY
   auto motion = [&] {
     auto ev = reinterpret_cast<xcb_motion_notify_event_t*>(event);
-    // TODO...
+    ptDeleg_.motion(ev->event_x, ev->event_y);
   };
 
   // Handle ENTER_NOTIFY
   auto enter = [&] {
     auto ev = reinterpret_cast<xcb_enter_notify_event_t*>(event);
-    // TODO...
+    ptDeleg_.enter(WindowXCB::fromId(ev->event), ev->event_x, ev->event_y);
   };
 
   // Handle LEAVE_NOTIFY
   auto leave = [&] {
     auto ev = reinterpret_cast<xcb_leave_notify_event_t*>(event);
-    // TODO...
+    ptDeleg_.leave(WindowXCB::fromId(ev->event));
   };
 
   // Handle FOCUS_IN
   auto focusIn = [&] {
     auto ev = reinterpret_cast<xcb_focus_in_event_t*>(event);
-    // TODO...
+    kbDeleg_.enter(WindowXCB::fromId(ev->event));
   };
 
   // Handle FOCUS_OUT
   auto focusOut = [&] {
     auto ev = reinterpret_cast<xcb_focus_out_event_t*>(event);
-    // TODO...
+    kbDeleg_.leave(WindowXCB::fromId(ev->event));
   };
 
   // Handle EXPOSE

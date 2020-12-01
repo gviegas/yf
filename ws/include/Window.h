@@ -11,11 +11,14 @@
 #include <cstdint>
 #include <string>
 #include <memory>
+#include <functional>
 
 #include "yf/ws/Defs.h"
 
 WS_NS_BEGIN
 
+/// Window.
+///
 class Window {
  public:
   using Ptr = std::unique_ptr<Window>;
@@ -74,6 +77,18 @@ class Window {
   virtual uint32_t width() const = 0;
   virtual uint32_t height() const = 0;
   virtual const std::wstring& title() const = 0;
+};
+
+/// Window event delegate.
+///
+struct WdDelegate {
+  /// Close event.
+  ///
+  std::function<void ()> close;
+
+  /// Resize event.
+  ///
+  std::function<void (uint32_t w, uint32_t h)> resize;
 };
 
 WS_NS_END

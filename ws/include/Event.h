@@ -8,6 +8,7 @@
 #ifndef YF_WS_EVENT_H
 #define YF_WS_EVENT_H
 
+#include "yf/ws/Window.h"
 #include "yf/ws/Keyboard.h"
 #include "yf/ws/Pointer.h"
 
@@ -27,12 +28,10 @@ class Event {
   ///
   virtual void dispatch() = 0;
 
-  /// Sets a delegate to handle keyboard events.
+  /// Sets event delegates.
   ///
+  virtual void setDelegate(const WdDelegate& delegate) = 0;
   virtual void setDelegate(const KbDelegate& delegate) = 0;
-
-  /// Sets a delegate to handle pointer events.
-  ///
   virtual void setDelegate(const PtDelegate& delegate) = 0;
 };
 

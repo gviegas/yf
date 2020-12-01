@@ -19,11 +19,45 @@ EventXCB& EventXCB::get() {
 void EventXCB::dispatch() {
   auto conn = varsXCB().connection;
   xcb_generic_event_t* event = nullptr;
+  uint32_t type;
 
   // Handle KEY_PRESS/KEY_RELEASE
   auto key = [&] {
     auto ev = reinterpret_cast<xcb_key_press_event_t*>(event);
-    // TODO...
+
+    // TODO
+    // = toKeyCode(event->detail - 8);
+    KeyCode code = KeyCodeUnknown;
+
+    KeyState state;
+    if (type == XCB_KEY_PRESS)
+      state = KeyStatePressed;
+    else
+      state = KeyStateReleased;
+
+    static uint16_t prevEvState = 0;
+    static KeyModMask prevModMask = 0;
+
+    KeyModMask modMask;
+    if (ev->state == prevEvState) {
+      modMask = prevModMask;
+    } else {
+      modMask = 0;
+
+      if (ev->state & XCB_MOD_MASK_LOCK)
+        modMask |= KeyModCapsLock;
+      if (ev->state & XCB_MOD_MASK_SHIFT)
+        modMask |= KeyModShift;
+      if (ev->state & XCB_MOD_MASK_CONTROL)
+        modMask |= KeyModCtrl;
+      if (ev->state & XCB_MOD_MASK_1)
+        modMask |= KeyModAlt;
+
+      prevModMask = modMask;
+      prevEvState = ev->state;
+    }
+
+    kbDeleg_.key(code, state, modMask);
   };
 
   // Handle BUTTON_PRESS/BUTTON_RELEASE
@@ -84,8 +118,9 @@ void EventXCB::dispatch() {
     event = pollForEventXCB(conn);
     if (!event)
       break;
+    type = event->response_type & ~0x80;
 
-    switch (event->response_type & ~0x80) {
+    switch (type) {
     case XCB_KEY_PRESS:
     case XCB_KEY_RELEASE:
       if (mask_ & KbKey)

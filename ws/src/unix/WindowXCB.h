@@ -30,6 +30,10 @@ class WindowXCB final : public Window {
   ///
   xcb_window_t window() const;
 
+  /// Gets the window object corresponding to a given window id.
+  ///
+  static WindowXCB* fromId(xcb_window_t);
+
  private:
   xcb_window_t window_ = 0;
   uint32_t width_ = 0;

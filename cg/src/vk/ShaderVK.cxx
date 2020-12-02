@@ -6,7 +6,6 @@
 //
 
 #include <fstream>
-#include <filesystem>
 #include <memory>
 #include <cstring>
 #include <cwchar>
@@ -24,8 +23,19 @@ ShaderVK::ShaderVK(Stage stage, wstring&& codeFile, wstring&& entryPoint)
   if (codeFile_.empty() || entryPoint_.empty())
     throw invalid_argument("ShaderVK requires valid codeFile and entryPoint");
 
+  const wchar_t* wsrc;
+  mbstate_t state;
+
+  // Convert path string
+  char path[256];
+  wsrc = codeFile_.data();
+  memset(&state, 0, sizeof state);
+  wcsrtombs(path, &wsrc, sizeof path, &state);
+  if (wsrc)
+    throw LimitExcept("Could not convert shader code file path");
+
   // Get shader code data and create module
-  ifstream ifs(filesystem::path{codeFile_});
+  ifstream ifs(path);
   if (!ifs)
     throw FileExcept("Could not open file");
 
@@ -52,11 +62,10 @@ ShaderVK::ShaderVK(Stage stage, wstring&& codeFile, wstring&& entryPoint)
     throw DeviceExcept("Could not create shader module");
 
   // Set shader function name
-  auto src = entryPoint_.data();
-  mbstate_t state;
+  wsrc = entryPoint_.data();
   memset(&state, 0, sizeof state);
-  wcsrtombs(name_, &src, sizeof name_, &state);
-  if (src)
+  wcsrtombs(name_, &wsrc, sizeof name_, &state);
+  if (wsrc)
     throw LimitExcept("Could not set shader function name");
 }
 

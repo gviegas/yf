@@ -32,7 +32,7 @@ OBJ := $(subst $(SUB_DIR),$(BUILD_DIR),$(OBJ))
 
 DEP := $(OBJ:.o=.d)
 
-CXX := /usr/bin/clang++
+CXX := /usr/bin/c++
 CXX_FLAGS := -std=gnu++17 -Wpedantic -Wall -Wextra -g
 
 LD_LIBS := -ldl -lyf-ws

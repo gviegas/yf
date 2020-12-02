@@ -46,7 +46,7 @@ struct EventTest : Test {
       [](Window* win) { wcout << "pt leave: " << win << endl; },
       [](int32_t x, int32_t y) {
         wcout << "pt motion: " << x << ", " << y << endl; },
-      [](Button b, BtnState s, int32_t x, int32_t y) {
+      [](Button b, ButtonState s, int32_t x, int32_t y) {
         wcout << "pt button: " << b << ", " << s << "," << x << ", " << y
               << endl; }
     };

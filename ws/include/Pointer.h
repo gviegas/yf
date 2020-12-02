@@ -30,9 +30,9 @@ enum Button {
 
 /// Button states.
 ///
-enum BtnState {
-  BtnStateReleased = 0,
-  BtnStatePressed  = 1
+enum ButtonState {
+  ButtonStateReleased = 0,
+  ButtonStatePressed  = 1
 };
 
 class Window;
@@ -54,7 +54,7 @@ struct PtDelegate {
 
   /// Button press/release event.
   ///
-  std::function<void (Button, BtnState, int32_t x, int32_t y)> button;
+  std::function<void (Button, ButtonState, int32_t x, int32_t y)> button;
 };
 
 WS_NS_END

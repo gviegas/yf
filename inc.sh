@@ -4,9 +4,9 @@
 # Creates a fake include tree to simplify header inclusion.
 #
 
-YF_DIR=inc/yf/
-CG_DIR=$YF_DIR/cg/
-WS_DIR=$YF_DIR/ws/
+YF_DIR=inc/yf
+CG_DIR=$YF_DIR/cg
+WS_DIR=$YF_DIR/ws
 
 # yf (root)
 mkdir -p $YF_DIR

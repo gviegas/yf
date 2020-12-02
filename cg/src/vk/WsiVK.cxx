@@ -5,8 +5,9 @@
 // Copyright © 2020 Gustavo C. Viegas.
 //
 
-#include <cassert>
+#include <algorithm>
 #include <array>
+#include <cassert>
 
 #include "WsiVK.h"
 #include "DeviceVK.h"

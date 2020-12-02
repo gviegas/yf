@@ -82,11 +82,11 @@ void EventXCB::dispatch() {
       btn = ButtonUnknown;
     }
 
-    BtnState state;
+    ButtonState state;
     if (type == XCB_BUTTON_PRESS)
-      state = BtnStatePressed;
+      state = ButtonStatePressed;
     else
-      state = BtnStateReleased;
+      state = ButtonStateReleased;
 
     ptDeleg_.button(btn, state, ev->event_x, ev->event_y);
   };

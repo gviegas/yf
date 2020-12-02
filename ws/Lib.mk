@@ -38,7 +38,7 @@ OBJ := $(subst $(SUB_DIR),$(BUILD_DIR),$(OBJ))
 
 DEP := $(OBJ:.o=.d)
 
-CXX := /usr/bin/clang++
+CXX := /usr/bin/c++
 CXX_FLAGS := -std=gnu++17 -Wpedantic -Wall -Wextra -g #-O3
 
 LD_LIBS := -ldl
@@ -81,13 +81,13 @@ clean-dep:
 clean: clean-obj clean-dep
 
 $(BUILD_DIR)%.o: $(SRC_DIR)%.cxx
-	$(CXX) $(CC_FLAGS) $(LD_FLAGS) $(PP_FLAGS) -fPIC -c $< -o $@
+	$(CXX) $(CXX_FLAGS) $(LD_FLAGS) $(PP_FLAGS) -fPIC -c $< -o $@
 
 $(BUILD_DIR)%.o: $(ETC_DIR)%.cxx
-	$(CXX) $(CC_FLAGS) $(LD_FLAGS) $(PP_FLAGS) -fPIC -c $< -o $@
+	$(CXX) $(CXX_FLAGS) $(LD_FLAGS) $(PP_FLAGS) -fPIC -c $< -o $@
 
 $(BUILD_DIR)%.o: $(SUB_DIR)%.cxx
-	$(CXX) $(CC_FLAGS) $(LD_FLAGS) $(PP_FLAGS) -fPIC -c $< -o $@
+	$(CXX) $(CXX_FLAGS) $(LD_FLAGS) $(PP_FLAGS) -fPIC -c $< -o $@
 
 $(BUILD_DIR)%.d: $(SRC_DIR)%.cxx
 	@$(PP) $(LD_FLAGS) $(PP_FLAGS) $< -MM -MT $(@:.d=.o) > $@

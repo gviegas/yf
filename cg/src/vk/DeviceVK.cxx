@@ -8,7 +8,7 @@
 #include <cassert>
 #include <unordered_set>
 #include <string>
-#include <stdexcept>
+#include <algorithm>
 
 #include "DeviceVK.h"
 #include "VK.h"

@@ -5,6 +5,8 @@
 // Copyright © 2020 Gustavo C. Viegas.
 //
 
+#include <deque>
+
 #include "Node.h"
 #include "yf/Except.h"
 
@@ -81,11 +83,44 @@ class Node::Impl {
   }
 
   void traverse(const function<bool (Node&)>& callback, bool ignoreSelf) {
-    // TODO
+    if (!ignoreSelf && !callback(node_))
+      return;
+
+    deque<Impl*> nodes{this};
+    Impl* node;
+    do {
+      node = nodes.front()->child_;
+
+      while (node) {
+        if (!callback(node->node_))
+          return;
+        if (node->child_)
+          nodes.push_back(node);
+        node = node->nextSib_;
+      }
+
+      nodes.pop_front();
+    } while (!nodes.empty());
   }
 
   void traverse(const function<void (Node&)>& callback, bool ignoreSelf) {
-    // TODO
+    if (!ignoreSelf)
+      callback(node_);
+
+    deque<Impl*> nodes{this};
+    Impl* node;
+    do {
+      node = nodes.front()->child_;
+
+      while (node) {
+        callback(node->node_);
+        if (node->child_)
+          nodes.push_back(node);
+        node = node->nextSib_;
+      }
+
+      nodes.pop_front();
+    } while (!nodes.empty());
   }
 
   uint32_t count() const {

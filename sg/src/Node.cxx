@@ -5,6 +5,7 @@
 // Copyright © 2020 Gustavo C. Viegas.
 //
 
+#include <cstdint>
 #include <deque>
 
 #include "Node.h"
@@ -36,7 +37,7 @@ class Node::Impl {
     }
     child_ = &child;
 
-    auto* node = this;
+    auto node = this;
     do
       node->n_ += child.n_;
     while ((node = node->parent_));
@@ -53,7 +54,7 @@ class Node::Impl {
     else
       parent_->child_ = nextSib_;
 
-    auto* node = parent_;
+    auto node = parent_;
     do
       node->n_ -= n_;
     while ((node = node->parent_));
@@ -63,7 +64,7 @@ class Node::Impl {
     if (!child_)
       return;
 
-    auto* node = child_;
+    auto node = child_;
     uint32_t n = 0;
     for (;;) {
       n += node->n_;
@@ -128,7 +129,16 @@ class Node::Impl {
   }
 
   bool isDescendantOf(const Impl& node) const {
-    // TODO
+    if (!parent_)
+      return false;
+
+    auto ancestor = parent_;
+    do {
+      if (ancestor == &node)
+        return true;
+    } while ((ancestor = ancestor->parent_));
+
+    return false;
   }
 
   bool isLeaf() const {
@@ -147,7 +157,16 @@ class Node::Impl {
   }
 
   vector<Node*> children() const {
-    // TODO
+    if (!child_)
+      return {};
+
+    vector<Node*> nodes;
+    auto node = child_;
+    do
+      nodes.push_back(&node->node_);
+    while ((node = node->nextSib_));
+
+    return nodes;
   }
 
  private:

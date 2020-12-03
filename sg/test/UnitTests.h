@@ -12,8 +12,10 @@
 
 TEST_NS_BEGIN
 
+Test* nodeTest();
+
 inline const std::vector<Test*>& unitTests() {
-  static std::vector<Test*> tests{};
+  static std::vector<Test*> tests{nodeTest()};
   return tests;
 }
 

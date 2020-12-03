@@ -41,7 +41,20 @@ class Node::Impl {
   }
 
   void drop() {
-    // TODO
+    if (!parent_)
+      return;
+
+    if (nextSib_)
+      nextSib_->prevSib_ = prevSib_;
+    if (prevSib_)
+      prevSib_->nextSib_ = nextSib_;
+    else
+      parent_->child_ = nextSib_;
+
+    auto* node = parent_;
+    do
+      node->n_ -= n_;
+    while ((node = node->parent_));
   }
 
   void prune() {

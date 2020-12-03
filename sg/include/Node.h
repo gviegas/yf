@@ -37,11 +37,11 @@ class Node {
 
   /// Traverses the node graph.
   ///
-  void traverse(std::function<bool (Node&)> callback, bool ignoreSelf);
+  void traverse(const std::function<bool (Node&)>& callback, bool ignoreSelf);
 
   /// Traverses the node graph, unconditionally.
   ///
-  void traverse(std::function<void (Node&)> callback, bool ignoreSelf);
+  void traverse(const std::function<void (Node&)>& callback, bool ignoreSelf);
 
   /// Counts the number of nodes in the graph.
   ///

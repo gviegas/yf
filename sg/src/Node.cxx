@@ -80,6 +80,41 @@ class Node::Impl {
     while ((node = node->parent_));
   }
 
+  void traverse(const function<bool (Node&)>& callback, bool ignoreSelf) {
+    // TODO
+  }
+
+  void traverse(const function<void (Node&)>& callback, bool ignoreSelf) {
+    // TODO
+  }
+
+  uint32_t count() const {
+    return n_;
+  }
+
+  bool isDescendantOf(const Impl& node) const {
+    // TODO
+  }
+
+  bool isLeaf() const {
+    return !child_;
+  }
+
+  bool isRoot() const {
+    return !parent_;
+  }
+
+  Node* parent() const {
+    if (!parent_)
+      return nullptr;
+
+    return &parent_->node_;
+  }
+
+  vector<Node*> children() const {
+    // TODO
+  }
+
  private:
   Node& node_;
   Impl* parent_ = nullptr;
@@ -105,34 +140,34 @@ void Node::prune() {
   impl_->prune();
 }
 
-void Node::traverse(function<bool (Node&)> callback, bool ignoreSelf) {
-  // TODO
+void Node::traverse(const function<bool (Node&)>& callback, bool ignoreSelf) {
+  impl_->traverse(callback, ignoreSelf);
 }
 
-void Node::traverse(function<void (Node&)> callback, bool ignoreSelf) {
-  // TODO
+void Node::traverse(const function<void (Node&)>& callback, bool ignoreSelf) {
+  impl_->traverse(callback, ignoreSelf);
 }
 
 uint32_t Node::count() const {
-  // TODO
+  return impl_->count();
 }
 
 bool Node::isDescendantOf(const Node& node) const {
-  // TODO
+  return impl_->isDescendantOf(*node.impl_);
 }
 
 bool Node::isLeaf() const {
-  // TODO
+  return impl_->isLeaf();
 }
 
 bool Node::isRoot() const {
-  // TODO
+  return impl_->isRoot();
 }
 
 Node* Node::parent() const {
-  // TODO
+  return impl_->parent();
 }
 
 vector<Node*> Node::children() const {
-  // TODO
+  return impl_->children();
 }

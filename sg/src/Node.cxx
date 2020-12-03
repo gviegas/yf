@@ -5,7 +5,7 @@
 // Copyright © 2020 Gustavo C. Viegas.
 //
 
-#include <cstdint>
+#include <cstddef>
 #include <deque>
 
 #include "Node.h"
@@ -17,6 +17,9 @@ using namespace std;
 class Node::Impl {
  public:
   Impl(Node& node) : node_(node) { }
+
+  Impl(const Impl&) = delete;
+  Impl& operator=(const Impl&) = delete;
 
   ~Impl() {
     drop();
@@ -65,7 +68,7 @@ class Node::Impl {
       return;
 
     auto node = child_;
-    uint32_t n = 0;
+    size_t n = 0;
     for (;;) {
       n += node->n_;
       node->parent_ = nullptr;
@@ -124,7 +127,7 @@ class Node::Impl {
     } while (!nodes.empty());
   }
 
-  uint32_t count() const {
+  size_t count() const {
     return n_;
   }
 
@@ -169,13 +172,27 @@ class Node::Impl {
     return nodes;
   }
 
+  size_t children(vector<Node*>& dst) {
+    if (!child_)
+      return 0;
+
+    auto node = child_;
+    size_t n = 0;
+    do {
+      dst.push_back(&node->node_);
+      ++n;
+    } while ((node = node->nextSib_));
+
+    return n;
+  }
+
  private:
   Node& node_;
   Impl* parent_ = nullptr;
   Impl* child_ = nullptr;
   Impl* prevSib_ = nullptr;
   Impl* nextSib_ = nullptr;
-  uint32_t n_ = 1;
+  size_t n_ = 1;
 };
 
 Node::Node() : impl_(make_unique<Impl>(*this)) { }
@@ -184,6 +201,11 @@ Node::~Node() { }
 
 void Node::insert(Node& child) {
   impl_->insert(*child.impl_);
+}
+
+void Node::insert(const vector<Node*>& children) {
+  for (const auto& node : children)
+    impl_->insert(*node->impl_);
 }
 
 void Node::drop() {
@@ -202,7 +224,7 @@ void Node::traverse(const function<void (Node&)>& callback, bool ignoreSelf) {
   impl_->traverse(callback, ignoreSelf);
 }
 
-uint32_t Node::count() const {
+size_t Node::count() const {
   return impl_->count();
 }
 
@@ -224,4 +246,8 @@ Node* Node::parent() const {
 
 vector<Node*> Node::children() const {
   return impl_->children();
+}
+
+size_t Node::children(vector<Node*>& dst) const {
+  return impl_->children(dst);
 }

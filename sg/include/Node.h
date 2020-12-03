@@ -23,11 +23,12 @@ class Node {
   Node();
   virtual ~Node();
 
-  /// Inserts a descendant node.
+  /// Inserts descendant node(s).
   ///
   void insert(Node& child);
+  void insert(const std::vector<Node*>& children);
 
-  /// Removes itself.
+  /// Removes itself from immediate ancestor.
   ///
   void drop();
 
@@ -45,7 +46,7 @@ class Node {
 
   /// Counts the number of nodes in the graph.
   ///
-  uint32_t count() const;
+  size_t count() const;
 
   /// Checks whether a node descends from another.
   ///
@@ -66,6 +67,7 @@ class Node {
   /// Gets all immediate descendants.
   ///
   std::vector<Node*> children() const;
+  size_t children(std::vector<Node*>& dst) const;
 
  private:
   class Impl;

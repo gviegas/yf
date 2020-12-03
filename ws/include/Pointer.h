@@ -8,7 +8,6 @@
 #ifndef YF_WS_POINTER_H
 #define YF_WS_POINTER_H
 
-#include <utility>
 #include <functional>
 #include <cstdint>
 

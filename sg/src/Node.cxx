@@ -61,6 +61,8 @@ class Node::Impl {
     do
       node->n_ -= n_;
     while ((node = node->parent_));
+
+    parent_ = prevSib_ = nextSib_ = nullptr;
   }
 
   void prune() {

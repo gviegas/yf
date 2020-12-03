@@ -58,7 +58,26 @@ class Node::Impl {
   }
 
   void prune() {
-    // TODO
+    if (!child_)
+      return;
+
+    auto* node = child_;
+    uint32_t n = 0;
+    for (;;) {
+      n += node->n_;
+      node->parent_ = nullptr;
+      node = node->nextSib_;
+      if (!node)
+        break;
+      node->prevSib_->nextSib_ = nullptr;
+      node->prevSib_ = nullptr;
+    }
+    child_ = nullptr;
+
+    node = this;
+    do
+      node->n_ -= n;
+    while ((node = node->parent_));
   }
 
  private:

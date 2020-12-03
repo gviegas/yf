@@ -25,15 +25,15 @@ class Node {
 
   /// Inserts a descendant node.
   ///
-  void insert(Node& node);
+  void insert(Node& child);
 
-  /// Removes itself from ancestor.
+  /// Removes itself.
   ///
-  void removeSelf();
+  void drop();
 
-  /// Removes all descendants.
+  /// Removes all immediate descendants.
   ///
-  void removeOthers();
+  void prune();
 
   /// Traverses the node graph.
   ///
@@ -61,11 +61,11 @@ class Node {
 
   /// Gets the immediate ancestor.
   ///
-  Node* ancestor() const;
+  Node* parent() const;
 
   /// Gets all immediate descendants.
   ///
-  std::vector<Node*> descendants() const;
+  std::vector<Node*> children() const;
 
  private:
   class Impl;

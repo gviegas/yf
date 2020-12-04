@@ -14,9 +14,10 @@ TEST_NS_BEGIN
 
 Test* nodeTest();
 Test* sceneTest();
+Test* viewTest();
 
 inline const std::vector<Test*>& unitTests() {
-  static std::vector<Test*> tests{nodeTest(), sceneTest()};
+  static std::vector<Test*> tests{nodeTest(), sceneTest(), viewTest()};
   return tests;
 }
 

@@ -8,7 +8,7 @@
 #ifndef YF_SG_SCENE_H
 #define YF_SG_SCENE_H
 
-#include "Node.h"
+#include "yf/sg/Node.h"
 
 SG_NS_BEGIN
 

@@ -27,18 +27,15 @@ class View {
   View(WS_NS::Window* window);
   ~View();
 
+  using UpdateFn = std::function<bool (std::chrono::nanoseconds elapsedTime)>;
+
+  /// Starts a scene rendering loop.
+  ///
+  void loop(Scene& scene, uint32_t fps, const UpdateFn& update);
+
   /// Renders a scene.
   ///
   void render(Scene& scene);
-
-  /// Starts a rendering loop.
-  ///
-  using UpdateFn = std::function<void (std::chrono::nanoseconds)>;
-  void start(Scene& scene, uint32_t fps, const UpdateFn& callback);
-
-  /// Stops the current rendering loop.
-  ///
-  void stop();
 
  private:
   class Impl;

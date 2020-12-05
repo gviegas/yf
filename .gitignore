@@ -21,4 +21,4 @@ inc/
 */test/Test.cxx
 */test/Test.h
 !/test/Test.cxx
-!/test/Test.ch
+!/test/Test.h

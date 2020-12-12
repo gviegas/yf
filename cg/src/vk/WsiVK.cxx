@@ -300,6 +300,7 @@ void WsiVK::querySurface() {
   if (family_ != queue.family()) {
     families[0] = queue.family();
     families[1] = family_;
+    familyN = 2;
     sharMode = VK_SHARING_MODE_CONCURRENT;
   }
 

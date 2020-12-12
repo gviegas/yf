@@ -344,6 +344,7 @@ void WsiVK::createSwapchain() {
   // Create swapchain
   if (swapchain_ != VK_NULL_HANDLE) {
     scInfo_.oldSwapchain = swapchain_;
+    swapchain_ = VK_NULL_HANDLE;
     res = vkCreateSwapchainKHR(dev, &scInfo_, nullptr, &swapchain_);
     vkDestroySwapchainKHR(dev, scInfo_.oldSwapchain, nullptr);
   } else {

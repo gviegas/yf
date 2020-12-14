@@ -10,11 +10,15 @@
 
 #if defined(__linux__) // TODO: add other unix systems here
 //# include "unix/WindowWL.h"
+//# include "unix/EventWL.h"
 # include "unix/WindowXCB.h"
+# include "unix/EventXCB.h"
 #elif defined(__APPLE__)
 # include "macos/WindowMAC.h"
+# include "macos/EventMAC.h"
 #elif defined(_WIN32)
 # include "win32/WindowW32.h"
+# include "win32/EventW32.h"
 #else
 # error "Invalid platform"
 #endif // defined(__linux__)
@@ -48,16 +52,39 @@ Window::Ptr makeWindow(uint32_t width,
                        const wstring& title,
                        Window::CreationMask mask) {
 
+#if defined(__linux__)
   switch (platform()) {
   case PlatformNone:
     throw UnsupportedExcept("No supported platform available");
   case PlatformXCB:
     return make_unique<WindowXCB>(width, height, title, mask);
   default:
-    throw runtime_error("Unimplemented");
+    throw runtime_error("Unexpected");
   }
+#else
+// TODO: other systems
+#endif
 
   return nullptr;
+}
+
+/// Gets the event instance.
+///
+/// `Event::get()` will call this function.
+///
+Event& getEvent() {
+#if defined(__linux__)
+  switch (platform()) {
+  case PlatformNone:
+    throw UnsupportedExcept("No supported platform available");
+  case PlatformXCB:
+    return EventXCB::get();
+  default:
+    throw runtime_error("Unexpected");
+  }
+#else
+// TODO: other systems
+#endif
 }
 
 Platform platform() {
@@ -98,6 +125,7 @@ xcb_window_t windowXCB(const Window* window) {
 
   return static_cast<const WindowXCB*>(window)->window();
 }
+#else
 // TODO: other systems
 #endif
 

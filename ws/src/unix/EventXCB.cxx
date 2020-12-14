@@ -8,6 +8,7 @@
 #include <cstdlib>
 
 #include "EventXCB.h"
+#include "EventImpl.h"
 #include "WindowXCB.h"
 #include "KeymapUNIX.h"
 
@@ -57,7 +58,7 @@ void EventXCB::dispatch() {
       prevEvState = ev->state;
     }
 
-    kbDeleg_.key(code, state, modMask);
+    impl_->kbDeleg_.key(code, state, modMask);
   };
 
   // Handle BUTTON_PRESS/BUTTON_RELEASE
@@ -88,37 +89,38 @@ void EventXCB::dispatch() {
     else
       state = ButtonStateReleased;
 
-    ptDeleg_.button(btn, state, ev->event_x, ev->event_y);
+    impl_->ptDeleg_.button(btn, state, ev->event_x, ev->event_y);
   };
 
   // Handle MOTION_NOTIFY
   auto motion = [&] {
     auto ev = reinterpret_cast<xcb_motion_notify_event_t*>(event);
-    ptDeleg_.motion(ev->event_x, ev->event_y);
+    impl_->ptDeleg_.motion(ev->event_x, ev->event_y);
   };
 
   // Handle ENTER_NOTIFY
   auto enter = [&] {
     auto ev = reinterpret_cast<xcb_enter_notify_event_t*>(event);
-    ptDeleg_.enter(WindowXCB::fromId(ev->event), ev->event_x, ev->event_y);
+    impl_->ptDeleg_.enter(WindowXCB::fromId(ev->event),
+                          ev->event_x, ev->event_y);
   };
 
   // Handle LEAVE_NOTIFY
   auto leave = [&] {
     auto ev = reinterpret_cast<xcb_leave_notify_event_t*>(event);
-    ptDeleg_.leave(WindowXCB::fromId(ev->event));
+    impl_->ptDeleg_.leave(WindowXCB::fromId(ev->event));
   };
 
   // Handle FOCUS_IN
   auto focusIn = [&] {
     auto ev = reinterpret_cast<xcb_focus_in_event_t*>(event);
-    kbDeleg_.enter(WindowXCB::fromId(ev->event));
+    impl_->kbDeleg_.enter(WindowXCB::fromId(ev->event));
   };
 
   // Handle FOCUS_OUT
   auto focusOut = [&] {
     auto ev = reinterpret_cast<xcb_focus_out_event_t*>(event);
-    kbDeleg_.leave(WindowXCB::fromId(ev->event));
+    impl_->kbDeleg_.leave(WindowXCB::fromId(ev->event));
   };
 
   // Handle EXPOSE
@@ -129,7 +131,7 @@ void EventXCB::dispatch() {
   // Handle CONFIGURE_NOTIFY
   auto config = [&] {
     auto ev = reinterpret_cast<xcb_configure_notify_event_t*>(event);
-    wdDeleg_.resize(WindowXCB::fromId(ev->event), ev->width, ev->height);
+    impl_->wdDeleg_.resize(WindowXCB::fromId(ev->event), ev->width, ev->height);
     // TODO: notify window object
   };
 
@@ -138,7 +140,7 @@ void EventXCB::dispatch() {
     auto ev = reinterpret_cast<xcb_client_message_event_t*>(event);
 
     if (ev->type == vars.protocolAtom && ev->data.data32[0] == vars.deleteAtom)
-      wdDeleg_.close(WindowXCB::fromId(ev->window));
+      impl_->wdDeleg_.close(WindowXCB::fromId(ev->window));
   };
 
   // Poll events
@@ -151,38 +153,38 @@ void EventXCB::dispatch() {
     switch (type) {
     case XCB_KEY_PRESS:
     case XCB_KEY_RELEASE:
-      if (mask_ & KbKey)
+      if (impl_->mask_ & Impl::KbKey)
         key();
       break;
 
     case XCB_BUTTON_PRESS:
     case XCB_BUTTON_RELEASE:
-      if (mask_ & PtButton)
+      if (impl_->mask_ & Impl::PtButton)
         button();
       break;
 
     case XCB_MOTION_NOTIFY:
-      if (mask_ & PtMotion)
+      if (impl_->mask_ & Impl::PtMotion)
         motion();
       break;
 
     case XCB_ENTER_NOTIFY:
-      if (mask_ & PtEnter)
+      if (impl_->mask_ & Impl::PtEnter)
         enter();
       break;
 
     case XCB_LEAVE_NOTIFY:
-      if (mask_ & PtLeave)
+      if (impl_->mask_ & Impl::PtLeave)
         leave();
       break;
 
     case XCB_FOCUS_IN:
-      if (mask_ & KbEnter)
+      if (impl_->mask_ & Impl::KbEnter)
         focusIn();
       break;
 
     case XCB_FOCUS_OUT:
-      if (mask_ & KbLeave)
+      if (impl_->mask_ & Impl::KbLeave)
         focusOut();
       break;
 
@@ -191,40 +193,16 @@ void EventXCB::dispatch() {
       break;
 
     case XCB_CONFIGURE_NOTIFY:
-      if (mask_ & WdResize)
+      if (impl_->mask_ & Impl::WdResize)
         config();
       break;
 
     case XCB_CLIENT_MESSAGE:
-      if (mask_ & WdClose)
+      if (impl_->mask_ & Impl::WdClose)
         client();
       break;
     }
 
     free(event);
   } while (true);
-}
-
-void EventXCB::setDelegate(const WdDelegate& delegate) {
-  wdDeleg_ = delegate;
-
-  mask_ = wdDeleg_.close  ? (mask_ | WdClose)  : (mask_ & ~WdClose);
-  mask_ = wdDeleg_.resize ? (mask_ | WdResize) : (mask_ & ~WdResize);
-}
-
-void EventXCB::setDelegate(const KbDelegate& delegate) {
-  kbDeleg_ = delegate;
-
-  mask_ = kbDeleg_.enter ? (mask_ | KbEnter) : (mask_ & ~KbEnter);
-  mask_ = kbDeleg_.leave ? (mask_ | KbLeave) : (mask_ & ~KbLeave);
-  mask_ = kbDeleg_.key   ? (mask_ | KbKey)   : (mask_ & ~KbKey);
-}
-
-void EventXCB::setDelegate(const PtDelegate& delegate) {
-  ptDeleg_ = delegate;
-
-  mask_ = ptDeleg_.enter  ? (mask_ | PtEnter)  : (mask_ & ~PtEnter);
-  mask_ = ptDeleg_.leave  ? (mask_ | PtLeave)  : (mask_ & ~PtLeave);
-  mask_ = ptDeleg_.motion ? (mask_ | PtMotion) : (mask_ & ~PtMotion);
-  mask_ = ptDeleg_.button ? (mask_ | PtButton) : (mask_ & ~PtButton);
 }

@@ -22,7 +22,6 @@ struct PtDelegate;
 ///
 class Event {
  public:
-  Event();
   virtual ~Event();
 
   /// Gets the event instance.
@@ -39,7 +38,8 @@ class Event {
   void setDelegate(const KbDelegate& delegate);
   void setDelegate(const PtDelegate& delegate);
 
- private:
+ protected:
+  Event();
   class Impl;
   std::unique_ptr<Impl> impl_;
 };

@@ -6,8 +6,18 @@
 //
 
 #include "Platform.h"
-#include "unix/WindowXCB.h"
 #include "yf/Except.h"
+
+#if defined(__linux__) // TODO: add other unix systems here
+//# include "unix/WindowWL.h"
+# include "unix/WindowXCB.h"
+#elif defined(__APPLE__)
+# include "macos/WindowMAC.h"
+#elif defined(_WIN32)
+# include "win32/WindowW32.h"
+#else
+# error "Invalid platform"
+#endif // defined(__linux__)
 
 using namespace std;
 
@@ -27,6 +37,27 @@ WS_NS_BEGIN
 ///
 void setPlatform(Platform pfm) {
   curPfm = pfm;
+}
+
+/// Makes a new window.
+///
+/// `Window::make()` will call this function.
+///
+Window::Ptr makeWindow(uint32_t width,
+                       uint32_t height,
+                       const wstring& title,
+                       Window::CreationMask mask) {
+
+  switch (platform()) {
+  case PlatformNone:
+    throw UnsupportedExcept("No supported platform available");
+  case PlatformXCB:
+    return make_unique<WindowXCB>(width, height, title, mask);
+  default:
+    throw runtime_error("Unimplemented");
+  }
+
+  return nullptr;
 }
 
 Platform platform() {

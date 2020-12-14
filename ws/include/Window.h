@@ -36,14 +36,22 @@ class Window {
     Hidden     = 0x08
   };
 
+  /// Maximum length of app ID, in bytes.
+  ///
+  static constexpr uint32_t AppIdLen = 64;
+
   /// Maximum length of window title, in bytes.
   ///
-  static constexpr uint32_t TitleLen = 60;
+  static constexpr uint32_t TitleLen = 80;
 
   Window() = default;
   Window(const Window&) = delete;
   Window& operator=(const Window&) = delete;
   virtual ~Window();
+
+  /// The app ID that all windows will be associated with.
+  ///
+  static std::wstring appId;
 
   /// Makes a new window object.
   ///

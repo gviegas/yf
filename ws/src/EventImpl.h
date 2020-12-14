@@ -15,9 +15,16 @@
 
 WS_NS_BEGIN
 
+/// Common event implementation.
+///
 class Event::Impl {
  public:
+  /// Mask of `Flags` bits.
+  ///
   using Mask = uint32_t;
+
+  /// Flags representing events.
+  ///
   enum Flags : uint32_t {
     WdClose  = 0x001,
     WdResize = 0x002,
@@ -30,6 +37,8 @@ class Event::Impl {
     PtButton = 0x100
   };
 
+  /// Sets window event delegate and updates event mask accordingly.
+  ///
   void setDelegate(const WdDelegate& delegate) {
     wdDeleg_ = delegate;
 
@@ -37,6 +46,8 @@ class Event::Impl {
     mask_ = wdDeleg_.resize ? (mask_ | WdResize) : (mask_ & ~WdResize);
   }
 
+  /// Sets keyboard event delegate and updates event mask accordingly.
+  ///
   void setDelegate(const KbDelegate& delegate) {
     kbDeleg_ = delegate;
 
@@ -45,6 +56,8 @@ class Event::Impl {
     mask_ = kbDeleg_.key   ? (mask_ | KbKey)   : (mask_ & ~KbKey);
   }
 
+  /// Sets pointer event delegate and updates event mask accordingly.
+  ///
   void setDelegate(const PtDelegate& delegate) {
     ptDeleg_ = delegate;
 
@@ -54,6 +67,13 @@ class Event::Impl {
     mask_ = ptDeleg_.button ? (mask_ | PtButton) : (mask_ & ~PtButton);
   }
 
+  /// Variables for delegation management.
+  ///
+  /// The base `Event` class calls `setDelegate()` functions to update these
+  /// variables as needed.
+  /// Event subclasses read from these variables to identify which events
+  /// must be dispatched.
+  ///
   Mask mask_ = 0;
   WdDelegate wdDeleg_{};
   KbDelegate kbDeleg_{};

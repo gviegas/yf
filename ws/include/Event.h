@@ -8,6 +8,8 @@
 #ifndef YF_WS_EVENT_H
 #define YF_WS_EVENT_H
 
+#include <memory>
+
 #include "yf/ws/Defs.h"
 
 WS_NS_BEGIN
@@ -32,9 +34,14 @@ class Event {
 
   /// Sets event delegates.
   ///
-  virtual void setDelegate(const WdDelegate& delegate) = 0;
-  virtual void setDelegate(const KbDelegate& delegate) = 0;
-  virtual void setDelegate(const PtDelegate& delegate) = 0;
+  void setDelegate(const WdDelegate& delegate);
+  void setDelegate(const KbDelegate& delegate);
+  void setDelegate(const PtDelegate& delegate);
+
+ protected:
+  Event();
+  class Impl;
+  std::unique_ptr<Impl> impl_;
 };
 
 WS_NS_END

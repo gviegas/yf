@@ -11,6 +11,8 @@ using namespace std;
 
 WS_NS_BEGIN
 
+wstring Window::appId{};
+
 // `Platform` provides the implementation.
 Window::Ptr makeWindow(uint32_t width,
                        uint32_t height,

@@ -58,9 +58,65 @@ class Vector {
     return sz;
   }
 
+  constexpr Vector& operator-=(const Vector& other) {
+    for (size_t i = 0; i < sz; ++i)
+      data_[i] -= other.data_[i];
+    return *this;
+  }
+
+  constexpr Vector& operator+=(const Vector& other) {
+    for (size_t i = 0; i < sz; ++i)
+      data_[i] += other.data_[i];
+    return *this;
+  }
+
+  constexpr Vector& operator*=(T scalar) {
+    for (size_t i = 0; i < sz; ++i)
+      data_[i] *= scalar;
+    return *this;
+  }
+
+  constexpr Vector& operator/=(T scalar) {
+    for (size_t i = 0; i < sz; ++i)
+      data_[i] /= scalar;
+    return *this;
+  }
+
  private:
   T data_[sz]{};
 };
+
+template<class T, size_t sz>
+constexpr Vector<T, sz> operator-(const Vector<T, sz>& left,
+                                  const Vector<T, sz>& right) {
+  Vector<T, sz> res;
+  for (size_t i = 0; i < sz; ++i)
+    res[i] = left[i] - right[i];
+  return res;
+}
+
+template<class T, size_t sz>
+constexpr Vector<T, sz> operator+(const Vector<T, sz>& left,
+                                  const Vector<T, sz>& right) {
+  Vector<T, sz> res;
+  for (size_t i = 0; i < sz; ++i)
+    res[i] = left[i] + right[i];
+  return res;
+}
+
+template<class T, size_t sz>
+constexpr Vector<T, sz> operator*(const Vector<T, sz>& vector, T scalar) {
+  auto res = vector;
+  res *= scalar;
+  return res;
+}
+
+template<class T, size_t sz>
+constexpr Vector<T, sz> operator/(const Vector<T, sz>& vector, T scalar) {
+  auto res = vector;
+  res /= scalar;
+  return res;
+}
 
 using Vec2i = Vector<int32_t, 2>;
 using Vec3i = Vector<int32_t, 3>;

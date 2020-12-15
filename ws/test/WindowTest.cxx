@@ -22,6 +22,8 @@ struct WindowTest : Test {
   Assertions run(const vector<string>&) {
     Assertions a;
 
+    Window::appId = L"window.test.id";
+
     auto win1 = Window::make(800, 600, L"Window 1");
     auto win2 = Window::make(480, 480, L"Window 2");
     auto win3 = Window::make(240, 320, L"Window 3", Window::Resizable |

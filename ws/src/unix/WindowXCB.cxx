@@ -74,7 +74,36 @@ WindowXCB::WindowXCB(uint32_t width,
     throw runtime_error("createWindowCheckedXCB failed");
   }
 
-  // TODO: change properties (delete/class)
+  // Set `delete` property (for close/quit)
+  cookie = changePropertyCheckedXCB(vars.connection, XCB_PROP_MODE_REPLACE,
+                                    window_, vars.protocolAtom, XCB_ATOM_ATOM,
+                                    32, 1, &vars.deleteAtom);
+
+  err = requestCheckXCB(vars.connection, cookie);
+  if (err) {
+    deinit();
+    throw runtime_error("changePropertyCheckedXCB failed");
+  }
+
+  // Set `class` property (for app ID)
+  mbstate_t state;
+  memset(&state, 0, sizeof state);
+  char str[AppIdLen+2] = {'\0', '\0'};
+  const wchar_t* src = appId.data();
+  auto len = 2 + wcsrtombs(str+1, &src, AppIdLen, &state);
+
+  if (src)
+    throw LimitExcept("Could not set window app ID");
+
+  cookie = changePropertyCheckedXCB(vars.connection, XCB_PROP_MODE_REPLACE,
+                                    window_, vars.classAtom, XCB_ATOM_STRING,
+                                    8, len, str);
+
+  err = requestCheckXCB(vars.connection, cookie);
+  if (err) {
+    deinit();
+    throw runtime_error("changePropertyCheckedXCB failed");
+  }
 
   // Set title
   setTitle(title);

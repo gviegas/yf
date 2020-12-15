@@ -28,7 +28,11 @@ struct EventTest : Test {
 
     auto& ev = Event::get();
 
-    WdDelegate wdDeleg{};
+    WdDelegate wdDeleg{
+      [](Window* win) { wcout << "wd close: " << win << endl; },
+      [](Window* win, uint32_t w, uint32_t h) {
+        wcout << "wd resize: " << win << ", " << w << ", " << h << endl; }
+    };
     ev.setDelegate(wdDeleg);
 
     KbDelegate kbDeleg{
@@ -55,7 +59,7 @@ struct EventTest : Test {
     auto win1 = Window::make(300, 200, L"Window 1");
     auto win2 = Window::make(100, 300, L"Window 2");
 
-    auto tm = chrono::system_clock::now() + chrono::seconds(30);
+    auto tm = chrono::system_clock::now() + chrono::seconds(10);
     while (tm > chrono::system_clock::now()) {
       ev.dispatch();
       this_thread::sleep_for(chrono::milliseconds(10));

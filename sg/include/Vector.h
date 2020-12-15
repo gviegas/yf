@@ -9,6 +9,7 @@
 #define YF_SG_VECTOR_H
 
 #include <cstdint>
+#include <cmath>
 #include <algorithm>
 #include <initializer_list>
 #include <type_traits>
@@ -82,6 +83,14 @@ class Vector {
     return *this;
   }
 
+  constexpr T length() const {
+    return std::sqrt(dot(*this, *this));
+  }
+
+  constexpr Vector& normalize() {
+    return operator/=(length());
+  }
+
  private:
   T data_[sz]{};
 };
@@ -116,6 +125,34 @@ constexpr Vector<T, sz> operator/(const Vector<T, sz>& vector, T scalar) {
   auto res = vector;
   res /= scalar;
   return res;
+}
+
+template<class T, size_t sz>
+constexpr Vector<T, sz> normalize(const Vector<T, sz>& vector) {
+  return Vector<T, sz>(vector).normalize();
+}
+
+template<class T, size_t sz>
+constexpr T dot(const Vector<T, sz>& v1, const Vector<T, sz>& v2) {
+  T res = 0;
+  for (size_t i = 0; i < sz; ++i)
+    res += v1[i] * v2[i];
+  return res;
+}
+
+template<class T>
+constexpr Vector<T, 3> cross(const Vector<T, 3>& v1, const Vector<T, 3>& v2) {
+  return {v1[1] * v2[2] - v2[1] * v1[2],
+          v1[2] * v2[0] - v2[2] * v1[0],
+          v1[0] * v2[1] - v2[0] * v1[1]};
+}
+
+template<class T>
+constexpr Vector<T, 4> cross(const Vector<T, 4>& v1, const Vector<T, 4>& v2) {
+  return {v1[1] * v2[2] - v2[1] * v1[2],
+          v1[2] * v2[0] - v2[2] * v1[0],
+          v1[0] * v2[1] - v2[0] * v1[1],
+          1};
 }
 
 using Vec2i = Vector<int32_t, 2>;

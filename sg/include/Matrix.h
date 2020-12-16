@@ -64,9 +64,76 @@ class Matrix {
     return rowN;
   }
 
+  constexpr Matrix& operator-=(const Matrix& other) {
+    for (size_t i = 0; i < colN; ++i)
+      data_[i] -= other[i];
+    return *this;
+  }
+
+  constexpr Matrix& operator+=(const Matrix& other) {
+    for (size_t i = 0; i < colN; ++i)
+      data_[i] += other[i];
+    return *this;
+  }
+
+  constexpr Matrix<T, colN, colN>&
+  operator*=(const Matrix<T, colN, colN>& other) {
+    const auto tmp = *this;
+    for (size_t i = 0; i < colN; ++i) {
+      for (size_t j = 0; j < colN; ++j) {
+        data_[i][j] = 0;
+        for (size_t k = 0; k < colN; ++k)
+          data_[i][j] += tmp[k][j] * other[i][k];
+      }
+    }
+    return *this;
+  }
+
  private:
   Vector<T, rowN> data_[colN]{};
 };
+
+template<class T, size_t colN, size_t rowN>
+constexpr Matrix<T, colN, rowN> operator-(const Matrix<T, colN, rowN>& left,
+                                          const Matrix<T, colN, rowN>& right) {
+  Matrix<T, colN, rowN> res;
+  for (size_t i = 0; i < colN; ++i)
+    res[i] = left[i] - right[i];
+  return res;
+}
+
+template<class T, size_t colN, size_t rowN>
+constexpr Matrix<T, colN, rowN> operator+(const Matrix<T, colN, rowN>& left,
+                                          const Matrix<T, colN, rowN>& right) {
+  Matrix<T, colN, rowN> res;
+  for (size_t i = 0; i <colN; ++i)
+    res[i] = left[i] + right[i];
+  return res;
+}
+
+template<class T, size_t sqN>
+constexpr Matrix<T, sqN, sqN> operator*(const Matrix<T, sqN, sqN>& m1,
+                                        const Matrix<T, sqN, sqN>& m2) {
+  Matrix<T, sqN, sqN> res;
+  for (size_t i = 0; i < sqN; ++i) {
+    for (size_t j = 0; j < sqN; ++j) {
+      for (size_t k = 0; k < sqN; ++k)
+        res[i][j] += m1[k][j] * m2[i][k];
+    }
+  }
+  return res;
+}
+
+template<class T, size_t sqN>
+constexpr Vector<T, sqN> operator*(const Matrix<T, sqN, sqN>& mat,
+                                   const Vector<T, sqN>& vec) {
+  Vector<T, sqN> res;
+  for (size_t i = 0; i < sqN; ++i) {
+    for (size_t j = 0; j < sqN; ++j)
+      res[i] += mat[j][i] * vec[j];
+  }
+  return res;
+}
 
 using Mat2i   = Matrix<int32_t, 2, 2>;
 using Mat2x3i = Matrix<int32_t, 2, 3>;

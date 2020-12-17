@@ -363,6 +363,72 @@ constexpr Matrix<T, 4, 4> translate(T tx, T ty, T tz) {
   return res;
 }
 
+template <class T>
+constexpr Matrix<T, 4, 4> lookAt(const Vector<T, 3>& eye,
+                                 const Vector<T, 3>& center,
+                                 const Vector<T, 3>& up) {
+
+  static_assert(std::is_floating_point<T>(),
+                "lookAt() requires a floating point type");
+
+  const auto f = (center - eye).normalize();
+  const auto s = cross(f, up).normalize();
+  const auto u = cross(f, s);
+  const T one = 1.0;
+  const T zero = 0.0;
+
+  return {{s[0], u[0], -f[0], zero},
+          {s[1], u[1], -f[1], zero},
+          {s[2], u[2], -f[2], zero},
+          {-dot(s, eye), -dot(u, eye), dot(f, eye), one}};
+}
+
+template <class T>
+constexpr Matrix<T, 4, 4> perspective(T yFov, T aspect, T zNear, T zFar) {
+  static_assert(std::is_floating_point<T>(),
+                "perspective() requires a floating point type");
+
+  Matrix<T, 4, 4> res;
+
+  const T one = 1.0;
+  const T ct = one / std::tan(yFov * 0.5);
+
+  res[0][0] = ct / aspect;
+  res[1][1] = ct;
+  res[2][2] = -(zFar + zNear) / (zFar - zNear);
+  res[2][3] = -one;
+  res[3][2] = -((one + one) * zFar * zNear) / (zFar - zNear);
+
+  return res;
+}
+
+template <class T>
+constexpr Matrix<T, 4, 4> ortho(T left,
+                                T right,
+                                T top,
+                                T bottom,
+                                T zNear,
+                                T zFar) {
+
+  static_assert(std::is_floating_point<T>(),
+                "ortho() requires a floating point type");
+
+  Matrix<T, 4, 4> res;
+
+  const T one = 1.0;
+  const T two = 2.0;
+
+  res[0][0] = two / (right - left);
+  res[1][1] = two / (top - bottom);
+  res[2][2] = -two / (zFar - zNear);
+  res[3][0] = -(right + left) / (right - left);
+  res[3][1] = -(top + bottom) / (top - bottom);
+  res[3][2] = -(zFar + zNear) / (zFar - zNear);
+  res[3][3] = one;
+
+  return res;
+}
+
 using Mat2i   = Matrix<int32_t, 2, 2>;
 using Mat2x3i = Matrix<int32_t, 2, 3>;
 using Mat2x4i = Matrix<int32_t, 2, 4>;

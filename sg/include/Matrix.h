@@ -32,6 +32,13 @@ class Matrix {
       data_[i] = *(list.begin()+i);
   }
 
+  static constexpr Matrix<T, colN, colN> identity() {
+    Matrix mat;
+    for (size_t i = 0; i < colN; ++i)
+      mat[i][i] = 1;
+    return mat;
+  }
+
   constexpr const Vector<T, rowN>& operator[](size_t column) const {
     return data_[column];
   }
@@ -89,6 +96,14 @@ class Matrix {
     return *this;
   }
 
+  constexpr Matrix<T, colN, colN>& transpose() {
+    for (size_t i = 0; i < colN; ++i) {
+      for (size_t j = i+1; j < colN; ++j)
+        std::swap(data_[i][j], data_[j][i]);
+    }
+    return *this;
+  }
+
  private:
   Vector<T, rowN> data_[colN]{};
 };
@@ -131,6 +146,19 @@ constexpr Vector<T, sqN> operator*(const Matrix<T, sqN, sqN>& mat,
   for (size_t i = 0; i < sqN; ++i) {
     for (size_t j = 0; j < sqN; ++j)
       res[i] += mat[j][i] * vec[j];
+  }
+  return res;
+}
+
+template<class T, size_t sqN>
+constexpr Matrix<T, sqN, sqN> transpose(const Matrix<T, sqN, sqN>& mat) {
+  Matrix<T, sqN, sqN> res;
+  for (size_t i = 0; i < sqN; ++i) {
+    res[i][i] = mat[i][i];
+    for (size_t j = i+1; j < sqN; ++j) {
+      res[i][j] = mat[j][i];
+      res[j][i] = mat[i][j];
+    }
   }
   return res;
 }

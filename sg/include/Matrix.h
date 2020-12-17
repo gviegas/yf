@@ -32,7 +32,9 @@ class Matrix {
       data_[i] = *(list.begin()+i);
   }
 
-  static constexpr Matrix<T, colN, colN> identity() {
+  static constexpr Matrix identity() {
+    static_assert(colN == rowN, "identity() requires a square matrix");
+
     Matrix mat;
     for (size_t i = 0; i < colN; ++i)
       mat[i][i] = 1;
@@ -83,8 +85,10 @@ class Matrix {
     return *this;
   }
 
-  constexpr Matrix<T, colN, colN>&
-  operator*=(const Matrix<T, colN, colN>& other) {
+  constexpr Matrix& operator*=(const Matrix& other) {
+    static_assert(colN == rowN,
+                  "operator*=() not implemented for non-square matrices");
+
     const auto tmp = *this;
     for (size_t i = 0; i < colN; ++i) {
       for (size_t j = 0; j < colN; ++j) {
@@ -96,7 +100,10 @@ class Matrix {
     return *this;
   }
 
-  constexpr Matrix<T, colN, colN>& transpose() {
+  constexpr Matrix& transpose() {
+    static_assert(colN == rowN,
+                  "transpose() not implemented for non-square matrices");
+
     for (size_t i = 0; i < colN; ++i) {
       for (size_t j = i+1; j < colN; ++j)
         std::swap(data_[i][j], data_[j][i]);
@@ -126,36 +133,45 @@ constexpr Matrix<T, colN, rowN> operator+(const Matrix<T, colN, rowN>& left,
   return res;
 }
 
-template<class T, size_t sqN>
-constexpr Matrix<T, sqN, sqN> operator*(const Matrix<T, sqN, sqN>& m1,
-                                        const Matrix<T, sqN, sqN>& m2) {
-  Matrix<T, sqN, sqN> res;
-  for (size_t i = 0; i < sqN; ++i) {
-    for (size_t j = 0; j < sqN; ++j) {
-      for (size_t k = 0; k < sqN; ++k)
+template<class T, size_t colN, size_t rowN>
+constexpr Matrix<T, colN, rowN> operator*(const Matrix<T, colN, rowN>& m1,
+                                          const Matrix<T, colN, rowN>& m2) {
+  static_assert(colN == rowN,
+                "operator*() not implemented for non-square matrices");
+
+  Matrix<T, colN, rowN> res;
+  for (size_t i = 0; i < colN; ++i) {
+    for (size_t j = 0; j < rowN; ++j) {
+      for (size_t k = 0; k < colN; ++k)
         res[i][j] += m1[k][j] * m2[i][k];
     }
   }
   return res;
 }
 
-template<class T, size_t sqN>
-constexpr Vector<T, sqN> operator*(const Matrix<T, sqN, sqN>& mat,
-                                   const Vector<T, sqN>& vec) {
-  Vector<T, sqN> res;
-  for (size_t i = 0; i < sqN; ++i) {
-    for (size_t j = 0; j < sqN; ++j)
+template<class T, size_t colN, size_t rowN>
+constexpr Vector<T, rowN> operator*(const Matrix<T, colN, rowN>& mat,
+                                    const Vector<T, rowN>& vec) {
+  static_assert(colN == rowN,
+                "operator*() not implemented for non-square matrices");
+
+  Vector<T, rowN> res;
+  for (size_t i = 0; i < rowN; ++i) {
+    for (size_t j = 0; j < colN; ++j)
       res[i] += mat[j][i] * vec[j];
   }
   return res;
 }
 
-template<class T, size_t sqN>
-constexpr Matrix<T, sqN, sqN> transpose(const Matrix<T, sqN, sqN>& mat) {
-  Matrix<T, sqN, sqN> res;
-  for (size_t i = 0; i < sqN; ++i) {
+template<class T, size_t colN, size_t rowN>
+constexpr Matrix<T, colN, rowN> transpose(const Matrix<T, colN, rowN>& mat) {
+  static_assert(colN == rowN,
+                "transpose() not implemented for non-square matrices");
+
+  Matrix<T, colN, rowN> res;
+  for (size_t i = 0; i < colN; ++i) {
     res[i][i] = mat[i][i];
-    for (size_t j = i+1; j < sqN; ++j) {
+    for (size_t j = i+1; j < colN; ++j) {
       res[i][j] = mat[j][i];
       res[j][i] = mat[i][j];
     }

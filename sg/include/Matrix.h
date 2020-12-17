@@ -254,6 +254,115 @@ constexpr Matrix<T, 4, 4> invert(const Matrix<T, 4, 4>& mat) {
   return res;
 }
 
+template<class T>
+constexpr Matrix<T, 4, 4> rotate(T angle, const Vector<T, 3>& axis) {
+  static_assert(std::is_floating_point<T>(),
+                "rotate() requires a floating point type");
+
+  Matrix<T, 4, 4> res;
+
+  const auto v = normalize(axis);
+  const auto x = v[0];
+  const auto y = v[1];
+  const auto z = v[2];
+  const auto c = std::cos(angle);
+  const auto s = std::sin(angle);
+  const T one = 1.0;
+
+  res[0][0] = c + (one - c) * x*x;
+  res[0][1] = (one - c) * x*y + s*z;
+  res[0][2] = (one - c) * x*z - s*y;
+  res[1][0] = (one - c) * x*y - s*z;
+  res[1][1] = c + (one - c) * y*y;
+  res[1][2] = (one - c) * y*z + s*x;
+  res[2][0] = (one - c) * x*z + s*y;
+  res[2][1] = (one - c) * y*z - s*x;
+  res[2][2] = c + (one - c) * z*z;
+  res[3][3] = one;
+
+  return res;
+}
+
+template<class T>
+constexpr Matrix<T, 4, 4> rotateX(T angle) {
+  static_assert(std::is_floating_point<T>(),
+                "rotateX() requires a floating point type");
+
+  Matrix<T, 4, 4> res;
+
+  const T c = std::cos(angle);
+  const T s = std::sin(angle);
+  const T one = 1.0;
+
+  res[0][0] = one;
+  res[1][1] = c;
+  res[1][2] = s;
+  res[2][1] = -s;
+  res[2][2] = c;
+  res[3][3] = one;
+
+  return res;
+}
+
+template<class T>
+constexpr Matrix<T, 4, 4> rotateY(T angle) {
+  static_assert(std::is_floating_point<T>(),
+                "rotateY() requires a floating point type");
+
+  Matrix<T, 4, 4> res;
+
+  const T c = std::cos(angle);
+  const T s = std::sin(angle);
+  const T one = 1.0;
+
+  res[0][0] = c;
+  res[0][2] = -s;
+  res[1][1] = one;
+  res[2][0] = s;
+  res[2][2] = c;
+  res[3][3] = one;
+
+  return res;
+}
+
+template<class T>
+constexpr Matrix<T, 4, 4> rotateZ(T angle) {
+  static_assert(std::is_floating_point<T>(),
+                "rotateZ() requires a floating point type");
+
+  Matrix<T, 4, 4> res;
+
+  const T c = std::cos(angle);
+  const T s = std::sin(angle);
+  const T one = 1.0;
+
+  res[0][0] = c;
+  res[0][1] = s;
+  res[1][0] = -s;
+  res[1][1] = c;
+  res[2][2] = one;
+  res[3][3] = one;
+
+  return res;
+}
+
+template<class T>
+constexpr Matrix<T, 4, 4> scale(T sx, T sy, T sz) {
+  Matrix<T, 4, 4> res;
+  res[0][0] = sx;
+  res[1][1] = sy;
+  res[2][2] = sz;
+  res[3][3] = 1;
+  return res;
+}
+
+template<class T>
+constexpr Matrix<T, 4, 4> translate(T tx, T ty, T tz) {
+  auto res = Matrix<T, 4, 4>::identity();
+  res[3] = {tx, ty, tz, 1};
+  return res;
+}
+
 using Mat2i   = Matrix<int32_t, 2, 2>;
 using Mat2x3i = Matrix<int32_t, 2, 3>;
 using Mat2x4i = Matrix<int32_t, 2, 4>;

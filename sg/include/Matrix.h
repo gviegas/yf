@@ -19,6 +19,8 @@
 
 SG_NS_BEGIN
 
+/// Matrix.
+///
 template<class T, size_t colN, size_t rowN>
 class Matrix {
   static_assert(colN > 0 && rowN > 0, "Zero-sized Matrix not supported");
@@ -26,12 +28,21 @@ class Matrix {
 
  public:
   Matrix() = default;
+  Matrix(const Matrix&) = default;
+  Matrix& operator=(const Matrix&) = default;
+  ~Matrix() = default;
 
+  /// Initializer-list construction from column vectors.
+  ///
+  /// Missing components are default-initialized.
+  ///
   Matrix(std::initializer_list<Vector<T, rowN>> list) {
     for (size_t i = 0; i < std::min(colN, list.size()); ++i)
       data_[i] = *(list.begin()+i);
   }
 
+  /// Identity matrix.
+  ///
   static constexpr Matrix identity() {
     static_assert(colN == rowN, "identity() requires a square matrix");
 
@@ -65,26 +76,36 @@ class Matrix {
     return data_+colN;
   }
 
+  /// Number of columns in the matrix.
+  ///
   constexpr size_t columns() const {
     return colN;
   }
 
+  /// Number of rows in the matrix.
+  ///
   constexpr size_t rows() const {
     return rowN;
   }
 
+  /// In-place subtraction.
+  ///
   constexpr Matrix& operator-=(const Matrix& other) {
     for (size_t i = 0; i < colN; ++i)
       data_[i] -= other[i];
     return *this;
   }
 
+  /// In-place addition.
+  ///
   constexpr Matrix& operator+=(const Matrix& other) {
     for (size_t i = 0; i < colN; ++i)
       data_[i] += other[i];
     return *this;
   }
 
+  /// In-place multiplication.
+  ///
   constexpr Matrix& operator*=(const Matrix& other) {
     static_assert(colN == rowN,
                   "operator*=() not implemented for non-square matrices");
@@ -100,6 +121,8 @@ class Matrix {
     return *this;
   }
 
+  /// In-place transpose operation.
+  ///
   constexpr Matrix& transpose() {
     static_assert(colN == rowN,
                   "transpose() not implemented for non-square matrices");
@@ -115,6 +138,8 @@ class Matrix {
   Vector<T, rowN> data_[colN]{};
 };
 
+/// Matrix subtraction.
+///
 template<class T, size_t colN, size_t rowN>
 constexpr Matrix<T, colN, rowN> operator-(const Matrix<T, colN, rowN>& left,
                                           const Matrix<T, colN, rowN>& right) {
@@ -124,6 +149,8 @@ constexpr Matrix<T, colN, rowN> operator-(const Matrix<T, colN, rowN>& left,
   return res;
 }
 
+/// Matrix addition.
+///
 template<class T, size_t colN, size_t rowN>
 constexpr Matrix<T, colN, rowN> operator+(const Matrix<T, colN, rowN>& left,
                                           const Matrix<T, colN, rowN>& right) {
@@ -133,6 +160,8 @@ constexpr Matrix<T, colN, rowN> operator+(const Matrix<T, colN, rowN>& left,
   return res;
 }
 
+/// Matrix multiplication.
+///
 template<class T, size_t colN, size_t rowN>
 constexpr Matrix<T, colN, rowN> operator*(const Matrix<T, colN, rowN>& m1,
                                           const Matrix<T, colN, rowN>& m2) {
@@ -149,6 +178,8 @@ constexpr Matrix<T, colN, rowN> operator*(const Matrix<T, colN, rowN>& m1,
   return res;
 }
 
+/// Matrix-Vector multiplication.
+///
 template<class T, size_t colN, size_t rowN>
 constexpr Vector<T, rowN> operator*(const Matrix<T, colN, rowN>& mat,
                                     const Vector<T, rowN>& vec) {
@@ -163,6 +194,8 @@ constexpr Vector<T, rowN> operator*(const Matrix<T, colN, rowN>& mat,
   return res;
 }
 
+/// Matrix transpose operation.
+///
 template<class T, size_t colN, size_t rowN>
 constexpr Matrix<T, colN, rowN> transpose(const Matrix<T, colN, rowN>& mat) {
   static_assert(colN == rowN,
@@ -179,19 +212,23 @@ constexpr Matrix<T, colN, rowN> transpose(const Matrix<T, colN, rowN>& mat) {
   return res;
 }
 
+/// Matrix inversion (2x2).
+///
 template<class T>
 constexpr Matrix<T, 2, 2> invert(const Matrix<T, 2, 2>& mat) {
   static_assert(std::is_floating_point<T>(),
-                "Matrix inversion requires a floating point type");
+                "invert() requires a floating point type");
 
   const T idet = 1.0 / (mat[0][0] * mat[1][1] - mat[0][1] * mat[1][0]);
   return {{mat[1][1]*idet, mat[0][1]*idet}, {-mat[1][0]*idet, mat[0][0]*idet}};
 }
 
+/// Matrix inversion (3x3).
+///
 template<class T>
 constexpr Matrix<T, 3, 3> invert(const Matrix<T, 3, 3>& mat) {
   static_assert(std::is_floating_point<T>(),
-                "Matrix inversion requires a floating point type");
+                "invert() requires a floating point type");
 
   Matrix<T, 3, 3> res;
 
@@ -213,10 +250,12 @@ constexpr Matrix<T, 3, 3> invert(const Matrix<T, 3, 3>& mat) {
   return res;
 }
 
+/// Matrix inversion (4x4).
+///
 template<class T>
 constexpr Matrix<T, 4, 4> invert(const Matrix<T, 4, 4>& mat) {
   static_assert(std::is_floating_point<T>(),
-                "Matrix inversion requires a floating point type");
+                "invert() requires a floating point type");
 
   Matrix<T, 4, 4> res;
 
@@ -254,6 +293,8 @@ constexpr Matrix<T, 4, 4> invert(const Matrix<T, 4, 4>& mat) {
   return res;
 }
 
+/// Matrix rotation.
+///
 template<class T>
 constexpr Matrix<T, 4, 4> rotate(T angle, const Vector<T, 3>& axis) {
   static_assert(std::is_floating_point<T>(),
@@ -283,6 +324,8 @@ constexpr Matrix<T, 4, 4> rotate(T angle, const Vector<T, 3>& axis) {
   return res;
 }
 
+/// Matrix rotation (x-axis).
+///
 template<class T>
 constexpr Matrix<T, 4, 4> rotateX(T angle) {
   static_assert(std::is_floating_point<T>(),
@@ -304,6 +347,8 @@ constexpr Matrix<T, 4, 4> rotateX(T angle) {
   return res;
 }
 
+/// Matrix rotation (y-axis).
+///
 template<class T>
 constexpr Matrix<T, 4, 4> rotateY(T angle) {
   static_assert(std::is_floating_point<T>(),
@@ -325,6 +370,8 @@ constexpr Matrix<T, 4, 4> rotateY(T angle) {
   return res;
 }
 
+/// Matrix rotation (z-axis).
+///
 template<class T>
 constexpr Matrix<T, 4, 4> rotateZ(T angle) {
   static_assert(std::is_floating_point<T>(),
@@ -346,6 +393,8 @@ constexpr Matrix<T, 4, 4> rotateZ(T angle) {
   return res;
 }
 
+/// Matrix scaling.
+///
 template<class T>
 constexpr Matrix<T, 4, 4> scale(T sx, T sy, T sz) {
   Matrix<T, 4, 4> res;
@@ -356,6 +405,8 @@ constexpr Matrix<T, 4, 4> scale(T sx, T sy, T sz) {
   return res;
 }
 
+/// Matrix translation.
+///
 template<class T>
 constexpr Matrix<T, 4, 4> translate(T tx, T ty, T tz) {
   auto res = Matrix<T, 4, 4>::identity();
@@ -363,6 +414,8 @@ constexpr Matrix<T, 4, 4> translate(T tx, T ty, T tz) {
   return res;
 }
 
+/// `Look At` matrix.
+///
 template <class T>
 constexpr Matrix<T, 4, 4> lookAt(const Vector<T, 3>& eye,
                                  const Vector<T, 3>& center,
@@ -383,6 +436,8 @@ constexpr Matrix<T, 4, 4> lookAt(const Vector<T, 3>& eye,
           {-dot(s, eye), -dot(u, eye), dot(f, eye), one}};
 }
 
+/// `Perspective` matrix.
+///
 template <class T>
 constexpr Matrix<T, 4, 4> perspective(T yFov, T aspect, T zNear, T zFar) {
   static_assert(std::is_floating_point<T>(),
@@ -402,6 +457,8 @@ constexpr Matrix<T, 4, 4> perspective(T yFov, T aspect, T zNear, T zFar) {
   return res;
 }
 
+/// `Ortho` matrix.
+///
 template <class T>
 constexpr Matrix<T, 4, 4> ortho(T left,
                                 T right,
@@ -429,6 +486,8 @@ constexpr Matrix<T, 4, 4> ortho(T left,
   return res;
 }
 
+/// Integer matrices.
+///
 using Mat2i   = Matrix<int32_t, 2, 2>;
 using Mat2x3i = Matrix<int32_t, 2, 3>;
 using Mat2x4i = Matrix<int32_t, 2, 4>;
@@ -439,6 +498,8 @@ using Mat4x2i = Matrix<int32_t, 4, 2>;
 using Mat4x3i = Matrix<int32_t, 4, 3>;
 using Mat4i   = Matrix<int32_t, 4, 4>;
 
+/// Unsigned integer matrices.
+///
 using Mat2u   = Matrix<uint32_t, 2, 2>;
 using Mat2x3u = Matrix<uint32_t, 2, 3>;
 using Mat2x4u = Matrix<uint32_t, 2, 4>;
@@ -449,6 +510,8 @@ using Mat4x2u = Matrix<uint32_t, 4, 2>;
 using Mat4x3u = Matrix<uint32_t, 4, 3>;
 using Mat4u   = Matrix<uint32_t, 4, 4>;
 
+/// Single precision matrices.
+///
 using Mat2f   = Matrix<float, 2, 2>;
 using Mat2x3f = Matrix<float, 2, 3>;
 using Mat2x4f = Matrix<float, 2, 4>;
@@ -459,6 +522,8 @@ using Mat4x2f = Matrix<float, 4, 2>;
 using Mat4x3f = Matrix<float, 4, 3>;
 using Mat4f   = Matrix<float, 4, 4>;
 
+/// Double precision matrices.
+///
 using Mat2d   = Matrix<double, 2, 2>;
 using Mat2x3d = Matrix<double, 2, 3>;
 using Mat2x4d = Matrix<double, 2, 4>;

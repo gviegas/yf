@@ -8,6 +8,8 @@
 #ifndef YF_CG_SHADERVK_H
 #define YF_CG_SHADERVK_H
 
+#include <stdexcept>
+
 #include "Shader.h"
 #include "VK.h"
 
@@ -38,7 +40,8 @@ inline VkShaderStageFlagBits toShaderStageVK(Stage stage) {
   case StageGeometry: return VK_SHADER_STAGE_TESSELLATION_EVALUATION_BIT;
   case StageFragment: return VK_SHADER_STAGE_FRAGMENT_BIT;
   case StageCompute:  return VK_SHADER_STAGE_COMPUTE_BIT;
-  default:            std::abort();
+  default:
+    throw std::invalid_argument(__func__);
   }
 }
 

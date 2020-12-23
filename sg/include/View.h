@@ -33,6 +33,10 @@ class View {
   ///
   void loop(Scene& scene, uint32_t fps, const UpdateFn& update);
 
+  /// Swaps scenes during a rendering loop.
+  ///
+  void swapScene(Scene& newScene);
+
   /// Renders a scene.
   ///
   void render(Scene& scene);

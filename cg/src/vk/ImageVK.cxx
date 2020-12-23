@@ -299,7 +299,7 @@ void ImageVK::write(Offset2 offset,
     uint64_t off = 0;
     for (uint32_t i = 0; i < level; ++i) {
       off += (size_.width >> i) * (size_.height >> i) * txSz;
-      off = (off-1 & ~3) + 4;
+      off = ((off-1) & ~3) + 4;
     }
     if (offset != 0)
       off += offset.y * (size_.width >> level) * txSz + offset.x * txSz;

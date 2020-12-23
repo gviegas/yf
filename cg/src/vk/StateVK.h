@@ -8,6 +8,8 @@
 #ifndef YF_CG_STATEVK_H
 #define YF_CG_STATEVK_H
 
+#include <stdexcept>
+
 #include "State.h"
 #include "VK.h"
 
@@ -52,6 +54,8 @@ inline VkPrimitiveTopology toTopologyVK(Primitive primitive) {
   case PrimitivePoint:    return VK_PRIMITIVE_TOPOLOGY_POINT_LIST;
   case PrimitiveLine:     return VK_PRIMITIVE_TOPOLOGY_LINE_LIST;
   case PrimitiveTriangle: return VK_PRIMITIVE_TOPOLOGY_TRIANGLE_LIST;
+  default:
+    throw std::invalid_argument(__func__);
   }
 }
 
@@ -62,6 +66,8 @@ inline VkPolygonMode toPolygonModeVK(PolyMode polyMode) {
   case PolyModeFill:  return VK_POLYGON_MODE_FILL;
   case PolyModeLine:  return VK_POLYGON_MODE_LINE;
   case PolyModePoint: return VK_POLYGON_MODE_POINT;
+  default:
+    throw std::invalid_argument(__func__);
   }
 }
 
@@ -73,6 +79,8 @@ inline VkCullModeFlagBits toCullModeVK(CullMode cullMode) {
   case CullModeFront: return VK_CULL_MODE_FRONT_BIT;
   case CullModeBack:  return VK_CULL_MODE_BACK_BIT;
   case CullModeAny:   return VK_CULL_MODE_FRONT_AND_BACK;
+  default:
+    throw std::invalid_argument(__func__);
   }
 }
 
@@ -82,6 +90,8 @@ inline VkFrontFace toFrontFaceVK(Winding winding) {
   switch (winding) {
   case WindingClockwise: return VK_FRONT_FACE_CLOCKWISE;
   case WindingCounterCw: return VK_FRONT_FACE_COUNTER_CLOCKWISE;
+  default:
+    throw std::invalid_argument(__func__);
   }
 }
 
@@ -91,6 +101,8 @@ inline VkVertexInputRate toInputRateVK(VxStepFn stepFn) {
   switch (stepFn) {
   case VxStepFnVertex:   return VK_VERTEX_INPUT_RATE_VERTEX;
   case VxStepFnInstance: return VK_VERTEX_INPUT_RATE_INSTANCE;
+  default:
+    throw std::invalid_argument(__func__);
   }
 }
 
@@ -169,6 +181,9 @@ inline VkFormat toFormatVK(VxFormat vxFormat) {
   case VxFormatDbl3x4:
   case VxFormatDbl4x4:
     return VK_FORMAT_R64G64B64A64_SFLOAT;
+
+  default:
+    throw std::invalid_argument(__func__);
   }
 }
 

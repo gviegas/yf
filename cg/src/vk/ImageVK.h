@@ -9,6 +9,7 @@
 #define YF_CG_IMAGEVK_H
 
 #include <unordered_map>
+#include <stdexcept>
 
 #include "Image.h"
 #include "VK.h"
@@ -185,6 +186,9 @@ inline VkFormat toFormatVK(PxFormat pxFormat) {
 
   case PxFormatD16UnormS8Uint: return VK_FORMAT_D16_UNORM_S8_UINT;
   case PxFormatD24UnormS8Uint: return VK_FORMAT_D24_UNORM_S8_UINT;
+
+  default:
+    throw std::invalid_argument(__func__);
   }
 }
 
@@ -246,6 +250,8 @@ inline VkSampleCountFlagBits toSampleCountVK(Samples samples) {
   case Samples16: return VK_SAMPLE_COUNT_16_BIT;
   case Samples32: return VK_SAMPLE_COUNT_32_BIT;
   case Samples64: return VK_SAMPLE_COUNT_64_BIT;
+  default:
+    throw std::invalid_argument(__func__);
   }
 }
 
@@ -292,6 +298,9 @@ inline VkImageAspectFlags aspectOfVK(PxFormat pxFormat) {
   case PxFormatD16UnormS8Uint:
   case PxFormatD24UnormS8Uint:
     return VK_IMAGE_ASPECT_DEPTH_BIT | VK_IMAGE_ASPECT_STENCIL_BIT;
+
+  default:
+    throw std::invalid_argument(__func__);
   }
 }
 

@@ -69,6 +69,7 @@ inline VkAttachmentLoadOp toLoadOpVK(LoadOp op) {
   case LoadOpLoad:     return VK_ATTACHMENT_LOAD_OP_LOAD;
   //case LoadOpClear:    return VK_ATTACHMENT_LOAD_OP_CLEAR;
   case LoadOpDontCare: return VK_ATTACHMENT_LOAD_OP_DONT_CARE;
+  default:             std::abort();
   }
 }
 
@@ -78,6 +79,7 @@ inline VkAttachmentStoreOp toStoreOpVK(StoreOp op) {
   switch (op) {
   case StoreOpStore:    return VK_ATTACHMENT_STORE_OP_STORE;
   case StoreOpDontCare: return VK_ATTACHMENT_STORE_OP_DONT_CARE;
+  default:              std::abort();
   }
 }
 

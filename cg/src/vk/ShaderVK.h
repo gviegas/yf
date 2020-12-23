@@ -38,6 +38,7 @@ inline VkShaderStageFlagBits toShaderStageVK(Stage stage) {
   case StageGeometry: return VK_SHADER_STAGE_TESSELLATION_EVALUATION_BIT;
   case StageFragment: return VK_SHADER_STAGE_FRAGMENT_BIT;
   case StageCompute:  return VK_SHADER_STAGE_COMPUTE_BIT;
+  default:            std::abort();
   }
 }
 

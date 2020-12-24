@@ -194,6 +194,18 @@ constexpr Vector<T, rowN> operator*(const Matrix<T, colN, rowN>& mat,
   return res;
 }
 
+/// Matrix-Vector multiplication with assignment.
+///
+template<class T, size_t colN, size_t rowN>
+constexpr Vector<T, rowN>& operator*=(Vector<T, rowN>& vec,
+                                      const Matrix<T, colN, rowN>& mat) {
+  static_assert(colN == rowN,
+                "operator*=() not implemented for non-square matrices");
+
+  vec = mat * vec;
+  return vec;
+}
+
 /// Matrix transpose operation.
 ///
 template<class T, size_t colN, size_t rowN>

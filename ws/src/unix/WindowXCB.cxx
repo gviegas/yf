@@ -29,9 +29,7 @@ WindowXCB* WindowXCB::fromId(xcb_window_t id) {
   return it == winMap.end() ? nullptr : it->second;
 }
 
-WindowXCB::WindowXCB(uint32_t width,
-                     uint32_t height,
-                     const wstring& title,
+WindowXCB::WindowXCB(uint32_t width, uint32_t height, const wstring& title,
                      CreationMask mask)
   : width_(width), height_(height), /*title_(title),*/ mask_(mask) {
 

@@ -55,9 +55,7 @@ class Window {
 
   /// Makes a new window object.
   ///
-  static Ptr make(uint32_t width,
-                  uint32_t height,
-                  const std::wstring& title,
+  static Ptr make(uint32_t width, uint32_t height, const std::wstring& title,
                   CreationMask mask = Resizable);
 
   /// Opens the window.

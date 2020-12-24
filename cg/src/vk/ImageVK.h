@@ -32,8 +32,8 @@ class ImageVK final : public Image {
 
   ~ImageVK();
 
-  void write(Offset2 offset, Size2 size, uint32_t layer,
-             uint32_t level, const void* data);
+  void write(Offset2 offset, Size2 size, uint32_t layer, uint32_t level,
+             const void* data);
 
   /// Performs a layout transition.
   ///

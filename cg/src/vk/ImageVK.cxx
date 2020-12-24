@@ -19,8 +19,8 @@ using namespace std;
 // ------------------------------------------------------------------------
 // ImageVK
 
-ImageVK::ImageVK(PxFormat format, Size2 size, uint32_t layers,
-                 uint32_t levels, Samples samples)
+ImageVK::ImageVK(PxFormat format, Size2 size, uint32_t layers, uint32_t levels,
+                 Samples samples)
   : Image(format, size, layers, levels, samples), owned_(true) {
 
   if (size == 0)
@@ -212,8 +212,8 @@ ImageVK::~ImageVK() {
   }
 }
 
-void ImageVK::write(Offset2 offset, Size2 size, uint32_t layer,
-                    uint32_t level, const void* data) {
+void ImageVK::write(Offset2 offset, Size2 size, uint32_t layer, uint32_t level,
+                    const void* data) {
 
   if (offset.x + size.width > size_.width ||
       offset.y + size.height > size_.height ||

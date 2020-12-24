@@ -121,10 +121,8 @@ struct IxBufferCmd : Cmd {
 /// Draw command.
 ///
 struct DrawCmd : Cmd {
-  DrawCmd(uint32_t vertexStart,
-          uint32_t vertexCount,
-          uint32_t baseInstance,
-          uint32_t instanceCount)
+  DrawCmd(uint32_t vertexStart, uint32_t vertexCount,
+          uint32_t baseInstance, uint32_t instanceCount)
     : Cmd(DrawT), vertexStart(vertexStart), vertexCount(vertexCount),
       baseInstance(baseInstance), instanceCount(instanceCount) { }
 
@@ -137,11 +135,8 @@ struct DrawCmd : Cmd {
 /// Draw indexed command.
 ///
 struct DrawIxCmd : Cmd {
-  DrawIxCmd(uint32_t indexStart,
-            uint32_t vertexCount,
-            int32_t vertexOffset,
-            uint32_t baseInstance,
-            uint32_t instanceCount)
+  DrawIxCmd(uint32_t indexStart, uint32_t vertexCount, int32_t vertexOffset,
+            uint32_t baseInstance, uint32_t instanceCount)
     : Cmd(DrawIxT), indexStart(indexStart), vertexCount(vertexCount),
       vertexOffset(vertexOffset), baseInstance(baseInstance),
       instanceCount(instanceCount) { }

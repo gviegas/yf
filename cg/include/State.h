@@ -20,25 +20,73 @@ CG_NS_BEGIN
 /// Vertex formats.
 ///
 enum VxFormat {
-  VxFormatInt, VxFormatInt2, VxFormatInt3, VxFormatInt4,
-  VxFormatInt2x2, VxFormatInt2x3, VxFormatInt2x4,
-  VxFormatInt3x2, VxFormatInt3x3, VxFormatInt3x4,
-  VxFormatInt4x2, VxFormatInt4x3, VxFormatInt4x4,
+  VxFormatInt,
+  VxFormatInt2,
+  VxFormatInt3,
+  VxFormatInt4,
 
-  VxFormatUint, VxFormatUint2, VxFormatUint3, VxFormatUint4,
-  VxFormatUint2x2, VxFormatUint2x3, VxFormatUint2x4,
-  VxFormatUint3x2, VxFormatUint3x3, VxFormatUint3x4,
-  VxFormatUint4x2, VxFormatUint4x3, VxFormatUint4x4,
+  VxFormatInt2x2,
+  VxFormatInt2x3,
+  VxFormatInt2x4,
 
-  VxFormatFlt, VxFormatFlt2, VxFormatFlt3, VxFormatFlt4,
-  VxFormatFlt2x2, VxFormatFlt2x3, VxFormatFlt2x4,
-  VxFormatFlt3x2, VxFormatFlt3x3, VxFormatFlt3x4,
-  VxFormatFlt4x2, VxFormatFlt4x3, VxFormatFlt4x4,
+  VxFormatInt3x2,
+  VxFormatInt3x3,
+  VxFormatInt3x4,
 
-  VxFormatDbl, VxFormatDbl2, VxFormatDbl3, VxFormatDbl4,
-  VxFormatDbl2x2, VxFormatDbl2x3, VxFormatDbl2x4,
-  VxFormatDbl3x2, VxFormatDbl3x3, VxFormatDbl3x4,
-  VxFormatDbl4x2, VxFormatDbl4x3, VxFormatDbl4x4
+  VxFormatInt4x2,
+  VxFormatInt4x3,
+  VxFormatInt4x4,
+
+  VxFormatUint,
+  VxFormatUint2,
+  VxFormatUint3,
+  VxFormatUint4,
+
+  VxFormatUint2x2,
+  VxFormatUint2x3,
+  VxFormatUint2x4,
+
+  VxFormatUint3x2,
+  VxFormatUint3x3,
+  VxFormatUint3x4,
+
+  VxFormatUint4x2,
+  VxFormatUint4x3,
+  VxFormatUint4x4,
+
+  VxFormatFlt,
+  VxFormatFlt2,
+  VxFormatFlt3,
+  VxFormatFlt4,
+
+  VxFormatFlt2x2,
+  VxFormatFlt2x3,
+  VxFormatFlt2x4,
+
+  VxFormatFlt3x2,
+  VxFormatFlt3x3,
+  VxFormatFlt3x4,
+
+  VxFormatFlt4x2,
+  VxFormatFlt4x3,
+  VxFormatFlt4x4,
+
+  VxFormatDbl,
+  VxFormatDbl2,
+  VxFormatDbl3,
+  VxFormatDbl4,
+
+  VxFormatDbl2x2,
+  VxFormatDbl2x3,
+  VxFormatDbl2x4,
+
+  VxFormatDbl3x2,
+  VxFormatDbl3x3,
+  VxFormatDbl3x4,
+
+  VxFormatDbl4x2,
+  VxFormatDbl4x3,
+  VxFormatDbl4x4
 };
 
 /// Vertex attribute.

@@ -69,11 +69,8 @@ class Target {
  public:
   using Ptr = std::unique_ptr<Target>;
 
-  Target(Size2 size,
-         uint32_t layers,
-         const std::vector<AttachImg>* colors,
-         const std::vector<AttachImg>* resolves,
-         const AttachImg* depthStencil);
+  Target(Size2 size, uint32_t layers, const std::vector<AttachImg>* colors,
+         const std::vector<AttachImg>* resolves, const AttachImg* depthStencil);
 
   virtual ~Target();
 
@@ -106,8 +103,7 @@ class Pass {
 
   /// Makes a new target compatible with this pass.
   ///
-  virtual Target::Ptr makeTarget(Size2 size,
-                                 uint32_t layers,
+  virtual Target::Ptr makeTarget(Size2 size, uint32_t layers,
                                  const std::vector<AttachImg>* colors,
                                  const std::vector<AttachImg>* resolves,
                                  const AttachImg* depthStencil) = 0;

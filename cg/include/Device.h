@@ -44,16 +44,12 @@ class Device {
 
   /// Makes a new image object.
   ///
-  virtual Image::Ptr makeImage(PxFormat format,
-                               Size2 size,
-                               uint32_t layers,
-                               uint32_t levels,
-                               Samples samples) = 0;
+  virtual Image::Ptr makeImage(PxFormat format, Size2 size, uint32_t layers,
+                               uint32_t levels, Samples samples) = 0;
 
   /// Makes a new shader object.
   ///
-  virtual Shader::Ptr makeShader(Stage stage,
-                                 std::wstring&& codeFile,
+  virtual Shader::Ptr makeShader(Stage stage, std::wstring&& codeFile,
                                  std::wstring&& entryPoint = L"main") = 0;
 
   /// Makes a new descriptor table object.

@@ -55,21 +55,13 @@ class DcTable {
 
   /// Writes to a table resource using a buffer object.
   ///
-  virtual void write(uint32_t allocation,
-                     DcId id,
-                     uint32_t element,
-                     Buffer& buffer,
-                     uint64_t offset,
-                     uint64_t size) = 0;
+  virtual void write(uint32_t allocation, DcId id, uint32_t element,
+                     Buffer& buffer, uint64_t offset, uint64_t size) = 0;
 
   /// Writes to a table resource using an image object.
   ///
-  virtual void write(uint32_t allocation,
-                     DcId id,
-                     uint32_t element,
-                     Image& image,
-                     uint32_t layer,
-                     uint32_t level,
+  virtual void write(uint32_t allocation, DcId id, uint32_t element,
+                     Image& image, uint32_t layer, uint32_t level,
                      ImgSampler sampler) = 0;
 
   /// The table entries.

@@ -27,8 +27,7 @@ class PassVK final : public Pass {
 
   ~PassVK();
 
-  Target::Ptr makeTarget(Size2 size,
-                         uint32_t layers,
+  Target::Ptr makeTarget(Size2 size, uint32_t layers,
                          const std::vector<AttachImg>* colors,
                          const std::vector<AttachImg>* resolves,
                          const AttachImg* depthStencil);
@@ -43,9 +42,7 @@ class PassVK final : public Pass {
 
 class TargetVK final : public Target {
  public:
-  TargetVK(PassVK& pass,
-           Size2 size,
-           uint32_t layers,
+  TargetVK(PassVK& pass, Size2 size, uint32_t layers,
            const std::vector<AttachImg>* colors,
            const std::vector<AttachImg>* resolves,
            const AttachImg* depthStencil);

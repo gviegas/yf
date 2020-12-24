@@ -24,19 +24,11 @@ class DcTableVK final : public DcTable {
   void allocate(uint32_t n);
   uint32_t allocations() const;
 
-  void write(uint32_t allocation,
-             DcId id,
-             uint32_t element,
-             Buffer& buffer,
-             uint64_t offset,
-             uint64_t size);
+  void write(uint32_t allocation, DcId id, uint32_t element,
+             Buffer& buffer, uint64_t offset, uint64_t size);
 
-  void write(uint32_t allocation,
-             DcId id,
-             uint32_t element,
-             Image& image,
-             uint32_t layer,
-             uint32_t level,
+  void write(uint32_t allocation, DcId id, uint32_t element,
+             Image& image, uint32_t layer, uint32_t level,
              ImgSampler sampler);
 
   /// Getters.

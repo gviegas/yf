@@ -19,11 +19,8 @@ using namespace std;
 // ------------------------------------------------------------------------
 // ImageVK
 
-ImageVK::ImageVK(PxFormat format,
-                 Size2 size,
-                 uint32_t layers,
-                 uint32_t levels,
-                 Samples samples)
+ImageVK::ImageVK(PxFormat format, Size2 size, uint32_t layers,
+                 uint32_t levels, Samples samples)
   : Image(format, size, layers, levels, samples), owned_(true) {
 
   if (size == 0)
@@ -184,18 +181,10 @@ ImageVK::ImageVK(PxFormat format,
   }
 }
 
-ImageVK::ImageVK(PxFormat format,
-                 Size2 size,
-                 uint32_t layers,
-                 uint32_t levels,
-                 Samples samples,
-                 VkImageType type,
-                 VkImageTiling tiling,
-                 VkImageUsageFlags usage,
-                 VkImage handle,
-                 void* data,
-                 VkImageLayout layout,
-                 bool owned)
+ImageVK::ImageVK(PxFormat format, Size2 size, uint32_t layers, uint32_t levels,
+                 Samples samples, VkImageType type, VkImageTiling tiling,
+                 VkImageUsageFlags usage, VkImage handle, void* data,
+                 VkImageLayout layout, bool owned)
   : Image(format, size, layers, levels, samples), owned_(owned),
     type_(type), tiling_(tiling), usage_(usage), handle_(handle),
     data_(data), layout_(layout), nextLayout_(layout) {
@@ -223,11 +212,8 @@ ImageVK::~ImageVK() {
   }
 }
 
-void ImageVK::write(Offset2 offset,
-                    Size2 size,
-                    uint32_t layer,
-                    uint32_t level,
-                    const void* data) {
+void ImageVK::write(Offset2 offset, Size2 size, uint32_t layer,
+                    uint32_t level, const void* data) {
 
   if (offset.x + size.width > size_.width ||
       offset.y + size.height > size_.height ||
@@ -404,10 +390,8 @@ pair<VkImageLayout, VkImageLayout> ImageVK::layout() const {
   return {layout_, nextLayout_};
 }
 
-ImageVK::View::Ptr ImageVK::getView(uint32_t firstLayer,
-                                    uint32_t layerCount,
-                                    uint32_t firstLevel,
-                                    uint32_t levelCount) {
+ImageVK::View::Ptr ImageVK::getView(uint32_t firstLayer, uint32_t layerCount,
+                                    uint32_t firstLevel, uint32_t levelCount) {
 
   if (layerCount == 0 || firstLayer + layerCount > layers_ ||
       levelCount == 0 || firstLevel + levelCount > levels_)
@@ -453,12 +437,9 @@ ImageVK::View::Ptr ImageVK::getView(uint32_t firstLayer,
                            firstLevel, levelCount);
 }
 
-ImageVK::View::View(ImageVK& image,
-                    VkImageView handle,
-                    uint32_t firstLayer,
-                    uint32_t layerCount,
-                    uint32_t firstLevel,
-                    uint32_t levelCount)
+ImageVK::View::View(ImageVK& image, VkImageView handle,
+                    uint32_t firstLayer, uint32_t layerCount,
+                    uint32_t firstLevel, uint32_t levelCount)
   : image_(image), handle_(handle),
     firstLayer_(firstLayer), layerCount_(layerCount),
     firstLevel_(firstLevel), levelCount_(levelCount) { }

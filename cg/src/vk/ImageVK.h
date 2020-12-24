@@ -20,34 +20,20 @@ CG_NS_BEGIN
 class ImageVK final : public Image {
  public:
 
-  ImageVK(PxFormat format,
-          Size2 size,
-          uint32_t layers,
-          uint32_t levels,
+  ImageVK(PxFormat format, Size2 size, uint32_t layers, uint32_t levels,
           Samples samples);
 
   /// Wraps an existing `VkImage` on an `ImageVK` object.
   ///
-  ImageVK(PxFormat format,
-          Size2 size,
-          uint32_t layers,
-          uint32_t levels,
-          Samples samples,
-          VkImageType type,
-          VkImageTiling tiling,
-          VkImageUsageFlags usage,
-          VkImage handle,
-          void* data,
-          VkImageLayout layout,
-          bool owned);
+  ImageVK(PxFormat format, Size2 size, uint32_t layers, uint32_t levels,
+          Samples samples, VkImageType type, VkImageTiling tiling,
+          VkImageUsageFlags usage, VkImage handle, void* data,
+          VkImageLayout layout, bool owned);
 
   ~ImageVK();
 
-  void write(Offset2 offset,
-             Size2 size,
-             uint32_t layer,
-             uint32_t level,
-             const void* data);
+  void write(Offset2 offset, Size2 size, uint32_t layer,
+             uint32_t level, const void* data);
 
   /// Performs a layout transition.
   ///
@@ -90,10 +76,8 @@ class ImageVK final : public Image {
 
   /// Gets an image view.
   ///
-  View::Ptr getView(uint32_t firstLayer,
-                    uint32_t layerCount,
-                    uint32_t firstLevel,
-                    uint32_t levelCount);
+  View::Ptr getView(uint32_t firstLayer, uint32_t layerCount,
+                    uint32_t firstLevel, uint32_t levelCount);
 
  private:
   void changeLayout(bool);

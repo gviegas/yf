@@ -28,13 +28,17 @@ class Mesh {
   };
 
   Mesh(FileType fileType, const std::wstring& meshFile);
-  Mesh(void* data);
   Mesh(const Mesh&) = delete;
   Mesh& operator=(const Mesh&) = delete;
   ~Mesh();
 
- private:
+  struct Data;
+  Mesh(const Data& data);
+
   class Impl;
+  Impl& impl();
+
+ private:
   std::unique_ptr<Impl> impl_;
 };
 

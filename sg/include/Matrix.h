@@ -76,6 +76,14 @@ class Matrix {
     return data_+colN;
   }
 
+  constexpr const T* data() const {
+    return data_[0].data();
+  }
+
+  constexpr T* data() {
+    return data_[0].data();
+  }
+
   /// Number of columns in the matrix.
   ///
   constexpr size_t columns() const {

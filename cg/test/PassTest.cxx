@@ -24,11 +24,9 @@ struct PassTest : Test {
             const DepStenAttach* depthStencil)
         : Pass(colors, resolves, depthStencil) { }
 
-      Target::Ptr makeTarget(Size2,
-                             uint32_t,
-                             const vector<AttachImg>*,
-                             const vector<AttachImg>*,
-                             const AttachImg*) { return nullptr; }
+      Target::Ptr makeTarget(Size2, uint32_t, const vector<AttachImg>*,
+                             const vector<AttachImg>*, const AttachImg*)
+                             { return nullptr; }
     };
 
     Assertions a;

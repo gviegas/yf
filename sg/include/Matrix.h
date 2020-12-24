@@ -460,11 +460,7 @@ constexpr Matrix<T, 4, 4> perspective(T yFov, T aspect, T zNear, T zFar) {
 /// `Ortho` matrix.
 ///
 template <class T>
-constexpr Matrix<T, 4, 4> ortho(T left,
-                                T right,
-                                T top,
-                                T bottom,
-                                T zNear,
+constexpr Matrix<T, 4, 4> ortho(T left, T right, T top, T bottom, T zNear,
                                 T zFar) {
 
   static_assert(std::is_floating_point<T>(),

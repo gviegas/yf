@@ -19,12 +19,9 @@ struct ImageTest : Test {
 
   Assertions run(const vector<string>&) {
     struct Image_ : Image {
-      Image_(PxFormat format,
-             Size2 size,
-             uint32_t layers,
-             uint32_t levels,
+      Image_(PxFormat format, Size2 size, uint32_t layers, uint32_t levels,
              Samples samples)
-             : Image(format, size, layers, levels, samples) { }
+        : Image(format, size, layers, levels, samples) { }
 
       void write(Offset2, Size2, uint32_t, uint32_t, const void*) { }
     };

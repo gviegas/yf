@@ -130,8 +130,7 @@ class GrEncoder final : public Encoder {
 
   /// Sets the vertex buffer.
   ///
-  void setVertexBuffer(Buffer* buffer,
-                       uint64_t offset,
+  void setVertexBuffer(Buffer* buffer, uint64_t offset,
                        uint32_t inputIndex = 0);
 
   /// Sets the index buffer.
@@ -140,17 +139,13 @@ class GrEncoder final : public Encoder {
 
   /// Draws primitives.
   ///
-  void draw(uint32_t vertexStart,
-            uint32_t vertexCount,
-            uint32_t baseInstance = 0,
-            uint32_t instanceCount = 1);
+  void draw(uint32_t vertexStart, uint32_t vertexCount,
+            uint32_t baseInstance = 0, uint32_t instanceCount = 1);
 
   /// Draws primitives, indexed.
   ///
-  void drawIndexed(uint32_t indexStart,
-                   uint32_t vertexCount,
-                   int32_t vertexOffset = 0,
-                   uint32_t baseInstance = 0,
+  void drawIndexed(uint32_t indexStart, uint32_t vertexCount,
+                   int32_t vertexOffset = 0, uint32_t baseInstance = 0,
                    uint32_t instanceCount = 1);
 
   /// Clears the bound target.

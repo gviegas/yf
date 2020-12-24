@@ -79,20 +79,14 @@ class Image {
  public:
   using Ptr = std::unique_ptr<Image>;
 
-  Image(PxFormat format,
-        Size2 size,
-        uint32_t layers,
-        uint32_t levels,
+  Image(PxFormat format, Size2 size, uint32_t layers, uint32_t levels,
         Samples samples);
 
   virtual ~Image();
 
   /// Writes data to image.
   ///
-  virtual void write(Offset2 offset,
-                     Size2 size,
-                     uint32_t layer,
-                     uint32_t level,
+  virtual void write(Offset2 offset, Size2 size, uint32_t layer, uint32_t level,
                      const void* data) = 0;
 
   /// Instance constants.

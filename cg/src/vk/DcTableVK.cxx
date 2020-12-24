@@ -146,12 +146,8 @@ uint32_t DcTableVK::allocations() const {
   return sets_.size();
 }
 
-void DcTableVK::write(uint32_t allocation,
-                      DcId id,
-                      uint32_t element,
-                      Buffer& buffer,
-                      uint64_t offset,
-                      uint64_t size) {
+void DcTableVK::write(uint32_t allocation, DcId id, uint32_t element,
+                      Buffer& buffer, uint64_t offset, uint64_t size) {
 
   auto ent = entries_.find(id);
 
@@ -186,12 +182,8 @@ void DcTableVK::write(uint32_t allocation,
   vkUpdateDescriptorSets(DeviceVK::get().device(), 1, &wr, 0, nullptr);
 }
 
-void DcTableVK::write(uint32_t allocation,
-                      DcId id,
-                      uint32_t element,
-                      Image& image,
-                      uint32_t layer,
-                      uint32_t level,
+void DcTableVK::write(uint32_t allocation, DcId id, uint32_t element,
+                      Image& image, uint32_t layer, uint32_t level,
                       ImgSampler sampler) {
 
   auto ent = entries_.find(id);

@@ -369,17 +369,13 @@ Buffer::Ptr DeviceVK::makeBuffer(uint64_t size) {
   return make_unique<BufferVK>(size);
 }
 
-Image::Ptr DeviceVK::makeImage(PxFormat format,
-                               Size2 size,
-                               uint32_t layers,
-                               uint32_t levels,
-                               Samples samples) {
+Image::Ptr DeviceVK::makeImage(PxFormat format, Size2 size, uint32_t layers,
+                               uint32_t levels, Samples samples) {
 
   return make_unique<ImageVK>(format, size, layers, levels, samples);
 }
 
-Shader::Ptr DeviceVK::makeShader(Stage stage,
-                                 wstring&& codeFile,
+Shader::Ptr DeviceVK::makeShader(Stage stage, wstring&& codeFile,
                                  wstring&& entryPoint) {
 
   return make_unique<ShaderVK>(stage, move(codeFile), move(entryPoint));

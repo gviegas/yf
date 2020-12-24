@@ -62,33 +62,27 @@ void GrEncoder::setDcTable(uint32_t tableIndex, uint32_t allocIndex) {
     .push_back(make_unique<DcTableCmd>(tableIndex, allocIndex));
 }
 
-void GrEncoder::setVertexBuffer(Buffer* buffer,
-                                uint64_t offset,
+void GrEncoder::setVertexBuffer(Buffer* buffer, uint64_t offset,
                                 uint32_t inputIndex) {
   impl_->encoding_
     .push_back(make_unique<VxBufferCmd>(buffer, offset, inputIndex));
 }
 
-void GrEncoder::setIndexBuffer(Buffer* buffer,
-                               uint64_t offset,
+void GrEncoder::setIndexBuffer(Buffer* buffer, uint64_t offset,
                                IndexType type) {
   impl_->encoding_
     .push_back(make_unique<IxBufferCmd>(buffer, offset, type));
 }
 
-void GrEncoder::draw(uint32_t vertexStart,
-                     uint32_t vertexCount,
-                     uint32_t baseInstance,
-                     uint32_t instanceCount) {
+void GrEncoder::draw(uint32_t vertexStart, uint32_t vertexCount,
+                     uint32_t baseInstance, uint32_t instanceCount) {
   impl_->encoding_
     .push_back(make_unique<DrawCmd>(vertexStart, vertexCount,
                                     baseInstance, instanceCount));
 }
 
-void GrEncoder::drawIndexed(uint32_t indexStart,
-                            uint32_t vertexCount,
-                            int32_t vertexOffset,
-                            uint32_t baseInstance,
+void GrEncoder::drawIndexed(uint32_t indexStart, uint32_t vertexCount,
+                            int32_t vertexOffset, uint32_t baseInstance,
                             uint32_t instanceCount) {
   impl_->encoding_
     .push_back(make_unique<DrawIxCmd>(indexStart, vertexCount, vertexOffset,

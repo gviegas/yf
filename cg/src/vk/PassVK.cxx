@@ -136,8 +136,7 @@ PassVK::~PassVK() {
   vkDestroyRenderPass(dev, renderPass_, nullptr);
 }
 
-Target::Ptr PassVK::makeTarget(Size2 size,
-                               uint32_t layers,
+Target::Ptr PassVK::makeTarget(Size2 size, uint32_t layers,
                                const vector<AttachImg>* colors,
                                const vector<AttachImg>* resolves,
                                const AttachImg* depthStencil) {
@@ -153,9 +152,7 @@ VkRenderPass PassVK::renderPass() const {
 // ------------------------------------------------------------------------
 // TargetVK
 
-TargetVK::TargetVK(PassVK& pass,
-                   Size2 size,
-                   uint32_t layers,
+TargetVK::TargetVK(PassVK& pass, Size2 size, uint32_t layers,
                    const vector<AttachImg>* colors,
                    const vector<AttachImg>* resolves,
                    const AttachImg* depthStencil)

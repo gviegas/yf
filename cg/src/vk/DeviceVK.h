@@ -27,14 +27,10 @@ class DeviceVK final : public Device {
 
   Buffer::Ptr makeBuffer(uint64_t size);
 
-  Image::Ptr makeImage(PxFormat format,
-                       Size2 size,
-                       uint32_t layers,
-                       uint32_t levels,
-                       Samples samples);
+  Image::Ptr makeImage(PxFormat format, Size2 size, uint32_t layers,
+                       uint32_t levels, Samples samples);
 
-  Shader::Ptr makeShader(Stage stage,
-                         std::wstring&& codeFile,
+  Shader::Ptr makeShader(Stage stage, std::wstring&& codeFile,
                          std::wstring&& entryPoint);
 
   DcTable::Ptr makeDcTable(const DcEntries& entries);

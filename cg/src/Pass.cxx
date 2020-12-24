@@ -20,8 +20,7 @@ Pass::Pass(const vector<ColorAttach>* colors,
 
 Pass::~Pass() { }
 
-Target::Target(Size2 size,
-               uint32_t layers,
+Target::Target(Size2 size, uint32_t layers,
                const std::vector<AttachImg>* colors,
                const std::vector<AttachImg>* resolves,
                const AttachImg* depthStencil)

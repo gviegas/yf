@@ -32,8 +32,7 @@ class Shader {
  public:
   using Ptr = std::unique_ptr<Shader>;
 
-  Shader(Stage stage,
-         std::wstring&& codeFile,
+  Shader(Stage stage, std::wstring&& codeFile,
          std::wstring&& entryPoint = L"main");
 
   virtual ~Shader() = 0;

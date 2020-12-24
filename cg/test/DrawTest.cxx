@@ -33,7 +33,7 @@ struct DrawTest : Test {
     auto frag = dev.makeShader(StageFragment, L"tmp/frag");
 
     // Create wsi
-    auto win = WS_NS::Window::make(400, 400, name_, WS_NS::Window::Resizable);
+    auto win = WS_NS::Window::make(480, 400, name_, WS_NS::Window::Resizable);
     Size2 winSz{win->width(), win->height()};
     auto wsi = dev.makeWsi(win.get());
     auto wsiImgs = wsi->images();
@@ -64,9 +64,9 @@ struct DrawTest : Test {
                       {{ 1.0f,  1.0f, 0.5f}, {1.0f, 0.0f}},
                       {{ 0.0f, -1.0f, 0.5f}, {0.5f, 1.0f}}};
 
-    float mdata[] = {0.8f, 0.0f, 0.0f, 0.0f,
-                     0.0f, 0.8f, 0.0f, 0.0f,
-                     0.0f, 0.0f, 0.8f, 0.0f,
+    float mdata[] = {0.9f, 0.0f, 0.0f, 0.0f,
+                     0.0f, 0.9f, 0.0f, 0.0f,
+                     0.0f, 0.0f, 0.9f, 0.0f,
                      0.0f, 0.0f, 0.0f, 1.0f};
 
     uint32_t voff = offsetof(Vertex, tc);
@@ -77,9 +77,9 @@ struct DrawTest : Test {
     buf->write(sizeof vdata, sizeof mdata, mdata);
 
     // Create sampling image and fill with data
-    uint8_t pdata[][3] = {{0xFF, 0xFF, 0x00}, {0x1F, 0x1F, 0x00},
-                          {0x00, 0xFF, 0xFF}, {0x00, 0x1F, 0x1F},
-                          {0xFF, 0x00, 0xFF}, {0x1F, 0x00, 0x1F}};
+    uint8_t pdata[][3] = {{0xDE, 0x20, 0x20}, {0xDF, 0x7C, 0x20},
+                          {0xDC, 0x9E, 0x28}, {0xD0, 0x2A, 0x24},
+                          {0xCF, 0x60, 0x3C}, {0xDF, 0x0E, 0x32}};
 
     auto tex = dev.makeImage(PxFormatRgb8Unorm, {2, 3}, 1, 1, Samples1);
     tex->write({0}, {2, 3}, 0, 0, pdata);
@@ -90,7 +90,7 @@ struct DrawTest : Test {
     auto dtb = dev.makeDcTable(dcs);
     dtb->allocate(1);
     dtb->write(0, 0, 0, *buf, sizeof vdata, sizeof mdata);
-    dtb->write(0, 1, 0, *tex, 0, 0, ImgSamplerBasic);
+    dtb->write(0, 1, 0, *tex, 0, 0, ImgSamplerLinear);
 
     // Create graphics state
     GrState::Config config{pass.get(),
@@ -109,7 +109,7 @@ struct DrawTest : Test {
     auto cb = que.makeCmdBuffer();
 
     // Enter rendering loop
-    const auto tm = chrono::system_clock::now() + chrono::seconds(3);
+    const auto tm = chrono::system_clock::now() + chrono::seconds(5);
     while (chrono::system_clock::now() < tm) {
       // Acquire next drawable image
       Image* img;
@@ -123,12 +123,13 @@ struct DrawTest : Test {
       // Encode commands
       GrEncoder enc;
       enc.setState(state.get());
-      enc.setViewport({0.0f, 0.0f, 400.0f, 400.0f, 0.0f, 1.0f});
+      enc.setViewport({0.0f, 0.0f, (float)winSz.width, (float)winSz.height,
+                       0.0f, 1.0f});
       enc.setScissor({{0}, winSz});
       enc.setTarget(tgtIt->get());
       enc.setDcTable(0, 0);
       enc.setVertexBuffer(buf.get(), 0);
-      enc.clearColor({0.75f, 0.75f, 0.5f, 1.0f});
+      enc.clearColor({0.005f, 0.005f, 0.005f, 1.0f});
       enc.clearDepth(1.0f);
       enc.draw(0, 3, 0, 1);
 

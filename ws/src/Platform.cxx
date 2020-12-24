@@ -47,9 +47,7 @@ void setPlatform(Platform pfm) {
 ///
 /// `Window::make()` will call this function.
 ///
-Window::Ptr makeWindow(uint32_t width,
-                       uint32_t height,
-                       const wstring& title,
+Window::Ptr makeWindow(uint32_t width, uint32_t height, const wstring& title,
                        Window::CreationMask mask) {
 
 #if defined(__linux__)

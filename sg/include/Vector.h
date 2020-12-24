@@ -64,6 +64,14 @@ class Vector {
     return data_+sz;
   }
 
+  constexpr const T* data() const {
+    return data_;
+  }
+
+  constexpr T* data() {
+    return data_;
+  }
+
   /// Number of components in the vector.
   ///
   constexpr size_t size() const {

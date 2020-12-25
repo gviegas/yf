@@ -8,11 +8,15 @@
 #ifndef YF_SG_MESHIMPL_H
 #define YF_SG_MESHIMPL_H
 
+#include <cstdint>
+#include <vector>
+
+#include "yf/cg/Buffer.h"
+#include "yf/cg/Encoder.h"
+
 #include "Mesh.h"
 
 SG_NS_BEGIN
-
-class GrEncoder;
 
 /// Generic mesh data to store in device memory.
 ///
@@ -47,15 +51,27 @@ class Mesh::Impl {
 
   /// Encodes vertex/index buffer bindings for this mesh.
   ///
-  void encodeBindings(GrEncoder& encoder, uint32_t inputIndex = 0);
+  void encodeBindings(CG_NS::GrEncoder& encoder, uint32_t inputIndex = 0);
 
   /// Encodes a draw command for this mesh.
   ///
-  void encodeDraw(GrEncoder& encoder, uint32_t baseInstance,
+  void encodeDraw(CG_NS::GrEncoder& encoder, uint32_t baseInstance,
                   uint32_t instanceCount);
 
  private:
-  // TODO
+  struct Segment {
+    uint64_t offset;
+    uint64_t size;
+  };
+
+  static CG_NS::Buffer::Ptr buffer_;
+  static std::vector<Segment> segments_;
+
+  uint64_t vxOffset_ = 0;
+  uint64_t vxSize_ = 0;
+  uint64_t ixOffset_ = 0;
+  uint32_t ixCount_ = 0;
+  uint32_t ixStride_ = 0;
 };
 
 SG_NS_END

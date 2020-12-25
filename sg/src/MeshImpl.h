@@ -9,7 +9,7 @@
 #define YF_SG_MESHIMPL_H
 
 #include <cstdint>
-#include <vector>
+#include <list>
 
 #include "yf/cg/Buffer.h"
 #include "yf/cg/Encoder.h"
@@ -66,12 +66,12 @@ class Mesh::Impl {
   };
 
   static CG_NS::Buffer::Ptr buffer_;
-  static std::vector<Segment> segments_;
+  static std::list<Segment> segments_;
 
-  uint64_t vxOffset_ = 0;
+  uint64_t vxOffset_ = UINT64_MAX;
   uint32_t vxCount_ = 0;
   uint32_t vxStride_ = 0;
-  uint64_t ixOffset_ = 0;
+  uint64_t ixOffset_ = UINT64_MAX;
   uint32_t ixCount_ = 0;
   uint32_t ixStride_ = 0;
 };

@@ -71,8 +71,8 @@ Mesh::Impl::Impl(const Data& data)
     vxStride_(data.vertex.stride), ixOffset_(UINT64_MAX),
     ixCount_(data.index.count), ixStride_(data.index.stride) {
 
-  // Find a segment that can contain the data, copy data to buffer and
-  // update segment list
+  // Find a segment that can contain data of a given size, copy data to
+  // buffer and update segment list
   auto copy = [&](uint64_t size, void* data) -> uint64_t {
     for (auto s = segments_.begin(); s != segments_.end(); ++s) {
       if (s->size < size)
@@ -107,8 +107,54 @@ Mesh::Impl::Impl(const Data& data)
 }
 
 Mesh::Impl::~Impl() {
-  // TODO: update the segment list to reflect that the area previously
-  // occupied by this mesh is again available for use
+  // Update the segment list to reflect that a given buffer area is once
+  // again available for use
+  auto yield = [&](uint64_t offset, uint64_t size) {
+    if (segments_.empty()) {
+      segments_.push_back({offset, size});
+      return;
+    }
+
+    auto next = segments_.begin();
+    decltype(next) prev;
+    for (; next != segments_.end() && next->offset < offset+size; ++next)
+      prev = next;
+
+    // Merge segments if they are contiguous, insert new segment otherwise
+    if (next == segments_.begin()) {
+      if (offset+size == next->offset) {
+        next->offset = offset;
+        next->size += size;
+      } else {
+        segments_.push_front({offset, size});
+      }
+    } else if (next == segments_.end()) {
+      if (prev->offset+prev->size == offset)
+        prev->size += size;
+      else
+        segments_.push_back({offset, size});
+    } else {
+      if (prev->offset+prev->size == offset && offset+size == next->offset) {
+        prev->size += size + next->size;
+        segments_.erase(next);
+      } else if (prev->offset+prev->size == offset) {
+        prev->size += size;
+      } else if (offset+size == next->offset) {
+        next->offset = offset;
+        next->size += size;
+      } else {
+        segments_.insert(next, {offset, size});
+      }
+    }
+  };
+
+  const uint64_t vxSize = vxCount_ * vxStride_;
+  yield(vxOffset_, vxSize);
+
+  if (ixCount_ > 0) {
+    const uint64_t ixSize = ixCount_ * ixStride_;
+    yield(ixOffset_, ixSize);
+  }
 }
 
 void Mesh::Impl::updateVertices(void* data, uint32_t vertexStart,

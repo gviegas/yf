@@ -19,8 +19,9 @@ Mesh::Mesh(FileType fileType, const wstring& meshFile) {
 
   // XXX: for testing
   auto test = [&] {
-    data.vertex.data = new uint8_t[1000];
-    data.vertex.size = 1000;
+    data.vertex.data = new float[8*20];
+    data.vertex.count = 20;
+    data.vertex.stride = 4*8;
     data.index.data = new uint16_t[300];
     data.index.count = 300;
     data.index.stride = 2;
@@ -75,11 +76,15 @@ Mesh::Impl::~Impl() {
   // occupied by this mesh is again available for use
 }
 
-void Mesh::Impl::updateVertices(void* data, uint64_t offset, uint64_t size) {
-  if (offset + size > vxSize_)
+void Mesh::Impl::updateVertices(void* data, uint32_t vertexStart,
+                                uint32_t vertexCount) {
+
+  if (vertexStart + vertexCount > vxCount_)
     throw invalid_argument("updateVertices() out of bounds");
 
-  buffer_.write(vxOffset_ + offset, data, size);
+  uint64_t offset = vertexStart * vxStride_;
+  uint64_t size = vertexCount * vxStride_;
+  buffer_->write(vxOffset_ + offset, size, data);
 }
 
 void Mesh::Impl::updateIndices(void* data, uint32_t indexStart,
@@ -90,17 +95,26 @@ void Mesh::Impl::updateIndices(void* data, uint32_t indexStart,
 
   uint64_t offset = indexStart * ixStride_;
   uint64_t size = indexCount * ixStride_;
-  buffer_.write(ixOffset_ + offset, data, size);
+  buffer_->write(ixOffset_ + offset, size, data);
 }
 
 void Mesh::Impl::encodeBindings(CG_NS::GrEncoder& encoder,
                                 uint32_t inputIndex) {
-  // TODO
-  throw runtime_error("Unimplemented");
+
+  encoder.setVertexBuffer(buffer_.get(), vxOffset_, inputIndex);
+
+  if (ixCount_ > 0) {
+    // XXX: the code that provides the `Data` for the mesh must ensure that
+    // stride is valid
+    auto type = ixStride_ == 2 ? CG_NS::IndexTypeU16 : CG_NS::IndexTypeU32;
+    encoder.setIndexBuffer(buffer_.get(), ixOffset_, type);
+  }
 }
 
 void Mesh::Impl::encodeDraw(CG_NS::GrEncoder& encoder, uint32_t baseInstance,
                             uint32_t instanceCount) {
-  // TODO
-  throw runtime_error("Unimplemented");
+  if (ixCount_ > 0)
+    encoder.drawIndexed(0, ixCount_, 0, baseInstance, instanceCount);
+  else
+    encoder.draw(0, vxCount_, baseInstance, instanceCount);
 }

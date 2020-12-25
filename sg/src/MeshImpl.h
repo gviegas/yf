@@ -23,7 +23,8 @@ SG_NS_BEGIN
 struct Mesh::Data {
   struct {
     void* data;
-    uint64_t size;
+    uint32_t count;
+    uint32_t stride;
   } vertex;
   struct {
     void* data;
@@ -43,7 +44,7 @@ class Mesh::Impl {
 
   /// Updates vertex data.
   ///
-  void updateVertices(void* data, uint64_t offset, uint64_t size);
+  void updateVertices(void* data, uint32_t vertexStart, uint32_t vertexCount);
 
   /// Updates index data.
   ///
@@ -68,7 +69,8 @@ class Mesh::Impl {
   static std::vector<Segment> segments_;
 
   uint64_t vxOffset_ = 0;
-  uint64_t vxSize_ = 0;
+  uint32_t vxCount_ = 0;
+  uint32_t vxStride_ = 0;
   uint64_t ixOffset_ = 0;
   uint32_t ixCount_ = 0;
   uint32_t ixStride_ = 0;

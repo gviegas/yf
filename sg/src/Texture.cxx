@@ -54,13 +54,15 @@ Texture::Impl::~Impl() { }
 
 void Texture::Impl::updateImage(CG_NS::Offset2 offset, CG_NS::Size2 size,
                                 uint32_t level, const void* data) {
-  // TODO
-  throw runtime_error("Unimplemented");
+
+  auto& image = *resources_.find(key_)->second.image;
+  image.write(offset, size, layer_, level, data);
 }
 
-void Texture::Impl::copy(CG_NS::DcTable* dcTable, uint32_t allocation,
+void Texture::Impl::copy(CG_NS::DcTable& dcTable, uint32_t allocation,
                          CG_NS::DcId id, uint32_t element, uint32_t level,
                          CG_NS::ImgSampler sampler) {
-  // TODO
-  throw runtime_error("Unimplemented");
+
+  auto& image = *resources_.find(key_)->second.image;
+  dcTable.write(allocation, id, element, image, layer_, level, sampler);
 }

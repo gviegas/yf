@@ -17,10 +17,11 @@ Test* sceneTest();
 Test* viewTest();
 Test* vectorTest();
 Test* matrixTest();
+Test* meshTest();
 
 inline const std::vector<Test*>& unitTests() {
   static std::vector<Test*> tests{nodeTest(), sceneTest(), viewTest(),
-                                  vectorTest(), matrixTest()};
+                                  vectorTest(), matrixTest(), meshTest()};
   return tests;
 }
 

@@ -44,11 +44,13 @@ class Mesh::Impl {
 
   /// Updates vertex data.
   ///
-  void updateVertices(void* data, uint32_t vertexStart, uint32_t vertexCount);
+  void updateVertices(uint32_t vertexStart, uint32_t vertexCount,
+                      const void* data);
 
   /// Updates index data.
   ///
-  void updateIndices(void* data, uint32_t indexStart, uint32_t indexCount);
+  void updateIndices(uint32_t indexStart, uint32_t indexCount,
+                     const void* data);
 
   /// Encodes vertex/index buffer bindings for this mesh.
   ///

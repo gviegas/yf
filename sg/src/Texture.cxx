@@ -42,6 +42,10 @@ Texture::Impl& Texture::impl() {
   return *impl_;
 }
 
+constexpr const uint32_t Layers = 16;
+
+Texture::Impl::Resources Texture::Impl::resources_{};
+
 // TODO
 Texture::Impl::Impl(const Data& data) { }
 

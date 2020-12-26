@@ -17,18 +17,6 @@ using namespace std;
 Mesh::Mesh(FileType fileType, const wstring& meshFile) {
   Data data;
 
-  // XXX: for testing
-  auto test = [&] {
-    data.vertex.data = new float[8*20];
-    data.vertex.count = 20;
-    data.vertex.stride = 4*8;
-    data.index.data = new uint16_t[300];
-    data.index.count = 300;
-    data.index.stride = 2;
-  };
-  test();
-  goto testing;
-
   switch (fileType) {
   case Internal:
     // TODO
@@ -43,14 +31,7 @@ Mesh::Mesh(FileType fileType, const wstring& meshFile) {
     throw invalid_argument("Invalid Mesh file type");
   }
 
-  // XXX
-  testing:
-
   impl_ = make_unique<Impl>(data);
-
-  // XXX
-  delete[] reinterpret_cast<uint8_t*>(data.vertex.data);
-  delete[] reinterpret_cast<uint16_t*>(data.index.data);
 }
 
 Mesh::~Mesh() { }
@@ -73,7 +54,7 @@ Mesh::Impl::Impl(const Data& data)
 
   // Find a segment that can contain data of a given size, copy data to
   // buffer and update segment list
-  auto copy = [&](uint64_t size, void* data) -> uint64_t {
+  auto copy = [&](uint64_t size, const void* data) -> uint64_t {
     for (auto s = segments_.begin(); s != segments_.end(); ++s) {
       if (s->size < size)
         continue;

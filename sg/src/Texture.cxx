@@ -7,13 +7,32 @@
 
 #include "yf/Except.h"
 
+#include "yf/cg/Device.h"
+
 #include "TextureImpl.h"
 
 using namespace SG_NS;
 using namespace std;
 
-// TODO
-Texture::Texture(FileType fileType, const wstring& textureFile) { }
+Texture::Texture(FileType fileType, const wstring& textureFile) {
+  Data data;
+
+  switch (fileType) {
+  case Internal:
+    // TODO
+    throw runtime_error("Mesh::Internal unimplemented");
+  case Png:
+    // TODO
+    throw runtime_error("Mesh::Png unimplemented");
+  case Bmp:
+    // TODO
+    throw runtime_error("Mesh::Bmp unimplemented");
+  default:
+    throw invalid_argument("Invalid Texture file type");
+  }
+
+  impl_ = make_unique<Impl>(data);
+}
 
 Texture::~Texture() { }
 

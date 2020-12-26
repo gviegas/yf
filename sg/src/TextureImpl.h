@@ -8,6 +8,7 @@
 #ifndef YF_SG_TEXTUREIMPL_H
 #define YF_SG_TEXTUREIMPL_H
 
+#include <cstdint>
 #include <unordered_map>
 
 #include "yf/cg/Image.h"
@@ -20,6 +21,13 @@ SG_NS_BEGIN
 /// Generic texture data for copying.
 ///
 struct Texture::Data {
+  explicit Data(const void* data = nullptr,
+                CG_NS::PxFormat format = CG_NS::PxFormatUndefined,
+                CG_NS::Size2 size = {0}, uint32_t levels = 1,
+                CG_NS::Samples samples = CG_NS::Samples1)
+    : data(data), format(format), size(size), levels(levels),
+      samples(samples) { }
+
   const void* data;
   CG_NS::PxFormat format;
   CG_NS::Size2 size;

@@ -18,16 +18,16 @@
 
 SG_NS_BEGIN
 
-/// Generic mesh data to store in device memory.
+/// Generic mesh data for copying.
 ///
 struct Mesh::Data {
   struct {
-    void* data;
+    const void* data;
     uint32_t count;
     uint32_t stride;
   } vertex;
   struct {
-    void* data;
+    const void* data;
     uint32_t count;
     uint32_t stride;
   } index;
@@ -59,7 +59,9 @@ class Mesh::Impl {
   void encodeDraw(CG_NS::GrEncoder& encoder, uint32_t baseInstance,
                   uint32_t instanceCount);
 
+#ifndef YF_DEVEL
  private:
+#endif
   struct Segment {
     uint64_t offset;
     uint64_t size;

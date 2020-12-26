@@ -138,8 +138,8 @@ Mesh::Impl::~Impl() {
   }
 }
 
-void Mesh::Impl::updateVertices(void* data, uint32_t vertexStart,
-                                uint32_t vertexCount) {
+void Mesh::Impl::updateVertices(uint32_t vertexStart, uint32_t vertexCount,
+                                const void* data) {
 
   if (vertexStart + vertexCount > vxCount_)
     throw invalid_argument("updateVertices() out of bounds");
@@ -149,8 +149,8 @@ void Mesh::Impl::updateVertices(void* data, uint32_t vertexStart,
   buffer_->write(vxOffset_ + offset, size, data);
 }
 
-void Mesh::Impl::updateIndices(void* data, uint32_t indexStart,
-                               uint32_t indexCount) {
+void Mesh::Impl::updateIndices(uint32_t indexStart, uint32_t indexCount,
+                               const void* data) {
 
   if (indexStart + indexCount > ixCount_)
     throw invalid_argument("updateIndices() out of bounds");

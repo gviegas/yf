@@ -86,7 +86,11 @@ class Texture::Impl {
 
   struct Resource {
     CG_NS::Image::Ptr image;
-    std::vector<bool> layers;
+    struct {
+      std::vector<bool> unused;
+      uint32_t remaining;
+      uint32_t current;
+    } layers;
   };
 
   using Resources = std::unordered_map<Key, Resource, Key::Hash>;

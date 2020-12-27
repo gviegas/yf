@@ -85,7 +85,7 @@ INTERNAL_NS_BEGIN
   wprintf(L"\nv4 - csType: 0x%08x (%c%c%c%c)", \
     (v4Ptr)->csType, (v4Ptr)->csType, (v4Ptr)->csType >> 8, \
     (v4Ptr)->csType >> 16, (v4Ptr)->csType >> 24); \
-  wprintf(L"\nv4h - endPoints: %u,%u,%u %u,%u,%u %u,%u,%u", \
+  wprintf(L"\nv4 - endPoints: %u,%u,%u %u,%u,%u %u,%u,%u", \
     (v4Ptr)->endPoints[0], (v4Ptr)->endPoints[1], (v4Ptr)->endPoints[2], \
     (v4Ptr)->endPoints[3], (v4Ptr)->endPoints[4], (v4Ptr)->endPoints[5], \
     (v4Ptr)->endPoints[6], (v4Ptr)->endPoints[7], (v4Ptr)->endPoints[8]); \
@@ -115,17 +115,17 @@ INTERNAL_NS_BEGIN
   wprintf(L"\nv5 - csType: 0x%08x (%c%c%c%c)", \
     (v5Ptr)->csType, (v5Ptr)->csType, (v5Ptr)->csType >> 8, \
     (v5Ptr)->csType >> 16, (v5Ptr)->csType >> 24); \
-  wprintf(L"\nv5h - endPoints: %u,%u,%u %u,%u,%u %u,%u,%u", \
+  wprintf(L"\nv5 - endPoints: %u,%u,%u %u,%u,%u %u,%u,%u", \
     (v5Ptr)->endPoints[0], (v5Ptr)->endPoints[1], (v5Ptr)->endPoints[2], \
     (v5Ptr)->endPoints[3], (v5Ptr)->endPoints[4], (v5Ptr)->endPoints[5], \
     (v5Ptr)->endPoints[6], (v5Ptr)->endPoints[7], (v5Ptr)->endPoints[8]); \
-  wprintf(L"\nv5h - gammaR: %u", (v5Ptr)->gammaR); \
-  wprintf(L"\nv5h - gammaG: %u", (v5Ptr)->gammaG); \
-  wprintf(L"\nv5h - gammaB: %u", (v5Ptr)->gammaB); \
-  wprintf(L"\nv5h - intent: %u", (v5Ptr)->intent); \
-  wprintf(L"\nv5h - profileData: %u", (v5Ptr)->profileData); \
-  wprintf(L"\nv5h - profileSize: %u", (v5Ptr)->profileSize); \
-  wprintf(L"\nv5h - reserved: %u\n", (v5Ptr)->reserved); \
+  wprintf(L"\nv5 - gammaR: %u", (v5Ptr)->gammaR); \
+  wprintf(L"\nv5 - gammaG: %u", (v5Ptr)->gammaG); \
+  wprintf(L"\nv5 - gammaB: %u", (v5Ptr)->gammaB); \
+  wprintf(L"\nv5 - intent: %u", (v5Ptr)->intent); \
+  wprintf(L"\nv5 - profileData: %u", (v5Ptr)->profileData); \
+  wprintf(L"\nv5 - profileSize: %u", (v5Ptr)->profileSize); \
+  wprintf(L"\nv5 - reserved: %u\n", (v5Ptr)->reserved); \
 } while (0)
 // ------------------------------------------------------------------------
 
@@ -439,9 +439,9 @@ void SG_NS::loadBMP(Texture::Data& dst, const wstring& pathname) {
     bitsRgba[1] = bitsBMP(maskRgba[1], bpp, lshfRgba[1]);
     bitsRgba[2] = bitsBMP(maskRgba[2], bpp, lshfRgba[2]);
 
-    const size_t padding = (width & 1) << 2;
-    const size_t lineSize = (width << 2) + padding;
-    auto scanline = make_unique<uint16_t[]>(lineSize >> 2);
+    const size_t padding = (width & 1) << 1;
+    const size_t lineSize = (width << 1) + padding;
+    auto scanline = make_unique<uint16_t[]>(lineSize >> 1);
 
     // each channel will be scaled to the 8-bit range
     const uint32_t diffRgba[3]{min(8U, 8U-bitsRgba[0]),
@@ -469,6 +469,27 @@ void SG_NS::loadBMP(Texture::Data& dst, const wstring& pathname) {
 
   // Read next bytes as 24bpp format
   auto read24 = [&] {
+    if (compression != BMPComprRgb) {
+      delete data;
+      throw FileExcept("Invalid BMP file");
+    }
+
+    const size_t padding = width % 4;
+    const size_t lineSize = 3*width + padding;
+    auto scanline = make_unique<uint8_t[]>(lineSize);
+
+    for (auto i = from; i != to; i += increment) {
+      if (!ifs.read(reinterpret_cast<char*>(scanline.get()), lineSize)) {
+        delete data;
+        throw FileExcept("Could no read from BMP file");
+      }
+      for (int32_t j = 0; j < width; ++j) {
+        auto index = channels*width*i + channels*j;
+        data[index++] = scanline[3*j+2];
+        data[index++] = scanline[3*j+1];
+        data[index++] = scanline[3*j];
+      }
+    }
   };
 
   // Read next bytes as 32bpp format

@@ -18,10 +18,12 @@ Test* viewTest();
 Test* vectorTest();
 Test* matrixTest();
 Test* meshTest();
+Test* textureTest();
 
 inline const std::vector<Test*>& unitTests() {
   static std::vector<Test*> tests{nodeTest(), sceneTest(), viewTest(),
-                                  vectorTest(), matrixTest(), meshTest()};
+                                  vectorTest(), matrixTest(), meshTest(),
+                                  textureTest()};
   return tests;
 }
 

@@ -494,6 +494,31 @@ void SG_NS::loadBMP(Texture::Data& dst, const wstring& pathname) {
 
   // Read next bytes as 32bpp format
   auto read32 = [&] {
+    if (compression == BMPComprRgb) {
+      maskRgba[0] = 0x00ff0000;
+      maskRgba[1] = 0x0000ff00;
+      maskRgba[2] = 0x000000ff;
+    }
+    lshfRgba[0] = lshfBMP(maskRgba[0], bpp);
+    lshfRgba[1] = lshfBMP(maskRgba[1], bpp);
+    lshfRgba[2] = lshfBMP(maskRgba[2], bpp);
+
+    // no padding needed
+    const size_t lineSize = width << 2;
+    auto scanline = make_unique<uint32_t[]>(width);
+
+    for (auto i = from; i != to; i += increment) {
+      if (!ifs.read(reinterpret_cast<char*>(scanline.get()), lineSize)) {
+        delete data;
+        throw FileExcept("Could not read from BMP file");
+      }
+      for (int32_t j = 0; j < width; ++j) {
+        for (size_t k = 0; k < channels; ++k) {
+          auto index = channels*width*i + channels*j + k;
+          data[index] = (scanline[j] & maskRgba[k]) >> lshfRgba[k];
+        }
+      }
+    }
   };
 
   switch (bpp) {

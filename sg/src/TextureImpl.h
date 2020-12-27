@@ -55,7 +55,9 @@ class Texture::Impl {
   void copy(CG_NS::DcTable& dcTable, uint32_t allocation, CG_NS::DcId id,
             uint32_t element, uint32_t level, CG_NS::ImgSampler sampler);
 
+#ifndef YF_DEVEL
  private:
+#endif
   struct Key {
     struct Hash {
       size_t operator()(const Key& key) const {

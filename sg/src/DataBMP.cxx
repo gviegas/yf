@@ -8,6 +8,8 @@
 #include <cwchar>
 #include <cstring>
 #include <fstream>
+#include <memory>
+#include <algorithm>
 
 #include "yf/Except.h"
 
@@ -402,6 +404,91 @@ void SG_NS::loadBMP(Texture::Data& dst, const wstring& pathname) {
 
   if (width <= 0 || height == 0 || bpp == 0 || bpp > 32)
     throw FileExcept("Invalid BMP file");
+
+  const uint32_t dataOffset = letoh(fh.dataOffset);
+  if (readN != fh.dataOffset && !ifs.seekg(dataOffset))
+    throw FileExcept("Invalid BMP file");
+
+  const size_t channels = maskRgba[3] != 0 ? 4 : 3;
+  auto data = new uint8_t(channels * width * (height < 0 ? -height : height));
+
+  int32_t to, from, increment;
+  if (height > -1) {
+    // pixel data is stored bottom-up
+    from = 0;
+    to = height;
+    increment = 1;
+  } else {
+    // pixel data is stored top-down
+    from = -height-1;
+    to = -1;
+    increment = -1;
+  }
+
+  // Read next bytes as 16bpp format
+  auto read16 = [&] {
+    if (compression == BMPComprRgb) {
+      maskRgba[0] = 0x7C00;
+      maskRgba[1] = 0x03e0;
+      maskRgba[2] = 0x001f;
+    }
+    lshfRgba[0] = lshfBMP(maskRgba[0], bpp);
+    lshfRgba[1] = lshfBMP(maskRgba[1], bpp);
+    lshfRgba[2] = lshfBMP(maskRgba[2], bpp);
+    bitsRgba[0] = bitsBMP(maskRgba[0], bpp, lshfRgba[0]);
+    bitsRgba[1] = bitsBMP(maskRgba[1], bpp, lshfRgba[1]);
+    bitsRgba[2] = bitsBMP(maskRgba[2], bpp, lshfRgba[2]);
+
+    const size_t padding = (width & 1) << 2;
+    const size_t lineSize = (width << 2) + padding;
+    auto scanline = make_unique<uint16_t[]>(lineSize >> 2);
+
+    // each channel will be scaled to the 8-bit range
+    const uint32_t diffRgba[3]{min(8U, 8U-bitsRgba[0]),
+                               min(8U, 8U-bitsRgba[1]),
+                               min(8U, 8U-bitsRgba[2])};
+    uint32_t scale;
+    uint32_t component;
+    size_t index;
+
+    for (auto i = from; i != to; i += increment) {
+      if (!ifs.read(reinterpret_cast<char*>(scanline.get()), lineSize)) {
+        delete data;
+        throw FileExcept("Could not read from BMP file");
+      }
+      for (int32_t j = 0; j < width; ++j) {
+        for (size_t k = 0; k < channels; ++k) {
+          index = channels*width*i + channels*j + k;
+          component = (scanline[j] & maskRgba[k]) >> lshfRgba[k];
+          scale = 1 << diffRgba[k];
+          data[index] = component*scale + component%scale;
+        }
+      }
+    }
+  };
+
+  // Read next bytes as 24bpp format
+  auto read24 = [&] {
+  };
+
+  // Read next bytes as 32bpp format
+  auto read32 = [&] {
+  };
+
+  switch (bpp) {
+  case 16:
+    read16();
+    break;
+  case 24:
+    read24();
+    break;
+  case 32:
+    read32();
+    break;
+  default:
+    delete data;
+    throw FileExcept("Unsupported BMP bpp value");
+  }
 
   // TODO...
 }

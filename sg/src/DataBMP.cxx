@@ -263,6 +263,9 @@ void SG_NS::loadBMP(Texture::Data& dst, const wstring& pathname) {
   if (!ifs.read(reinterpret_cast<char*>(&fh.type), BMPfhSize))
     throw FileExcept("Could not read from BMP file");
 
+  if (letoh(fh.type) != BMPType)
+    throw FileExcept("Invalid BMP file");
+
   // XXX
   BMPFH_PRINT(&fh, mpath);
 
@@ -410,7 +413,8 @@ void SG_NS::loadBMP(Texture::Data& dst, const wstring& pathname) {
     throw FileExcept("Invalid BMP file");
 
   const size_t channels = maskRgba[3] != 0 ? 4 : 3;
-  auto data = new uint8_t(channels * width * (height < 0 ? -height : height));
+  const size_t dataLen = channels * width * (height < 0 ? -height : height);
+  auto data = make_unique<uint8_t[]>(dataLen);
 
   int32_t to, from, increment;
   if (height > -1) {
@@ -452,10 +456,9 @@ void SG_NS::loadBMP(Texture::Data& dst, const wstring& pathname) {
     size_t index;
 
     for (auto i = from; i != to; i += increment) {
-      if (!ifs.read(reinterpret_cast<char*>(scanline.get()), lineSize)) {
-        delete data;
+      if (!ifs.read(reinterpret_cast<char*>(scanline.get()), lineSize))
         throw FileExcept("Could not read from BMP file");
-      }
+
       for (int32_t j = 0; j < width; ++j) {
         for (size_t k = 0; k < channels; ++k) {
           index = channels*width*i + channels*j + k;
@@ -469,20 +472,17 @@ void SG_NS::loadBMP(Texture::Data& dst, const wstring& pathname) {
 
   // Read next bytes as 24bpp format
   auto read24 = [&] {
-    if (compression != BMPComprRgb) {
-      delete data;
+    if (compression != BMPComprRgb)
       throw FileExcept("Invalid BMP file");
-    }
 
     const size_t padding = width % 4;
     const size_t lineSize = 3*width + padding;
     auto scanline = make_unique<uint8_t[]>(lineSize);
 
     for (auto i = from; i != to; i += increment) {
-      if (!ifs.read(reinterpret_cast<char*>(scanline.get()), lineSize)) {
-        delete data;
+      if (!ifs.read(reinterpret_cast<char*>(scanline.get()), lineSize))
         throw FileExcept("Could no read from BMP file");
-      }
+
       for (int32_t j = 0; j < width; ++j) {
         auto index = channels*width*i + channels*j;
         data[index++] = scanline[3*j+2];
@@ -508,10 +508,9 @@ void SG_NS::loadBMP(Texture::Data& dst, const wstring& pathname) {
     auto scanline = make_unique<uint32_t[]>(width);
 
     for (auto i = from; i != to; i += increment) {
-      if (!ifs.read(reinterpret_cast<char*>(scanline.get()), lineSize)) {
-        delete data;
+      if (!ifs.read(reinterpret_cast<char*>(scanline.get()), lineSize))
         throw FileExcept("Could not read from BMP file");
-      }
+
       for (int32_t j = 0; j < width; ++j) {
         for (size_t k = 0; k < channels; ++k) {
           auto index = channels*width*i + channels*j + k;
@@ -532,9 +531,18 @@ void SG_NS::loadBMP(Texture::Data& dst, const wstring& pathname) {
     read32();
     break;
   default:
-    delete data;
     throw FileExcept("Unsupported BMP bpp value");
   }
 
-  // TODO...
+  // Set destination for the data
+  dst.data.swap(data);
+  if (channels == 4)
+    dst.format = CG_NS::PxFormatRgba8Srgb;
+  else
+    dst.format = CG_NS::PxFormatRgb8Srgb;
+  dst.size.width = width;
+  dst.size.height = height < 0 ? -height : height;
+  // TODO
+  dst.levels = 1;
+  dst.samples = CG_NS::Samples1;
 }

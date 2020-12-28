@@ -23,6 +23,8 @@ using Coverage = double;
 using Assertion = std::pair<std::wstring, bool>;
 using Assertions = std::vector<Assertion>;
 
+/// Base class for tests.
+///
 class Test {
  public:
   explicit Test(std::wstring&& name);

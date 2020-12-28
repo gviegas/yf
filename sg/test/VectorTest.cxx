@@ -19,12 +19,12 @@ INTERNAL_NS_BEGIN
 struct VectorTest : Test {
   VectorTest() : Test(L"Vector") { }
 
-#define SG_PRINTSCAL(scal) wcout << #scal ": " << scal << endl
+#define SG_PRINTSCAL(scal) wcout << endl << #scal ": " << scal << endl
+
 #define SG_PRINTVEC(vec) do { \
-  wcout << #vec ": "; \
+  wcout << endl << #vec ":\n"; \
   for (const auto& x : vec) \
-    wcout << x << " "; \
-  wcout << endl; \
+    wcout << "   " << x << endl; \
 } while (false)
 
   Assertions run(const vector<string>&) {

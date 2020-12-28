@@ -15,7 +15,7 @@ using namespace std;
 int main(int argc, char* argv[]) {
   wstring line;
   line.resize(80);
-  fill(line.begin(), line.end(), L'=');
+  fill(line.begin(), line.end(), L'#');
 
   wcout << line << "\n[WS] Test\n" << line << "\n\n";
 

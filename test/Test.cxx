@@ -24,13 +24,11 @@ Coverage TEST_NS::run(const vector<Test*>& tests, vector<string>&& args) {
   }
 
   auto runUnit = [&](Test& t) {
-    wstring title = L" Unit test '" + t.name_ + L"' ";
-    wstring tildes;
-    tildes.resize(title.size());
-    fill(tildes.begin(), tildes.end(), L'~');
-    wcout << "\n\n" << tildes << tildes << tildes
-          << "\n" << tildes << title << tildes
-          << "\n" << tildes << tildes << tildes << "\n";
+    wstring title = L"Unit test '" + t.name_ + L"'";
+    wstring dots;
+    dots.resize(title.size());
+    fill(dots.begin(), dots.end(), L'.');
+    wcout << "\n" <<  title << "\n" << dots << "\n";
 
     auto asserts = t.run(args);
 
@@ -41,7 +39,6 @@ Coverage TEST_NS::run(const vector<Test*>& tests, vector<string>&& args) {
     }
     cov = asserts.empty() ? 1.0 : cov/asserts.size();
 
-    wstring dots;
     dots.resize(64*cov);
     fill(dots.begin(), dots.end(), L'.');
     wcout << "\n" << dots << " [" << cov*100.0 << "%]\n";
@@ -58,14 +55,14 @@ Coverage TEST_NS::run(const vector<Test*>& tests, vector<string>&& args) {
   }
   total /= tests.size();
 
-  wcout << "\n\n<DONE>\n"
-        << "\n\n------ SUMMARY ------\n---------------------\n";
+  wcout << "\nDONE!\n"
+        << "\n.... SUMMARY ....\n.................\n";
 
   for (auto& p : res)
     wcout << "\n[" << round(p.second*100.0) << "%]\t" << p.first->name_;
 
   wcout << "\n\n> Unit tests run: " << tests.size()
-        << "\n\n> Test coverage: " << total*100.0 << "%\n";
+        << "\n> Test coverage: " << total*100.0 << "%\n";
 
   return total;
 }

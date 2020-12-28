@@ -48,9 +48,8 @@ CG_NS::Buffer::Ptr Mesh::Impl::buffer_{CG_NS::Device::get().makeBuffer(Len)};
 list<Mesh::Impl::Segment> Mesh::Impl::segments_{{0, Len}};
 
 Mesh::Impl::Impl(const Data& data)
-  : vxOffset_(UINT64_MAX), vxCount_(data.vertex.count),
-    vxStride_(data.vertex.stride), ixOffset_(UINT64_MAX),
-    ixCount_(data.index.count), ixStride_(data.index.stride) {
+  : vxOffset_(UINT64_MAX), vxCount_(data.vxCount), vxStride_(data.vxStride),
+    ixOffset_(UINT64_MAX), ixCount_(data.ixCount), ixStride_(data.ixStride) {
 
   // Find a segment that can contain data of a given size, copy data to
   // buffer and update segment list
@@ -73,14 +72,14 @@ Mesh::Impl::Impl(const Data& data)
   };
 
   const uint64_t vxSize = vxCount_ * vxStride_;
-  vxOffset_ = copy(vxSize, data.vertex.data);
+  vxOffset_ = copy(vxSize, data.vxData.get());
   if (vxOffset_ == UINT64_MAX)
     // TODO: create a larger buffer and transfer data
     throw runtime_error("Mesh buffer resize unimplemented");
 
   if (ixCount_ > 0) {
     const uint64_t ixSize = ixCount_ * ixStride_;
-    ixOffset_ = copy(ixSize, data.index.data);
+    ixOffset_ = copy(ixSize, data.ixData.get());
     if (ixOffset_ == UINT64_MAX)
       // TODO: create a larger buffer and transfer data
       throw runtime_error("Mesh buffer resize unimplemented");

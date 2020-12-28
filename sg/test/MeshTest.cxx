@@ -45,14 +45,13 @@ struct MeshTest : Test {
     wcout << "\n#Buffer#\n" << "#" << Mesh::Impl::buffer_->size_ << endl;
     print();
 
-    uint8_t b[2048];
     Mesh::Data data;
-    data.vertex.data = b;
-    data.vertex.count = 10;
-    data.vertex.stride = 20;
-    data.index.data = b;
-    data.index.count = 50;
-    data.index.stride = 2;
+    data.vxData = make_unique<uint8_t[]>(2048);
+    data.vxCount = 10;
+    data.vxStride = 20;
+    data.ixData = make_unique<uint8_t[]>(2048);
+    data.ixCount = 50;
+    data.ixStride = 2;
 
     Mesh m1(data);
     print();
@@ -66,9 +65,9 @@ struct MeshTest : Test {
         segs.front().size != buf->size_ - ((10*20+50*2)*2))
       ctorChk = false;
 
-    data.index.data = nullptr;
-    data.index.count = 0;
-    data.index.stride = 0;
+    data.ixData = nullptr;
+    data.ixCount = 0;
+    data.ixStride = 0;
 
     Mesh m3(data);
     print();
@@ -84,7 +83,7 @@ struct MeshTest : Test {
         (++segs.begin())->size != buf->size_ - ((10*20+50*2)*2+10*20))
       dtorChk = false;
 
-    data.vertex.count = 15;
+    data.vxCount = 15;
 
     Mesh m4(data);
     print();

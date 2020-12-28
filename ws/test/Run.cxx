@@ -27,7 +27,7 @@ int main(int argc, char* argv[]) {
   }
   wcout << endl;
 
-  run(unitTests(), move(args));
+  run(unitTests(args.empty() ? "" : args[0]), move(args));
 
   wcout << "\n" << line << "\nEnd of test\n" << line << "\n";
 }

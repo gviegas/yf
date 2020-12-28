@@ -10,6 +10,7 @@
 
 #include <cstdint>
 #include <list>
+#include <memory>
 
 #include "yf/cg/Buffer.h"
 #include "yf/cg/Encoder.h"
@@ -21,16 +22,22 @@ SG_NS_BEGIN
 /// Generic mesh data for copying.
 ///
 struct Mesh::Data {
-  struct {
-    const void* data;
-    uint32_t count;
-    uint32_t stride;
-  } vertex;
-  struct {
-    const void* data;
-    uint32_t count;
-    uint32_t stride;
-  } index;
+  explicit Data(uint8_t* vxData = nullptr, uint32_t vxCount = 0,
+                uint32_t vxStride = 0, uint8_t* ixData = nullptr,
+                uint32_t ixCount = 0, uint32_t ixStride = 0)
+    : vxData(vxData), vxCount(vxCount), vxStride(vxStride), ixData(ixData),
+      ixCount(ixCount), ixStride(ixStride) { }
+
+  Data(const Data&) = delete;
+  Data& operator=(const Data&) = delete;
+  ~Data() = default;
+
+  std::unique_ptr<uint8_t[]> vxData;
+  uint32_t vxCount;
+  uint32_t vxStride;
+  std::unique_ptr<uint8_t[]> ixData;
+  uint32_t ixCount;
+  uint32_t ixStride;
 };
 
 /// Mesh implementation details.

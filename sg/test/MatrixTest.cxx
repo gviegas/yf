@@ -21,20 +21,19 @@ struct MatrixTest : Test {
   MatrixTest() : Test(L"Matrix") { }
 
 #define SG_PRINTVEC(vec) do { \
-  wcout << #vec ":\n"; \
+  wcout << endl << #vec ":\n"; \
   for (const auto& x : vec) \
-    wcout << "   " << x << "\n"; \
-  wcout << "\n"; \
+    wcout << "   " << x << endl; \
 } while (false)
 
 #define SG_PRINTMAT(mat) do { \
-  wcout << #mat ":"; \
+  wcout << endl << #mat ":"; \
   for (size_t i = 0; i < mat.rows(); ++i) { \
     wcout << "\n   "; \
     for (size_t j = 0; j < mat.columns(); ++j) \
       wcout << mat[j][i] << "\t\t"; \
   } \
-  wcout << "\n\n"; \
+  wcout << endl; \
 } while (false)
 
   Assertions run(const vector<string>&) {

@@ -35,9 +35,9 @@ class ShaderVK final : public Shader {
 inline VkShaderStageFlagBits toShaderStageVK(Stage stage) {
   switch (stage) {
   case StageVertex:   return VK_SHADER_STAGE_VERTEX_BIT;
-  case StageTesCtl:   return VK_SHADER_STAGE_FRAGMENT_BIT;
-  case StageTesEval:  return VK_SHADER_STAGE_TESSELLATION_CONTROL_BIT;
-  case StageGeometry: return VK_SHADER_STAGE_TESSELLATION_EVALUATION_BIT;
+  case StageTesCtrl:  return VK_SHADER_STAGE_TESSELLATION_CONTROL_BIT;
+  case StageTesEval:  return VK_SHADER_STAGE_TESSELLATION_EVALUATION_BIT;
+  case StageGeometry: return VK_SHADER_STAGE_GEOMETRY_BIT;
   case StageFragment: return VK_SHADER_STAGE_FRAGMENT_BIT;
   case StageCompute:  return VK_SHADER_STAGE_COMPUTE_BIT;
   default:

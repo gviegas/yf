@@ -86,7 +86,7 @@ Texture::Impl::Impl(const Data& data)
   // Copy the data
   CG_NS::Image& image = *resource.image;
   CG_NS::Size2 size = data.size;
-  const uint8_t* bytes = reinterpret_cast<const uint8_t*>(data.data);
+  uint8_t* bytes = data.data.get();
   // TODO: check if this works as expected
   for (uint32_t i = 0; i < data.levels; ++i) {
     image.write({0}, size, layer_, i, bytes);

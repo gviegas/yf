@@ -11,6 +11,7 @@
 #include <cstdint>
 #include <vector>
 #include <unordered_map>
+#include <memory>
 
 #include "yf/cg/Image.h"
 #include "yf/cg/DcTable.h"
@@ -22,14 +23,18 @@ SG_NS_BEGIN
 /// Generic texture data for copying.
 ///
 struct Texture::Data {
-  explicit Data(const void* data = nullptr,
+  explicit Data(uint8_t* data = nullptr,
                 CG_NS::PxFormat format = CG_NS::PxFormatUndefined,
                 CG_NS::Size2 size = {0}, uint32_t levels = 1,
                 CG_NS::Samples samples = CG_NS::Samples1)
     : data(data), format(format), size(size), levels(levels),
       samples(samples) { }
 
-  const void* data;
+  Data(const Data&) = delete;
+  Data& operator=(const Data&) = delete;
+  ~Data() = default;
+
+  std::unique_ptr<uint8_t[]> data;
   CG_NS::PxFormat format;
   CG_NS::Size2 size;
   uint32_t levels;

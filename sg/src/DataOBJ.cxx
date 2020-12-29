@@ -33,16 +33,28 @@ void SG_NS::loadOBJ(Mesh::Data& dst, const wstring& pathname) {
   if (!ifs)
     throw FileExcept("Could not open OBJ file");
 
-  vector<Vec3f> vs;
-  vector<Vec2f> vts;
-  vector<Vec3f> vns;
+  // TODO: define this type somewhere else
+  struct Vertex {
+    Vec3f pos;
+    Vec2f tc;
+    Vec3f norm;
+  };
+  static_assert(is_standard_layout<Vertex>(), "Bad vertex data layout");
+
+  vector<Vertex> vertices;
+  vector<uint32_t> indices;
+  unordered_map<string, uint32_t> map;
 
   string str;
   string sub[4];
+  istringstream iss;
+
   Vec3f v;
+  vector<Vec3f> vs;
   Vec2f vt;
+  vector<Vec2f> vts;
   Vec3f vn;
-  uint32_t f[12];
+  vector<Vec3f> vns;
 
   // Face format flags
   enum : uint32_t {
@@ -56,10 +68,57 @@ void SG_NS::loadOBJ(Mesh::Data& dst, const wstring& pathname) {
 
   // Process a face from `sub` strings as indicated by `format`
   auto processFace = [&] {
+    const uint32_t n = format & FQuad ? 4 : 3;
+    uint32_t face[4]{0};
+    uint32_t i1, i2, i3;
+    char sep;
+    string key;
+
     // TODO
+    switch (format) {
+    case FPos|FTc|FNorm:
+    case FPos|FTc|FNorm|FQuad:
+      for (uint32_t i = 0; i < n; ++i) {
+        iss.clear();
+        iss.str(sub[i]);
+        iss >> i1 >> sep >> i2 >> sep >> i3;
+
+        key = to_string(i1-1) + to_string(i2-1) + to_string(i3-1);
+        auto it = map.find(key);
+
+        if (it == map.end()) {
+          face[i] = vertices.size();
+          map.emplace(key, face[i]);
+          vertices.push_back({vs[i1], vts[i2], vns[i3]});
+        } else {
+          face[i] = it->second;
+        }
+      }
+
+      indices.push_back(face[0]);
+      indices.push_back(face[1]);
+      indices.push_back(face[2]);
+      if (format & FQuad) {
+        indices.push_back(face[0]);
+        indices.push_back(face[2]);
+        indices.push_back(face[3]);
+      }
+      break;
+
+    case FPos|FTc:
+    case FPos|FTc|FQuad:
+
+    case FPos|FNorm:
+    case FPos|FNorm|FQuad:
+
+    case FPos:
+    case FPos|FQuad:
+
+    default:
+      break;
+    }
   };
 
-  istringstream iss;
   string line;
   line.resize(256);
 
@@ -130,4 +189,50 @@ void SG_NS::loadOBJ(Mesh::Data& dst, const wstring& pathname) {
   }
 
   // TODO...
+
+  // ----------------------------------------------------------------------
+  // XXX
+  for (const auto& x : vs) {
+    wprintf(L"#vs#\n");
+    for (const auto& y : x)
+      wprintf(L"%.3f ", y);
+    wprintf(L"\n\n");
+  }
+  for (const auto& x : vts) {
+    wprintf(L"#vts#\n");
+    for (const auto& y : x)
+      wprintf(L"%.3f ", y);
+    wprintf(L"\n\n");
+  }
+  for (const auto& x : vns) {
+    wprintf(L"#vns#\n");
+    for (const auto& y : x)
+      wprintf(L"%.3f ", y);
+    wprintf(L"\n\n");
+  }
+
+  for (const auto& x : vertices) {
+    wprintf(L"#vertices#\n");
+    for (const auto& y : x.pos)
+      wprintf(L"%.3f ", y);
+    wprintf(L", ");
+    for (const auto& y : x.tc)
+      wprintf(L"%.3f ", y);
+    wprintf(L", ");
+    for (const auto& y : x.norm)
+      wprintf(L"%.3f ", y);
+    wprintf(L"\n\n");
+  }
+
+  wprintf(L"#indices#\n");
+  for (const auto& i : indices)
+    wprintf(L"%u ", i);
+  wprintf(L"\n\n");
+
+  wprintf(L"#map#\n");
+  for (const auto& kv : map)
+    wprintf(L"%s,%u ", kv.first.data(), kv.second);
+
+  exit(1);
+  // ----------------------------------------------------------------------
 }

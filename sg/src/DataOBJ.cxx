@@ -74,7 +74,8 @@ void SG_NS::loadOBJ(Mesh::Data& dst, const wstring& pathname) {
     char sep;
     string key;
 
-    // TODO
+    // Fill `vertices` and `indices` with mesh data & default-initialize
+    // any missing vertex attribute
     switch (format) {
     case FPos|FTc|FNorm:
     case FPos|FTc|FNorm|FQuad:
@@ -83,13 +84,13 @@ void SG_NS::loadOBJ(Mesh::Data& dst, const wstring& pathname) {
         iss.str(sub[i]);
         iss >> i1 >> sep >> i2 >> sep >> i3;
 
-        key = to_string(i1-1) + to_string(i2-1) + to_string(i3-1);
+        key = to_string(i1) + to_string(i2) + to_string(i3);
         auto it = map.find(key);
 
         if (it == map.end()) {
           face[i] = vertices.size();
           map.emplace(key, face[i]);
-          vertices.push_back({vs[i1], vts[i2], vns[i3]});
+          vertices.push_back({vs[i1-1], vts[i2-1], vns[i3-1]});
         } else {
           face[i] = it->second;
         }
@@ -107,15 +108,93 @@ void SG_NS::loadOBJ(Mesh::Data& dst, const wstring& pathname) {
 
     case FPos|FTc:
     case FPos|FTc|FQuad:
+      for (uint32_t i = 0; i < n; ++i) {
+        iss.clear();
+        iss.str(sub[i]);
+        iss >> i1 >> sep >> i2;
+
+        key = to_string(i1) + to_string(i2);
+        auto it = map.find(key);
+
+        if (it == map.end()) {
+          face[i] = vertices.size();
+          map.emplace(key, face[i]);
+          vertices.push_back({vs[i1-1], vts[i2-1], {}});
+        } else {
+          face[i] = it->second;
+        }
+      }
+
+      indices.push_back(face[0]);
+      indices.push_back(face[1]);
+      indices.push_back(face[2]);
+      if (format & FQuad) {
+        indices.push_back(face[0]);
+        indices.push_back(face[2]);
+        indices.push_back(face[3]);
+      }
+      break;
 
     case FPos|FNorm:
     case FPos|FNorm|FQuad:
+      for (uint32_t i = 0; i < n; ++i) {
+        iss.clear();
+        iss.str(sub[i]);
+        iss >> i1 >> sep >> sep >> i2;
+
+        key = to_string(i1) + to_string(i2);
+        auto it = map.find(key);
+
+        if (it == map.end()) {
+          face[i] = vertices.size();
+          map.emplace(key, face[i]);
+          vertices.push_back({vs[i1-1], {}, vns[i2-1]});
+        } else {
+          face[i] = it->second;
+        }
+      }
+
+      indices.push_back(face[0]);
+      indices.push_back(face[1]);
+      indices.push_back(face[2]);
+      if (format & FQuad) {
+        indices.push_back(face[0]);
+        indices.push_back(face[2]);
+        indices.push_back(face[3]);
+      }
+      break;
 
     case FPos:
     case FPos|FQuad:
+      for (uint32_t i = 0; i < n; ++i) {
+        iss.clear();
+        iss.str(sub[i]);
+        iss >> i1;
+
+        key = to_string(i1);
+        auto it = map.find(key);
+
+        if (it == map.end()) {
+          face[i] = vertices.size();
+          map.emplace(key, face[i]);
+          vertices.push_back({vs[i1-1], {}, {}});
+        } else {
+          face[i] = it->second;
+        }
+      }
+
+      indices.push_back(face[0]);
+      indices.push_back(face[1]);
+      indices.push_back(face[2]);
+      if (format & FQuad) {
+        indices.push_back(face[0]);
+        indices.push_back(face[2]);
+        indices.push_back(face[3]);
+      }
+      break;
 
     default:
-      break;
+      throw runtime_error("Invalid OBJ file");
     }
   };
 
@@ -192,27 +271,27 @@ void SG_NS::loadOBJ(Mesh::Data& dst, const wstring& pathname) {
 
   // ----------------------------------------------------------------------
   // XXX
+  wprintf(L"#vs#\n");
   for (const auto& x : vs) {
-    wprintf(L"#vs#\n");
     for (const auto& y : x)
       wprintf(L"%.3f ", y);
-    wprintf(L"\n\n");
+    wprintf(L"\n");
   }
+  wprintf(L"#vts#\n");
   for (const auto& x : vts) {
-    wprintf(L"#vts#\n");
     for (const auto& y : x)
       wprintf(L"%.3f ", y);
-    wprintf(L"\n\n");
+    wprintf(L"\n");
   }
+  wprintf(L"#vns#\n");
   for (const auto& x : vns) {
-    wprintf(L"#vns#\n");
     for (const auto& y : x)
       wprintf(L"%.3f ", y);
-    wprintf(L"\n\n");
+    wprintf(L"\n");
   }
 
+  wprintf(L"#vertices#\n");
   for (const auto& x : vertices) {
-    wprintf(L"#vertices#\n");
     for (const auto& y : x.pos)
       wprintf(L"%.3f ", y);
     wprintf(L", ");
@@ -221,17 +300,18 @@ void SG_NS::loadOBJ(Mesh::Data& dst, const wstring& pathname) {
     wprintf(L", ");
     for (const auto& y : x.norm)
       wprintf(L"%.3f ", y);
-    wprintf(L"\n\n");
+    wprintf(L"\n");
   }
 
   wprintf(L"#indices#\n");
   for (const auto& i : indices)
     wprintf(L"%u ", i);
-  wprintf(L"\n\n");
+  wprintf(L"\n");
 
   wprintf(L"#map#\n");
   for (const auto& kv : map)
     wprintf(L"%s,%u ", kv.first.data(), kv.second);
+  wprintf(L"\n");
 
   exit(1);
   // ----------------------------------------------------------------------

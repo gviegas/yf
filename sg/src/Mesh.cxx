@@ -10,6 +10,7 @@
 #include "yf/cg/Device.h"
 
 #include "MeshImpl.h"
+#include "DataOBJ.h"
 
 using namespace SG_NS;
 using namespace std;
@@ -25,8 +26,8 @@ Mesh::Mesh(FileType fileType, const wstring& meshFile) {
     // TODO
     throw runtime_error("Mesh::Collada unimplemented");
   case Obj:
-    // TODO
-    throw runtime_error("Mesh::Obj unimplemented");
+    loadOBJ(data, meshFile);
+    break;
   default:
     throw invalid_argument("Invalid Mesh file type");
   }

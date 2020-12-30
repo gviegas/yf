@@ -267,52 +267,33 @@ void SG_NS::loadOBJ(Mesh::Data& dst, const wstring& pathname) {
     }
   }
 
-  // TODO...
+  if (vertices.empty() || indices.size() < vertices.size())
+    throw FileExcept("Invalid OBJ file");
 
-  // ----------------------------------------------------------------------
-  // XXX
-  wprintf(L"#vs#\n");
-  for (const auto& x : vs) {
-    for (const auto& y : x)
-      wprintf(L"%.3f ", y);
-    wprintf(L"\n");
+  // Copy vertex data
+  dst.vxCount = vertices.size();
+  dst.vxStride = sizeof(vertices[0]);
+  const size_t vxSize = dst.vxCount * dst.vxStride;
+  auto vxData = make_unique<uint8_t[]>(vxSize);
+  memcpy(vxData.get(), vertices.data(), vxSize);
+  dst.vxData.swap(vxData);
+
+  // Copy index data
+  dst.ixCount = indices.size();
+  if (dst.vxCount <= UINT16_MAX) {
+    // 16-bit indices
+    dst.ixStride = sizeof(uint16_t);
+    const size_t ixSize = dst.ixCount * dst.ixStride;
+    auto ixData = make_unique<uint8_t[]>(ixSize);
+    for (size_t i = 0; i < dst.ixCount; ++i)
+      reinterpret_cast<uint16_t*>(ixData.get())[i] = indices[i];
+    dst.ixData.swap(ixData);
+  } else {
+    // 32-bit indices
+    dst.ixStride = sizeof(uint32_t);
+    const size_t ixSize = dst.ixCount * dst.ixStride;
+    auto ixData = make_unique<uint8_t[]>(ixSize);
+    memcpy(ixData.get(), indices.data(), ixSize);
+    dst.ixData.swap(ixData);
   }
-  wprintf(L"#vts#\n");
-  for (const auto& x : vts) {
-    for (const auto& y : x)
-      wprintf(L"%.3f ", y);
-    wprintf(L"\n");
-  }
-  wprintf(L"#vns#\n");
-  for (const auto& x : vns) {
-    for (const auto& y : x)
-      wprintf(L"%.3f ", y);
-    wprintf(L"\n");
-  }
-
-  wprintf(L"#vertices#\n");
-  for (const auto& x : vertices) {
-    for (const auto& y : x.pos)
-      wprintf(L"%.3f ", y);
-    wprintf(L", ");
-    for (const auto& y : x.tc)
-      wprintf(L"%.3f ", y);
-    wprintf(L", ");
-    for (const auto& y : x.norm)
-      wprintf(L"%.3f ", y);
-    wprintf(L"\n");
-  }
-
-  wprintf(L"#indices#\n");
-  for (const auto& i : indices)
-    wprintf(L"%u ", i);
-  wprintf(L"\n");
-
-  wprintf(L"#map#\n");
-  for (const auto& kv : map)
-    wprintf(L"%s,%u ", kv.first.data(), kv.second);
-  wprintf(L"\n");
-
-  exit(1);
-  // ----------------------------------------------------------------------
 }

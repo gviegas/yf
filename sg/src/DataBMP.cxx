@@ -37,7 +37,8 @@ INTERNAL_NS_BEGIN
 
 // ------------------------------------------------------------------------
 // XXX
-#define BMPFH_PRINT(fhPtr, path) do { \
+#if defined(YF_DEVEL)
+# define BMPFH_PRINT(fhPtr, path) do { \
   wprintf(L"\n#BMP (debug)#"); \
   wprintf(L"\npathname: %s", path); \
   wprintf(L"\nfh - type: 0x%02x (%c%c)", \
@@ -48,7 +49,7 @@ INTERNAL_NS_BEGIN
   wprintf(L"\nfh - dataOffset: %u\n", (fhPtr)->dataOffset); \
 } while (0)
 
-#define BMPIH_PRINT(ihPtr, path) do { \
+# define BMPIH_PRINT(ihPtr, path) do { \
   wprintf(L"\n#BMP (debug)#"); \
   wprintf(L"\npathname: %s", path); \
   wprintf(L"\nih - size: %u", (ihPtr)->size); \
@@ -64,7 +65,7 @@ INTERNAL_NS_BEGIN
   wprintf(L"\nih - ciImportant: %u\n", (ihPtr)->ciImportant); \
 } while (0)
 
-#define BMPV4_PRINT(v4Ptr, path) do { \
+# define BMPV4_PRINT(v4Ptr, path) do { \
   wprintf(L"\n#BMP (debug)#"); \
   wprintf(L"\npathname: %s", path); \
   wprintf(L"\nv4 - size: %u", (v4Ptr)->size); \
@@ -94,7 +95,7 @@ INTERNAL_NS_BEGIN
   wprintf(L"\nv4 - gammaB: %u\n", (v4Ptr)->gammaB); \
 } while (0)
 
-#define BMPV5_PRINT(v5Ptr, path) do { \
+# define BMPV5_PRINT(v5Ptr, path) do { \
   wprintf(L"\n#BMP (debug)#"); \
   wprintf(L"\npathname: %s", path); \
   wprintf(L"\nv5 - size: %u", (v5Ptr)->size); \
@@ -127,6 +128,12 @@ INTERNAL_NS_BEGIN
   wprintf(L"\nv5 - profileSize: %u", (v5Ptr)->profileSize); \
   wprintf(L"\nv5 - reserved: %u\n", (v5Ptr)->reserved); \
 } while (0)
+#else
+# define BMPFH_PRINT(...)
+# define BMPIH_PRINT(...)
+# define BMPV4_PRINT(...)
+# define BMPV5_PRINT(...)
+#endif // defined(YF_DEVEL)
 // ------------------------------------------------------------------------
 
 /// BMP file header.
@@ -451,6 +458,7 @@ void SG_NS::loadBMP(Texture::Data& dst, const wstring& pathname) {
     const uint32_t diffRgba[3]{min(8U, 8U-bitsRgba[0]),
                                min(8U, 8U-bitsRgba[1]),
                                min(8U, 8U-bitsRgba[2])};
+    uint16_t pixel;
     uint32_t scale;
     uint32_t component;
     size_t index;
@@ -460,9 +468,10 @@ void SG_NS::loadBMP(Texture::Data& dst, const wstring& pathname) {
         throw FileExcept("Could not read from BMP file");
 
       for (int32_t j = 0; j < width; ++j) {
+        pixel = letoh(scanline[j]);
         for (size_t k = 0; k < channels; ++k) {
           index = channels*width*i + channels*j + k;
-          component = (scanline[j] & maskRgba[k]) >> lshfRgba[k];
+          component = (pixel & maskRgba[k]) >> lshfRgba[k];
           scale = 1 << diffRgba[k];
           data[index] = component*scale + component%scale;
         }
@@ -479,15 +488,24 @@ void SG_NS::loadBMP(Texture::Data& dst, const wstring& pathname) {
     const size_t lineSize = 3*width + padding;
     auto scanline = make_unique<uint8_t[]>(lineSize);
 
+    size_t k0, k2;
+    if (letoh(0xFF) == 0xFF) {
+      k0 = 2;
+      k2 = 0;
+    } else {
+      k0 = 0;
+      k2 = 2;
+    }
+
     for (auto i = from; i != to; i += increment) {
       if (!ifs.read(reinterpret_cast<char*>(scanline.get()), lineSize))
         throw FileExcept("Could no read from BMP file");
 
       for (int32_t j = 0; j < width; ++j) {
         auto index = channels*width*i + channels*j;
-        data[index++] = scanline[3*j+2];
+        data[index++] = scanline[3*j+k0];
         data[index++] = scanline[3*j+1];
-        data[index++] = scanline[3*j];
+        data[index++] = scanline[3*j+k2];
       }
     }
   };
@@ -512,9 +530,10 @@ void SG_NS::loadBMP(Texture::Data& dst, const wstring& pathname) {
         throw FileExcept("Could not read from BMP file");
 
       for (int32_t j = 0; j < width; ++j) {
+        auto pixel = letoh(scanline[j]);
         for (size_t k = 0; k < channels; ++k) {
           auto index = channels*width*i + channels*j + k;
-          data[index] = (scanline[j] & maskRgba[k]) >> lshfRgba[k];
+          data[index] = (pixel & maskRgba[k]) >> lshfRgba[k];
         }
       }
     }

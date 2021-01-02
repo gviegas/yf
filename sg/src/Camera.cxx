@@ -96,6 +96,58 @@ class Camera::Impl {
     pending_ |= View;
   }
 
+  void turnUp(float delta) {
+    float angle;
+
+    if (turnX_ - delta < turnMin)
+      angle = turnMin - turnX_;
+    else if (turnX_ + delta > turnMax)
+      angle = turnMax - turnX_;
+    else
+      angle = -delta;
+
+    auto side = cross(worldUp, dir_);
+    auto front = rotate3(angle, side) * dir_;
+    dir_ = front.normalize();
+    turnX_ += angle;
+
+    pending_ |= View;
+  }
+
+  void turnDown(float delta) {
+    turnUp(-delta);
+  }
+
+  void turnLeft(float delta) {
+    dir_ *= rotate3(delta, worldUp);
+    dir_.normalize();
+    pending_ |= View;
+  }
+
+  void turnRight(float delta) {
+    dir_ *= rotate3(-delta, worldUp);
+    dir_.normalize();
+    pending_ |= View;
+  }
+
+  void zoomIn(float delta) {
+    zoom_ -= delta;
+    pending_ |= Proj;
+  }
+
+  void zoomOut(float delta) {
+    zoom_ += delta;
+    pending_ |= Proj;
+  }
+
+  void adjust(float aspect) {
+    if (aspect_ <= 0.0f)
+      throw invalid_argument("Camera aspect must be greater than zero");
+
+    aspect_ = aspect;
+    pending_ |= Proj;
+  }
+
  private:
   void updateView() {
     view_ = lookAt(pos_, pos_ + dir_, worldUp);

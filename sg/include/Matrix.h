@@ -313,6 +313,36 @@ constexpr Matrix<T, 4, 4> invert(const Matrix<T, 4, 4>& mat) {
   return res;
 }
 
+/// Matrix rotation (3x3).
+///
+template<class T>
+constexpr Matrix<T, 3, 3> rotate3(T angle, const Vector<T, 3>& axis) {
+  static_assert(std::is_floating_point<T>(),
+                "rotate3() requires a floating point type");
+
+  Matrix<T, 3, 3> res;
+
+  const auto v = normalize(axis);
+  const auto x = v[0];
+  const auto y = v[1];
+  const auto z = v[2];
+  const auto c = std::cos(angle);
+  const auto s = std::sin(angle);
+  const T one = 1.0;
+
+  res[0][0] = c + (one - c) * x*x;
+  res[0][1] = (one - c) * x*y + s*z;
+  res[0][2] = (one - c) * x*z - s*y;
+  res[1][0] = (one - c) * x*y - s*z;
+  res[1][1] = c + (one - c) * y*y;
+  res[1][2] = (one - c) * y*z + s*x;
+  res[2][0] = (one - c) * x*z + s*y;
+  res[2][1] = (one - c) * y*z - s*x;
+  res[2][2] = c + (one - c) * z*z;
+
+  return res;
+}
+
 /// Matrix rotation.
 ///
 template<class T>
@@ -410,6 +440,17 @@ constexpr Matrix<T, 4, 4> rotateZ(T angle) {
   res[2][2] = one;
   res[3][3] = one;
 
+  return res;
+}
+
+/// Matrix scaling (3x3).
+///
+template<class T>
+constexpr Matrix<T, 3, 3> scale3(T sx, T sy, T sz) {
+  Matrix<T, 3, 3> res;
+  res[0][0] = sx;
+  res[1][1] = sy;
+  res[2][2] = sz;
   return res;
 }
 

@@ -28,10 +28,72 @@ class Camera::Impl {
       throw invalid_argument("Camera aspect must be greater than zero");
 
     dir_.normalize();
-    turnX_ = ::acosf(dot(dir_, worldUp));
+    turnX_ = acosf(dot(dir_, worldUp));
     updateView();
     updateProj();
     viewProj_ = proj_ * view_;
+  }
+
+  void place(const Vec3f& position) {
+    pos_ = position;
+    pending_ |= View;
+  }
+
+  void point(const Vec3f& position) {
+    auto dir = position - pos_;
+
+    // TODO: consider just returning instead
+    if (fabsf(dir.length()) < 1e-6f)
+      throw invalid_argument("Camera point() position equal current position");
+
+    dir.normalize();
+    auto angle = acosf(dot(dir, worldUp));
+
+    if (angle >= turnMin && angle <= turnMax) {
+      dir_ = dir;
+      turnX_ = angle;
+    } else {
+      angle = angle < turnMin ? turnMin : turnMax;
+      angle -= turnX_;
+      auto side = cross(worldUp, dir_);
+      auto front = rotate3(angle, side) * dir_;
+      dir_ = front.normalize();
+      turnX_ += angle;
+    }
+
+    pending_ |= View;
+  }
+
+  void moveForward(float delta) {
+    pos_ += dir_ * delta;
+    pending_ |= View;
+  }
+
+  void moveBackward(float delta) {
+    pos_ -= dir_ * delta;
+    pending_ |= View;
+  }
+
+  void moveUp(float delta) {
+    pos_ += worldUp * delta;
+    pending_ |= View;
+  }
+
+  void moveDown(float delta) {
+    pos_ -= worldUp * delta;
+    pending_ |= View;
+  }
+
+  void moveLeft(float delta) {
+    auto side = cross(dir_, worldUp);
+    pos_ -= side * delta;
+    pending_ |= View;
+  }
+
+  void moveRight(float delta) {
+    auto side = cross(dir_, worldUp);
+    pos_ += side * delta;
+    pending_ |= View;
   }
 
  private:

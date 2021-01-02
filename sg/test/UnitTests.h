@@ -22,6 +22,10 @@ Test* vectorTest();
 Test* matrixTest();
 Test* meshTest();
 Test* textureTest();
+Test* cameraTest();
+
+constexpr const char* TestIdCam = "camera";
+Test* camTest();
 
 constexpr const char* TestIdMisc = "misc";
 Test* miscTest();
@@ -29,6 +33,9 @@ Test* miscTest();
 inline std::vector<Test*> unitTests(const std::string& id) {
   if (strcmp(id.data(), TestIdMisc) == 0)
     return {miscTest()};
+
+  if (strcmp(id.data(), TestIdCam) == 0)
+    return {cameraTest()};
 
   return {nodeTest(), sceneTest(), viewTest(),
           vectorTest(), matrixTest(),

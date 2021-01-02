@@ -168,7 +168,7 @@ struct MiscTest : public Test {
     }
 
     const auto mat = scale(0.2f, 0.2f, 0.2f) *
-                     rotate(3.141592f / 3.0f, {0.7172f, 0.7172f, 0.0f}) *
+                     rotate(3.141592f / 3.0f, {0.7071f, 0.7071f, 0.0f}) *
                      translate(-2.0f, 1.3f, 2.4f);
     const size_t msize = mat.columns() * mat.rows() * sizeof(float);
 

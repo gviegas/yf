@@ -5,6 +5,11 @@
 // Copyright © 2021 Gustavo C. Viegas.
 //
 
+#include <cmath>
+#include <cstdint>
+
+#include "yf/Except.h"
+
 #include "Camera.h"
 
 using namespace SG_NS;
@@ -12,11 +17,53 @@ using namespace std;
 
 class Camera::Impl {
  public:
-  Impl(const Vec3f& origin, const Vec3f& target, float aspect) {
+  enum Flags : uint32_t {
+    None     = 0,
+    View     = 0x01,
+    Proj     = 0x02,
+    ViewProj = 0x04
+  };
+  using Mask = uint32_t;
+
+  Impl(const Vec3f& origin, const Vec3f& target, float aspect)
+    : pos_(origin), dir_(target - origin), aspect_(aspect),
+      zoom_(fovMax), pending_(None) {
+
+    if (fabsf(dir_.length()) < 1e-6f)
+      throw invalid_argument("Camera origin and target vectors must differ");
+    if (aspect_ <= 0.0f)
+      throw invalid_argument("Camera aspect must be greater than zero");
+
+    dir_.normalize();
+    turnX_ = ::acosf(dot(dir_, worldUp));
+    updateView();
+    updateProj();
+    viewProj_ = proj_ * view_;
+  }
+
+  static constexpr float fovMin = 0.07957747154594767f;
+  static constexpr float fovMax = M_PI_4;
+  static constexpr float turnMin = 0.0001f;
+  static constexpr float turnMax = M_PI;
+  static constexpr Vec3f worldUp{0.0f, -1.0f, 0.0f};
+
+  void updateView() {
     // TODO
   }
 
-  // TODO
+  void updateProj() {
+    // TODO
+  }
+
+  Vec3f pos_{};
+  Vec3f dir_{};
+  float aspect_ = 0.0f;
+  float turnX_ = 0.0f;
+  float zoom_ = 0.0f;
+  Mat4f view_{};
+  Mat4f proj_{};
+  Mat4f viewProj_{};
+  Mask pending_ = None;
 };
 
 Camera::Camera(const Vec3f& origin, const Vec3f& target, float aspect)

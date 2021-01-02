@@ -35,7 +35,7 @@ class Vector {
   ///
   /// Missing components are default-initialized.
   ///
-  Vector(std::initializer_list<T> list) {
+  constexpr Vector(std::initializer_list<T> list) {
     for (size_t i = 0; i < std::min(sz, list.size()); ++i)
       data_[i] = *(list.begin()+i);
   }

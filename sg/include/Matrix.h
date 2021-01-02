@@ -36,7 +36,7 @@ class Matrix {
   ///
   /// Missing components are default-initialized.
   ///
-  Matrix(std::initializer_list<Vector<T, rowN>> list) {
+  constexpr Matrix(std::initializer_list<Vector<T, rowN>> list) {
     for (size_t i = 0; i < std::min(colN, list.size()); ++i)
       data_[i] = *(list.begin()+i);
   }

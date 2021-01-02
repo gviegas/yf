@@ -7,6 +7,7 @@
 
 #include <cmath>
 #include <cstdint>
+#include <algorithm>
 
 #include "yf/Except.h"
 
@@ -17,14 +18,6 @@ using namespace std;
 
 class Camera::Impl {
  public:
-  enum Flags : uint32_t {
-    None     = 0,
-    View     = 0x01,
-    Proj     = 0x02,
-    ViewProj = 0x04
-  };
-  using Mask = uint32_t;
-
   Impl(const Vec3f& origin, const Vec3f& target, float aspect)
     : pos_(origin), dir_(target - origin), aspect_(aspect),
       zoom_(fovMax), pending_(None) {
@@ -41,19 +34,33 @@ class Camera::Impl {
     viewProj_ = proj_ * view_;
   }
 
+ private:
+  void updateView() {
+    view_ = lookAt(pos_, pos_ + dir_, worldUp);
+    pending_ &= ~View;
+    pending_ |= ViewProj;
+  }
+
+  void updateProj() {
+    zoom_ = clamp(zoom_, fovMin, fovMax);
+    proj_ = perspective(zoom_, aspect_, 0.1f, 100.0f);
+    pending_ &= ~Proj;
+    pending_ |= ViewProj;
+  }
+
+  using Mask = uint32_t;
+  enum Flags : uint32_t {
+    None     = 0,
+    View     = 0x01,
+    Proj     = 0x02,
+    ViewProj = 0x04
+  };
+
   static constexpr float fovMin = 0.07957747154594767f;
   static constexpr float fovMax = M_PI_4;
   static constexpr float turnMin = 0.0001f;
   static constexpr float turnMax = M_PI;
   static constexpr Vec3f worldUp{0.0f, -1.0f, 0.0f};
-
-  void updateView() {
-    // TODO
-  }
-
-  void updateProj() {
-    // TODO
-  }
 
   Vec3f pos_{};
   Vec3f dir_{};

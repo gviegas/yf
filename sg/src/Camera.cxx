@@ -31,7 +31,7 @@ class Camera::Impl {
     turnX_ = acosf(dot(dir_, worldUp));
     updateView();
     updateProj();
-    viewProj_ = proj_ * view_;
+    updateViewProj();
   }
 
   void place(const Vec3f& position) {
@@ -148,6 +148,31 @@ class Camera::Impl {
     pending_ |= Proj;
   }
 
+  const Mat4f& transform() {
+    if (pending_ & View)
+      updateView();
+    if (pending_ & Proj)
+      updateProj();
+    if (pending_ & ViewProj)
+      updateViewProj();
+
+    return viewProj_;
+  }
+
+  const Mat4f& view() {
+    if (pending_ & View)
+      updateView();
+
+    return view_;
+  }
+
+  const Mat4f& projection() {
+    if (pending_ & Proj)
+      updateProj();
+
+    return proj_;
+  }
+
  private:
   void updateView() {
     view_ = lookAt(pos_, pos_ + dir_, worldUp);
@@ -160,6 +185,11 @@ class Camera::Impl {
     proj_ = perspective(zoom_, aspect_, 0.1f, 100.0f);
     pending_ &= ~Proj;
     pending_ |= ViewProj;
+  }
+
+  void updateViewProj() {
+    viewProj_ = proj_ * view_;
+    pending_ &= ~ViewProj;
   }
 
   using Mask = uint32_t;

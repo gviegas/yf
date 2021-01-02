@@ -101,7 +101,7 @@ class Camera::Impl {
 
     if (turnX_ - delta < turnMin)
       angle = turnMin - turnX_;
-    else if (turnX_ + delta > turnMax)
+    else if (turnX_ - delta > turnMax)
       angle = turnMax - turnX_;
     else
       angle = -delta;
@@ -203,7 +203,7 @@ class Camera::Impl {
   static constexpr float fovMin = 0.07957747154594767f;
   static constexpr float fovMax = M_PI_4;
   static constexpr float turnMin = 0.0001f;
-  static constexpr float turnMax = M_PI;
+  static constexpr float turnMax = M_PI-0.0001f;
   static constexpr Vec3f worldUp{0.0f, -1.0f, 0.0f};
 
   Vec3f pos_{};
@@ -219,6 +219,8 @@ class Camera::Impl {
 
 Camera::Camera(const Vec3f& origin, const Vec3f& target, float aspect)
   : impl_(make_unique<Impl>(origin, target, aspect)) { }
+
+Camera::~Camera() { }
 
 void Camera::place(const Vec3f& position) {
   impl_->place(position);

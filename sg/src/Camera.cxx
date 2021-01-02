@@ -221,73 +221,73 @@ Camera::Camera(const Vec3f& origin, const Vec3f& target, float aspect)
   : impl_(make_unique<Impl>(origin, target, aspect)) { }
 
 void Camera::place(const Vec3f& position) {
-  // TODO
+  impl_->place(position);
 }
 
 void Camera::point(const Vec3f& position) {
-  // TODO
+  impl_->point(position);
 }
 
 void Camera::moveForward(float delta) {
-  // TODO
+  impl_->moveForward(delta);
 }
 
 void Camera::moveBackward(float delta) {
-  // TODO
+  impl_->moveBackward(delta);
 }
 
 void Camera::moveUp(float delta) {
-  // TODO
+  impl_->moveUp(delta);
 }
 
 void Camera::moveDown(float delta) {
-  // TODO
+  impl_->moveDown(delta);
 }
 
 void Camera::moveLeft(float delta) {
-  // TODO
+  impl_->moveLeft(delta);
 }
 
 void Camera::moveRight(float delta) {
-  // TODO
+  impl_->moveRight(delta);
 }
 
 void Camera::turnUp(float delta) {
-  // TODO
+  impl_->turnUp(delta);
 }
 
 void Camera::turnDown(float delta) {
-  // TODO
+  impl_->turnDown(delta);
 }
 
 void Camera::turnLeft(float delta) {
-  // TODO
+  impl_->turnLeft(delta);
 }
 
 void Camera::turnRight(float delta) {
-  // TODO
+  impl_->turnRight(delta);
 }
 
 void Camera::zoomIn(float delta) {
-  // TODO
+  impl_->zoomIn(delta);
 }
 
 void Camera::zoomOut(float delta) {
-  // TODO
+  impl_->zoomOut(delta);
 }
 
 void Camera::adjust(float aspect) {
-  // TODO
+  impl_->adjust(aspect);
 }
 
 const Mat4f& Camera::transform() {
-  // TODO
+  return impl_->transform();
 }
 
 const Mat4f& Camera::view() {
-  // TODO
+  return impl_->view();
 }
 
 const Mat4f& Camera::projection() {
-  // TODO
+  return impl_->projection();
 }

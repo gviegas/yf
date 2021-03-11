@@ -1,9 +1,7 @@
-[WS]
-====
+# [WS]
 
 
-Core interface
---------------
+## Core interface
 
 - Window
 - Event

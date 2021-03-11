@@ -1,9 +1,7 @@
-[CG]
-====
+# [CG]
 
 
-Core interface
---------------
+## Core interface
 
 - Device
 - Queue

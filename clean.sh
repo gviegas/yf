@@ -5,7 +5,7 @@
 #
 
 # sg
-make -C cg/ -f Devel.mk clean
+make -C sg/ -f Devel.mk clean
 
 # cg
 make -C cg/ -f Devel.mk clean

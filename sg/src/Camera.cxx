@@ -182,7 +182,7 @@ class Camera::Impl {
 
   void updateProj() {
     zoom_ = clamp(zoom_, fovMin, fovMax);
-    proj_ = perspective(zoom_, aspect_, 0.1f, 100.0f);
+    proj_ = perspective(zoom_, aspect_, 0.01f, 100.0f);
     pending_ &= ~Proj;
     pending_ |= ViewProj;
   }
@@ -204,7 +204,7 @@ class Camera::Impl {
   static constexpr float fovMax = M_PI_4;
   static constexpr float turnMin = 0.0001f;
   static constexpr float turnMax = M_PI-0.0001f;
-  static constexpr Vec3f worldUp{0.0f, -1.0f, 0.0f};
+  static constexpr Vec3f worldUp{0.0f, 1.0f, 0.0f};
 
   Vec3f pos_{};
   Vec3f dir_{};

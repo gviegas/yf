@@ -2,7 +2,7 @@
 // SG
 // Matrix.h
 //
-// Copyright © 2020 Gustavo C. Viegas.
+// Copyright © 2020-2021 Gustavo C. Viegas.
 //
 
 #ifndef YF_SG_MATRIX_H
@@ -475,7 +475,7 @@ constexpr Matrix<T, 4, 4> translate(T tx, T ty, T tz) {
   return res;
 }
 
-/// `Look At` matrix.
+/// View matrix.
 ///
 template <class T>
 constexpr Matrix<T, 4, 4> lookAt(const Vector<T, 3>& eye,
@@ -497,7 +497,7 @@ constexpr Matrix<T, 4, 4> lookAt(const Vector<T, 3>& eye,
           {-dot(s, eye), -dot(u, eye), dot(f, eye), one}};
 }
 
-/// `Perspective` matrix.
+/// Perspective projection matrix.
 ///
 template <class T>
 constexpr Matrix<T, 4, 4> perspective(T yFov, T aspect, T zNear, T zFar) {
@@ -507,18 +507,41 @@ constexpr Matrix<T, 4, 4> perspective(T yFov, T aspect, T zNear, T zFar) {
   Matrix<T, 4, 4> res;
 
   const T one = 1.0;
+  const T two = 2.0;
   const T ct = one / std::tan(yFov * 0.5);
 
   res[0][0] = ct / aspect;
   res[1][1] = ct;
   res[2][2] = (zFar + zNear) / (zNear - zFar);
   res[2][3] = -one;
-  res[3][2] = ((one + one) * zFar * zNear) / (zNear - zFar);
+  res[3][2] = (two * zFar * zNear) / (zNear - zFar);
 
   return res;
 }
 
-/// `Ortho` matrix.
+/// Infinite perspective projection matrix.
+///
+template<class T>
+constexpr Matrix<T, 4, 4> infPerspective(T yFov, T aspect, T zNear) {
+  static_assert(std::is_floating_point<T>(),
+                "infPerspective() requires a floating point type");
+
+  Matrix<T, 4, 4> res;
+
+  const T one = 1.0;
+  const T two = 2.0;
+  const T ct = one / std::tan(yFov * 0.5);
+
+  res[0][0] = ct / aspect;
+  res[1][1] = ct;
+  res[2][2] = -one;
+  res[2][3] = -one;
+  res[3][2] = -two * zNear;
+
+  return res;
+}
+
+/// Orthographic projection matrix.
 ///
 template <class T>
 constexpr Matrix<T, 4, 4> ortho(T xMag, T yMag, T zNear, T zFar) {

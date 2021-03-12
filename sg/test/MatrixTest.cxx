@@ -2,7 +2,7 @@
 // SG
 // MatrixTest.cxx
 //
-// Copyright © 2020 Gustavo C. Viegas.
+// Copyright © 2020-2021 Gustavo C. Viegas.
 //
 
 #include <cstring>
@@ -176,39 +176,41 @@ struct MatrixTest : Test {
     auto m30 = lookAt(Vec3f{0.0, -5.0, -12.0}, Vec3f{0.0, 0.0, 0.0},
                       Vec3f{0.0, -1.0, 0.0});
     auto m31 = perspective(1.7172, 1.6667, 0.01, 100.0);
-    auto m32 = ortho(1.0, 1.0, 0.0, -1.0);
+    auto m32 = infPerspective(1.7172, 1.6667, 0.01);
+    auto m33 = ortho(1.0, 1.0, 0.0, -1.0);
 
     SG_PRINTMAT(m30);
     SG_PRINTMAT(m31);
     SG_PRINTMAT(m32);
+    SG_PRINTMAT(m33);
 
     bool check = true;
 
-    auto m33 = Mat4f::identity();
-    m33[0] = {1.0f, 2.0f, 3.0f, 4.0f};
-    m33[1][3] = 0xff;
-    m33[2] = {10.0f, 20.0f, 30.0f, 40.0f};
-    m33[3][3] = -0xff;
+    auto m34 = Mat4f::identity();
+    m34[0] = {1.0f, 2.0f, 3.0f, 4.0f};
+    m34[1][3] = 0xff;
+    m34[2] = {10.0f, 20.0f, 30.0f, 40.0f};
+    m34[3][3] = -0xff;
 
-    SG_PRINTMAT(m33);
+    SG_PRINTMAT(m34);
 
     float b[16];
-    memcpy(b, m33.data(), sizeof b);
-    if (memcmp(b, m33.data(), sizeof b) != 0)
+    memcpy(b, m34.data(), sizeof b);
+    if (memcmp(b, m34.data(), sizeof b) != 0)
       check = false;
 
     b[10] = 5.5f;
-    m33.data()[2] = -0.263f;
-    if (memcmp(b, m33.data(), sizeof b) == 0)
+    m34.data()[2] = -0.263f;
+    if (memcmp(b, m34.data(), sizeof b) == 0)
       check = false;
 
     b[0] *= -1.0f;
     b[15] += 248.0f;
-    memcpy(m33.data(), b, sizeof b);
-    if (memcmp(m33.data(), b, sizeof b) != 0)
+    memcpy(m34.data(), b, sizeof b);
+    if (memcmp(m34.data(), b, sizeof b) != 0)
       check = false;
 
-    SG_PRINTMAT(m33);
+    SG_PRINTMAT(m34);
 
     a.push_back({L"data()", check});
 

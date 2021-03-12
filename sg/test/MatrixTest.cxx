@@ -175,8 +175,8 @@ struct MatrixTest : Test {
 
     auto m30 = lookAt(Vec3f{0.0, -5.0, -12.0}, Vec3f{0.0, 0.0, 0.0},
                       Vec3f{0.0, -1.0, 0.0});
-    auto m31 = perspective(1.7172, 1.6667, 0.0, 100.0);
-    auto m32 = ortho(0.0, 200.0, 0.0, 150.0, 0.0, 100.0);
+    auto m31 = perspective(1.7172, 1.6667, 0.01, 100.0);
+    auto m32 = ortho(1.0, 1.0, 0.0, -1.0);
 
     SG_PRINTMAT(m30);
     SG_PRINTMAT(m31);

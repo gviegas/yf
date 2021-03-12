@@ -511,9 +511,9 @@ constexpr Matrix<T, 4, 4> perspective(T yFov, T aspect, T zNear, T zFar) {
 
   res[0][0] = ct / aspect;
   res[1][1] = ct;
-  res[2][2] = -(zFar + zNear) / (zFar - zNear);
+  res[2][2] = (zFar + zNear) / (zNear - zFar);
   res[2][3] = -one;
-  res[3][2] = -((one + one) * zFar * zNear) / (zFar - zNear);
+  res[3][2] = ((one + one) * zFar * zNear) / (zNear - zFar);
 
   return res;
 }
@@ -521,9 +521,7 @@ constexpr Matrix<T, 4, 4> perspective(T yFov, T aspect, T zNear, T zFar) {
 /// `Ortho` matrix.
 ///
 template <class T>
-constexpr Matrix<T, 4, 4> ortho(T left, T right, T top, T bottom, T zNear,
-                                T zFar) {
-
+constexpr Matrix<T, 4, 4> ortho(T xMag, T yMag, T zNear, T zFar) {
   static_assert(std::is_floating_point<T>(),
                 "ortho() requires a floating point type");
 
@@ -532,12 +530,10 @@ constexpr Matrix<T, 4, 4> ortho(T left, T right, T top, T bottom, T zNear,
   const T one = 1.0;
   const T two = 2.0;
 
-  res[0][0] = two / (right - left);
-  res[1][1] = two / (top - bottom);
-  res[2][2] = -two / (zFar - zNear);
-  res[3][0] = -(right + left) / (right - left);
-  res[3][1] = -(top + bottom) / (top - bottom);
-  res[3][2] = -(zFar + zNear) / (zFar - zNear);
+  res[0][0] = one / xMag;
+  res[1][1] = one / yMag;
+  res[2][2] = two / (zNear - zFar);
+  res[3][2] = (zFar + zNear) / (zNear - zFar);
   res[3][3] = one;
 
   return res;

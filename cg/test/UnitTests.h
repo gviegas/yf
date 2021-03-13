@@ -2,7 +2,7 @@
 // CG
 // UnitTests.h
 //
-// Copyright © 2020 Gustavo C. Viegas.
+// Copyright © 2020-2021 Gustavo C. Viegas.
 //
 
 #ifndef YF_CG_UNITTESTS_H
@@ -31,8 +31,8 @@ constexpr const char* TestIdDraw = "draw";
 Test* drawTest();
 
 inline std::vector<Test*> unitTests(const std::string& id) {
-//  if (strcmp(id.data(), TestIdDraw) == 0)
-//    return {drawTest()};
+  if (strcmp(id.data(), TestIdDraw) == 0)
+    return {drawTest()};
 
   return {typesTest(), deviceTest(), queueTest(), bufferTest(),
           imageTest(), shaderTest(), dcTableTest(), passTest(),

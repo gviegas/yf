@@ -2,7 +2,7 @@
 // CG
 // DrawTest.cxx
 //
-// Copyright © 2020 Gustavo C. Viegas.
+// Copyright © 2020-2021 Gustavo C. Viegas.
 //
 
 #include <chrono>
@@ -29,13 +29,13 @@ struct DrawTest : Test {
     auto& que = dev.defaultQueue();
 
     // Create shaders
-    auto vert = dev.makeShader(StageVertex, L"tmp/vert");
-    auto frag = dev.makeShader(StageFragment, L"tmp/frag");
+    auto vert = dev.shader(StageVertex, L"tmp/vert");
+    auto frag = dev.shader(StageFragment, L"tmp/frag");
 
     // Create wsi
     auto win = WS_NS::Window::make(480, 400, name_, WS_NS::Window::Resizable);
     Size2 winSz{win->width(), win->height()};
-    auto wsi = dev.makeWsi(win.get());
+    auto wsi = dev.wsi(win.get());
     auto wsiImgs = wsi->images();
     assert(wsiImgs.size() > 0);
 
@@ -44,10 +44,10 @@ struct DrawTest : Test {
                                   LoadOpLoad, StoreOpStore}};
     DepStenAttach passDs{PxFormatD16Unorm, Samples1, LoadOpLoad, StoreOpStore,
                          LoadOpDontCare, StoreOpDontCare};
-    auto pass = dev.makePass(&passClrs, nullptr, &passDs);
+    auto pass = dev.pass(&passClrs, nullptr, &passDs);
 
     // Create depth/stencil image
-    auto ds = dev.makeImage(passDs.format, winSz, 1, 1, passDs.samples);
+    auto ds = dev.image(passDs.format, winSz, 1, 1, passDs.samples);
 
     // Create a target for each wsi image
     vector<AttachImg> clrImgs{{nullptr, 0, 0}};
@@ -72,7 +72,7 @@ struct DrawTest : Test {
     uint32_t voff = offsetof(Vertex, tc);
     uint32_t vstrd = sizeof(Vertex);
 
-    auto buf = dev.makeBuffer(1024);
+    auto buf = dev.buffer(1024);
     buf->write(0, sizeof vdata, vdata);
     buf->write(sizeof vdata, sizeof mdata, mdata);
 
@@ -81,13 +81,13 @@ struct DrawTest : Test {
                           {0xDC, 0x9E, 0x28}, {0xD0, 0x2A, 0x24},
                           {0xCF, 0x60, 0x3C}, {0xDF, 0x0E, 0x32}};
 
-    auto tex = dev.makeImage(PxFormatRgb8Unorm, {2, 3}, 1, 1, Samples1);
+    auto tex = dev.image(PxFormatRgb8Unorm, {2, 3}, 1, 1, Samples1);
     tex->write({0}, {2, 3}, 0, 0, pdata);
 
     // Create descriptor table, allocate resources and copy data
     DcEntries dcs{{0, {DcTypeUniform, 1}},
                   {1, {DcTypeImgSampler, 1}}};
-    auto dtb = dev.makeDcTable(dcs);
+    auto dtb = dev.dcTable(dcs);
     dtb->allocate(1);
     dtb->write(0, 0, 0, *buf, sizeof vdata, sizeof mdata);
     dtb->write(0, 1, 0, *tex, 0, 0, ImgSamplerLinear);
@@ -103,7 +103,7 @@ struct DrawTest : Test {
                            PolyModeFill,
                            CullModeBack,
                            WindingCounterCw};
-    auto state = dev.makeState(config);
+    auto state = dev.state(config);
 
     // Create command buffer
     auto cb = que.makeCmdBuffer();

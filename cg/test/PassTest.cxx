@@ -2,7 +2,7 @@
 // CG
 // PassTest.cxx
 //
-// Copyright © 2020 Gustavo C. Viegas.
+// Copyright © 2020-2021 Gustavo C. Viegas.
 //
 
 #include "UnitTests.h"
@@ -24,9 +24,9 @@ struct PassTest : Test {
             const DepStenAttach* depthStencil)
         : Pass(colors, resolves, depthStencil) { }
 
-      Target::Ptr makeTarget(Size2, uint32_t, const vector<AttachImg>*,
-                             const vector<AttachImg>*, const AttachImg*)
-                             { return nullptr; }
+      Target::Ptr target(Size2, uint32_t, const vector<AttachImg>*,
+                         const vector<AttachImg>*, const AttachImg*)
+                         { return nullptr; }
     };
 
     Assertions a;

@@ -55,7 +55,7 @@ struct DrawTest : Test {
     vector<Target::Ptr> tgts;
     for (const auto& wi : wsiImgs) {
       clrImgs[0].image = wi;
-      tgts.push_back(pass->makeTarget(winSz, 1, &clrImgs, nullptr, &dsImg));
+      tgts.push_back(pass->target(winSz, 1, &clrImgs, nullptr, &dsImg));
     }
 
     // Create buffer and fill with data

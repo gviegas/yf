@@ -2,7 +2,7 @@
 // CG
 // Pass.h
 //
-// Copyright © 2020 Gustavo C. Viegas.
+// Copyright © 2020-2021 Gustavo C. Viegas.
 //
 
 #ifndef YF_CG_PASS_H
@@ -74,7 +74,7 @@ class Target {
 
   virtual ~Target();
 
-  /// Gets the `Pass` object that produced the target.
+  /// Gets the `Pass` object that created the target.
   ///
   virtual Pass& pass() const = 0;
 
@@ -101,12 +101,12 @@ class Pass {
 
   virtual ~Pass();
 
-  /// Makes a new target compatible with this pass.
+  /// Creates a new target compatible with this pass.
   ///
-  virtual Target::Ptr makeTarget(Size2 size, uint32_t layers,
-                                 const std::vector<AttachImg>* colors,
-                                 const std::vector<AttachImg>* resolves,
-                                 const AttachImg* depthStencil) = 0;
+  virtual Target::Ptr target(Size2 size, uint32_t layers,
+                             const std::vector<AttachImg>* colors,
+                             const std::vector<AttachImg>* resolves,
+                             const AttachImg* depthStencil) = 0;
 
   /// Instance constants.
   ///

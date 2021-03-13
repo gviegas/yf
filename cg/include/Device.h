@@ -2,7 +2,7 @@
 // CG
 // Device.h
 //
-// Copyright © 2020 Gustavo C. Viegas.
+// Copyright © 2020-2021 Gustavo C. Viegas.
 //
 
 #ifndef YF_CG_DEVICE_H
@@ -38,38 +38,38 @@ class Device {
   virtual Queue& defaultQueue() = 0;
   virtual Queue& queue(Queue::CapabilityMask capabilities) = 0;
 
-  /// Makes a new buffer object.
+  /// Creates a new buffer object.
   ///
-  virtual Buffer::Ptr makeBuffer(uint64_t size) = 0;
+  virtual Buffer::Ptr buffer(uint64_t size) = 0;
 
-  /// Makes a new image object.
+  /// Creates a new image object.
   ///
-  virtual Image::Ptr makeImage(PxFormat format, Size2 size, uint32_t layers,
-                               uint32_t levels, Samples samples) = 0;
+  virtual Image::Ptr image(PxFormat format, Size2 size, uint32_t layers,
+                           uint32_t levels, Samples samples) = 0;
 
-  /// Makes a new shader object.
+  /// Creates a new shader object.
   ///
-  virtual Shader::Ptr makeShader(Stage stage, std::wstring&& codeFile,
-                                 std::wstring&& entryPoint = L"main") = 0;
+  virtual Shader::Ptr shader(Stage stage, std::wstring&& codeFile,
+                             std::wstring&& entryPoint = L"main") = 0;
 
-  /// Makes a new descriptor table object.
+  /// Creates a new descriptor table object.
   ///
-  virtual DcTable::Ptr makeDcTable(const DcEntries& entries) = 0;
+  virtual DcTable::Ptr dcTable(const DcEntries& entries) = 0;
 
-  /// Makes a new pass object.
+  /// Creates a new pass object.
   ///
-  virtual Pass::Ptr makePass(const std::vector<ColorAttach>* colors,
-                             const std::vector<ColorAttach>* resolves,
-                             const DepStenAttach* depthStencil) = 0;
+  virtual Pass::Ptr pass(const std::vector<ColorAttach>* colors,
+                         const std::vector<ColorAttach>* resolves,
+                         const DepStenAttach* depthStencil) = 0;
 
-  /// Makes a new state object.
+  /// Creates a new state object.
   ///
-  virtual GrState::Ptr makeState(const GrState::Config& config) = 0;
-  virtual CpState::Ptr makeState(const CpState::Config& config) = 0;
+  virtual GrState::Ptr state(const GrState::Config& config) = 0;
+  virtual CpState::Ptr state(const CpState::Config& config) = 0;
 
-  /// Makes a new wsi object.
+  /// Creates a new wsi object.
   ///
-  virtual Wsi::Ptr makeWsi(WS_NS::Window* window) = 0;
+  virtual Wsi::Ptr wsi(WS_NS::Window* window) = 0;
 };
 
 CG_NS_END

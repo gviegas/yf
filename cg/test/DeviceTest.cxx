@@ -2,7 +2,7 @@
 // CG
 // DeviceTest.cxx
 //
-// Copyright © 2020 Gustavo C. Viegas.
+// Copyright © 2020-2021 Gustavo C. Viegas.
 //
 
 #include <thread>
@@ -26,7 +26,7 @@ struct DeviceTest : Test {
     auto& que = dev.defaultQueue();
     auto win = WS_NS::Window::make(400, 400, L"Device Test",
                                    WS_NS::Window::Resizable);
-    auto wsi = dev.makeWsi(win.get());
+    auto wsi = dev.wsi(win.get());
 
     this_thread::sleep_for(chrono::seconds(1));
 

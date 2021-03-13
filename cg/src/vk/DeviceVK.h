@@ -2,7 +2,7 @@
 // CG
 // DeviceVK.h
 //
-// Copyright © 2020 Gustavo C. Viegas.
+// Copyright © 2020-2021 Gustavo C. Viegas.
 //
 
 #ifndef YF_CG_DEVICEVK_H
@@ -25,24 +25,24 @@ class DeviceVK final : public Device {
   Queue& defaultQueue();
   Queue& queue(Queue::CapabilityMask capabilities);
 
-  Buffer::Ptr makeBuffer(uint64_t size);
+  Buffer::Ptr buffer(uint64_t size);
 
-  Image::Ptr makeImage(PxFormat format, Size2 size, uint32_t layers,
-                       uint32_t levels, Samples samples);
+  Image::Ptr image(PxFormat format, Size2 size, uint32_t layers,
+                   uint32_t levels, Samples samples);
 
-  Shader::Ptr makeShader(Stage stage, std::wstring&& codeFile,
-                         std::wstring&& entryPoint);
+  Shader::Ptr shader(Stage stage, std::wstring&& codeFile,
+                     std::wstring&& entryPoint);
 
-  DcTable::Ptr makeDcTable(const DcEntries& entries);
+  DcTable::Ptr dcTable(const DcEntries& entries);
 
-  Pass::Ptr makePass(const std::vector<ColorAttach>* colors,
-                     const std::vector<ColorAttach>* resolves,
-                     const DepStenAttach* depthStencil);
+  Pass::Ptr pass(const std::vector<ColorAttach>* colors,
+                 const std::vector<ColorAttach>* resolves,
+                 const DepStenAttach* depthStencil);
 
-  GrState::Ptr makeState(const GrState::Config& config);
-  CpState::Ptr makeState(const CpState::Config& config);
+  GrState::Ptr state(const GrState::Config& config);
+  CpState::Ptr state(const CpState::Config& config);
 
-  Wsi::Ptr makeWsi(WS_NS::Window* window);
+  Wsi::Ptr wsi(WS_NS::Window* window);
 
   /// Getters.
   ///

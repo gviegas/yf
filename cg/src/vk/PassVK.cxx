@@ -2,7 +2,7 @@
 // CG
 // PassVK.cxx
 //
-// Copyright © 2020 Gustavo C. Viegas.
+// Copyright © 2020-2021 Gustavo C. Viegas.
 //
 
 #include <stdexcept>
@@ -136,10 +136,10 @@ PassVK::~PassVK() {
   vkDestroyRenderPass(dev, renderPass_, nullptr);
 }
 
-Target::Ptr PassVK::makeTarget(Size2 size, uint32_t layers,
-                               const vector<AttachImg>* colors,
-                               const vector<AttachImg>* resolves,
-                               const AttachImg* depthStencil) {
+Target::Ptr PassVK::target(Size2 size, uint32_t layers,
+                           const vector<AttachImg>* colors,
+                           const vector<AttachImg>* resolves,
+                           const AttachImg* depthStencil) {
 
   return make_unique<TargetVK>(*this, size, layers, colors, resolves,
                                depthStencil);

@@ -1,7 +1,7 @@
 #!/usr/bin/env sh
 
 #
-# Creates a fake include tree to simplify header inclusion.
+# Creates local include directory and links.
 #
 
 YF_DIR=inc/yf

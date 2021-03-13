@@ -2,7 +2,7 @@
 // CG
 // QueueVK.cxx
 //
-// Copyright © 2020 Gustavo C. Viegas.
+// Copyright © 2020-2021 Gustavo C. Viegas.
 //
 
 #include <cassert>
@@ -62,7 +62,7 @@ void QueueVK::deinitPool(VkCommandPool pool) {
   vkDestroyCommandPool(DeviceVK::get().device(), pool, nullptr);
 }
 
-CmdBuffer::Ptr QueueVK::makeCmdBuffer() {
+CmdBuffer::Ptr QueueVK::cmdBuffer() {
   auto pool = initPool();
 
   VkCommandBufferAllocateInfo info;

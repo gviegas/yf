@@ -2,7 +2,7 @@
 // CG
 // QueueVK.h
 //
-// Copyright © 2020 Gustavo C. Viegas.
+// Copyright © 2020-2021 Gustavo C. Viegas.
 //
 
 #ifndef YF_CG_QUEUEVK_H
@@ -26,7 +26,7 @@ class QueueVK final : public Queue {
   QueueVK(VkQueue handle, int32_t family);
   ~QueueVK();
 
-  CmdBuffer::Ptr makeCmdBuffer();
+  CmdBuffer::Ptr cmdBuffer();
   void submit();
 
   /// Called by `CmdBufferVK` to enqueue itself.

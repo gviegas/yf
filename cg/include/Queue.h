@@ -2,7 +2,7 @@
 // CG
 // Queue.h
 //
-// Copyright © 2020 Gustavo C. Viegas.
+// Copyright © 2020-2021 Gustavo C. Viegas.
 //
 
 #ifndef YF_CG_QUEUE_H
@@ -67,9 +67,9 @@ class Queue {
   explicit Queue(CapabilityMask capabilities);
   virtual ~Queue();
 
-  /// Makes a new command buffer object.
+  /// Creates a new command buffer object.
   ///
-  virtual CmdBuffer::Ptr makeCmdBuffer() = 0;
+  virtual CmdBuffer::Ptr cmdBuffer() = 0;
 
   /// Submits enqueued command buffers for execution.
   ///

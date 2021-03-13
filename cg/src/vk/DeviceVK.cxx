@@ -2,7 +2,7 @@
 // CG
 // DeviceVK.cxx
 //
-// Copyright © 2020 Gustavo C. Viegas.
+// Copyright © 2020-2021 Gustavo C. Viegas.
 //
 
 #include <cassert>
@@ -365,41 +365,41 @@ Queue& DeviceVK::queue(Queue::CapabilityMask) {
   return *queue_;
 }
 
-Buffer::Ptr DeviceVK::makeBuffer(uint64_t size) {
+Buffer::Ptr DeviceVK::buffer(uint64_t size) {
   return make_unique<BufferVK>(size);
 }
 
-Image::Ptr DeviceVK::makeImage(PxFormat format, Size2 size, uint32_t layers,
-                               uint32_t levels, Samples samples) {
+Image::Ptr DeviceVK::image(PxFormat format, Size2 size, uint32_t layers,
+                           uint32_t levels, Samples samples) {
 
   return make_unique<ImageVK>(format, size, layers, levels, samples);
 }
 
-Shader::Ptr DeviceVK::makeShader(Stage stage, wstring&& codeFile,
-                                 wstring&& entryPoint) {
+Shader::Ptr DeviceVK::shader(Stage stage, wstring&& codeFile,
+                             wstring&& entryPoint) {
 
   return make_unique<ShaderVK>(stage, move(codeFile), move(entryPoint));
 }
 
-DcTable::Ptr DeviceVK::makeDcTable(const DcEntries& entries) {
+DcTable::Ptr DeviceVK::dcTable(const DcEntries& entries) {
   return make_unique<DcTableVK>(entries);
 }
 
-Pass::Ptr DeviceVK::makePass(const vector<ColorAttach>* colors,
-                             const vector<ColorAttach>* resolves,
-                             const DepStenAttach* depthStencil) {
+Pass::Ptr DeviceVK::pass(const vector<ColorAttach>* colors,
+                         const vector<ColorAttach>* resolves,
+                         const DepStenAttach* depthStencil) {
 
   return make_unique<PassVK>(colors, resolves, depthStencil);
 }
 
-GrState::Ptr DeviceVK::makeState(const GrState::Config& config) {
+GrState::Ptr DeviceVK::state(const GrState::Config& config) {
   return make_unique<GrStateVK>(config);
 }
 
-CpState::Ptr DeviceVK::makeState(const CpState::Config& config) {
+CpState::Ptr DeviceVK::state(const CpState::Config& config) {
   return make_unique<CpStateVK>(config);
 }
 
-Wsi::Ptr DeviceVK::makeWsi(WS_NS::Window* window) {
+Wsi::Ptr DeviceVK::wsi(WS_NS::Window* window) {
   return make_unique<WsiVK>(window);
 }

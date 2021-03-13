@@ -106,7 +106,7 @@ struct DrawTest : Test {
     auto state = dev.state(config);
 
     // Create command buffer
-    auto cb = que.makeCmdBuffer();
+    auto cb = que.cmdBuffer();
 
     // Enter rendering loop
     const auto tm = chrono::system_clock::now() + chrono::seconds(5);

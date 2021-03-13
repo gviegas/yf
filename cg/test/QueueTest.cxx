@@ -2,7 +2,7 @@
 // CG
 // QueueTest.cxx
 //
-// Copyright © 2020 Gustavo C. Viegas.
+// Copyright © 2020-2021 Gustavo C. Viegas.
 //
 
 #include "UnitTests.h"
@@ -32,7 +32,7 @@ struct QueueTest : Test {
 
     struct Queue_ : Queue {
       Queue_(CapabilityMask capab) : Queue(capab) { }
-      CmdBuffer::Ptr makeCmdBuffer() { return make_unique<CmdBuffer_>(*this); }
+      CmdBuffer::Ptr cmdBuffer() { return make_unique<CmdBuffer_>(*this); }
       void submit() { }
     };
 
@@ -40,7 +40,7 @@ struct QueueTest : Test {
 
     Queue_ q1(Queue::Graphics | Queue::Transfer);
     Queue_ q2(Queue::Compute);
-    auto cb = q1.makeCmdBuffer();
+    auto cb = q1.cmdBuffer();
 
     a.push_back({L"Queue q1(Graphics | Transfer)",
                  q1.capabilities_ == (Queue::Graphics | Queue::Transfer)});

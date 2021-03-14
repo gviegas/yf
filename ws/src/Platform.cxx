@@ -23,6 +23,8 @@
 # error "Invalid platform"
 #endif // defined(__linux__)
 
+using namespace YF_NS;
+using namespace WS_NS;
 using namespace std;
 
 INTERNAL_NS_BEGIN
@@ -30,6 +32,32 @@ INTERNAL_NS_BEGIN
 /// The current platform.
 ///
 auto curPfm = WS_NS::PlatformNone;
+
+/// The dispatch function.
+///
+void dispatchDummy();
+function<void ()> dispatchFn = dispatchDummy;
+
+/// Sets the platform-dependent dispatch function.
+///
+void dispatchDummy() {
+#if defined(__linux__)
+  switch (platform()) {
+  case PlatformNone:
+    throw UnsupportedExcept("No supported platform available");
+  case PlatformXCB:
+    dispatchFn = dispatchXCB;
+    break;
+  default:
+    throw runtime_error("Unexpected");
+  }
+#else
+// TODO: other systems
+# error "Unimplemented"
+#endif
+
+  dispatchFn();
+}
 
 INTERNAL_NS_END
 
@@ -41,6 +69,24 @@ WS_NS_BEGIN
 ///
 void setPlatform(Platform pfm) {
   curPfm = pfm;
+}
+
+Platform platform() {
+  // Try to initialize a platform if have none
+  if (curPfm == PlatformNone) {
+#if defined(__linux__)
+    if (getenv("WAYLAND_DISPLAY"))
+      // TODO: replace with `initWL` when implemented
+      initXCB();
+    else if (getenv("DISPLAY"))
+      initXCB();
+#else
+// TODO: other systems
+# error "Unimplemented"
+#endif
+  }
+
+  return curPfm;
 }
 
 Window::Ptr createWindow(uint32_t width, uint32_t height, const wstring& title,
@@ -57,45 +103,14 @@ Window::Ptr createWindow(uint32_t width, uint32_t height, const wstring& title,
   }
 #else
 // TODO: other systems
+# error "Unimplemented"
 #endif
 
   return nullptr;
 }
 
-/// Gets the event instance.
-///
-/// `Event::get()` will call this function.
-///
-Event& getEvent() {
-#if defined(__linux__)
-  switch (platform()) {
-  case PlatformNone:
-    throw UnsupportedExcept("No supported platform available");
-  case PlatformXCB:
-    return EventXCB::get();
-  default:
-    throw runtime_error("Unexpected");
-  }
-#else
-// TODO: other systems
-#endif
-}
-
-Platform platform() {
-  // Try to initialize a platform if have none
-  if (curPfm == PlatformNone) {
-#if defined(__linux__)
-    if (getenv("WAYLAND_DISPLAY"))
-      // TODO: replace with `initWL` when implemented
-      initXCB();
-    else if (getenv("DISPLAY"))
-      initXCB();
-#else
-// TODO: other systems
-#endif
-  }
-
-  return curPfm;
+void dispatch() {
+  dispatchFn();
 }
 
 #if defined(__linux__)

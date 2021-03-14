@@ -2,7 +2,7 @@
 // CG
 // Device.cxx
 //
-// Copyright © 2020 Gustavo C. Viegas.
+// Copyright © 2020-2021 Gustavo C. Viegas.
 //
 
 #include "Device.h"
@@ -10,9 +10,9 @@
 
 using namespace CG_NS;
 
-Device::~Device() { }
-
 // TODO
-Device& Device::get() {
-  return DeviceVK::get();
+Device& CG_NS::device() {
+  return deviceVK();
 }
+
+Device::~Device() { }

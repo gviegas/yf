@@ -33,7 +33,7 @@ struct DrawTest : Test {
     auto frag = dev.shader(StageFragment, L"tmp/frag");
 
     // Create wsi
-    auto win = WS_NS::Window::make(480, 400, name_, WS_NS::Window::Resizable);
+    auto win = WS_NS::createWindow(480, 400, name_);
     Size2 winSz{win->width(), win->height()};
     auto wsi = dev.wsi(win.get());
     auto wsiImgs = wsi->images();

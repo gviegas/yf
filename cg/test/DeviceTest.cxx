@@ -24,7 +24,7 @@ struct DeviceTest : Test {
 
     auto& dev = Device::get();
     auto& que = dev.defaultQueue();
-    auto win = WS_NS::Window::make(400, 400, L"Device Test",
+    auto win = WS_NS::createWindow(400, 400, L"Device Test",
                                    WS_NS::Window::Resizable);
     auto wsi = dev.wsi(win.get());
 

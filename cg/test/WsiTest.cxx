@@ -2,7 +2,7 @@
 // CG
 // WsiTest.cxx
 //
-// Copyright © 2020 Gustavo C. Viegas.
+// Copyright © 2020-2021 Gustavo C. Viegas.
 //
 
 #include <thread>
@@ -31,7 +31,7 @@ struct WsiTest : Test {
 
     Assertions a;
 
-    auto win = WS_NS::Window::make(240, 144, L"wsi test",
+    auto win = WS_NS::createWindow(240, 144, L"wsi test",
                                    WS_NS::Window::Resizable |
                                    WS_NS::Window::Hidden);
     Wsi_ wsi(win.get());

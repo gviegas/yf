@@ -1,12 +1,12 @@
 //
 // WS
-// EventImpl.h
+// Delegate.h
 //
-// Copyright © 2020 Gustavo C. Viegas.
+// Copyright © 2021 Gustavo C. Viegas.
 //
 
-#ifndef YF_WS_EVENTIMPL_H
-#define YF_WS_EVENTIMPL_H
+#ifndef YF_WS_DELEGATE_H
+#define YF_WS_DELEGATE_H
 
 #include "Event.h"
 #include "Window.h"
@@ -15,9 +15,9 @@
 
 WS_NS_BEGIN
 
-/// Common event implementation.
+/// Delegation manager.
 ///
-class Event::Impl {
+class Delegate {
  public:
   /// Mask of `Flags` bits.
   ///
@@ -39,7 +39,7 @@ class Event::Impl {
 
   /// Sets window event delegate and updates event mask accordingly.
   ///
-  void setDelegate(const WdDelegate& delegate) {
+  void set(const WdDelegate& delegate) {
     wdDeleg_ = delegate;
 
     mask_ = wdDeleg_.close  ? (mask_ | WdClose)  : (mask_ & ~WdClose);
@@ -48,7 +48,7 @@ class Event::Impl {
 
   /// Sets keyboard event delegate and updates event mask accordingly.
   ///
-  void setDelegate(const KbDelegate& delegate) {
+  void set(const KbDelegate& delegate) {
     kbDeleg_ = delegate;
 
     mask_ = kbDeleg_.enter ? (mask_ | KbEnter) : (mask_ & ~KbEnter);
@@ -58,7 +58,7 @@ class Event::Impl {
 
   /// Sets pointer event delegate and updates event mask accordingly.
   ///
-  void setDelegate(const PtDelegate& delegate) {
+  void set(const PtDelegate& delegate) {
     ptDeleg_ = delegate;
 
     mask_ = ptDeleg_.enter  ? (mask_ | PtEnter)  : (mask_ & ~PtEnter);
@@ -69,9 +69,9 @@ class Event::Impl {
 
   /// Variables for delegation management.
   ///
-  /// The base `Event` class calls `setDelegate()` functions to update these
-  /// variables as needed.
-  /// Event subclasses read from these variables to identify which events
+  /// The WS `setDelegate()` functions update the state of these variables
+  /// as needed.
+  /// Implementations read from these variables to identify which events
   /// must be dispatched.
   ///
   Mask mask_ = 0;
@@ -80,6 +80,10 @@ class Event::Impl {
   PtDelegate ptDeleg_{};
 };
 
+/// Gets the global delegate instance.
+///
+const Delegate& delegate();
+
 WS_NS_END
 
-#endif // YF_WS_EVENTIMPL_H
+#endif // YF_WS_DELEGATE_H

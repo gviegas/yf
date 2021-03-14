@@ -26,14 +26,12 @@ struct EventTest : Test {
   Assertions run(const vector<string>&) {
     Assertions a;
 
-    auto& ev = Event::get();
-
     WdDelegate wdDeleg{
       [](Window* win) { wcout << "wd close: " << win << endl; },
       [](Window* win, uint32_t w, uint32_t h) {
         wcout << "wd resize: " << win << ", " << w << ", " << h << endl; }
     };
-    ev.setDelegate(wdDeleg);
+    setDelegate(wdDeleg);
 
     KbDelegate kbDeleg{
       [](Window* win) { wcout << "kb enter: " << win << endl; },
@@ -42,7 +40,7 @@ struct EventTest : Test {
         wcout << "kb key: " << c << ", " << s << ", " << hex << m << dec
               << endl; }
     };
-    ev.setDelegate(kbDeleg);
+    setDelegate(kbDeleg);
 
     PtDelegate ptDeleg{
       [](Window* win, int32_t x, int32_t y) {
@@ -54,22 +52,21 @@ struct EventTest : Test {
         wcout << "pt button: " << b << ", " << s << "," << x << ", " << y
               << endl; }
     };
-    ev.setDelegate(ptDeleg);
+    setDelegate(ptDeleg);
 
     auto win1 = createWindow(300, 200, L"Window 1");
     auto win2 = createWindow(100, 300, L"Window 2");
 
     auto tm = chrono::system_clock::now() + chrono::seconds(10);
     while (tm > chrono::system_clock::now()) {
-      ev.dispatch();
+      dispatch();
       this_thread::sleep_for(chrono::milliseconds(10));
     }
 
-    a.push_back({L"Event::get()", true});
-    a.push_back({L"ev.setDelegate(WdDelegate)", true});
-    a.push_back({L"ev.setDelegate(KbDelegate)", true});
-    a.push_back({L"ev.setDelegate(PtDelegate)", true});
-    a.push_back({L"ev.dispatch()", true});
+    a.push_back({L"setDelegate(WdDelegate)", true});
+    a.push_back({L"setDelegate(KbDelegate)", true});
+    a.push_back({L"setDelegate(PtDelegate)", true});
+    a.push_back({L"dispatch()", true});
 
     return a;
   }

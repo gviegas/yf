@@ -2,24 +2,19 @@
 // WS
 // EventXCB.cxx
 //
-// Copyright © 2020 Gustavo C. Viegas.
+// Copyright © 2020-2021 Gustavo C. Viegas.
 //
 
 #include <cstdlib>
 
 #include "EventXCB.h"
-#include "EventImpl.h"
 #include "WindowXCB.h"
 #include "KeymapUNIX.h"
+#include "Delegate.h"
 
 using namespace WS_NS;
 
-EventXCB& EventXCB::get() {
-  static EventXCB ev;
-  return ev;
-}
-
-void EventXCB::dispatch() {
+void WS_NS::dispatchXCB() {
   const auto& vars = varsXCB();
   xcb_generic_event_t* event = nullptr;
   uint32_t type;
@@ -58,7 +53,7 @@ void EventXCB::dispatch() {
       prevEvState = ev->state;
     }
 
-    impl_->kbDeleg_.key(code, state, modMask);
+    delegate().kbDeleg_.key(code, state, modMask);
   };
 
   // Handle BUTTON_PRESS/BUTTON_RELEASE
@@ -89,38 +84,38 @@ void EventXCB::dispatch() {
     else
       state = ButtonStateReleased;
 
-    impl_->ptDeleg_.button(btn, state, ev->event_x, ev->event_y);
+    delegate().ptDeleg_.button(btn, state, ev->event_x, ev->event_y);
   };
 
   // Handle MOTION_NOTIFY
   auto motion = [&] {
     auto ev = reinterpret_cast<xcb_motion_notify_event_t*>(event);
-    impl_->ptDeleg_.motion(ev->event_x, ev->event_y);
+    delegate().ptDeleg_.motion(ev->event_x, ev->event_y);
   };
 
   // Handle ENTER_NOTIFY
   auto enter = [&] {
     auto ev = reinterpret_cast<xcb_enter_notify_event_t*>(event);
-    impl_->ptDeleg_.enter(WindowXCB::fromId(ev->event),
-                          ev->event_x, ev->event_y);
+    delegate().ptDeleg_.enter(WindowXCB::fromId(ev->event),
+                              ev->event_x, ev->event_y);
   };
 
   // Handle LEAVE_NOTIFY
   auto leave = [&] {
     auto ev = reinterpret_cast<xcb_leave_notify_event_t*>(event);
-    impl_->ptDeleg_.leave(WindowXCB::fromId(ev->event));
+    delegate().ptDeleg_.leave(WindowXCB::fromId(ev->event));
   };
 
   // Handle FOCUS_IN
   auto focusIn = [&] {
     auto ev = reinterpret_cast<xcb_focus_in_event_t*>(event);
-    impl_->kbDeleg_.enter(WindowXCB::fromId(ev->event));
+    delegate().kbDeleg_.enter(WindowXCB::fromId(ev->event));
   };
 
   // Handle FOCUS_OUT
   auto focusOut = [&] {
     auto ev = reinterpret_cast<xcb_focus_out_event_t*>(event);
-    impl_->kbDeleg_.leave(WindowXCB::fromId(ev->event));
+    delegate().kbDeleg_.leave(WindowXCB::fromId(ev->event));
   };
 
   // Handle EXPOSE
@@ -131,7 +126,8 @@ void EventXCB::dispatch() {
   // Handle CONFIGURE_NOTIFY
   auto config = [&] {
     auto ev = reinterpret_cast<xcb_configure_notify_event_t*>(event);
-    impl_->wdDeleg_.resize(WindowXCB::fromId(ev->event), ev->width, ev->height);
+    delegate().wdDeleg_.resize(WindowXCB::fromId(ev->event),
+                               ev->width, ev->height);
     // TODO: notify window object
   };
 
@@ -140,7 +136,7 @@ void EventXCB::dispatch() {
     auto ev = reinterpret_cast<xcb_client_message_event_t*>(event);
 
     if (ev->type == vars.protocolAtom && ev->data.data32[0] == vars.deleteAtom)
-      impl_->wdDeleg_.close(WindowXCB::fromId(ev->window));
+      delegate().wdDeleg_.close(WindowXCB::fromId(ev->window));
   };
 
   // Poll events
@@ -153,38 +149,38 @@ void EventXCB::dispatch() {
     switch (type) {
     case XCB_KEY_PRESS:
     case XCB_KEY_RELEASE:
-      if (impl_->mask_ & Impl::KbKey)
+      if (delegate().mask_ & Delegate::KbKey)
         key();
       break;
 
     case XCB_BUTTON_PRESS:
     case XCB_BUTTON_RELEASE:
-      if (impl_->mask_ & Impl::PtButton)
+      if (delegate().mask_ & Delegate::PtButton)
         button();
       break;
 
     case XCB_MOTION_NOTIFY:
-      if (impl_->mask_ & Impl::PtMotion)
+      if (delegate().mask_ & Delegate::PtMotion)
         motion();
       break;
 
     case XCB_ENTER_NOTIFY:
-      if (impl_->mask_ & Impl::PtEnter)
+      if (delegate().mask_ & Delegate::PtEnter)
         enter();
       break;
 
     case XCB_LEAVE_NOTIFY:
-      if (impl_->mask_ & Impl::PtLeave)
+      if (delegate().mask_ & Delegate::PtLeave)
         leave();
       break;
 
     case XCB_FOCUS_IN:
-      if (impl_->mask_ & Impl::KbEnter)
+      if (delegate().mask_ & Delegate::KbEnter)
         focusIn();
       break;
 
     case XCB_FOCUS_OUT:
-      if (impl_->mask_ & Impl::KbLeave)
+      if (delegate().mask_ & Delegate::KbLeave)
         focusOut();
       break;
 
@@ -193,12 +189,12 @@ void EventXCB::dispatch() {
       break;
 
     case XCB_CONFIGURE_NOTIFY:
-      if (impl_->mask_ & Impl::WdResize)
+      if (delegate().mask_ & Delegate::WdResize)
         config();
       break;
 
     case XCB_CLIENT_MESSAGE:
-      if (impl_->mask_ & Impl::WdClose)
+      if (delegate().mask_ & Delegate::WdClose)
         client();
       break;
     }

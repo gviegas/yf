@@ -2,7 +2,7 @@
 // WS
 // Window.h
 //
-// Copyright © 2020 Gustavo C. Viegas.
+// Copyright © 2020-2021 Gustavo C. Viegas.
 //
 
 #ifndef YF_WS_WINDOW_H
@@ -53,11 +53,6 @@ class Window {
   ///
   static std::wstring appId;
 
-  /// Makes a new window object.
-  ///
-  static Ptr make(uint32_t width, uint32_t height, const std::wstring& title,
-                  CreationMask mask = Resizable);
-
   /// Opens the window.
   ///
   virtual void open() = 0;
@@ -84,6 +79,12 @@ class Window {
   virtual uint32_t height() const = 0;
   virtual const std::wstring& title() const = 0;
 };
+
+/// Creates a new window object.
+///
+Window::Ptr createWindow(uint32_t width, uint32_t height,
+                         const std::wstring& title,
+                         Window::CreationMask mask = Window::Resizable);
 
 /// Window event delegate.
 ///

@@ -90,7 +90,7 @@ struct DrawTest : Test {
     auto dtb = dev.dcTable(dcs);
     dtb->allocate(1);
     dtb->write(0, 0, 0, *buf, sizeof vdata, sizeof mdata);
-    dtb->write(0, 1, 0, *tex, 0, 0, ImgSamplerLinear);
+    dtb->write(0, 1, 0, *tex, 0, 0);
 
     // Create graphics state
     GrState::Config config{pass.get(),

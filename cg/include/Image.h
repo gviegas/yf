@@ -2,7 +2,7 @@
 // CG
 // Image.h
 //
-// Copyright © 2020 Gustavo C. Viegas.
+// Copyright © 2020-2021 Gustavo C. Viegas.
 //
 
 #ifndef YF_CG_IMAGE_H
@@ -102,12 +102,33 @@ class Image {
   const uint32_t bitsPerTexel_;
 };
 
-/// Image sampler types.
+/// Wrap modes.
 ///
-enum ImgSampler {
-  ImgSamplerBasic,
-  ImgSamplerLinear,
-  ImgSamplerTrilinear
+enum WrapMode {
+  WrapModeClamp,
+  WrapModeMirror,
+  WrapModeRepeat
+};
+
+/// Filters.
+///
+enum Filter {
+  FilterNearest,
+  FilterLinear,
+  FilterNearestNearest,
+  FilterLinearNearest,
+  FilterNearestLinear,
+  FilterLinearLinear
+};
+
+/// Image sampler.
+///
+struct Sampler {
+  WrapMode wrapU = WrapModeRepeat;
+  WrapMode wrapV = WrapModeRepeat;
+  WrapMode wrapW = WrapModeRepeat;
+  Filter magFilter = FilterNearest;
+  Filter minFilter = FilterNearest;
 };
 
 CG_NS_END

@@ -14,7 +14,7 @@
 
 using namespace WS_NS;
 
-void dispatchXCB() {
+void WS_NS::dispatchXCB() {
   const auto& vars = varsXCB();
   xcb_generic_event_t* event = nullptr;
   uint32_t type;

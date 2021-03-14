@@ -2,7 +2,7 @@
 // CG
 // BufferVK.cxx
 //
-// Copyright © 2020 Gustavo C. Viegas.
+// Copyright © 2020-2021 Gustavo C. Viegas.
 //
 
 #include <cstring>
@@ -20,7 +20,7 @@ BufferVK::BufferVK(uint64_t size, VkBufferUsageFlags usage) : Buffer(size) {
     throw invalid_argument("BufferVK requires size > 0");
 
   // Create buffer
-  auto dev = DeviceVK::get().device();
+  auto dev = deviceVK().device();
   VkResult res;
 
   if (usage == 0) {
@@ -77,7 +77,7 @@ BufferVK::BufferVK(uint64_t size, VkBufferUsageFlags usage) : Buffer(size) {
 
 BufferVK::~BufferVK() {
   // TODO: notify
-  auto dev = DeviceVK::get().device();
+  auto dev = deviceVK().device();
   vkDestroyBuffer(dev, handle_, nullptr);
   deallocateVK(memory_);
 }

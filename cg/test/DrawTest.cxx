@@ -25,7 +25,7 @@ struct DrawTest : Test {
 
   bool draw() {
     // Get device and queue
-    auto& dev = Device::get();
+    auto& dev = device();
     auto& que = dev.defaultQueue();
 
     // Create shaders

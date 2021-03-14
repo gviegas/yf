@@ -2,7 +2,7 @@
 // CG
 // MemoryVK.cxx
 //
-// Copyright © 2020 Gustavo C. Viegas.
+// Copyright © 2020-2021 Gustavo C. Viegas.
 //
 
 #include <stdexcept>
@@ -19,7 +19,7 @@ INTERNAL_NS_BEGIN
 /// Selects a suitable memory heap.
 ///
 int32_t selectMemory(uint32_t requirement, VkMemoryPropertyFlags properties) {
-  const auto& memProp = DeviceVK::get().memProperties();
+  const auto& memProp = deviceVK().memProperties();
   for (uint32_t i = 0; i < memProp.memoryTypeCount; ++i) {
     if (requirement & (1 << i)) {
       auto propFlags = memProp.memoryTypes[i].propertyFlags;
@@ -57,7 +57,7 @@ VkDeviceMemory CG_NS::allocateVK(const VkMemoryRequirements& requirements,
   info.memoryTypeIndex = memType;
 
   VkDeviceMemory mem;
-  auto dev = DeviceVK::get().device();
+  auto dev = deviceVK().device();
   auto res = vkAllocateMemory(dev, &info, nullptr, &mem);
   if (res != VK_SUCCESS)
     throw DeviceExcept("Failed to allocate device memory");
@@ -66,6 +66,6 @@ VkDeviceMemory CG_NS::allocateVK(const VkMemoryRequirements& requirements,
 }
 
 void CG_NS::deallocateVK(VkDeviceMemory memory) {
-  auto dev = DeviceVK::get().device();
+  auto dev = deviceVK().device();
   vkFreeMemory(dev, memory, nullptr);
 }

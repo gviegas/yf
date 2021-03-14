@@ -2,7 +2,7 @@
 // CG
 // DcTableVK.cxx
 //
-// Copyright © 2020 Gustavo C. Viegas.
+// Copyright © 2020-2021 Gustavo C. Viegas.
 //
 
 #include "DcTableVK.h"
@@ -58,7 +58,7 @@ DcTableVK::DcTableVK(const DcEntries& entries) : DcTable(entries) {
   info.bindingCount = binds.size();
   info.pBindings = binds.data();
 
-  auto dev = DeviceVK::get().device();
+  auto dev = deviceVK().device();
   auto res = vkCreateDescriptorSetLayout(dev, &info, nullptr, &dsLayout_);
   if (res != VK_SUCCESS)
     throw DeviceExcept("Could not create descriptor set layout");
@@ -75,7 +75,7 @@ DcTableVK::DcTableVK(const DcEntries& entries) : DcTable(entries) {
 
 DcTableVK::~DcTableVK() {
   // TODO: notify
-  auto dev = DeviceVK::get().device();
+  auto dev = deviceVK().device();
   vkDestroyDescriptorPool(dev, pool_, nullptr);
   vkDestroyDescriptorSetLayout(dev, dsLayout_, nullptr);
 }
@@ -87,7 +87,7 @@ void DcTableVK::allocate(uint32_t n) {
   if (n == sets_.size())
     return;
 
-  auto dev = DeviceVK::get().device();
+  auto dev = deviceVK().device();
 
   if (n == 0) {
     vkDestroyDescriptorPool(dev, pool_, nullptr);
@@ -179,7 +179,7 @@ void DcTableVK::write(uint32_t allocation, DcId id, uint32_t element,
   wr.pBufferInfo = &info;
   wr.pTexelBufferView = nullptr;
 
-  vkUpdateDescriptorSets(DeviceVK::get().device(), 1, &wr, 0, nullptr);
+  vkUpdateDescriptorSets(deviceVK().device(), 1, &wr, 0, nullptr);
 }
 
 void DcTableVK::write(uint32_t allocation, DcId id, uint32_t element,
@@ -235,7 +235,7 @@ void DcTableVK::write(uint32_t allocation, DcId id, uint32_t element,
     break;
   }
 
-  vkUpdateDescriptorSets(DeviceVK::get().device(), 1, &wr, 0, nullptr);
+  vkUpdateDescriptorSets(deviceVK().device(), 1, &wr, 0, nullptr);
 }
 
 void DcTableVK::resetImgRefs() {

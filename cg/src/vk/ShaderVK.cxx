@@ -2,7 +2,7 @@
 // CG
 // ShaderVK.cxx
 //
-// Copyright © 2020 Gustavo C. Viegas.
+// Copyright © 2020-2021 Gustavo C. Viegas.
 //
 
 #include <fstream>
@@ -56,7 +56,7 @@ ShaderVK::ShaderVK(Stage stage, wstring&& codeFile, wstring&& entryPoint)
   info.codeSize = sz;
   info.pCode = reinterpret_cast<uint32_t*>(buf.get());
 
-  auto dev = DeviceVK::get().device();
+  auto dev = deviceVK().device();
   auto res = vkCreateShaderModule(dev, &info, nullptr, &module_);
   if (res != VK_SUCCESS)
     throw DeviceExcept("Could not create shader module");
@@ -71,7 +71,7 @@ ShaderVK::ShaderVK(Stage stage, wstring&& codeFile, wstring&& entryPoint)
 
 ShaderVK::~ShaderVK() {
   // TODO: notify
-  auto dev = DeviceVK::get().device();
+  auto dev = deviceVK().device();
   vkDestroyShaderModule(dev, module_, nullptr);
 }
 

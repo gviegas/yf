@@ -2,7 +2,7 @@
 // CG
 // ImageVK.cxx
 //
-// Copyright © 2020 Gustavo C. Viegas.
+// Copyright © 2020-2021 Gustavo C. Viegas.
 //
 
 #include <cstring>
@@ -45,7 +45,7 @@ ImageVK::ImageVK(PxFormat format, Size2 size, uint32_t layers, uint32_t levels,
     type_ = VK_IMAGE_TYPE_1D;
 
   // Get format properties
-  auto phys = DeviceVK::get().physicalDev();
+  auto phys = deviceVK().physicalDev();
   VkFormatProperties fmtProp;
   vkGetPhysicalDeviceFormatProperties(phys, fmt, &fmtProp);
 
@@ -73,7 +73,7 @@ ImageVK::ImageVK(PxFormat format, Size2 size, uint32_t layers, uint32_t levels,
     if (usage_ == 0)
       return false;
 
-    if (DeviceVK::get().devVersion() >= VK_API_VERSION_1_1) {
+    if (deviceVK().devVersion() >= VK_API_VERSION_1_1) {
       if (feat & VK_FORMAT_FEATURE_TRANSFER_SRC_BIT)
         usage_ |= VK_IMAGE_USAGE_TRANSFER_SRC_BIT;
       if (feat & VK_FORMAT_FEATURE_TRANSFER_DST_BIT)
@@ -129,7 +129,7 @@ ImageVK::ImageVK(PxFormat format, Size2 size, uint32_t layers, uint32_t levels,
   }
 
   // Create image
-  auto dev = DeviceVK::get().device();
+  auto dev = deviceVK().device();
   VkResult res;
 
   VkImageCreateInfo info;
@@ -206,7 +206,7 @@ ImageVK::ImageVK(PxFormat format, Size2 size, uint32_t layers, uint32_t levels,
 ImageVK::~ImageVK() {
   // TODO: notify
   if (owned_) {
-    auto dev = DeviceVK::get().device();
+    auto dev = deviceVK().device();
     vkDestroyImage(dev, handle_, nullptr);
     deallocateVK(memory_);
   }
@@ -242,7 +242,7 @@ void ImageVK::write(Offset2 offset, Size2 size, uint32_t layer, uint32_t level,
         subres.aspectMask != VK_IMAGE_ASPECT_STENCIL_BIT)
       throw runtime_error("Invalid aspect mask for image write");
 
-    auto dev = DeviceVK::get().device();
+    auto dev = deviceVK().device();
     VkSubresourceLayout layout;
     // TODO: consider getting all required layouts once on creation
     vkGetImageSubresourceLayout(dev, handle_, &subres, &layout);
@@ -298,7 +298,7 @@ void ImageVK::write(Offset2 offset, Size2 size, uint32_t layer, uint32_t level,
 
     // Get priority buffer into which the transfer will be encoded
     // TODO: improve staging buffer management
-    auto& queue = static_cast<QueueVK&>(DeviceVK::get().defaultQueue());
+    auto& queue = static_cast<QueueVK&>(deviceVK().defaultQueue());
     auto cbuf = queue.getPriority(VK_PIPELINE_STAGE_ALL_COMMANDS_BIT,
                                   [&](bool) { staging_.clear(); });
 
@@ -361,7 +361,7 @@ void ImageVK::changeLayout(bool defer) {
   VkPipelineStageFlags srcMask = VK_PIPELINE_STAGE_TOP_OF_PIPE_BIT;
   VkPipelineStageFlags dstMask = VK_PIPELINE_STAGE_ALL_COMMANDS_BIT;
 
-  auto& queue = static_cast<QueueVK&>(DeviceVK::get().defaultQueue());
+  auto& queue = static_cast<QueueVK&>(deviceVK().defaultQueue());
   auto cbuf = queue.getPriority(dstMask, [&](bool result) {
     if (result)
       layout_ = nextLayout_;
@@ -428,11 +428,10 @@ ImageVK::View::Ptr ImageVK::getView(uint32_t firstLayer, uint32_t layerCount,
   }
 
   VkImageView iv;
-  auto res = vkCreateImageView(DeviceVK::get().device(), &info, nullptr, &iv);
+  auto res = vkCreateImageView(deviceVK().device(), &info, nullptr, &iv);
   if (res != VK_SUCCESS)
     throw DeviceExcept("Could not create image view");
 
-//  views_.emplace(iv, 0).first->second++;
   return make_unique<View>(*this, iv, firstLayer, layerCount,
                            firstLevel, levelCount);
 }
@@ -445,27 +444,16 @@ ImageVK::View::View(ImageVK& image, VkImageView handle,
     firstLevel_(firstLevel), levelCount_(levelCount) { }
 
 ImageVK::View::~View() {
-  // [1.2.146 c2.3]
-  // "Objects of a non-dispatchable type may not have unique handle values
-  // within a type or across types. If handle values are not unique, then
-  // destroying one such handle must not cause identical handles of other
-  // types to become invalid, and must not cause identical handles of the
-  // same type to become invalid if that handle value has been created
-  // more times than it has been destroyed".
+  // [1.2.166 c3.3]
+  // "(...) non-dispatchable handles may encode object information directly in
+  // the handle rather than acting as a reference to an underlying object, and
+  // thus may not have unique handle values. If handle values are not unique,
+  // then destroying one such handle must not cause identical handles of other
+  // types to become invalid, and must not cause identical handles of the same
+  // type to become invalid if that handle value has been created more times
+  // than it has been destroyed."
 
-  vkDestroyImageView(DeviceVK::get().device(), handle_, nullptr);
-
-//  auto it = image_.views_.find(handle_);
-//  if (it == image_.views_.end())
-//    return;
-//
-//  if (it->second > 1) {
-//    it->second--;
-//  } else {
-//    // XXX: one must ensure this resource is not in use
-//    image_.views_.erase(it);
-//    vkDestroyImageView(DeviceVK::get().device(), handle_, nullptr);
-//  }
+  vkDestroyImageView(deviceVK().device(), handle_, nullptr);
 }
 
 ImageVK& ImageVK::View::image() const {
@@ -536,7 +524,7 @@ SamplerVK::SamplerVK(ImgSampler type) : type_(type) {
     break;
   }
 
-  auto dev = DeviceVK::get().device();
+  auto dev = deviceVK().device();
   auto res = vkCreateSampler(dev, &info, nullptr, &handle_);
   if (res != VK_SUCCESS)
     throw DeviceExcept("Could not create sampler");
@@ -544,7 +532,7 @@ SamplerVK::SamplerVK(ImgSampler type) : type_(type) {
 
 SamplerVK::~SamplerVK() {
   // XXX: like the image view above, assume the driver does reference counting
-  vkDestroySampler(DeviceVK::get().device(), handle_, nullptr);
+  vkDestroySampler(deviceVK().device(), handle_, nullptr);
 }
 
 ImgSampler SamplerVK::type() const {

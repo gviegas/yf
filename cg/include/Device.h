@@ -29,10 +29,6 @@ class Device {
  public:
   virtual ~Device();
 
-  /// Gets the device instance.
-  ///
-  static Device& get();
-
   /// Gets execution queues.
   ///
   virtual Queue& defaultQueue() = 0;
@@ -71,6 +67,10 @@ class Device {
   ///
   virtual Wsi::Ptr wsi(WS_NS::Window* window) = 0;
 };
+
+/// Gets the device instance.
+///
+Device& device();
 
 CG_NS_END
 

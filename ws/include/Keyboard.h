@@ -2,7 +2,7 @@
 // WS
 // Keyboard.h
 //
-// Copyright © 2020 Gustavo C. Viegas.
+// Copyright © 2020-2021 Gustavo C. Viegas.
 //
 
 #ifndef YF_WS_KEYBOARD_H
@@ -171,6 +171,10 @@ struct KbDelegate {
   ///
   std::function<void (KeyCode, KeyState, KeyModMask)> key;
 };
+
+/// Sets the keyboard event delegate.
+///
+void setDelegate(const KbDelegate& delegate);
 
 WS_NS_END
 

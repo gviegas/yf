@@ -98,6 +98,10 @@ struct WdDelegate {
   std::function<void (Window*, uint32_t w, uint32_t h)> resize;
 };
 
+/// Sets the window event delegate.
+///
+void setDelegate(const WdDelegate& delegate);
+
 WS_NS_END
 
 #endif // YF_WS_WINDOW_H

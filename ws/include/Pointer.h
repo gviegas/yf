@@ -2,7 +2,7 @@
 // WS
 // Pointer.h
 //
-// Copyright © 2020 Gustavo C. Viegas.
+// Copyright © 2020-2021 Gustavo C. Viegas.
 //
 
 #ifndef YF_WS_POINTER_H
@@ -55,6 +55,10 @@ struct PtDelegate {
   ///
   std::function<void (Button, ButtonState, int32_t x, int32_t y)> button;
 };
+
+/// Sets the pointer event delegate.
+///
+void setDelegate(const PtDelegate& delegate);
 
 WS_NS_END
 

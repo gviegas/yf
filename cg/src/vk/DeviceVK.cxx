@@ -25,7 +25,7 @@
 using namespace CG_NS;
 using namespace std;
 
-DeviceVK& DeviceVK::get() {
+DeviceVK& CG_NS::deviceVK() {
   static DeviceVK dev;
   return dev;
 }

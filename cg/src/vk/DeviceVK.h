@@ -20,8 +20,6 @@ class DeviceVK final : public Device {
  public:
   ~DeviceVK();
 
-  static DeviceVK& get();
-
   Queue& defaultQueue();
   Queue& queue(Queue::CapabilityMask capabilities);
 
@@ -81,6 +79,10 @@ class DeviceVK final : public Device {
 
   QueueVK* queue_ = nullptr;
 };
+
+/// Gets the device instance.
+///
+DeviceVK& deviceVK();
 
 CG_NS_END
 

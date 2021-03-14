@@ -2,7 +2,7 @@
 // WS
 // EventTest.cxx
 //
-// Copyright © 2020 Gustavo C. Viegas.
+// Copyright © 2020-2021 Gustavo C. Viegas.
 //
 
 #include <thread>
@@ -56,8 +56,8 @@ struct EventTest : Test {
     };
     ev.setDelegate(ptDeleg);
 
-    auto win1 = Window::make(300, 200, L"Window 1");
-    auto win2 = Window::make(100, 300, L"Window 2");
+    auto win1 = createWindow(300, 200, L"Window 1");
+    auto win2 = createWindow(100, 300, L"Window 2");
 
     auto tm = chrono::system_clock::now() + chrono::seconds(10);
     while (tm > chrono::system_clock::now()) {

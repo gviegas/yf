@@ -2,7 +2,7 @@
 // WS
 // WindowTest.cxx
 //
-// Copyright © 2020 Gustavo C. Viegas.
+// Copyright © 2020-2021 Gustavo C. Viegas.
 //
 
 #include <thread>
@@ -24,10 +24,10 @@ struct WindowTest : Test {
 
     Window::appId = L"window.test.id";
 
-    auto win1 = Window::make(800, 600, L"Window 1");
-    auto win2 = Window::make(480, 480, L"Window 2");
-    auto win3 = Window::make(240, 320, L"Window 3", Window::Resizable |
-                                                    Window::Hidden);
+    auto win1 = createWindow(800, 600, L"Window 1");
+    auto win2 = createWindow(480, 480, L"Window 2");
+    auto win3 = createWindow(240, 320, L"Window 3",
+                             Window::Resizable | Window::Hidden);
 
     this_thread::sleep_for(chrono::milliseconds(1250));
     win3->open();
@@ -37,9 +37,9 @@ struct WindowTest : Test {
     win2->close();
     win3->close();
 
-    a.push_back({L"Window::make(...) (1)", true});
-    a.push_back({L"Window::make(...) (2)", true});
-    a.push_back({L"Window::make(...) (3)", true});
+    a.push_back({L"createWindow(...) (1)", true});
+    a.push_back({L"createWindow(...) (2)", true});
+    a.push_back({L"createWindow(...) (3)", true});
 
     return a;
   }

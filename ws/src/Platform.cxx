@@ -2,7 +2,7 @@
 // WS
 // Platform.cxx
 //
-// Copyright © 2020 Gustavo C. Viegas.
+// Copyright © 2020-2021 Gustavo C. Viegas.
 //
 
 #include "Platform.h"
@@ -43,12 +43,8 @@ void setPlatform(Platform pfm) {
   curPfm = pfm;
 }
 
-/// Makes a new window.
-///
-/// `Window::make()` will call this function.
-///
-Window::Ptr makeWindow(uint32_t width, uint32_t height, const wstring& title,
-                       Window::CreationMask mask) {
+Window::Ptr createWindow(uint32_t width, uint32_t height, const wstring& title,
+                         Window::CreationMask mask) {
 
 #if defined(__linux__)
   switch (platform()) {

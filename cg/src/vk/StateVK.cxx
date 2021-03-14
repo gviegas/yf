@@ -2,7 +2,7 @@
 // CG
 // StateVK.cxx
 //
-// Copyright © 2020 Gustavo C. Viegas.
+// Copyright © 2020-2021 Gustavo C. Viegas.
 //
 
 #include "StateVK.h"
@@ -35,7 +35,7 @@ inline VkPipelineLayout plLayoutVK(const vector<DcTable*>& dcTables) {
   info.pPushConstantRanges = nullptr;
 
   VkPipelineLayout plLay;
-  auto dev = DeviceVK::get().device();
+  auto dev = deviceVK().device();
   auto res = vkCreatePipelineLayout(dev, &info, nullptr, &plLay);
   if (res != VK_SUCCESS)
     throw yf::DeviceExcept("Could not create pipeline layout");
@@ -51,7 +51,7 @@ INTERNAL_NS_END
 GrStateVK::GrStateVK(const Config& config)
   : GrState(config), stgFlags_(0), plLayout_(plLayoutVK(config.dcTables)) {
 
-  auto dev = DeviceVK::get().device();
+  auto dev = deviceVK().device();
   auto deinit = [&] { vkDestroyPipelineLayout(dev, plLayout_, nullptr); };
 
   if (!config.pass) {
@@ -279,7 +279,7 @@ GrStateVK::GrStateVK(const Config& config)
 
 GrStateVK::~GrStateVK() {
   // TODO: notify
-  auto dev = DeviceVK::get().device();
+  auto dev = deviceVK().device();
   vkDestroyPipeline(dev, pipeline_, nullptr);
   vkDestroyPipelineLayout(dev, plLayout_, nullptr);
 }
@@ -325,7 +325,7 @@ CpStateVK::CpStateVK(const Config& config)
   plInfo.basePipelineHandle = VK_NULL_HANDLE;
   plInfo.basePipelineIndex = -1;
 
-  auto dev = DeviceVK::get().device();
+  auto dev = deviceVK().device();
   // TODO: pipeline cache
   auto res = vkCreateComputePipelines(dev, nullptr, 1, &plInfo, nullptr,
                                       &pipeline_);
@@ -337,7 +337,7 @@ CpStateVK::CpStateVK(const Config& config)
 
 CpStateVK::~CpStateVK() {
   // TODO: notify
-  auto dev = DeviceVK::get().device();
+  auto dev = deviceVK().device();
   vkDestroyPipeline(dev, pipeline_, nullptr);
   vkDestroyPipelineLayout(dev, plLayout_, nullptr);
 }

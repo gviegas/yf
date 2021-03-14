@@ -2,7 +2,7 @@
 // CG
 // ImageVK.h
 //
-// Copyright © 2020 Gustavo C. Viegas.
+// Copyright © 2020-2021 Gustavo C. Viegas.
 //
 
 #ifndef YF_CG_IMAGEVK_H
@@ -96,8 +96,6 @@ class ImageVK final : public Image {
   VkImageLayout layout_ = VK_IMAGE_LAYOUT_UNDEFINED;
   VkImageLayout nextLayout_ = VK_IMAGE_LAYOUT_UNDEFINED;
   VkImageMemoryBarrier barrier_{};
-
-//  std::unordered_map<VkImageView, uint32_t> views_{};
 };
 
 /// Sampler.

@@ -45,7 +45,7 @@ struct QueueTest : Test {
     a.push_back({L"Queue q1(Graphics | Transfer)",
                  q1.capabilities_ == (Queue::Graphics | Queue::Transfer)});
     a.push_back({L"Queue q2(Compute)", q2.capabilities_ == Queue::Compute});
-    a.push_back({L"cb = q1.makeCmdBuffer()", cb != nullptr});
+    a.push_back({L"cb = q1.cmdBuffer()", cb != nullptr});
     a.push_back({L"&cb->queue() == &q1", &cb->queue() == &q1});
     a.push_back({L"&cb->queue() == &q2", &cb->queue() != &q2});
 

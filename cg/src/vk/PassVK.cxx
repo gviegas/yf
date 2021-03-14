@@ -124,7 +124,7 @@ PassVK::PassVK(const vector<ColorAttach>* colors,
   info.dependencyCount = 0;
   info.pDependencies = nullptr;
 
-  auto dev = DeviceVK::get().device();
+  auto dev = deviceVK().device();
   auto res = vkCreateRenderPass(dev, &info, nullptr, &renderPass_);
   if (res != VK_SUCCESS)
     throw DeviceExcept("Could not create render pass");
@@ -132,7 +132,7 @@ PassVK::PassVK(const vector<ColorAttach>* colors,
 
 PassVK::~PassVK() {
   // TODO: notify
-  auto dev = DeviceVK::get().device();
+  auto dev = deviceVK().device();
   vkDestroyRenderPass(dev, renderPass_, nullptr);
 }
 
@@ -216,7 +216,7 @@ TargetVK::TargetVK(PassVK& pass, Size2 size, uint32_t layers,
   info.height = size.height;
   info.layers = layers;
 
-  auto dev = DeviceVK::get().device();
+  auto dev = deviceVK().device();
   auto res = vkCreateFramebuffer(dev, &info, nullptr, &framebuffer_);
   if (res != VK_SUCCESS)
     throw DeviceExcept("Could not create framebuffer");
@@ -224,7 +224,7 @@ TargetVK::TargetVK(PassVK& pass, Size2 size, uint32_t layers,
 
 TargetVK::~TargetVK() {
   // TODO: notify
-  auto dev = DeviceVK::get().device();
+  auto dev = deviceVK().device();
   vkDestroyFramebuffer(dev, framebuffer_, nullptr);
 }
 

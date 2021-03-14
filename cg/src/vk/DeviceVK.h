@@ -15,6 +15,11 @@
 CG_NS_BEGIN
 
 class QueueVK;
+class DeviceVK;
+
+/// Gets the device instance.
+///
+DeviceVK& deviceVK();
 
 class DeviceVK final : public Device {
  public:
@@ -57,6 +62,7 @@ class DeviceVK final : public Device {
   const VkPhysicalDeviceLimits& limits() const;
 
  private:
+  friend DeviceVK& deviceVK();
   DeviceVK();
 
   bool checkInstanceExtensions();
@@ -79,10 +85,6 @@ class DeviceVK final : public Device {
 
   QueueVK* queue_ = nullptr;
 };
-
-/// Gets the device instance.
-///
-DeviceVK& deviceVK();
 
 CG_NS_END
 

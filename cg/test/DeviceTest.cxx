@@ -22,7 +22,7 @@ struct DeviceTest : Test {
   Assertions run(const vector<string>&) {
     Assertions a;
 
-    auto& dev = Device::get();
+    auto& dev = device();
     auto& que = dev.defaultQueue();
     auto win = WS_NS::createWindow(400, 400, L"Device Test",
                                    WS_NS::Window::Resizable);
@@ -30,9 +30,9 @@ struct DeviceTest : Test {
 
     this_thread::sleep_for(chrono::seconds(1));
 
-    a.push_back({L"Device::get()", true});
+    a.push_back({L"device()", true});
     a.push_back({L"dev.defaultQueue()", que.capabilities_ != 0});
-    a.push_back({L"dev.makeWsi(...)", wsi != nullptr});
+    a.push_back({L"dev.wsi(...)", wsi != nullptr});
 
     return a;
   }

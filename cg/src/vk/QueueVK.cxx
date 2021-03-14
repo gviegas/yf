@@ -50,7 +50,7 @@ VkCommandPool QueueVK::initPool() {
   info.queueFamilyIndex = family_;
 
   VkCommandPool handle;
-  auto res = vkCreateCommandPool(DeviceVK::get().device(), &info, nullptr,
+  auto res = vkCreateCommandPool(deviceVK().device(), &info, nullptr,
                                  &handle);
   if (res != VK_SUCCESS)
     throw DeviceExcept("Could not create command pool");
@@ -59,7 +59,7 @@ VkCommandPool QueueVK::initPool() {
 }
 
 void QueueVK::deinitPool(VkCommandPool pool) {
-  vkDestroyCommandPool(DeviceVK::get().device(), pool, nullptr);
+  vkDestroyCommandPool(deviceVK().device(), pool, nullptr);
 }
 
 CmdBuffer::Ptr QueueVK::cmdBuffer() {
@@ -73,7 +73,7 @@ CmdBuffer::Ptr QueueVK::cmdBuffer() {
   info.commandBufferCount = 1;
 
   VkCommandBuffer handle;
-  auto res = vkAllocateCommandBuffers(DeviceVK::get().device(), &info, &handle);
+  auto res = vkAllocateCommandBuffers(deviceVK().device(), &info, &handle);
   if (res != VK_SUCCESS) {
     deinitPool(pool);
     throw DeviceExcept("Could not allocate command buffer");
@@ -84,7 +84,7 @@ CmdBuffer::Ptr QueueVK::cmdBuffer() {
 }
 
 void QueueVK::submit() {
-  auto dev = DeviceVK::get().device();
+  auto dev = deviceVK().device();
   VkSemaphore sem = VK_NULL_HANDLE;
   VkResult res;
 
@@ -211,7 +211,7 @@ void QueueVK::unmake(CmdBufferVK* cmdBuffer) noexcept {
   }
 
   auto it = pools_.find(cmdBuffer);
-  vkDestroyCommandPool(DeviceVK::get().device(), it->second, nullptr);
+  vkDestroyCommandPool(deviceVK().device(), it->second, nullptr);
   pools_.erase(it);
 }
 
@@ -240,7 +240,7 @@ VkCommandBuffer QueueVK::getPriority(VkPipelineStageFlags stageMask,
     info.level = VK_COMMAND_BUFFER_LEVEL_PRIMARY;
     info.commandBufferCount = 1;
 
-    res = vkAllocateCommandBuffers(DeviceVK::get().device(), &info, &cmdPrio_);
+    res = vkAllocateCommandBuffers(deviceVK().device(), &info, &cmdPrio_);
     if (res != VK_SUCCESS) {
       deinitPool(poolPrio_);
       poolPrio_ = VK_NULL_HANDLE;

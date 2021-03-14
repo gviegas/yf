@@ -2,7 +2,7 @@
 // CG
 // WsiVK.cxx
 //
-// Copyright © 2020 Gustavo C. Viegas.
+// Copyright © 2020-2021 Gustavo C. Viegas.
 //
 
 #include <algorithm>
@@ -102,7 +102,7 @@ WsiVK::WsiVK(WS_NS::Window* window) : Wsi(window) {
 WsiVK::~WsiVK() {
   // Flush and present acquired images
   if (!acquisitions_.empty()) {
-    DeviceVK::get().defaultQueue().submit();
+    deviceVK().defaultQueue().submit();
 
     for_each(acquisitions_.begin(), acquisitions_.end(), [&](auto& i) {
       present(images_[i]);
@@ -113,9 +113,10 @@ WsiVK::~WsiVK() {
   vkQueueWaitIdle(queue_);
 
   // Destroy objects
-  auto dev = DeviceVK::get().device();
+  auto dev = deviceVK().device();
+  auto inst = deviceVK().instance();
   vkDestroySwapchainKHR(dev, swapchain_, nullptr);
-  vkDestroySurfaceKHR(DeviceVK::get().instance(), surface_, nullptr);
+  vkDestroySurfaceKHR(inst, surface_, nullptr);
   for_each(images_.begin(), images_.end(), [](auto& img) { delete img; });
   for_each(acqSemaphores_.begin(), acqSemaphores_.end(), [&](auto& sem) {
     vkDestroySemaphore(dev, sem, nullptr);
@@ -126,7 +127,7 @@ void WsiVK::initSurface() {
   assert(surface_ == VK_NULL_HANDLE);
 
   auto pfm = WS_NS::platform();
-  auto inst = DeviceVK::get().instance();
+  auto inst = deviceVK().instance();
   VkResult res;
 
 #if defined(VK_USE_PLATFORM_WAYLAND_KHR)
@@ -198,7 +199,7 @@ void WsiVK::initSurface() {
 #endif // defined(VK_USE_PLATFORM_WAYLAND_KHR)
 
   // Check presentation support
-  auto physDev = DeviceVK::get().physicalDev();
+  auto physDev = deviceVK().physicalDev();
   VkBool32 supported;
   res = vkGetPhysicalDeviceSurfaceSupportKHR(physDev, family_, surface_,
                                              &supported);
@@ -211,7 +212,7 @@ void WsiVK::initSurface() {
 void WsiVK::querySurface() {
   assert(surface_ != VK_NULL_HANDLE);
 
-  auto physDev = DeviceVK::get().physicalDev();
+  auto physDev = deviceVK().physicalDev();
   VkResult res;
 
   // Get surface capabilities
@@ -296,7 +297,7 @@ void WsiVK::querySurface() {
   uint32_t families[2];
   uint32_t familyN = 0;
   VkSharingMode sharMode = VK_SHARING_MODE_EXCLUSIVE;
-  auto& queue = static_cast<QueueVK&>(DeviceVK::get().defaultQueue());
+  auto& queue = static_cast<QueueVK&>(deviceVK().defaultQueue());
   if (family_ != queue.family()) {
     families[0] = queue.family();
     families[1] = family_;
@@ -324,7 +325,7 @@ void WsiVK::querySurface() {
   scInfo_.clipped = true;
   scInfo_.oldSwapchain = VK_NULL_HANDLE;
 
-  // [1.2.146 c32.9]
+  // [1.2.166 c33.9]
   // "An image will eventually be acquired if the number of images that the
   // application has currently acquired (but not yet presented) is less than
   // or equal to the difference between the number of images in swapchain
@@ -338,7 +339,7 @@ void WsiVK::querySurface() {
 void WsiVK::createSwapchain() {
   assert(surface_ != VK_NULL_HANDLE);
 
-  auto dev = DeviceVK::get().device();
+  auto dev = deviceVK().device();
   VkResult res;
 
   // Create swapchain
@@ -429,11 +430,11 @@ Image* WsiVK::nextImage(bool nonblocking) {
     }
   }
   uint32_t imgIx;
-  auto dev = DeviceVK::get().device();
+  auto dev = deviceVK().device();
   auto res = vkAcquireNextImageKHR(dev, swapchain_, timeout,
                                    sem, VK_NULL_HANDLE, &imgIx);
 
-  auto& que = static_cast<QueueVK&>(DeviceVK::get().defaultQueue());
+  auto& que = static_cast<QueueVK&>(deviceVK().defaultQueue());
 
   switch (res) {
   case VK_SUCCESS:

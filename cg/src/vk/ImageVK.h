@@ -83,8 +83,6 @@ class ImageVK final : public Image {
                     uint32_t firstLevel, uint32_t levelCount);
 
  private:
-  void changeLayout(bool);
-
   const bool owned_ = true;
 
   VkImageType type_ = VK_IMAGE_TYPE_2D;
@@ -99,6 +97,8 @@ class ImageVK final : public Image {
   VkImageLayout layout_ = VK_IMAGE_LAYOUT_UNDEFINED;
   VkImageLayout nextLayout_ = VK_IMAGE_LAYOUT_UNDEFINED;
   VkImageMemoryBarrier barrier_{};
+
+  void changeLayout(bool);
 };
 
 /// Image sampler.

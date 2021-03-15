@@ -45,8 +45,9 @@ inline VkPipelineLayout plLayoutVK(const vector<DcTable*>& dcTables) {
 
 INTERNAL_NS_END
 
-// ------------------------------------------------------------------------
+//
 // GrStateVK
+//
 
 GrStateVK::GrStateVK(const Config& config)
   : GrState(config), stgFlags_(0), plLayout_(plLayoutVK(config.dcTables)) {
@@ -296,8 +297,9 @@ VkPipeline GrStateVK::pipeline() const {
   return pipeline_;
 }
 
-// ------------------------------------------------------------------------
+//
 // CpStateVK
+//
 
 CpStateVK::CpStateVK(const Config& config)
   : CpState(config), plLayout_(plLayoutVK(config.dcTables)) {

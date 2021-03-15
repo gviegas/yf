@@ -16,8 +16,9 @@
 using namespace CG_NS;
 using namespace std;
 
-// ------------------------------------------------------------------------
+//
 // ImageVK
+//
 
 ImageVK::ImageVK(PxFormat format, Size2 size, uint32_t layers, uint32_t levels,
                  Samples samples)
@@ -444,6 +445,7 @@ ImageVK::View::View(ImageVK& image, VkImageView handle,
     firstLevel_(firstLevel), levelCount_(levelCount) { }
 
 ImageVK::View::~View() {
+
   // [1.2.166 c3.3]
   // "(...) non-dispatchable handles may encode object information directly in
   // the handle rather than acting as a reference to an underlying object, and
@@ -480,8 +482,9 @@ uint32_t ImageVK::View::levelCount() const {
   return levelCount_;
 }
 
-// ------------------------------------------------------------------------
+//
 // SamplerVK
+//
 
 SamplerVK::SamplerVK(const Sampler& sampler) : sampler_(sampler) {
   VkSamplerCreateInfo info;

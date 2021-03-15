@@ -62,14 +62,7 @@ class DeviceVK final : public Device {
   const VkPhysicalDeviceLimits& limits() const;
 
  private:
-  friend DeviceVK& deviceVK();
-  DeviceVK();
-
-  bool checkInstanceExtensions();
-  bool checkDeviceExtensions();
-  void initInstance();
-  void initPhysicalDevice();
-  void initDevice(int32_t, int32_t);
+  QueueVK* queue_ = nullptr;
 
   VkInstance instance_ = nullptr;
   uint32_t instVersion_ = 0;
@@ -83,7 +76,14 @@ class DeviceVK final : public Device {
   VkDevice device_ = nullptr;
   std::vector<const char*> devExtensions_{};
 
-  QueueVK* queue_ = nullptr;
+  friend DeviceVK& deviceVK();
+  DeviceVK();
+
+  bool checkInstanceExtensions();
+  bool checkDeviceExtensions();
+  void initInstance();
+  void initPhysicalDevice();
+  void initDevice(int32_t, int32_t);
 };
 
 CG_NS_END

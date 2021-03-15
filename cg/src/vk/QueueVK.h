@@ -52,9 +52,6 @@ class QueueVK final : public Queue {
   int32_t family() const;
 
  private:
-  VkCommandPool initPool();
-  void deinitPool(VkCommandPool);
-
   VkQueue handle_ = nullptr;
   int32_t family_ = -1;
   std::unordered_map<CmdBufferVK*, VkCommandPool> pools_{};
@@ -68,6 +65,9 @@ class QueueVK final : public Queue {
 
   std::vector<VkSemaphore> semaphores_{};
   std::vector<VkPipelineStageFlags> stageMasks_{};
+
+  VkCommandPool initPool();
+  void deinitPool(VkCommandPool);
 };
 
 class GrEncoder;
@@ -94,14 +94,14 @@ class CmdBufferVK final : public CmdBuffer {
   void didExecute();
 
  private:
-  void encode(const GrEncoder&);
-  void encode(const CpEncoder&);
-  void encode(const TfEncoder&);
-
   QueueVK& queue_;
   VkCommandBuffer handle_ = nullptr;
   bool pending_ = false;
   bool begun_ = false;
+
+  void encode(const GrEncoder&);
+  void encode(const CpEncoder&);
+  void encode(const TfEncoder&);
 };
 
 CG_NS_END

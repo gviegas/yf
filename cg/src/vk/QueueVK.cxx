@@ -21,8 +21,9 @@
 using namespace CG_NS;
 using namespace std;
 
-// ------------------------------------------------------------------------
+//
 // QueueVK
+//
 
 QueueVK::QueueVK(VkQueue handle, int32_t family)
   : Queue(Graphics|Compute|Transfer), handle_(handle), family_(family) {
@@ -276,8 +277,9 @@ int32_t QueueVK::family() const {
   return family_;
 }
 
-// ------------------------------------------------------------------------
+//
 // CmdBufferVK
+//
 
 CmdBufferVK::CmdBufferVK(QueueVK& queue, VkCommandBuffer handle)
   : queue_(queue), handle_(handle), pending_(false), begun_(false) {

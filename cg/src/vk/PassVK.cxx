@@ -15,8 +15,9 @@
 using namespace CG_NS;
 using namespace std;
 
-// ------------------------------------------------------------------------
+//
 // PassVK
+//
 
 PassVK::PassVK(const vector<ColorAttach>* colors,
                const vector<ColorAttach>* resolves,
@@ -149,8 +150,9 @@ VkRenderPass PassVK::renderPass() const {
   return renderPass_;
 }
 
-// ------------------------------------------------------------------------
+//
 // TargetVK
+//
 
 TargetVK::TargetVK(PassVK& pass, Size2 size, uint32_t layers,
                    const vector<AttachImg>* colors,

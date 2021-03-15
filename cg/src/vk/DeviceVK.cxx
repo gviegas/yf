@@ -224,7 +224,7 @@ void DeviceVK::initPhysicalDevice() {
       }
     }
 
-    // [1.2.146 c4.1]
+    // [1.2.166 c5.1]
     // "If an implementation exposes any queue family that supports graphics
     // operations, at least one queue family of at least one physical device
     // exposed by the implementation must support both graphics and compute

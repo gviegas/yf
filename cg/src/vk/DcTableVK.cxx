@@ -183,8 +183,21 @@ void DcTableVK::write(uint32_t allocation, DcId id, uint32_t element,
 }
 
 void DcTableVK::write(uint32_t allocation, DcId id, uint32_t element,
+                      Image& image, uint32_t layer, uint32_t level) {
+
+  write(allocation, id, element, image, layer, level, nullptr);
+}
+
+void DcTableVK::write(uint32_t allocation, DcId id, uint32_t element,
                       Image& image, uint32_t layer, uint32_t level,
-                      ImgSampler sampler) {
+                      Sampler& sampler) {
+
+  write(allocation, id, element, image, layer, level, &sampler);
+}
+
+void DcTableVK::write(uint32_t allocation, DcId id, uint32_t element,
+                      Image& image, uint32_t layer, uint32_t level,
+                      Sampler* sampler) {
 
   auto ent = entries_.find(id);
 
@@ -226,8 +239,8 @@ void DcTableVK::write(uint32_t allocation, DcId id, uint32_t element,
     wr.descriptorType = VK_DESCRIPTOR_TYPE_STORAGE_IMAGE;
     break;
   case DcTypeImgSampler:
-    if (!ref.sampler || ref.sampler->type() != sampler)
-      ref.sampler = SamplerVK::make(sampler);
+    if (!ref.sampler || (sampler && *sampler != ref.sampler->sampler()))
+      ref.sampler = make_unique<SamplerVK>(sampler ? *sampler : Sampler{});
     info.sampler = ref.sampler->handle();
     wr.descriptorType = VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER;
     break;

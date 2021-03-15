@@ -2,7 +2,7 @@
 // CG
 // DcTableVK.h
 //
-// Copyright © 2020 Gustavo C. Viegas.
+// Copyright © 2020-2021 Gustavo C. Viegas.
 //
 
 #ifndef YF_CG_DCTABLEVK_H
@@ -28,8 +28,11 @@ class DcTableVK final : public DcTable {
              Buffer& buffer, uint64_t offset, uint64_t size);
 
   void write(uint32_t allocation, DcId id, uint32_t element,
+             Image& image, uint32_t layer, uint32_t level);
+
+  void write(uint32_t allocation, DcId id, uint32_t element,
              Image& image, uint32_t layer, uint32_t level,
-             ImgSampler sampler);
+             Sampler& sampler);
 
   /// Getters.
   ///
@@ -41,6 +44,10 @@ class DcTableVK final : public DcTable {
   VkDescriptorPool pool_ = VK_NULL_HANDLE;
   std::vector<VkDescriptorPoolSize> poolSizes_{};
   std::vector<VkDescriptorSet> sets_{};
+
+  void write(uint32_t allocation, DcId id, uint32_t element,
+             Image& image, uint32_t layer, uint32_t level,
+             Sampler* sampler);
 
   /// Image views and sampler objects used in `write()`s are managed by
   /// the table. Every image/sampler descriptor has a list of `elements`

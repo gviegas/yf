@@ -2,7 +2,7 @@
 // CG
 // Encoder.h
 //
-// Copyright © 2020 Gustavo C. Viegas.
+// Copyright © 2020-2021 Gustavo C. Viegas.
 //
 
 #ifndef YF_CG_ENCODER_H
@@ -27,51 +27,54 @@ enum IndexType {
 /// Normalized RGBA color.
 ///
 struct Color {
-  bool operator==(const Color& other) const {
-    return r == other.r && g == other.g && b == other.b && a == other.a;
-  }
-  bool operator!=(const Color& other) const {
-    return !operator==(other);
-  }
-
   float r;
   float g;
   float b;
   float a;
+
+  bool operator==(const Color& other) const {
+    return r == other.r && g == other.g && b == other.b && a == other.a;
+  }
+
+  bool operator!=(const Color& other) const {
+    return !operator==(other);
+  }
 };
 
 /// Viewport.
 ///
 struct Viewport {
-  bool operator==(const Viewport& other) const {
-    return x == other.x && y == other.y &&
-           width == other.width && height == other.height &&
-           zNear == other.zNear && zFar == other.zFar;
-  }
-  bool operator!=(const Viewport& other) const {
-    return !operator==(other);
-  }
-
   float x;
   float y;
   float width;
   float height;
   float zNear;
   float zFar;
+
+  bool operator==(const Viewport& other) const {
+    return x == other.x && y == other.y &&
+           width == other.width && height == other.height &&
+           zNear == other.zNear && zFar == other.zFar;
+  }
+
+  bool operator!=(const Viewport& other) const {
+    return !operator==(other);
+  }
 };
 
 /// Scissor.
 ///
 struct Scissor {
+  Offset2 offset;
+  Size2 size;
+
   bool operator==(const Scissor& other) const {
     return offset == other.offset && size == other.size;
   }
+
   bool operator!=(const Scissor& other) const {
     return !operator==(other);
   }
-
-  Offset2 offset;
-  Size2 size;
 };
 
 class GrState;

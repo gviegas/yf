@@ -2,7 +2,7 @@
 // CG
 // Buffer.h
 //
-// Copyright © 2020 Gustavo C. Viegas.
+// Copyright © 2020-2021 Gustavo C. Viegas.
 //
 
 #ifndef YF_CG_BUFFER_H
@@ -20,6 +20,7 @@ CG_NS_BEGIN
 class Buffer {
  public:
   using Ptr = std::unique_ptr<Buffer>;
+
   explicit Buffer(uint64_t size);
   virtual ~Buffer();
 

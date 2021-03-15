@@ -24,6 +24,7 @@ class Encoder;
 class CmdBuffer {
  public:
   using Ptr = std::unique_ptr<CmdBuffer>;
+
   CmdBuffer() = default;
   virtual ~CmdBuffer();
 

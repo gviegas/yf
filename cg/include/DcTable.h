@@ -42,6 +42,7 @@ using DcEntries = std::unordered_map<DcId, DcEntry>;
 class DcTable {
  public:
   using Ptr = std::unique_ptr<DcTable>;
+
   explicit DcTable(const DcEntries& entries);
   virtual ~DcTable();
 

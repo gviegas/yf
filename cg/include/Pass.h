@@ -68,6 +68,8 @@ class Pass;
 class Target {
  public:
   using Ptr = std::unique_ptr<Target>;
+  using ImgsPtr = std::unique_ptr<std::vector<AttachImg>>;
+  using ImgPtr = std::unique_ptr<AttachImg>;
 
   Target(Size2 size, uint32_t layers, const std::vector<AttachImg>* colors,
          const std::vector<AttachImg>* resolves, const AttachImg* depthStencil);
@@ -80,8 +82,6 @@ class Target {
 
   /// Instance constants.
   ///
-  using ImgsPtr = std::unique_ptr<std::vector<AttachImg>>;
-  using ImgPtr = std::unique_ptr<AttachImg>;
   const Size2 size_;
   const uint32_t layers_;
   const ImgsPtr colors_;
@@ -94,6 +94,8 @@ class Target {
 class Pass {
  public:
   using Ptr = std::unique_ptr<Pass>;
+  using ColorsPtr = std::unique_ptr<std::vector<ColorAttach>>;
+  using DepStenPtr = std::unique_ptr<DepStenAttach>;
 
   Pass(const std::vector<ColorAttach>* colors,
        const std::vector<ColorAttach>* resolves,
@@ -110,8 +112,6 @@ class Pass {
 
   /// Instance constants.
   ///
-  using ColorsPtr = std::unique_ptr<std::vector<ColorAttach>>;
-  using DepStenPtr = std::unique_ptr<DepStenAttach>;
   const ColorsPtr colors_;
   const ColorsPtr resolves_;
   const DepStenPtr depthStencil_;

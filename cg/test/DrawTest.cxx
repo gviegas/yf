@@ -77,12 +77,10 @@ struct DrawTest : Test {
     buf->write(sizeof vdata, sizeof mdata, mdata);
 
     // Create sampling image and fill with data
-    uint8_t pdata[][3] = {{0xDE, 0x20, 0x20}, {0xDF, 0x7C, 0x20},
-                          {0xDC, 0x9E, 0x28}, {0xD0, 0x2A, 0x24},
-                          {0xCF, 0x60, 0x3C}, {0xDF, 0x0E, 0x32}};
+    uint8_t pdata[][3] = {{255, 0, 0}, {255, 255, 0}};
 
-    auto tex = dev.image(PxFormatRgb8Unorm, {2, 3}, 1, 1, Samples1);
-    tex->write({0}, {2, 3}, 0, 0, pdata);
+    auto tex = dev.image(PxFormatRgb8Unorm, {2, 1}, 1, 1, Samples1);
+    tex->write({0}, {2, 1}, 0, 0, pdata);
 
     // Create descriptor table, allocate resources and copy data
     DcEntries dcs{{0, {DcTypeUniform, 1}},
@@ -90,7 +88,7 @@ struct DrawTest : Test {
     auto dtb = dev.dcTable(dcs);
     dtb->allocate(1);
     dtb->write(0, 0, 0, *buf, sizeof vdata, sizeof mdata);
-    dtb->write(0, 1, 0, *tex, 0, 0, ImgSamplerLinear);
+    dtb->write(0, 1, 0, *tex, 0, 0);
 
     // Create graphics state
     GrState::Config config{pass.get(),

@@ -2,7 +2,7 @@
 // CG
 // Encoder.cxx
 //
-// Copyright © 2020 Gustavo C. Viegas.
+// Copyright © 2020-2021 Gustavo C. Viegas.
 //
 
 #include "Encoder.h"
@@ -32,8 +32,9 @@ const Encoding& Encoder::encoding() const {
   return impl_->encoding_;
 }
 
-// -------------------------------------------------------------------------
+//
 // GrEncoder
+//
 
 GrEncoder::GrEncoder() : Encoder(Graphics) { }
 
@@ -104,8 +105,9 @@ void GrEncoder::clearStencil(uint32_t value) {
     .push_back(make_unique<ClearScCmd>(value));
 }
 
-// -------------------------------------------------------------------------
+//
 // CpEncoder
+//
 
 CpEncoder::CpEncoder() : Encoder(Compute) { }
 
@@ -124,7 +126,10 @@ void CpEncoder::dispatch(Size3 size) {
     .push_back(make_unique<DispatchCmd>(size));
 }
 
-// -------------------------------------------------------------------------
+//
 // TfEncoder
+//
 
 TfEncoder::TfEncoder() : Encoder(Transfer) { }
+
+// TODO...

@@ -2,7 +2,7 @@
 // CG
 // Pass.cxx
 //
-// Copyright © 2020 Gustavo C. Viegas.
+// Copyright © 2020-2021 Gustavo C. Viegas.
 //
 
 #include "Pass.h"
@@ -15,8 +15,8 @@ Pass::Pass(const vector<ColorAttach>* colors,
            const DepStenAttach* depthStencil)
   : colors_(colors ? make_unique<vector<ColorAttach>>(*colors) : nullptr),
     resolves_(resolves ? make_unique<vector<ColorAttach>>(*resolves) : nullptr),
-    depthStencil_(depthStencil ? make_unique<DepStenAttach>(*depthStencil) :
-                  nullptr) { }
+    depthStencil_(depthStencil ? make_unique<DepStenAttach>(*depthStencil)
+                               : nullptr) { }
 
 Pass::~Pass() { }
 
@@ -27,7 +27,7 @@ Target::Target(Size2 size, uint32_t layers,
   : size_(size), layers_(layers),
     colors_(colors ? make_unique<vector<AttachImg>>(*colors) : nullptr),
     resolves_(resolves ? make_unique<vector<AttachImg>>(*resolves) : nullptr),
-    depthStencil_(depthStencil ? make_unique<AttachImg>(*depthStencil) :
-                  nullptr) { }
+    depthStencil_(depthStencil ? make_unique<AttachImg>(*depthStencil)
+                               : nullptr) { }
 
 Target::~Target() { }

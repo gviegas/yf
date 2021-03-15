@@ -483,46 +483,26 @@ uint32_t ImageVK::View::levelCount() const {
 // ------------------------------------------------------------------------
 // SamplerVK
 
-SamplerVK::Ptr SamplerVK::make(ImgSampler type) {
-  return Ptr(new SamplerVK(type));
-}
-
-SamplerVK::SamplerVK(ImgSampler type) : type_(type) {
+SamplerVK::SamplerVK(const Sampler& sampler) : sampler_(sampler) {
   VkSamplerCreateInfo info;
   info.sType = VK_STRUCTURE_TYPE_SAMPLER_CREATE_INFO;
   info.pNext = nullptr;
   info.flags = 0;
-  // TODO: make additional types for setting these parameters
-  info.addressModeU = VK_SAMPLER_ADDRESS_MODE_CLAMP_TO_EDGE;
-  info.addressModeV = VK_SAMPLER_ADDRESS_MODE_CLAMP_TO_EDGE;
-  info.addressModeW = VK_SAMPLER_ADDRESS_MODE_CLAMP_TO_EDGE;
   info.mipLodBias = 0.0f;
   info.anisotropyEnable = false;
   info.maxAnisotropy = 0.0f;
   info.compareEnable = false;
   info.compareOp = VK_COMPARE_OP_NEVER;
-  info.minLod = 0.0f;
-  info.maxLod = 0.0f;
   info.borderColor = VK_BORDER_COLOR_FLOAT_OPAQUE_BLACK;
   info.unnormalizedCoordinates = false;
 
-  switch (type) {
-  case ImgSamplerBasic:
-    info.magFilter = VK_FILTER_NEAREST;
-    info.minFilter = VK_FILTER_NEAREST;
-    info.mipmapMode = VK_SAMPLER_MIPMAP_MODE_NEAREST;
-    break;
-  case ImgSamplerLinear:
-    info.magFilter = VK_FILTER_LINEAR;
-    info.minFilter = VK_FILTER_LINEAR;
-    info.mipmapMode = VK_SAMPLER_MIPMAP_MODE_NEAREST;
-    break;
-  case ImgSamplerTrilinear:
-    info.magFilter = VK_FILTER_LINEAR;
-    info.minFilter = VK_FILTER_LINEAR;
-    info.mipmapMode = VK_SAMPLER_MIPMAP_MODE_LINEAR;
-    break;
-  }
+  info.addressModeU = toAddressModeVK(sampler.wrapU);
+  info.addressModeV = toAddressModeVK(sampler.wrapV);
+  info.addressModeW = toAddressModeVK(sampler.wrapW);
+
+  info.magFilter = toFilterVK(sampler.magFilter);
+  info.minFilter = toFilterVK(sampler.minFilter, info.mipmapMode,
+                              info.minLod, info.maxLod);
 
   auto dev = deviceVK().device();
   auto res = vkCreateSampler(dev, &info, nullptr, &handle_);
@@ -535,8 +515,8 @@ SamplerVK::~SamplerVK() {
   vkDestroySampler(deviceVK().device(), handle_, nullptr);
 }
 
-ImgSampler SamplerVK::type() const {
-  return type_;
+const Sampler& SamplerVK::sampler() const {
+  return sampler_;
 }
 
 VkSampler SamplerVK::handle() const {

@@ -2,7 +2,7 @@
 // SG
 // DataBMP.cxx
 //
-// Copyright © 2020 Gustavo C. Viegas.
+// Copyright © 2020-2021 Gustavo C. Viegas.
 //
 
 #include <cwchar>
@@ -34,107 +34,6 @@ using namespace SG_NS;
 using namespace std;
 
 INTERNAL_NS_BEGIN
-
-// ------------------------------------------------------------------------
-// XXX
-#if defined(YF_DEVEL)
-# define BMPFH_PRINT(fhPtr, path) do { \
-  wprintf(L"\n#BMP (debug)#"); \
-  wprintf(L"\npathname: %s", path); \
-  wprintf(L"\nfh - type: 0x%02x (%c%c)", \
-    (fhPtr)->type, (fhPtr)->type, (fhPtr)->type >> 8); \
-  wprintf(L"\nfh - size: %u", (fhPtr)->size); \
-  wprintf(L"\nfh - reserved1: %u", (fhPtr)->reserved1); \
-  wprintf(L"\nfh - reserved2: %u", (fhPtr)->reserved2); \
-  wprintf(L"\nfh - dataOffset: %u\n", (fhPtr)->dataOffset); \
-} while (0)
-
-# define BMPIH_PRINT(ihPtr, path) do { \
-  wprintf(L"\n#BMP (debug)#"); \
-  wprintf(L"\npathname: %s", path); \
-  wprintf(L"\nih - size: %u", (ihPtr)->size); \
-  wprintf(L"\nih - width: %d", (ihPtr)->width); \
-  wprintf(L"\nih - height: %d", (ihPtr)->height); \
-  wprintf(L"\nih - planes: %u", (ihPtr)->planes); \
-  wprintf(L"\nih - bpp: %u", (ihPtr)->bpp); \
-  wprintf(L"\nih - compression: %u", (ihPtr)->compression); \
-  wprintf(L"\nih - imageSize: %u", (ihPtr)->imageSize); \
-  wprintf(L"\nih - ppmX: %d", (ihPtr)->ppmX); \
-  wprintf(L"\nih - ppmY: %d", (ihPtr)->ppmY); \
-  wprintf(L"\nih - ciN: %u", (ihPtr)->ciN); \
-  wprintf(L"\nih - ciImportant: %u\n", (ihPtr)->ciImportant); \
-} while (0)
-
-# define BMPV4_PRINT(v4Ptr, path) do { \
-  wprintf(L"\n#BMP (debug)#"); \
-  wprintf(L"\npathname: %s", path); \
-  wprintf(L"\nv4 - size: %u", (v4Ptr)->size); \
-  wprintf(L"\nv4 - width: %d", (v4Ptr)->width); \
-  wprintf(L"\nv4 - height: %d", (v4Ptr)->height); \
-  wprintf(L"\nv4 - planes: %u", (v4Ptr)->planes); \
-  wprintf(L"\nv4 - bpp: %u", (v4Ptr)->bpp); \
-  wprintf(L"\nv4- compression: %u", (v4Ptr)->compression); \
-  wprintf(L"\nv4 - imageSz: %u", (v4Ptr)->imageSize); \
-  wprintf(L"\nv4 - ppmX: %d", (v4Ptr)->ppmX); \
-  wprintf(L"\nv4 - ppmY: %d", (v4Ptr)->ppmY); \
-  wprintf(L"\nv4 - ciN: %u", (v4Ptr)->ciN); \
-  wprintf(L"\nv4 - ciImportant: %u", (v4Ptr)->ciImportant); \
-  wprintf(L"\nv4 - maskR: 0x%08x", (v4Ptr)->maskR); \
-  wprintf(L"\nv4 - maskG: 0x%08x", (v4Ptr)->maskG); \
-  wprintf(L"\nv4 - maskB: 0x%08x", (v4Ptr)->maskB); \
-  wprintf(L"\nv4 - maskA: 0x%08x", (v4Ptr)->maskA); \
-  wprintf(L"\nv4 - csType: 0x%08x (%c%c%c%c)", \
-    (v4Ptr)->csType, (v4Ptr)->csType, (v4Ptr)->csType >> 8, \
-    (v4Ptr)->csType >> 16, (v4Ptr)->csType >> 24); \
-  wprintf(L"\nv4 - endPoints: %u,%u,%u %u,%u,%u %u,%u,%u", \
-    (v4Ptr)->endPoints[0], (v4Ptr)->endPoints[1], (v4Ptr)->endPoints[2], \
-    (v4Ptr)->endPoints[3], (v4Ptr)->endPoints[4], (v4Ptr)->endPoints[5], \
-    (v4Ptr)->endPoints[6], (v4Ptr)->endPoints[7], (v4Ptr)->endPoints[8]); \
-  wprintf(L"\nv4 - gammaR: %u", (v4Ptr)->gammaR); \
-  wprintf(L"\nv4 - gammaG: %u", (v4Ptr)->gammaG); \
-  wprintf(L"\nv4 - gammaB: %u\n", (v4Ptr)->gammaB); \
-} while (0)
-
-# define BMPV5_PRINT(v5Ptr, path) do { \
-  wprintf(L"\n#BMP (debug)#"); \
-  wprintf(L"\npathname: %s", path); \
-  wprintf(L"\nv5 - size: %u", (v5Ptr)->size); \
-  wprintf(L"\nv5 - width: %d", (v5Ptr)->width); \
-  wprintf(L"\nv5 - height: %d", (v5Ptr)->height); \
-  wprintf(L"\nv5 - planes: %u", (v5Ptr)->planes); \
-  wprintf(L"\nv5 - bpp: %u", (v5Ptr)->bpp); \
-  wprintf(L"\nv5 - compression: %u", (v5Ptr)->compression); \
-  wprintf(L"\nv5 - imageSize: %u", (v5Ptr)->imageSize); \
-  wprintf(L"\nv5 - ppmX: %d", (v5Ptr)->ppmX); \
-  wprintf(L"\nv5 - ppmY: %d", (v5Ptr)->ppmY); \
-  wprintf(L"\nv5 - ciN: %u", (v5Ptr)->ciN); \
-  wprintf(L"\nv5 - ciImportant: %u", (v5Ptr)->ciImportant); \
-  wprintf(L"\nv5 - maskR: 0x%08x", (v5Ptr)->maskR); \
-  wprintf(L"\nv5 - maskG: 0x%08x", (v5Ptr)->maskG); \
-  wprintf(L"\nv5 - maskB: 0x%08x", (v5Ptr)->maskB); \
-  wprintf(L"\nv5 - maskA: 0x%08x", (v5Ptr)->maskA); \
-  wprintf(L"\nv5 - csType: 0x%08x (%c%c%c%c)", \
-    (v5Ptr)->csType, (v5Ptr)->csType, (v5Ptr)->csType >> 8, \
-    (v5Ptr)->csType >> 16, (v5Ptr)->csType >> 24); \
-  wprintf(L"\nv5 - endPoints: %u,%u,%u %u,%u,%u %u,%u,%u", \
-    (v5Ptr)->endPoints[0], (v5Ptr)->endPoints[1], (v5Ptr)->endPoints[2], \
-    (v5Ptr)->endPoints[3], (v5Ptr)->endPoints[4], (v5Ptr)->endPoints[5], \
-    (v5Ptr)->endPoints[6], (v5Ptr)->endPoints[7], (v5Ptr)->endPoints[8]); \
-  wprintf(L"\nv5 - gammaR: %u", (v5Ptr)->gammaR); \
-  wprintf(L"\nv5 - gammaG: %u", (v5Ptr)->gammaG); \
-  wprintf(L"\nv5 - gammaB: %u", (v5Ptr)->gammaB); \
-  wprintf(L"\nv5 - intent: %u", (v5Ptr)->intent); \
-  wprintf(L"\nv5 - profileData: %u", (v5Ptr)->profileData); \
-  wprintf(L"\nv5 - profileSize: %u", (v5Ptr)->profileSize); \
-  wprintf(L"\nv5 - reserved: %u\n", (v5Ptr)->reserved); \
-} while (0)
-#else
-# define BMPFH_PRINT(...)
-# define BMPIH_PRINT(...)
-# define BMPV4_PRINT(...)
-# define BMPV5_PRINT(...)
-#endif // defined(YF_DEVEL)
-// ------------------------------------------------------------------------
 
 /// BMP file header.
 ///
@@ -249,6 +148,13 @@ inline uint32_t bitsBMP(uint32_t mask, uint32_t bpp, uint32_t lshf) {
   return res - lshf;
 }
 
+#ifdef YF_DEVEL
+void printBMP(const BMPfh& fh, const wstring& pathname);
+void printBMP(const BMPih& ih, const wstring& pathname);
+void printBMP(const BMPv4& v4, const wstring& pathname);
+void printBMP(const BMPv5& v5, const wstring& pathname);
+#endif
+
 INTERNAL_NS_END
 
 void SG_NS::loadBMP(Texture::Data& dst, const wstring& pathname) {
@@ -273,8 +179,9 @@ void SG_NS::loadBMP(Texture::Data& dst, const wstring& pathname) {
   if (letoh(fh.type) != BMPType)
     throw FileExcept("Invalid BMP file");
 
-  // XXX
-  BMPFH_PRINT(&fh, mpath);
+#ifdef YF_DEVEL
+  printBMP(fh, pathname);
+#endif
 
   // The header size tells which structure to use
   uint32_t hdrSize;
@@ -326,8 +233,9 @@ void SG_NS::loadBMP(Texture::Data& dst, const wstring& pathname) {
       throw FileExcept("Invalid BMP file");
     }
 
-    // XXX
-    BMPIH_PRINT(&ih, mpath);
+#ifdef YF_DEVEL
+    printBMP(ih, pathname);
+#endif
   };
 
   // Read next bytes as BMPv4
@@ -360,8 +268,9 @@ void SG_NS::loadBMP(Texture::Data& dst, const wstring& pathname) {
       throw FileExcept("Invalid BMP file");
     }
 
-    // XXX
-    BMPV4_PRINT(&v4, mpath);
+#ifdef YF_DEVEL
+    printBMP(v4, pathname);
+#endif
   };
 
   // Read next bytes as BMPv5
@@ -394,8 +303,9 @@ void SG_NS::loadBMP(Texture::Data& dst, const wstring& pathname) {
       throw FileExcept("Invalid BMP file");
     }
 
-    // XXX
-    BMPV5_PRINT(&v5, mpath);
+#ifdef YF_DEVEL
+    printBMP(v5, pathname);
+#endif
   };
 
   switch (hdrSize) {
@@ -565,3 +475,103 @@ void SG_NS::loadBMP(Texture::Data& dst, const wstring& pathname) {
   dst.levels = 1;
   dst.samples = CG_NS::Samples1;
 }
+
+//
+// DEVEL
+//
+
+#ifdef YF_DEVEL
+
+INTERNAL_NS_BEGIN
+
+void printBMP(const BMPfh& fh, const wstring& pathname) {
+  wprintf(L"\n#BMP#");
+  wprintf(L"\npathname: %ls", pathname.data());
+  wprintf(L"\nfh - type: 0x%02x (%c%c)", fh.type, fh.type, fh.type >> 8);
+  wprintf(L"\nfh - size: %u", fh.size);
+  wprintf(L"\nfh - reserved1: %u", fh.reserved1);
+  wprintf(L"\nfh - reserved2: %u", fh.reserved2);
+  wprintf(L"\nfh - dataOffset: %u\n", fh.dataOffset);
+}
+
+void printBMP(const BMPih& ih, const wstring& pathname) {
+  wprintf(L"\n#BMP#");
+  wprintf(L"\npathname: %ls", pathname.data());
+  wprintf(L"\nih - size: %u", ih.size);
+  wprintf(L"\nih - width: %d", ih.width);
+  wprintf(L"\nih - height: %d", ih.height);
+  wprintf(L"\nih - planes: %u", ih.planes);
+  wprintf(L"\nih - bpp: %u", ih.bpp);
+  wprintf(L"\nih - compression: %u", ih.compression);
+  wprintf(L"\nih - imageSize: %u", ih.imageSize);
+  wprintf(L"\nih - ppmX: %d", ih.ppmX);
+  wprintf(L"\nih - ppmY: %d", ih.ppmY);
+  wprintf(L"\nih - ciN: %u", ih.ciN);
+  wprintf(L"\nih - ciImportant: %u\n", ih.ciImportant);
+}
+
+void printBMP(const BMPv4& v4, const wstring& pathname) {
+  wprintf(L"\n#BMP#");
+  wprintf(L"\npathname: %ls", pathname.data());
+  wprintf(L"\nv4 - size: %u", v4.size);
+  wprintf(L"\nv4 - width: %d", v4.width);
+  wprintf(L"\nv4 - height: %d", v4.height);
+  wprintf(L"\nv4 - planes: %u", v4.planes);
+  wprintf(L"\nv4 - bpp: %u", v4.bpp);
+  wprintf(L"\nv4- compression: %u", v4.compression);
+  wprintf(L"\nv4 - imageSz: %u", v4.imageSize);
+  wprintf(L"\nv4 - ppmX: %d", v4.ppmX);
+  wprintf(L"\nv4 - ppmY: %d", v4.ppmY);
+  wprintf(L"\nv4 - ciN: %u", v4.ciN);
+  wprintf(L"\nv4 - ciImportant: %u", v4.ciImportant);
+  wprintf(L"\nv4 - maskR: 0x%08x", v4.maskR);
+  wprintf(L"\nv4 - maskG: 0x%08x", v4.maskG);
+  wprintf(L"\nv4 - maskB: 0x%08x", v4.maskB);
+  wprintf(L"\nv4 - maskA: 0x%08x", v4.maskA);
+  wprintf(L"\nv4 - csType: 0x%08x (%c%c%c%c)", v4.csType,
+          v4.csType, v4.csType >> 8, v4.csType >> 16, v4.csType >> 24);
+  wprintf(L"\nv4 - endPoints: %u,%u,%u %u,%u,%u %u,%u,%u",
+          v4.endPoints[0], v4.endPoints[1], v4.endPoints[2],
+          v4.endPoints[3], v4.endPoints[4], v4.endPoints[5],
+          v4.endPoints[6], v4.endPoints[7], v4.endPoints[8]);
+  wprintf(L"\nv4 - gammaR: %u", v4.gammaR);
+  wprintf(L"\nv4 - gammaG: %u", v4.gammaG);
+  wprintf(L"\nv4 - gammaB: %u\n", v4.gammaB);
+}
+
+void printBMP(const BMPv5& v5, const wstring& pathname) {
+  wprintf(L"\n#BMP#");
+  wprintf(L"\npathname: %ls", pathname.data());
+  wprintf(L"\nv5 - size: %u", v5.size);
+  wprintf(L"\nv5 - width: %d", v5.width);
+  wprintf(L"\nv5 - height: %d", v5.height);
+  wprintf(L"\nv5 - planes: %u", v5.planes);
+  wprintf(L"\nv5 - bpp: %u", v5.bpp);
+  wprintf(L"\nv5 - compression: %u", v5.compression);
+  wprintf(L"\nv5 - imageSize: %u", v5.imageSize);
+  wprintf(L"\nv5 - ppmX: %d", v5.ppmX);
+  wprintf(L"\nv5 - ppmY: %d", v5.ppmY);
+  wprintf(L"\nv5 - ciN: %u", v5.ciN);
+  wprintf(L"\nv5 - ciImportant: %u", v5.ciImportant);
+  wprintf(L"\nv5 - maskR: 0x%08x", v5.maskR);
+  wprintf(L"\nv5 - maskG: 0x%08x", v5.maskG);
+  wprintf(L"\nv5 - maskB: 0x%08x", v5.maskB);
+  wprintf(L"\nv5 - maskA: 0x%08x", v5.maskA);
+  wprintf(L"\nv5 - csType: 0x%08x (%c%c%c%c)", v5.csType,
+          v5.csType, v5.csType >> 8, v5.csType >> 16, v5.csType >> 24);
+  wprintf(L"\nv5 - endPoints: %u,%u,%u %u,%u,%u %u,%u,%u",
+          v5.endPoints[0], v5.endPoints[1], v5.endPoints[2],
+          v5.endPoints[3], v5.endPoints[4], v5.endPoints[5],
+          v5.endPoints[6], v5.endPoints[7], v5.endPoints[8]);
+  wprintf(L"\nv5 - gammaR: %u", v5.gammaR);
+  wprintf(L"\nv5 - gammaG: %u", v5.gammaG);
+  wprintf(L"\nv5 - gammaB: %u", v5.gammaB);
+  wprintf(L"\nv5 - intent: %u", v5.intent);
+  wprintf(L"\nv5 - profileData: %u", v5.profileData);
+  wprintf(L"\nv5 - profileSize: %u", v5.profileSize);
+  wprintf(L"\nv5 - reserved: %u\n", v5.reserved);
+}
+
+INTERNAL_NS_END
+
+#endif

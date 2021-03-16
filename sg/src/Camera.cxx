@@ -174,25 +174,12 @@ class Camera::Impl {
   }
 
  private:
-  void updateView() {
-    view_ = lookAt(pos_, pos_ + dir_, worldUp);
-    pending_ &= ~View;
-    pending_ |= ViewProj;
-  }
-
-  void updateProj() {
-    zoom_ = clamp(zoom_, fovMin, fovMax);
-    proj_ = perspective(zoom_, aspect_, 0.01f, 100.0f);
-    pending_ &= ~Proj;
-    pending_ |= ViewProj;
-  }
-
-  void updateViewProj() {
-    viewProj_ = proj_ * view_;
-    pending_ &= ~ViewProj;
-  }
-
+  /// Mask of `Flags` bits.
+  ///
   using Mask = uint32_t;
+
+  /// Flags representing matrices pending update.
+  ///
   enum Flags : uint32_t {
     None     = 0,
     View     = 0x01,
@@ -215,6 +202,24 @@ class Camera::Impl {
   Mat4f proj_{};
   Mat4f viewProj_{};
   Mask pending_ = None;
+
+  void updateView() {
+    view_ = lookAt(pos_, pos_ + dir_, worldUp);
+    pending_ &= ~View;
+    pending_ |= ViewProj;
+  }
+
+  void updateProj() {
+    zoom_ = clamp(zoom_, fovMin, fovMax);
+    proj_ = perspective(zoom_, aspect_, 0.01f, 100.0f);
+    pending_ &= ~Proj;
+    pending_ |= ViewProj;
+  }
+
+  void updateViewProj() {
+    viewProj_ = proj_ * view_;
+    pending_ &= ~ViewProj;
+  }
 };
 
 Camera::Camera(const Vec3f& origin, const Vec3f& target, float aspect)

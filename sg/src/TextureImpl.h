@@ -23,6 +23,12 @@ SG_NS_BEGIN
 /// Generic texture data for copying.
 ///
 struct Texture::Data {
+  std::unique_ptr<uint8_t[]> data;
+  CG_NS::PxFormat format;
+  CG_NS::Size2 size;
+  uint32_t levels;
+  CG_NS::Samples samples;
+
   explicit Data(uint8_t* data = nullptr,
                 CG_NS::PxFormat format = CG_NS::PxFormatUndefined,
                 CG_NS::Size2 size = {0}, uint32_t levels = 1,
@@ -33,12 +39,6 @@ struct Texture::Data {
   Data(const Data&) = delete;
   Data& operator=(const Data&) = delete;
   ~Data() = default;
-
-  std::unique_ptr<uint8_t[]> data;
-  CG_NS::PxFormat format;
-  CG_NS::Size2 size;
-  uint32_t levels;
-  CG_NS::Samples samples;
 };
 
 /// Texture implementation details.
@@ -63,7 +63,24 @@ class Texture::Impl {
 #ifndef YF_DEVEL
  private:
 #endif
+  /// Key for the resource map.
+  ///
   struct Key {
+    CG_NS::PxFormat format;
+    CG_NS::Size2 size;
+    uint32_t levels;
+    CG_NS::Samples samples;
+
+    explicit Key(CG_NS::PxFormat format = CG_NS::PxFormatUndefined,
+                 CG_NS::Size2 size = {0}, uint32_t levels = 1,
+                 CG_NS::Samples samples = CG_NS::Samples1)
+      : format(format), size(size), levels(levels), samples(samples) { }
+
+    bool operator==(const Key& other) const {
+      return format == other.format && size == other.size &&
+             levels == other.levels && samples == other.samples;
+    }
+
     struct Hash {
       size_t operator()(const Key& key) const {
         const size_t f = key.format;
@@ -74,23 +91,10 @@ class Texture::Impl {
         return (f << 16) ^ ((w << 16) | h) ^ (l << 24) ^ (s << 8) ^ 0xDD1698C9;
       }
     };
-
-    bool operator==(const Key& other) const {
-      return format == other.format && size == other.size &&
-             levels == other.levels && samples == other.samples;
-    }
-
-    explicit Key(CG_NS::PxFormat format = CG_NS::PxFormatUndefined,
-                 CG_NS::Size2 size = {0}, uint32_t levels = 1,
-                 CG_NS::Samples samples = CG_NS::Samples1)
-      : format(format), size(size), levels(levels), samples(samples) { }
-
-    CG_NS::PxFormat format;
-    CG_NS::Size2 size;
-    uint32_t levels;
-    CG_NS::Samples samples;
   };
 
+  /// Image resource.
+  ///
   struct Resource {
     CG_NS::Image::Ptr image;
     struct {

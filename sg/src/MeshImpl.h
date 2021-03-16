@@ -2,7 +2,7 @@
 // SG
 // MeshImpl.h
 //
-// Copyright © 2020 Gustavo C. Viegas.
+// Copyright © 2020-2021 Gustavo C. Viegas.
 //
 
 #ifndef YF_SG_MESHIMPL_H
@@ -22,6 +22,13 @@ SG_NS_BEGIN
 /// Generic mesh data for copying.
 ///
 struct Mesh::Data {
+  std::unique_ptr<uint8_t[]> vxData;
+  uint32_t vxCount;
+  uint32_t vxStride;
+  std::unique_ptr<uint8_t[]> ixData;
+  uint32_t ixCount;
+  uint32_t ixStride;
+
   explicit Data(uint8_t* vxData = nullptr, uint32_t vxCount = 0,
                 uint32_t vxStride = 0, uint8_t* ixData = nullptr,
                 uint32_t ixCount = 0, uint32_t ixStride = 0)
@@ -31,13 +38,6 @@ struct Mesh::Data {
   Data(const Data&) = delete;
   Data& operator=(const Data&) = delete;
   ~Data() = default;
-
-  std::unique_ptr<uint8_t[]> vxData;
-  uint32_t vxCount;
-  uint32_t vxStride;
-  std::unique_ptr<uint8_t[]> ixData;
-  uint32_t ixCount;
-  uint32_t ixStride;
 };
 
 /// Mesh implementation details.

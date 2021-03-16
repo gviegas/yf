@@ -2,7 +2,7 @@
 // SG
 // TextureImpl.h
 //
-// Copyright © 2020 Gustavo C. Viegas.
+// Copyright © 2020-2021 Gustavo C. Viegas.
 //
 
 #ifndef YF_SG_TEXTUREIMPL_H
@@ -58,7 +58,7 @@ class Texture::Impl {
   /// Copies image data to a descriptor table.
   ///
   void copy(CG_NS::DcTable& dcTable, uint32_t allocation, CG_NS::DcId id,
-            uint32_t element, uint32_t level, CG_NS::ImgSampler sampler);
+            uint32_t element, uint32_t level, CG_NS::Sampler* sampler);
 
 #ifndef YF_DEVEL
  private:

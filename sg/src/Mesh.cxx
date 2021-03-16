@@ -2,7 +2,7 @@
 // SG
 // Mesh.cxx
 //
-// Copyright © 2020 Gustavo C. Viegas.
+// Copyright © 2020-2021 Gustavo C. Viegas.
 //
 
 #include "yf/Except.h"
@@ -45,7 +45,7 @@ Mesh::Impl& Mesh::impl() {
 
 constexpr const uint64_t Len = 1<<24;
 
-CG_NS::Buffer::Ptr Mesh::Impl::buffer_{CG_NS::Device::get().makeBuffer(Len)};
+CG_NS::Buffer::Ptr Mesh::Impl::buffer_{CG_NS::device().buffer(Len)};
 list<Mesh::Impl::Segment> Mesh::Impl::segments_{{0, Len}};
 
 Mesh::Impl::Impl(const Data& data)

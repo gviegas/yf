@@ -90,15 +90,15 @@ struct CameraTest : Test {
   }
 
   Assertions run(const vector<string>&) {
-    auto& dev = CG_NS::Device::get();
+    auto& dev = CG_NS::device();
     auto& que = dev.defaultQueue();
 
-    auto vert = dev.makeShader(CG_NS::StageVertex, L"tmp/vert2");
-    auto frag = dev.makeShader(CG_NS::StageFragment, L"tmp/frag");
+    auto vert = dev.shader(CG_NS::StageVertex, L"tmp/vert2");
+    auto frag = dev.shader(CG_NS::StageFragment, L"tmp/frag");
 
-    auto win = WS_NS::Window::make(600, 600, name_);
+    auto win = WS_NS::createWindow(600, 600, name_);
     const CG_NS::Size2 winSz{win->width(), win->height()};
-    auto wsi = dev.makeWsi(win.get());
+    auto wsi = dev.wsi(win.get());
     auto wsiImgs = wsi->images();
 
     Camera cam{{0.0f, 0.0f, -10.0f}, {}, static_cast<float>(winSz.width) /
@@ -111,22 +111,22 @@ struct CameraTest : Test {
     CG_NS::DepStenAttach passDs{CG_NS::PxFormatD16Unorm, CG_NS::Samples1,
                                 CG_NS::LoadOpDontCare, CG_NS::StoreOpDontCare,
                                 CG_NS::LoadOpDontCare, CG_NS::StoreOpDontCare};
-    auto pass = dev.makePass(&passClrs, nullptr, &passDs);
+    auto pass = dev.pass(&passClrs, nullptr, &passDs);
 
-    auto ds = dev.makeImage(passDs.format, winSz, 1, 1, passDs.samples);
+    auto ds = dev.image(passDs.format, winSz, 1, 1, passDs.samples);
 
     vector<CG_NS::AttachImg> clrImgs{{nullptr, 0, 0}};
     CG_NS::AttachImg dsImg{ds.get(), 0, 0};
     vector<CG_NS::Target::Ptr> tgts;
     for (const auto& wi : wsiImgs) {
       clrImgs[0].image = wi;
-      tgts.push_back(pass->makeTarget(winSz, 1, &clrImgs, nullptr, &dsImg));
+      tgts.push_back(pass->target(winSz, 1, &clrImgs, nullptr, &dsImg));
     }
 
     auto mat = cam.transform() * Mat4f::identity();
     const size_t msize = mat.columns() * mat.rows() * sizeof(float);
 
-    auto buf = dev.makeBuffer(1024);
+    auto buf = dev.buffer(1024);
     buf->write(0, msize, mat.data());
 
     struct Vertex { float pos[3]; float tc[2]; float norm[3]; };
@@ -135,10 +135,10 @@ struct CameraTest : Test {
 
     CG_NS::DcEntries dcs{{0, {CG_NS::DcTypeUniform, 1}},
                          {1, {CG_NS::DcTypeImgSampler, 1}}};
-    auto dtb = dev.makeDcTable(dcs);
+    auto dtb = dev.dcTable(dcs);
     dtb->allocate(1);
     dtb->write(0, 0, 0, *buf, 0, msize);
-    tex.impl().copy(*dtb, 0, 1, 0, 0, CG_NS::ImgSamplerLinear/*Basic*/);
+    tex.impl().copy(*dtb, 0, 1, 0, 0, nullptr);
 
     CG_NS::VxAttrs vattrs{{0, {CG_NS::VxFormatFlt3, 0}},
                           {1, {CG_NS::VxFormatFlt2, offsetof(Vertex, tc)}},
@@ -150,9 +150,9 @@ struct CameraTest : Test {
                                   CG_NS::PolyModeFill, CG_NS::CullModeBack,
                                   CG_NS::WindingCounterCw};
 
-    auto state = dev.makeState(config);
+    auto state = dev.state(config);
 
-    auto cb = que.makeCmdBuffer();
+    auto cb = que.cmdBuffer();
 
     const CG_NS::Viewport vport{0.0f, 0.0f,
                                 static_cast<float>(winSz.width),
@@ -160,13 +160,12 @@ struct CameraTest : Test {
                                 0.0f, 1.0f};
     const CG_NS::Scissor sciss{{0}, winSz};
 
-    auto& event = WS_NS::Event::get();
     WS_NS::KbDelegate deleg;
     deleg.key = onKey;
-    event.setDelegate(deleg);
+    WS_NS::setDelegate(deleg);
 
     while (!input.quit) {
-      event.dispatch();
+      WS_NS::dispatch();
 
       if (input.moveF)
         cam.moveForward(deltaM);

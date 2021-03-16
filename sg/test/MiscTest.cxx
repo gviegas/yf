@@ -2,7 +2,7 @@
 // SG
 // MiscTest.cxx
 //
-// Copyright © 2020 Gustavo C. Viegas.
+// Copyright © 2020-2021 Gustavo C. Viegas.
 //
 
 #include <iostream>
@@ -26,15 +26,15 @@ struct MiscTest : public Test {
   MiscTest() : Test(L"Misc") { }
 
   bool misc1() {
-    auto& dev = CG_NS::Device::get();
+    auto& dev = CG_NS::device();
     auto& que = dev.defaultQueue();
 
-    auto vert = dev.makeShader(CG_NS::StageVertex, L"tmp/vert");
-    auto frag = dev.makeShader(CG_NS::StageFragment, L"tmp/frag");
+    auto vert = dev.shader(CG_NS::StageVertex, L"tmp/vert");
+    auto frag = dev.shader(CG_NS::StageFragment, L"tmp/frag");
 
-    auto win = WS_NS::Window::make(384, 384, name_);
+    auto win = WS_NS::createWindow(384, 384, name_);
     const CG_NS::Size2 winSz{win->width(), win->height()};
-    auto wsi = dev.makeWsi(win.get());
+    auto wsi = dev.wsi(win.get());
     auto wsiImgs = wsi->images();
 
     vector<CG_NS::ColorAttach> passClrs{{wsiImgs[0]->format_,
@@ -44,16 +44,16 @@ struct MiscTest : public Test {
     CG_NS::DepStenAttach passDs{CG_NS::PxFormatD16Unorm, CG_NS::Samples1,
                                 CG_NS::LoadOpDontCare, CG_NS::StoreOpDontCare,
                                 CG_NS::LoadOpDontCare, CG_NS::StoreOpDontCare};
-    auto pass = dev.makePass(&passClrs, nullptr, &passDs);
+    auto pass = dev.pass(&passClrs, nullptr, &passDs);
 
-    auto ds = dev.makeImage(passDs.format, winSz, 1, 1, passDs.samples);
+    auto ds = dev.image(passDs.format, winSz, 1, 1, passDs.samples);
 
     vector<CG_NS::AttachImg> clrImgs{{nullptr, 0, 0}};
     CG_NS::AttachImg dsImg{ds.get(), 0, 0};
     vector<CG_NS::Target::Ptr> tgts;
     for (const auto& wi : wsiImgs) {
       clrImgs[0].image = wi;
-      tgts.push_back(pass->makeTarget(winSz, 1, &clrImgs, nullptr, &dsImg));
+      tgts.push_back(pass->target(winSz, 1, &clrImgs, nullptr, &dsImg));
     }
 
     struct Vertex {
@@ -73,7 +73,7 @@ struct MiscTest : public Test {
     const auto mat = scale(0.5f, 0.5f, 0.5f) * translate(-0.65f, -0.65f, 0.0f);
     const size_t msize = mat.columns() * mat.rows() * sizeof(float);
 
-    auto buf = dev.makeBuffer(1024);
+    auto buf = dev.buffer(1024);
     buf->write(0, sizeof vdata, vdata);
     buf->write(sizeof vdata, sizeof idata, idata);
     buf->write(sizeof vdata+sizeof idata, msize, mat.data());
@@ -82,10 +82,10 @@ struct MiscTest : public Test {
 
     CG_NS::DcEntries dcs{{0, {CG_NS::DcTypeUniform, 1}},
                          {1, {CG_NS::DcTypeImgSampler, 1}}};
-    auto dtb = dev.makeDcTable(dcs);
+    auto dtb = dev.dcTable(dcs);
     dtb->allocate(1);
     dtb->write(0, 0, 0, *buf, sizeof vdata+sizeof idata, msize);
-    tex.impl().copy(*dtb, 0, 1, 0, 0, CG_NS::ImgSamplerLinear/*Basic*/);
+    tex.impl().copy(*dtb, 0, 1, 0, 0, nullptr);
 
     CG_NS::VxAttrs vattrs{{0, {CG_NS::VxFormatFlt3, 0}},
                           {1, {CG_NS::VxFormatFlt2, voff}}};
@@ -96,9 +96,9 @@ struct MiscTest : public Test {
                                   CG_NS::PolyModeFill, CG_NS::CullModeBack,
                                   CG_NS::WindingCounterCw};
 
-    auto state = dev.makeState(config);
+    auto state = dev.state(config);
 
-    auto cb = que.makeCmdBuffer();
+    auto cb = que.cmdBuffer();
 
     const CG_NS::Viewport vport{0.0f, 0.0f,
                                 static_cast<float>(winSz.width),
@@ -137,15 +137,15 @@ struct MiscTest : public Test {
   }
 
   bool misc2() {
-    auto& dev = CG_NS::Device::get();
+    auto& dev = CG_NS::device();
     auto& que = dev.defaultQueue();
 
-    auto vert = dev.makeShader(CG_NS::StageVertex, L"tmp/vert2");
-    auto frag = dev.makeShader(CG_NS::StageFragment, L"tmp/frag");
+    auto vert = dev.shader(CG_NS::StageVertex, L"tmp/vert2");
+    auto frag = dev.shader(CG_NS::StageFragment, L"tmp/frag");
 
-    auto win = WS_NS::Window::make(384, 384, name_);
+    auto win = WS_NS::createWindow(384, 384, name_);
     const CG_NS::Size2 winSz{win->width(), win->height()};
-    auto wsi = dev.makeWsi(win.get());
+    auto wsi = dev.wsi(win.get());
     auto wsiImgs = wsi->images();
 
     vector<CG_NS::ColorAttach> passClrs{{wsiImgs[0]->format_,
@@ -155,16 +155,16 @@ struct MiscTest : public Test {
     CG_NS::DepStenAttach passDs{CG_NS::PxFormatD16Unorm, CG_NS::Samples1,
                                 CG_NS::LoadOpDontCare, CG_NS::StoreOpDontCare,
                                 CG_NS::LoadOpDontCare, CG_NS::StoreOpDontCare};
-    auto pass = dev.makePass(&passClrs, nullptr, &passDs);
+    auto pass = dev.pass(&passClrs, nullptr, &passDs);
 
-    auto ds = dev.makeImage(passDs.format, winSz, 1, 1, passDs.samples);
+    auto ds = dev.image(passDs.format, winSz, 1, 1, passDs.samples);
 
     vector<CG_NS::AttachImg> clrImgs{{nullptr, 0, 0}};
     CG_NS::AttachImg dsImg{ds.get(), 0, 0};
     vector<CG_NS::Target::Ptr> tgts;
     for (const auto& wi : wsiImgs) {
       clrImgs[0].image = wi;
-      tgts.push_back(pass->makeTarget(winSz, 1, &clrImgs, nullptr, &dsImg));
+      tgts.push_back(pass->target(winSz, 1, &clrImgs, nullptr, &dsImg));
     }
 
     const auto mat = scale(0.2f, 0.2f, 0.2f) *
@@ -172,7 +172,7 @@ struct MiscTest : public Test {
                      translate(-2.0f, 1.3f, 2.4f);
     const size_t msize = mat.columns() * mat.rows() * sizeof(float);
 
-    auto buf = dev.makeBuffer(1024);
+    auto buf = dev.buffer(1024);
     buf->write(0, msize, mat.data());
 
     struct Vertex { float pos[3]; float tc[2]; float norm[3]; };
@@ -181,10 +181,10 @@ struct MiscTest : public Test {
 
     CG_NS::DcEntries dcs{{0, {CG_NS::DcTypeUniform, 1}},
                          {1, {CG_NS::DcTypeImgSampler, 1}}};
-    auto dtb = dev.makeDcTable(dcs);
+    auto dtb = dev.dcTable(dcs);
     dtb->allocate(1);
     dtb->write(0, 0, 0, *buf, 0, msize);
-    tex.impl().copy(*dtb, 0, 1, 0, 0, CG_NS::ImgSamplerLinear/*Basic*/);
+    tex.impl().copy(*dtb, 0, 1, 0, 0, nullptr);
 
     CG_NS::VxAttrs vattrs{{0, {CG_NS::VxFormatFlt3, 0}},
                           {1, {CG_NS::VxFormatFlt2, offsetof(Vertex, tc)}},
@@ -196,9 +196,9 @@ struct MiscTest : public Test {
                                   CG_NS::PolyModeFill, CG_NS::CullModeBack,
                                   CG_NS::WindingCounterCw};
 
-    auto state = dev.makeState(config);
+    auto state = dev.state(config);
 
-    auto cb = que.makeCmdBuffer();
+    auto cb = que.cmdBuffer();
 
     const CG_NS::Viewport vport{0.0f, 0.0f,
                                 static_cast<float>(winSz.width),

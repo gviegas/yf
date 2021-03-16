@@ -2,7 +2,7 @@
 // SG
 // View.cxx
 //
-// Copyright © 2020 Gustavo C. Viegas.
+// Copyright © 2020-2021 Gustavo C. Viegas.
 //
 
 #include <thread>
@@ -17,7 +17,7 @@ using namespace std;
 
 class View::Impl {
  public:
-  Impl(WS_NS::Window* window) : wsi_(CG_NS::Device::get().makeWsi(window)) { }
+  Impl(WS_NS::Window* window) : wsi_(CG_NS::device().wsi(window)) { }
 
   void loop(Scene* scene, uint32_t fps, const UpdateFn& update) {
     looping_ = true;

@@ -2,7 +2,7 @@
 // SG
 // Texture.cxx
 //
-// Copyright © 2020 Gustavo C. Viegas.
+// Copyright © 2020-2021 Gustavo C. Viegas.
 //
 
 #include "yf/Except.h"
@@ -56,10 +56,10 @@ Texture::Impl::Impl(const Data& data)
   // Create a new image if none matches the data parameters or if more
   // layers are needed
   if (it == resources_.end()) {
-    auto& dev = CG_NS::Device::get();
+    auto& dev = CG_NS::device();
 
     auto res = resources_.emplace(key_, Resource{
-      dev.makeImage(data.format, data.size, Layers, data.levels, data.samples),
+      dev.image(data.format, data.size, Layers, data.levels, data.samples),
       {vector<bool>(Layers, true), Layers, 0}});
 
     it = res.first;
@@ -117,8 +117,11 @@ void Texture::Impl::updateImage(CG_NS::Offset2 offset, CG_NS::Size2 size,
 
 void Texture::Impl::copy(CG_NS::DcTable& dcTable, uint32_t allocation,
                          CG_NS::DcId id, uint32_t element, uint32_t level,
-                         CG_NS::ImgSampler sampler) {
+                         CG_NS::Sampler* sampler) {
 
   auto& image = *resources_.find(key_)->second.image;
-  dcTable.write(allocation, id, element, image, layer_, level, sampler);
+  if (sampler)
+    dcTable.write(allocation, id, element, image, layer_, level, *sampler);
+  else
+    dcTable.write(allocation, id, element, image, layer_, level);
 }

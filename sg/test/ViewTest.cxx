@@ -2,7 +2,7 @@
 // SG
 // ViewTest.cxx
 //
-// Copyright © 2020 Gustavo C. Viegas.
+// Copyright © 2020-2021 Gustavo C. Viegas.
 //
 
 #include <iostream>
@@ -21,7 +21,7 @@ struct ViewTest : Test {
   ViewTest() : Test(L"View") { }
 
   Assertions run(const vector<string>&) {
-    auto win = WS_NS::Window::make(400, 240, L"ViewTest");
+    auto win = WS_NS::createWindow(400, 240, L"ViewTest");
     Scene scn;
 
     View view(win.get());

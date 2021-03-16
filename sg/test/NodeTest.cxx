@@ -2,7 +2,7 @@
 // SG
 // NodeTest.cxx
 //
-// Copyright © 2020 Gustavo C. Viegas.
+// Copyright © 2020-2021 Gustavo C. Viegas.
 //
 
 #include <iostream>
@@ -25,8 +25,12 @@ struct NodeTest : Test {
 
     vector<Node> nodes{6};
     map<Node*, int> ids;
-    for (size_t i = 0; i < nodes.size(); ++i)
+    for (size_t i = 0; i < nodes.size(); ++i) {
       ids.emplace(&nodes[i], i);
+      nodes[i].setName(L"Node " + to_wstring(i));
+      wcout << "\nNode named `" << nodes[i].name() << "` created";
+    }
+    wcout << endl;
 
     auto printChd = [&](Node& root) {
       wcout << "\n{" << ids[&root] << "}\n";

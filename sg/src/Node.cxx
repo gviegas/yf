@@ -2,7 +2,7 @@
 // SG
 // Node.cxx
 //
-// Copyright © 2020 Gustavo C. Viegas.
+// Copyright © 2020-2021 Gustavo C. Viegas.
 //
 
 #include <cstddef>
@@ -188,6 +188,14 @@ class Node::Impl {
     return n;
   }
 
+  void setName(const wstring& name) {
+    name_ = name;
+  }
+
+  const wstring& name() const {
+    return name_;
+  }
+
  private:
   Node& node_;
   Impl* parent_ = nullptr;
@@ -195,6 +203,7 @@ class Node::Impl {
   Impl* prevSib_ = nullptr;
   Impl* nextSib_ = nullptr;
   size_t n_ = 1;
+  wstring name_{};
 };
 
 Node::Node() : impl_(make_unique<Impl>(*this)) { }
@@ -252,4 +261,12 @@ vector<Node*> Node::children() const {
 
 size_t Node::children(vector<Node*>& dst) const {
   return impl_->children(dst);
+}
+
+void Node::setName(const wstring& name) {
+  impl_->setName(name);
+}
+
+const wstring& Node::name() const {
+  return impl_->name();
 }

@@ -2,14 +2,15 @@
 // SG
 // Node.h
 //
-// Copyright © 2020 Gustavo C. Viegas.
+// Copyright © 2020-2021 Gustavo C. Viegas.
 //
 
 #ifndef YF_SG_NODE_H
 #define YF_SG_NODE_H
 
-#include <functional>
 #include <vector>
+#include <string>
+#include <functional>
 #include <memory>
 
 #include "yf/sg/Defs.h"
@@ -68,6 +69,14 @@ class Node {
   ///
   std::vector<Node*> children() const;
   size_t children(std::vector<Node*>& dst) const;
+
+  /// Sets the node name.
+  ///
+  void setName(const std::wstring& name);
+
+  /// Gets the node name.
+  ///
+  const std::wstring& name() const;
 
  private:
   class Impl;

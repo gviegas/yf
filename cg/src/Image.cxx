@@ -2,7 +2,7 @@
 // CG
 // Image.cxx
 //
-// Copyright © 2020 Gustavo C. Viegas.
+// Copyright © 2020-2021 Gustavo C. Viegas.
 //
 
 #include "Image.h"
@@ -51,6 +51,14 @@ inline uint32_t texelSize(PxFormat format) {
   case PxFormatD32Flt:
   case PxFormatD24UnormS8Uint:
     return 4;
+
+  case PxFormatRgb16Unorm:
+  case PxFormatRgb16Uint:
+    return 6;
+
+  case PxFormatRgba16Unorm:
+  case PxFormatRgba16Uint:
+    return 8;
 
   default:
     return 0;

@@ -49,6 +49,12 @@ enum PxFormat {
   PxFormatRg16Unorm,
   PxFormatRg16Uint,
 
+  PxFormatRgb16Unorm,
+  PxFormatRgb16Uint,
+
+  PxFormatRgba16Unorm,
+  PxFormatRgba16Uint,
+
   PxFormatR32Uint,
   PxFormatR32Flt,
 

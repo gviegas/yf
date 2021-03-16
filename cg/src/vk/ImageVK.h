@@ -156,6 +156,12 @@ inline VkFormat toFormatVK(PxFormat pxFormat) {
   case PxFormatRg16Unorm: return VK_FORMAT_R16G16_UNORM;
   case PxFormatRg16Uint:  return VK_FORMAT_R16G16_UINT;
 
+  case PxFormatRgb16Unorm: return VK_FORMAT_R16G16B16_UNORM;
+  case PxFormatRgb16Uint:  return VK_FORMAT_R16G16B16_UINT;
+
+  case PxFormatRgba16Unorm: return VK_FORMAT_R16G16B16A16_UNORM;
+  case PxFormatRgba16Uint:  return VK_FORMAT_R16G16B16A16_UINT;
+
   case PxFormatR32Uint: return VK_FORMAT_R32_UINT;
   case PxFormatR32Flt:  return VK_FORMAT_R32_SFLOAT;
 
@@ -203,6 +209,12 @@ inline PxFormat fromFormatVK(VkFormat format) {
 
   case VK_FORMAT_R16G16_UNORM: return PxFormatRg16Unorm;
   case VK_FORMAT_R16G16_UINT:  return PxFormatRg16Uint;
+
+  case VK_FORMAT_R16G16B16_UNORM: return PxFormatRgb16Unorm;
+  case VK_FORMAT_R16G16B16_UINT:  return PxFormatRgb16Uint;
+
+  case VK_FORMAT_R16G16B16A16_UNORM: return PxFormatRgba16Unorm;
+  case VK_FORMAT_R16G16B16A16_UINT:  return PxFormatRgba16Uint;
 
   case VK_FORMAT_R32_UINT:   return PxFormatR32Uint;
   case VK_FORMAT_R32_SFLOAT: return PxFormatR32Flt;
@@ -264,6 +276,10 @@ inline VkImageAspectFlags aspectOfVK(PxFormat pxFormat) {
   case PxFormatR16Uint:
   case PxFormatRg16Unorm:
   case PxFormatRg16Uint:
+  case PxFormatRgb16Unorm:
+  case PxFormatRgb16Uint:
+  case PxFormatRgba16Unorm:
+  case PxFormatRgba16Uint:
   case PxFormatR32Uint:
   case PxFormatR32Flt:
     return VK_IMAGE_ASPECT_COLOR_BIT;

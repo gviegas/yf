@@ -10,6 +10,8 @@
 
 #include <cstdint>
 #include <list>
+#include <vector>
+#include <unordered_map>
 #include <memory>
 
 #include "yf/cg/Buffer.h"
@@ -19,22 +21,34 @@
 
 SG_NS_BEGIN
 
+/// Types of vertex attribute data (non-interleaved storage).
+///
+enum VxType {
+  Position,
+  Tangent,
+  Normal,
+  TexCoord0,
+  TexCoord1,
+  Color0,
+  Joints0,
+  Weights0
+};
+
 /// Generic mesh data for copying.
 ///
 struct Mesh::Data {
-  std::unique_ptr<uint8_t[]> vxData;
-  uint32_t vxCount;
-  uint32_t vxStride;
-  std::unique_ptr<uint8_t[]> ixData;
-  uint32_t ixCount;
-  uint32_t ixStride;
+  struct Accessor {
+    uint32_t dataIndex = UINT32_MAX;
+    uint64_t dataOffset = UINT64_MAX;
+    uint32_t elementN = UINT32_MAX;
+    uint32_t elementSize = UINT32_MAX;
+  };
 
-  explicit Data(uint8_t* vxData = nullptr, uint32_t vxCount = 0,
-                uint32_t vxStride = 0, uint8_t* ixData = nullptr,
-                uint32_t ixCount = 0, uint32_t ixStride = 0)
-    : vxData(vxData), vxCount(vxCount), vxStride(vxStride), ixData(ixData),
-      ixCount(ixCount), ixStride(ixStride) { }
+  std::vector<std::unique_ptr<uint8_t[]>> data{};
+  std::unordered_map<VxType, Accessor> vxAccessors{};
+  Accessor ixAccessor{};
 
+  Data() = default;
   Data(const Data&) = delete;
   Data& operator=(const Data&) = delete;
   ~Data() = default;
@@ -49,19 +63,14 @@ class Mesh::Impl {
   Impl& operator=(const Impl&) = delete;
   ~Impl();
 
-  /// Updates vertex data.
+  /// Encodes a vertex buffer binding command for this mesh.
   ///
-  void updateVertices(uint32_t vertexStart, uint32_t vertexCount,
-                      const void* data);
+  void encodeVertexBuffer(CG_NS::GrEncoder& encoder, VxType type,
+                          uint32_t inputIndex);
 
-  /// Updates index data.
+  /// Encodes an index buffer binding command for this mesh.
   ///
-  void updateIndices(uint32_t indexStart, uint32_t indexCount,
-                     const void* data);
-
-  /// Encodes vertex/index buffer bindings for this mesh.
-  ///
-  void encodeBindings(CG_NS::GrEncoder& encoder, uint32_t inputIndex = 0);
+  void encodeIndexBuffer(CG_NS::GrEncoder& encoder);
 
   /// Encodes a draw command for this mesh.
   ///
@@ -79,12 +88,14 @@ class Mesh::Impl {
   static CG_NS::Buffer::Ptr buffer_;
   static std::list<Segment> segments_;
 
-  uint64_t vxOffset_ = UINT64_MAX;
-  uint32_t vxCount_ = 0;
-  uint32_t vxStride_ = 0;
-  uint64_t ixOffset_ = UINT64_MAX;
-  uint32_t ixCount_ = 0;
-  uint32_t ixStride_ = 0;
+  struct Data {
+    uint64_t offset;
+    uint32_t count;
+    uint32_t stride;
+  };
+
+  std::unordered_map<VxType, Data> vxData_{};
+  Data ixData_{UINT64_MAX, UINT32_MAX, UINT32_MAX};
 };
 
 SG_NS_END

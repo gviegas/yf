@@ -151,23 +151,41 @@ Mesh::Impl::~Impl() {
     yield(ixData_.offset, ixData_.count * ixData_.stride);
 }
 
-void Mesh::Impl::encodeBindings(CG_NS::GrEncoder& encoder,
-                                uint32_t inputIndex) {
+void Mesh::Impl::encodeVertexBuffer(CG_NS::GrEncoder& encoder, VxType type,
+                                    uint32_t inputIndex) {
 
-  encoder.setVertexBuffer(buffer_.get(), vxOffset_, inputIndex);
+  const auto it = vxData_.find(type);
+  if (it == vxData_.end())
+    throw invalid_argument("Mesh does not contain requested vertex type");
 
-  if (ixCount_ > 0) {
-    // XXX: the code that provides the `Data` for the mesh must ensure that
-    // stride is valid
-    auto type = ixStride_ == 2 ? CG_NS::IndexTypeU16 : CG_NS::IndexTypeU32;
-    encoder.setIndexBuffer(buffer_.get(), ixOffset_, type);
+  encoder.setVertexBuffer(buffer_.get(), it->second.offset, inputIndex);
+}
+
+void Mesh::Impl::encodeIndexBuffer(CG_NS::GrEncoder& encoder) {
+  if (ixData_.offset == UINT64_MAX)
+    return;
+
+  CG_NS::IndexType type;
+  switch (ixData_.stride) {
+  case 2:
+    type = CG_NS::IndexTypeU16;
+    break;
+  case 4:
+    type = CG_NS::IndexTypeU32;
+    break;
+  default:
+    throw invalid_argument("Invalid stride for Mesh index buffer");
   }
+
+  encoder.setIndexBuffer(buffer_.get(), ixData_.offset, type);
 }
 
 void Mesh::Impl::encodeDraw(CG_NS::GrEncoder& encoder, uint32_t baseInstance,
                             uint32_t instanceCount) {
-  if (ixCount_ > 0)
-    encoder.drawIndexed(0, ixCount_, 0, baseInstance, instanceCount);
+
+  if (ixData_.offset != UINT64_MAX)
+    encoder.drawIndexed(0, ixData_.count, 0, baseInstance, instanceCount);
   else
-    encoder.draw(0, vxCount_, baseInstance, instanceCount);
+    // XXX: assuming all vertex attributes have the same count
+    encoder.draw(0, vxData_.begin()->second.count, baseInstance, instanceCount);
 }

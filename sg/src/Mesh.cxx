@@ -74,21 +74,23 @@ Mesh::Impl::Impl(const Data& data) {
 
   // TODO: validate
   for (const auto& va : data.vxAccessors) {
-    const uint64_t sz = va.elementN * va.elementSize;
-    const void* dt = data.data[va.dataIndex]+va.dataOffset;
+    const uint64_t sz = va.second.elementN * va.second.elementSize;
+    const void* dt = data.data[va.second.dataIndex].get()+va.second.dataOffset;
     const uint64_t off = copy(sz, dt);
 
     if (off == UINT64_MAX)
       // TODO: create a larger buffer and transfer data
       throw runtime_error("Mesh buffer resize unimplemented");
 
-    vxData_.emplace({va.first, {off, va.elementN, va.elementSize}});
+    vxData_.emplace(va.first,
+                    DataEntry{off, va.second.elementN, va.second.elementSize});
   }
 
   // TODO: validate
   if (data.ixAccessor.dataIndex != UINT32_MAX) {
     const uint64_t sz = data.ixAccessor.elementN * data.ixAccessor.elementSize;
-    const void* dt = data.data[ixAccessor.dataIndex]+ixAccessor.dataOffset;
+    const void* dt = data.data[data.ixAccessor.dataIndex].get()+
+                     data.ixAccessor.dataOffset;
     ixData_.offset = copy(sz, dt);
 
     if (ixData_.offset == UINT64_MAX)
@@ -142,13 +144,11 @@ Mesh::Impl::~Impl() {
     }
   };
 
-  const uint64_t vxSize = vxCount_ * vxStride_;
-  yield(vxOffset_, vxSize);
+  for (const auto& vd : vxData_)
+    yield(vd.second.offset, vd.second.count * vd.second.stride);
 
-  if (ixCount_ > 0) {
-    const uint64_t ixSize = ixCount_ * ixStride_;
-    yield(ixOffset_, ixSize);
-  }
+  if (ixData_.offset != UINT64_MAX)
+    yield(ixData_.offset, ixData_.count * ixData_.stride);
 }
 
 void Mesh::Impl::updateVertices(uint32_t vertexStart, uint32_t vertexCount,

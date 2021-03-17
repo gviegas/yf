@@ -151,28 +151,6 @@ Mesh::Impl::~Impl() {
     yield(ixData_.offset, ixData_.count * ixData_.stride);
 }
 
-void Mesh::Impl::updateVertices(uint32_t vertexStart, uint32_t vertexCount,
-                                const void* data) {
-
-  if (vertexStart + vertexCount > vxCount_)
-    throw invalid_argument("updateVertices() out of bounds");
-
-  uint64_t offset = vertexStart * vxStride_;
-  uint64_t size = vertexCount * vxStride_;
-  buffer_->write(vxOffset_ + offset, size, data);
-}
-
-void Mesh::Impl::updateIndices(uint32_t indexStart, uint32_t indexCount,
-                               const void* data) {
-
-  if (indexStart + indexCount > ixCount_)
-    throw invalid_argument("updateIndices() out of bounds");
-
-  uint64_t offset = indexStart * ixStride_;
-  uint64_t size = indexCount * ixStride_;
-  buffer_->write(ixOffset_ + offset, size, data);
-}
-
 void Mesh::Impl::encodeBindings(CG_NS::GrEncoder& encoder,
                                 uint32_t inputIndex) {
 

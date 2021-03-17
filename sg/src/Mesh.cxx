@@ -22,9 +22,9 @@ Mesh::Mesh(FileType fileType, const wstring& meshFile) {
   case Internal:
     // TODO
     throw runtime_error("Mesh::Internal unimplemented");
-  case Collada:
+  case Gltf:
     // TODO
-    throw runtime_error("Mesh::Collada unimplemented");
+    throw runtime_error("Mesh::Gltf unimplemented");
   case Obj:
     loadOBJ(data, meshFile);
     break;
@@ -48,9 +48,9 @@ constexpr const uint64_t Len = 1<<24;
 CG_NS::Buffer::Ptr Mesh::Impl::buffer_{CG_NS::device().buffer(Len)};
 list<Mesh::Impl::Segment> Mesh::Impl::segments_{{0, Len}};
 
-Mesh::Impl::Impl(const Data& data)
-  : vxOffset_(UINT64_MAX), vxCount_(data.vxCount), vxStride_(data.vxStride),
-    ixOffset_(UINT64_MAX), ixCount_(data.ixCount), ixStride_(data.ixStride) {
+Mesh::Impl::Impl(const Data& data) {
+  if (data.data.empty() || data.vxAccessors.empty())
+    throw invalid_argument("Invalid mesh data");
 
   // Find a segment that can contain data of a given size, copy data to
   // buffer and update segment list
@@ -72,18 +72,31 @@ Mesh::Impl::Impl(const Data& data)
     return UINT64_MAX;
   };
 
-  const uint64_t vxSize = vxCount_ * vxStride_;
-  vxOffset_ = copy(vxSize, data.vxData.get());
-  if (vxOffset_ == UINT64_MAX)
-    // TODO: create a larger buffer and transfer data
-    throw runtime_error("Mesh buffer resize unimplemented");
+  // TODO: validate
+  for (const auto& va : data.vxAccessors) {
+    const uint64_t sz = va.elementN * va.elementSize;
+    const void* dt = data.data[va.dataIndex]+va.dataOffset;
+    const uint64_t off = copy(sz, dt);
 
-  if (ixCount_ > 0) {
-    const uint64_t ixSize = ixCount_ * ixStride_;
-    ixOffset_ = copy(ixSize, data.ixData.get());
-    if (ixOffset_ == UINT64_MAX)
+    if (off == UINT64_MAX)
       // TODO: create a larger buffer and transfer data
       throw runtime_error("Mesh buffer resize unimplemented");
+
+    vxData_.emplace({va.first, {off, va.elementN, va.elementSize}});
+  }
+
+  // TODO: validate
+  if (data.ixAccessor.dataIndex != UINT32_MAX) {
+    const uint64_t sz = data.ixAccessor.elementN * data.ixAccessor.elementSize;
+    const void* dt = data.data[ixAccessor.dataIndex]+ixAccessor.dataOffset;
+    ixData_.offset = copy(sz, dt);
+
+    if (ixData_.offset == UINT64_MAX)
+      // TODO: create a larger buffer and transfer data
+      throw runtime_error("Mesh buffer resize unimplemented");
+
+    ixData_.count = data.ixAccessor.elementN;
+    ixData_.stride = data.ixAccessor.elementSize;
   }
 }
 

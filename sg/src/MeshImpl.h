@@ -88,14 +88,14 @@ class Mesh::Impl {
   static CG_NS::Buffer::Ptr buffer_;
   static std::list<Segment> segments_;
 
-  struct Data {
+  struct DataEntry {
     uint64_t offset;
     uint32_t count;
     uint32_t stride;
   };
 
-  std::unordered_map<VxType, Data> vxData_{};
-  Data ixData_{UINT64_MAX, UINT32_MAX, UINT32_MAX};
+  std::unordered_map<VxType, DataEntry> vxData_{};
+  DataEntry ixData_{UINT64_MAX, UINT32_MAX, UINT32_MAX};
 };
 
 SG_NS_END

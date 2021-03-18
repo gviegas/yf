@@ -65,9 +65,14 @@ class Mesh::Impl {
 
   /// Checks whether or not a given vertex type can be bound by this mesh.
   ///
+  /// One must not attempt to encode a vertex buffer binding for a type
+  /// which `canBind()` returns `false`.
+  ///
   bool canBind(VxType type) const;
 
   /// Checks whether or not this mesh contains an index buffer.
+  ///
+  /// If `isIndexed()` returns `false`, index buffer binding can be skipped.
   ///
   bool isIndexed() const;
 

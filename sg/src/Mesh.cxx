@@ -43,10 +43,10 @@ Mesh::Impl& Mesh::impl() {
   return *impl_;
 }
 
-constexpr const uint64_t Len = 1<<24;
+constexpr const uint64_t Length = 1<<24;
 
-CG_NS::Buffer::Ptr Mesh::Impl::buffer_{CG_NS::device().buffer(Len)};
-list<Mesh::Impl::Segment> Mesh::Impl::segments_{{0, Len}};
+CG_NS::Buffer::Ptr Mesh::Impl::buffer_{CG_NS::device().buffer(Length)};
+list<Mesh::Impl::Segment> Mesh::Impl::segments_{{0, Length}};
 
 Mesh::Impl::Impl(const Data& data) {
   if (data.data.empty() || data.vxAccessors.empty())

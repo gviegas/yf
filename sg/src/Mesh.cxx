@@ -196,3 +196,10 @@ void Mesh::Impl::encodeDraw(CG_NS::GrEncoder& encoder, uint32_t baseInstance,
     // XXX: assuming all vertex attributes have the same count
     encoder.draw(0, vxData_.begin()->second.count, baseInstance, instanceCount);
 }
+
+void Mesh::Impl::encode(CG_NS::GrEncoder& encoder, uint32_t baseInstance,
+                        uint32_t instanceCount) {
+
+  encodeBindings(encoder);
+  encodeDraw(encoder, baseInstance, instanceCount);
+}

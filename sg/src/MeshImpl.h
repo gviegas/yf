@@ -83,6 +83,14 @@ class Mesh::Impl {
   void encodeDraw(CG_NS::GrEncoder& encoder, uint32_t baseInstance,
                   uint32_t instanceCount);
 
+  /// Encodes required bindings and a draw command for this mesh.
+  ///
+  /// This is equivalent to a call to `encodeBindings()` followed by a call
+  /// to `encodeDraw()`.
+  ///
+  void encode(CG_NS::GrEncoder& encoder, uint32_t baseInstance,
+              uint32_t instanceCount);
+
 #ifndef YF_DEVEL
  private:
 #endif

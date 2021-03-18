@@ -129,7 +129,6 @@ struct CameraTest : Test {
     auto buf = dev.buffer(1024);
     buf->write(0, msize, mat.data());
 
-    struct Vertex { float pos[3]; float tc[2]; float norm[3]; };
     Mesh mesh(Mesh::Obj, L"tmp/cube.obj");
     Texture tex(Texture::Bmp, L"tmp/cube.bmp");
 
@@ -140,13 +139,17 @@ struct CameraTest : Test {
     dtb->write(0, 0, 0, *buf, 0, msize);
     tex.impl().copy(*dtb, 0, 1, 0, 0, nullptr);
 
-    CG_NS::VxAttrs vattrs{{0, {CG_NS::VxFormatFlt3, 0}},
-                          {1, {CG_NS::VxFormatFlt2, offsetof(Vertex, tc)}},
-                          {2, {CG_NS::VxFormatFlt3, offsetof(Vertex, norm)}}};
-    CG_NS::VxInput vin{vattrs, sizeof(Vertex), CG_NS::VxStepFnVertex};
+    CG_NS::VxAttrs vpos{{0, {CG_NS::VxFormatFlt3, 0}}};
+    CG_NS::VxAttrs vnorm{{2, {CG_NS::VxFormatFlt3, 0}}};
+    CG_NS::VxAttrs vtc{{1, {CG_NS::VxFormatFlt2, 0}}};
+
+    std::vector<CG_NS::VxInput> vins{
+      {vpos, sizeof(float[3]), CG_NS::VxStepFnVertex},
+      {vnorm, sizeof(float[3]), CG_NS::VxStepFnVertex},
+      {vtc, sizeof(float[2]), CG_NS::VxStepFnVertex}};
 
     CG_NS::GrState::Config config{pass.get(), {vert.get(), frag.get()},
-                                  {dtb.get()}, {vin}, CG_NS::PrimitiveTriangle,
+                                  {dtb.get()}, vins, CG_NS::PrimitiveTriangle,
                                   CG_NS::PolyModeFill, CG_NS::CullModeBack,
                                   CG_NS::WindingCounterCw};
 
@@ -215,7 +218,10 @@ struct CameraTest : Test {
       enc.setDcTable(0, 0);
       enc.clearColor({0.0f, 0.0f, 0.0f, 1.0f});
       enc.clearDepth(1.0f);
-      mesh.impl().encodeBindings(enc);
+      mesh.impl().encodeVertexBuffer(enc, VxTypePosition, 0);
+      mesh.impl().encodeVertexBuffer(enc, VxTypeNormal, 1);
+      mesh.impl().encodeVertexBuffer(enc, VxTypeTexCoord0, 2);
+      mesh.impl().encodeIndexBuffer(enc);
       mesh.impl().encodeDraw(enc, 0, 1);
 
       cb->encode(enc);

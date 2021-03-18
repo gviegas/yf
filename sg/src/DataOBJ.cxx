@@ -2,7 +2,7 @@
 // SG
 // DataOBJ.cxx
 //
-// Copyright © 2020 Gustavo C. Viegas.
+// Copyright © 2020-2021 Gustavo C. Viegas.
 //
 
 #include <cwchar>
@@ -33,15 +33,9 @@ void SG_NS::loadOBJ(Mesh::Data& dst, const wstring& pathname) {
   if (!ifs)
     throw FileExcept("Could not open OBJ file");
 
-  // TODO: define this type somewhere else
-  struct Vertex {
-    Vec3f pos;
-    Vec2f tc;
-    Vec3f norm;
-  };
-  static_assert(is_standard_layout<Vertex>(), "Bad vertex data layout");
-
-  vector<Vertex> vertices;
+  vector<Vec3f> positions;
+  vector<Vec2f> texCoords;
+  vector<Vec3f> normals;
   vector<uint32_t> indices;
   unordered_map<string, uint32_t> map;
 
@@ -74,7 +68,7 @@ void SG_NS::loadOBJ(Mesh::Data& dst, const wstring& pathname) {
     char sep;
     string key;
 
-    // Fill `vertices` and `indices` with mesh data & default-initialize
+    // Fill attribute and index vectors with mesh data & default-initialize
     // any missing vertex attribute
     switch (format) {
     case FPos|FTc|FNorm:
@@ -88,9 +82,11 @@ void SG_NS::loadOBJ(Mesh::Data& dst, const wstring& pathname) {
         auto it = map.find(key);
 
         if (it == map.end()) {
-          face[i] = vertices.size();
+          face[i] = positions.size();
           map.emplace(key, face[i]);
-          vertices.push_back({vs[i1-1], vts[i2-1], vns[i3-1]});
+          positions.push_back(vs[i1-1]);
+          texCoords.push_back(vts[i2-1]);
+          normals.push_back(vns[i3-1]);
         } else {
           face[i] = it->second;
         }
@@ -117,9 +113,11 @@ void SG_NS::loadOBJ(Mesh::Data& dst, const wstring& pathname) {
         auto it = map.find(key);
 
         if (it == map.end()) {
-          face[i] = vertices.size();
+          face[i] = positions.size();
           map.emplace(key, face[i]);
-          vertices.push_back({vs[i1-1], vts[i2-1], {}});
+          positions.push_back(vs[i1-1]);
+          texCoords.push_back(vts[i2-1]);
+          normals.push_back({});
         } else {
           face[i] = it->second;
         }
@@ -146,9 +144,11 @@ void SG_NS::loadOBJ(Mesh::Data& dst, const wstring& pathname) {
         auto it = map.find(key);
 
         if (it == map.end()) {
-          face[i] = vertices.size();
+          face[i] = positions.size();
           map.emplace(key, face[i]);
-          vertices.push_back({vs[i1-1], {}, vns[i2-1]});
+          positions.push_back(vs[i1-1]);
+          texCoords.push_back({});
+          normals.push_back(vns[i2-1]);
         } else {
           face[i] = it->second;
         }
@@ -175,9 +175,11 @@ void SG_NS::loadOBJ(Mesh::Data& dst, const wstring& pathname) {
         auto it = map.find(key);
 
         if (it == map.end()) {
-          face[i] = vertices.size();
+          face[i] = positions.size();
           map.emplace(key, face[i]);
-          vertices.push_back({vs[i1-1], {}, {}});
+          positions.push_back(vs[i1-1]);
+          texCoords.push_back({});
+          normals.push_back({});
         } else {
           face[i] = it->second;
         }
@@ -267,33 +269,53 @@ void SG_NS::loadOBJ(Mesh::Data& dst, const wstring& pathname) {
     }
   }
 
-  if (vertices.empty() || indices.size() < vertices.size())
+  if (positions.empty() || indices.size() < positions.size())
     throw FileExcept("Invalid OBJ file");
 
   // Copy vertex data
-  dst.vxCount = vertices.size();
-  dst.vxStride = sizeof(vertices[0]);
-  const size_t vxSize = dst.vxCount * dst.vxStride;
-  auto vxData = make_unique<uint8_t[]>(vxSize);
-  memcpy(vxData.get(), vertices.data(), vxSize);
-  dst.vxData.swap(vxData);
+  const uint32_t posCount = positions.size();
+  const uint64_t posSize = posCount * sizeof positions[0];
+  const uint32_t tcCount = texCoords.size();
+  const uint64_t tcSize =  tcCount * sizeof texCoords[0];
+  const uint32_t normCount = normals.size();
+  const uint64_t normSize = normCount * sizeof normals[0];
+  const uint64_t vxSize = posSize + tcSize + normSize;
+
+  dst.data.push_back(make_unique<uint8_t[]>(vxSize));
+  memcpy(dst.data.back().get(), positions.data(), posSize);
+  memcpy(dst.data.back().get()+posSize, texCoords.data(), tcSize);
+  memcpy(dst.data.back().get()+posSize+tcSize, normals.data(), normSize);
+
+  dst.vxAccessors.emplace(VxTypePosition,
+                          Mesh::Data::Accessor{0, 0, posCount,
+                                               sizeof positions[0]});
+  dst.vxAccessors.emplace(VxTypeTexCoord0,
+                          Mesh::Data::Accessor{0, posSize, tcCount,
+                                               sizeof texCoords[0]});
+  dst.vxAccessors.emplace(VxTypeNormal,
+                          Mesh::Data::Accessor{0, posSize+tcSize, normCount,
+                                               sizeof normals[0]});
 
   // Copy index data
-  dst.ixCount = indices.size();
-  if (dst.vxCount <= UINT16_MAX) {
+  const uint32_t ixCount = indices.size();
+
+  if (ixCount < UINT16_MAX) {
     // 16-bit indices
-    dst.ixStride = sizeof(uint16_t);
-    const size_t ixSize = dst.ixCount * dst.ixStride;
-    auto ixData = make_unique<uint8_t[]>(ixSize);
-    for (size_t i = 0; i < dst.ixCount; ++i)
-      reinterpret_cast<uint16_t*>(ixData.get())[i] = indices[i];
-    dst.ixData.swap(ixData);
+    const uint64_t ixSize = ixCount * sizeof(uint16_t);
+    dst.data.push_back(make_unique<uint8_t[]>(ixSize));
+    for (size_t i = 0; i < ixCount; ++i)
+      reinterpret_cast<uint16_t*>(dst.data.back().get())[i] = indices[i];
+    dst.ixAccessor.elementSize = sizeof(uint16_t);
+
   } else {
     // 32-bit indices
-    dst.ixStride = sizeof(uint32_t);
-    const size_t ixSize = dst.ixCount * dst.ixStride;
-    auto ixData = make_unique<uint8_t[]>(ixSize);
-    memcpy(ixData.get(), indices.data(), ixSize);
-    dst.ixData.swap(ixData);
+    const uint64_t ixSize = ixCount * sizeof(uint32_t);
+    dst.data.push_back(make_unique<uint8_t[]>(ixSize));
+    memcpy(dst.data.back().get(), indices.data(), ixSize);
+    dst.ixAccessor.elementSize = sizeof(uint32_t);
   }
+
+  dst.ixAccessor.dataIndex = 1;
+  dst.ixAccessor.dataOffset = 0;
+  dst.ixAccessor.elementN = ixCount;
 }

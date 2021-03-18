@@ -5,6 +5,8 @@
 // Copyright © 2020-2021 Gustavo C. Viegas.
 //
 
+#include <cassert>
+
 #include "yf/Except.h"
 
 #include "yf/cg/Device.h"
@@ -72,8 +74,12 @@ Mesh::Impl::Impl(const Data& data) {
     return UINT64_MAX;
   };
 
-  // TODO: validate
+  // Copy vertex data
   for (const auto& va : data.vxAccessors) {
+    assert(va.second.dataIndex < data.data.size());
+    assert(va.second.elementN > 0);
+    assert(va.second.elementSize > 0);
+
     const uint64_t sz = va.second.elementN * va.second.elementSize;
     const void* dt = data.data[va.second.dataIndex].get()+va.second.dataOffset;
     const uint64_t off = copy(sz, dt);
@@ -86,8 +92,12 @@ Mesh::Impl::Impl(const Data& data) {
                     DataEntry{off, va.second.elementN, va.second.elementSize});
   }
 
-  // TODO: validate
+  // Copy index data
   if (data.ixAccessor.dataIndex != UINT32_MAX) {
+    assert(data.ixAccessor.dataIndex < data.data.size());
+    assert(data.ixAccessor.elementN > 0);
+    assert(data.ixAccessor.elementSize > 0);
+
     const uint64_t sz = data.ixAccessor.elementN * data.ixAccessor.elementSize;
     const void* dt = data.data[data.ixAccessor.dataIndex].get()+
                      data.ixAccessor.dataOffset;

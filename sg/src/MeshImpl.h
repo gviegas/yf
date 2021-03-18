@@ -37,6 +37,11 @@ enum VxType {
 /// Generic mesh data for copying.
 ///
 struct Mesh::Data {
+  /// Data accessor.
+  ///
+  /// Mesh data can be provided in any number of (CPU) `data` buffers.
+  /// The `Accessor` describes the location and layout of a specific data type.
+  ///
   struct Accessor {
     uint32_t dataIndex = UINT32_MAX;
     uint64_t dataOffset = UINT64_MAX;
@@ -107,6 +112,8 @@ class Mesh::Impl {
 #ifndef YF_DEVEL
  private:
 #endif
+  /// Range of `buffer_` memory available for use.
+  ///
   struct Segment {
     uint64_t offset;
     uint64_t size;
@@ -115,6 +122,8 @@ class Mesh::Impl {
   static CG_NS::Buffer::Ptr buffer_;
   static std::list<Segment> segments_;
 
+  /// Description of data in `buffer_` memory.
+  ///
   struct DataEntry {
     uint64_t offset;
     uint32_t count;

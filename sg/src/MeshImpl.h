@@ -24,14 +24,14 @@ SG_NS_BEGIN
 /// Types of vertex attribute data (non-interleaved storage).
 ///
 enum VxType {
-  Position,
-  Tangent,
-  Normal,
-  TexCoord0,
-  TexCoord1,
-  Color0,
-  Joints0,
-  Weights0
+  VxTypePosition,
+  VxTypeTangent,
+  VxTypeNormal,
+  VxTypeTexCoord0,
+  VxTypeTexCoord1,
+  VxTypeColor0,
+  VxTypeJoints0,
+  VxTypeWeights0
 };
 
 /// Generic mesh data for copying.
@@ -71,6 +71,12 @@ class Mesh::Impl {
   /// Encodes an index buffer binding command for this mesh.
   ///
   void encodeIndexBuffer(CG_NS::GrEncoder& encoder);
+
+  /// Encodes all required buffer bindings for this mesh.
+  ///
+  /// Input indices for vertex buffers are taken from the `VxType` enum.
+  ///
+  void encodeBindings(CG_NS::GrEncoder& encoder);
 
   /// Encodes a draw command for this mesh.
   ///

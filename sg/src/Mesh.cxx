@@ -180,6 +180,13 @@ void Mesh::Impl::encodeIndexBuffer(CG_NS::GrEncoder& encoder) {
   encoder.setIndexBuffer(buffer_.get(), ixData_.offset, type);
 }
 
+void Mesh::Impl::encodeBindings(CG_NS::GrEncoder& encoder) {
+  for (const auto& vd : vxData_)
+    encoder.setVertexBuffer(buffer_.get(), vd.second.offset, vd.first);
+
+  encodeIndexBuffer(encoder);
+}
+
 void Mesh::Impl::encodeDraw(CG_NS::GrEncoder& encoder, uint32_t baseInstance,
                             uint32_t instanceCount) {
 

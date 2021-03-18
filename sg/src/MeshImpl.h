@@ -67,6 +67,10 @@ class Mesh::Impl {
   ///
   bool canBind(VxType type) const;
 
+  /// Checks whether or not this mesh contains an index buffer.
+  ///
+  bool isIndexed() const;
+
   /// Encodes a vertex buffer binding command for this mesh.
   ///
   void encodeVertexBuffer(CG_NS::GrEncoder& encoder, VxType type,

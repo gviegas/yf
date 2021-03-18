@@ -155,6 +155,10 @@ bool Mesh::Impl::canBind(VxType type) const {
   return vxData_.find(type) != vxData_.end();
 }
 
+bool Mesh::Impl::isIndexed() const {
+  return ixData_.offset != UINT64_MAX;
+}
+
 void Mesh::Impl::encodeVertexBuffer(CG_NS::GrEncoder& encoder, VxType type,
                                     uint32_t inputIndex) {
 

@@ -151,6 +151,10 @@ Mesh::Impl::~Impl() {
     yield(ixData_.offset, ixData_.count * ixData_.stride);
 }
 
+bool Mesh::Impl::canBind(VxType type) const {
+  return vxData_.find(type) != vxData_.end();
+}
+
 void Mesh::Impl::encodeVertexBuffer(CG_NS::GrEncoder& encoder, VxType type,
                                     uint32_t inputIndex) {
 

@@ -63,6 +63,10 @@ class Mesh::Impl {
   Impl& operator=(const Impl&) = delete;
   ~Impl();
 
+  /// Checks whether or not a given vertex type can be bound by this mesh.
+  ///
+  bool canBind(VxType type) const;
+
   /// Encodes a vertex buffer binding command for this mesh.
   ///
   void encodeVertexBuffer(CG_NS::GrEncoder& encoder, VxType type,

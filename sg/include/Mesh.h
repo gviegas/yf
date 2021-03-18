@@ -2,7 +2,7 @@
 // SG
 // Mesh.h
 //
-// Copyright © 2020 Gustavo C. Viegas.
+// Copyright © 2020-2021 Gustavo C. Viegas.
 //
 
 #ifndef YF_SG_MESH_H
@@ -23,7 +23,7 @@ class Mesh {
   ///
   enum FileType {
     Internal,
-    Collada,
+    Gltf,
     Obj
   };
 

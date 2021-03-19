@@ -32,6 +32,12 @@ class Quaternion {
   ///
   constexpr Quaternion(T r, const Vector<T, 3>& v) : r_(r), v_(v) { }
 
+  /// Construction from a 4-component vector representation (x, y, z, w),
+  /// with w as the real part.
+  ///
+  constexpr explicit Quaternion(const Vector<T, 4>& q)
+    : r_(q[3]), v_{q[0], q[1], q[2]} { }
+
   constexpr const T& r() const {
     return r_;
   }
@@ -46,6 +52,12 @@ class Quaternion {
 
   constexpr Vector<T, 3>& v() {
     return v_;
+  }
+
+  /// Quaternion as a 4-component vector (x, y, z, w), with w as the real part.
+  ///
+  constexpr Vector<T, 4> q() const {
+    return Vector<T, 4>{v_[0], v_[1], v_[2], r_};
   }
 
  private:

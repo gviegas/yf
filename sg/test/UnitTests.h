@@ -2,7 +2,7 @@
 // SG
 // UnitTests.h
 //
-// Copyright © 2020 Gustavo C. Viegas.
+// Copyright © 2020-2021 Gustavo C. Viegas.
 //
 
 #ifndef YF_SG_UNITTESTS_H
@@ -14,18 +14,17 @@
 
 TEST_NS_BEGIN
 
-constexpr const char* TestIdDft = "";
 Test* nodeTest();
 Test* sceneTest();
 Test* viewTest();
 Test* vectorTest();
+Test* quaternionTest();
 Test* matrixTest();
 Test* meshTest();
 Test* textureTest();
-Test* cameraTest();
 
 constexpr const char* TestIdCam = "camera";
-Test* camTest();
+Test* cameraTest();
 
 constexpr const char* TestIdMisc = "misc";
 Test* miscTest();
@@ -38,7 +37,7 @@ inline std::vector<Test*> unitTests(const std::string& id) {
     return {cameraTest()};
 
   return {nodeTest(), sceneTest(), viewTest(),
-          vectorTest(), matrixTest(),
+          vectorTest(), quaternionTest(), matrixTest(),
           meshTest(), textureTest()};
 }
 

@@ -212,6 +212,12 @@ struct MatrixTest : Test {
 
     SG_PRINTMAT(m34);
 
+    auto m35 = rotate3(rotateQ(M_PI_4, {0.0, 0.0, 1.0}));
+    auto m36 = rotate(rotateQ(M_PI_4, {0.0, 0.0, -1.0}));
+
+    SG_PRINTMAT(m35);
+    SG_PRINTMAT(m36);
+
     a.push_back({L"data()", check});
 
     wcout.precision(prec);

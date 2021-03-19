@@ -16,6 +16,7 @@
 
 #include "yf/sg/Defs.h"
 #include "yf/sg/Vector.h"
+#include "yf/sg/Quaternion.h"
 
 SG_NS_BEGIN
 
@@ -343,6 +344,43 @@ constexpr Matrix<T, 3, 3> rotate3(T angle, const Vector<T, 3>& axis) {
   return res;
 }
 
+/// Matrix rotation (3x3, quaternion).
+///
+template<class T>
+constexpr Matrix<T, 3, 3> rotate3(const Quaternion<T>& qnion) {
+  Matrix<T, 3, 3> res;
+
+  const auto v = normalize(qnion.q());
+  const T x = v[0];
+  const T y = v[1];
+  const T z = v[2];
+  const T w = v[3];
+
+  const T one = 1.0;
+  const T two = 2.0;
+  const T xx2 = two * x * x;
+  const T xy2 = two * x * y;
+  const T xz2 = two * x * z;
+  const T xw2 = two * x * w;
+  const T yy2 = two * y * y;
+  const T yz2 = two * y * z;
+  const T yw2 = two * y * w;
+  const T zz2 = two * z * z;
+  const T zw2 = two * z * w;
+
+  res[0][0] = one - yy2 - zz2;
+  res[0][1] = xy2 - zw2;
+  res[0][2] = xz2 + yw2;
+  res[1][0] = xy2 + zw2;
+  res[1][1] = one - xx2 - zz2;
+  res[1][2] = yz2 - xw2;
+  res[2][0] = xz2 - yw2;
+  res[2][1] = yz2 + xw2;
+  res[2][2] = one - xx2 - yy2;
+
+  return res;
+}
+
 /// Matrix rotation (3x3, x-axis).
 ///
 template<class T>
@@ -432,6 +470,44 @@ constexpr Matrix<T, 4, 4> rotate(T angle, const Vector<T, 3>& axis) {
   res[2][0] = (one - c) * x*z + s*y;
   res[2][1] = (one - c) * y*z - s*x;
   res[2][2] = c + (one - c) * z*z;
+  res[3][3] = one;
+
+  return res;
+}
+
+/// Matrix rotation (quaternion).
+///
+template<class T>
+constexpr Matrix<T, 4, 4> rotate(const Quaternion<T>& qnion) {
+  Matrix<T, 4, 4> res;
+
+  const auto v = normalize(qnion.q());
+  const T x = v[0];
+  const T y = v[1];
+  const T z = v[2];
+  const T w = v[3];
+
+  const T one = 1.0;
+  const T two = 2.0;
+  const T xx2 = two * x * x;
+  const T xy2 = two * x * y;
+  const T xz2 = two * x * z;
+  const T xw2 = two * x * w;
+  const T yy2 = two * y * y;
+  const T yz2 = two * y * z;
+  const T yw2 = two * y * w;
+  const T zz2 = two * z * z;
+  const T zw2 = two * z * w;
+
+  res[0][0] = one - yy2 - zz2;
+  res[0][1] = xy2 - zw2;
+  res[0][2] = xz2 + yw2;
+  res[1][0] = xy2 + zw2;
+  res[1][1] = one - xx2 - zz2;
+  res[1][2] = yz2 - xw2;
+  res[2][0] = xz2 - yw2;
+  res[2][1] = yz2 + xw2;
+  res[2][2] = one - xx2 - yy2;
   res[3][3] = one;
 
   return res;

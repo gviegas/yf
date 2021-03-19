@@ -131,6 +131,14 @@ constexpr Quaternion<T> rotateQZ(T angle) {
   return {c, {0.0, 0.0, s}};
 }
 
+/// Single precision quaternion.
+///
+using Qnionf = Quaternion<float>;
+
+/// Double precision quaternion.
+///
+using Qniond = Quaternion<double>;
+
 SG_NS_END
 
 #endif // YF_SG_QUATERNION_H

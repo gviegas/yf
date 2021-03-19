@@ -96,6 +96,8 @@ struct QuaternionTest : Test {
                                   q13.v()[0] == 0 && q13.v()[2] == 0 &&
                                   q14.v()[0] == 0 && q14.v()[1] == 0});
 
+    wcout << "\nQnion sizes:\n flt: " << sizeof(Qnionf)
+          << "\n dbl: " << sizeof(Qniond) << endl;
     return a;
   }
 };

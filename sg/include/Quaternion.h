@@ -60,6 +60,15 @@ class Quaternion {
     return Vector<T, 4>{v_[0], v_[1], v_[2], r_};
   }
 
+  /// In-place multiplication.
+  ///
+  constexpr Quaternion<T>& operator*=(const Quaternion<T>& other) {
+    const T r1 = r_;
+    r_ = r1 * other.r_ - dot(v_, other.v_);
+    v_ = v_ * other.r_ + other.v_ * r1 + cross(v_, other.v_);
+    return *this;
+  }
+
  private:
   T r_{};
   Vector<T, 3> v_{};

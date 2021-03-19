@@ -98,6 +98,39 @@ constexpr Quaternion<T> rotateQ(T angle, const Vector<T, 3>& axis) {
   return {c, normalize(axis) * s};
 }
 
+/// Quaternion rotation (x-axis).
+///
+template<class T>
+constexpr Quaternion<T> rotateQX(T angle) {
+  const T a = angle * 0.5;
+  const T c = cos(a);
+  const T s = sin(a);
+
+  return {c, {s, 0.0, 0.0}};
+}
+
+/// Quaternion rotation (y-axis).
+///
+template<class T>
+constexpr Quaternion<T> rotateQY(T angle) {
+  const T a = angle * 0.5;
+  const T c = cos(a);
+  const T s = sin(a);
+
+  return {c, {0.0, s, 0.0}};
+}
+
+/// Quaternion rotation (z-axis).
+///
+template<class T>
+constexpr Quaternion<T> rotateQZ(T angle) {
+  const T a = angle * 0.5;
+  const T c = cos(a);
+  const T s = sin(a);
+
+  return {c, {0.0, 0.0, s}};
+}
+
 SG_NS_END
 
 #endif // YF_SG_QUATERNION_H

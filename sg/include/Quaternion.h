@@ -74,6 +74,19 @@ class Quaternion {
   Vector<T, 3> v_{};
 };
 
+/// Quaternion multiplication.
+///
+template<class T>
+constexpr Quaternion<T> operator*(const Quaternion<T>& left,
+                                  const Quaternion<T>& right) {
+  const auto r1 = left.r();
+  const auto r2 = right.r();
+  const auto& v1 = left.v();
+  const auto& v2 = right.v();
+
+  return {r1 * r2 - dot(v1, v2), v1 * r2 + v2 * r1 + cross(v1, v2)};
+}
+
 SG_NS_END
 
 #endif // YF_SG_QUATERNION_H

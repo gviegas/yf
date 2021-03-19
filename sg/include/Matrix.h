@@ -343,6 +343,69 @@ constexpr Matrix<T, 3, 3> rotate3(T angle, const Vector<T, 3>& axis) {
   return res;
 }
 
+/// Matrix rotation (3x3, x-axis).
+///
+template<class T>
+constexpr Matrix<T, 3, 3> rotate3X(T angle) {
+  static_assert(std::is_floating_point<T>(),
+                "rotate3X() requires a floating point type");
+
+  Matrix<T, 3, 3> res;
+
+  const T c = std::cos(angle);
+  const T s = std::sin(angle);
+
+  res[0][0] = 1.0;
+  res[1][1] = c;
+  res[1][2] = s;
+  res[2][1] = -s;
+  res[2][2] = c;
+
+  return res;
+}
+
+/// Matrix rotation (3x3, y-axis).
+///
+template<class T>
+constexpr Matrix<T, 3, 3> rotate3Y(T angle) {
+  static_assert(std::is_floating_point<T>(),
+                "rotate3Y() requires a floating point type");
+
+  Matrix<T, 3, 3> res;
+
+  const T c = std::cos(angle);
+  const T s = std::sin(angle);
+
+  res[0][0] = c;
+  res[0][2] = -s;
+  res[1][1] = 1.0;
+  res[2][0] = s;
+  res[2][2] = c;
+
+  return res;
+}
+
+/// Matrix rotation (3x3, z-axis).
+///
+template<class T>
+constexpr Matrix<T, 3, 3> rotate3Z(T angle) {
+  static_assert(std::is_floating_point<T>(),
+                "rotate3Z() requires a floating point type");
+
+  Matrix<T, 3, 3> res;
+
+  const T c = std::cos(angle);
+  const T s = std::sin(angle);
+
+  res[0][0] = c;
+  res[0][1] = s;
+  res[1][0] = -s;
+  res[1][1] = c;
+  res[2][2] = 1.0;
+
+  return res;
+}
+
 /// Matrix rotation.
 ///
 template<class T>

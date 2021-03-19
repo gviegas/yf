@@ -87,6 +87,17 @@ constexpr Quaternion<T> operator*(const Quaternion<T>& left,
   return {r1 * r2 - dot(v1, v2), v1 * r2 + v2 * r1 + cross(v1, v2)};
 }
 
+/// Quaternion rotation.
+///
+template<class T>
+constexpr Quaternion<T> rotateQ(T angle, const Vector<T, 3>& axis) {
+  const T a = angle * 0.5;
+  const T c = cos(a);
+  const T s = sin(a);
+
+  return {c, normalize(axis) * s};
+}
+
 SG_NS_END
 
 #endif // YF_SG_QUATERNION_H

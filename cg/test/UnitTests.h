@@ -8,13 +8,16 @@
 #ifndef YF_CG_UNITTESTS_H
 #define YF_CG_UNITTESTS_H
 
-#include <cstring>
+#include <unordered_map>
+#include <string>
+#include <vector>
+#include <functional>
+#include <iostream>
 
 #include "Test.h"
 
 TEST_NS_BEGIN
 
-constexpr const char* TestIdDft = "";
 Test* typesTest();
 Test* deviceTest();
 Test* queueTest();
@@ -26,17 +29,38 @@ Test* passTest();
 Test* stateTest();
 Test* encoderTest();
 Test* wsiTest();
-
-constexpr const char* TestIdDraw = "draw";
 Test* drawTest();
 
-inline std::vector<Test*> unitTests(const std::string& id) {
-  if (strcmp(id.data(), TestIdDraw) == 0)
-    return {drawTest()};
+using TestFn = std::function<Test* ()>;
+const std::unordered_map<std::string, std::vector<TestFn>> TIDs{
+  {"types", {typesTest}},
+  {"device", {deviceTest}},
+  {"queue", {queueTest}},
+  {"buffer", {bufferTest}},
+  {"image", {imageTest}},
+  {"shader", {shaderTest}},
+  {"dctable", {dcTableTest}},
+  {"pass", {passTest}},
+  {"state", {stateTest}},
+  {"encoder", {encoderTest}},
+  {"wsi", {wsiTest}},
+  {"draw", {drawTest}},
+  {"all", {typesTest, deviceTest, queueTest, bufferTest, imageTest, shaderTest,
+           dcTableTest, passTest, stateTest, encoderTest, wsiTest, drawTest}}
+};
 
-  return {typesTest(), deviceTest(), queueTest(), bufferTest(),
-          imageTest(), shaderTest(), dcTableTest(), passTest(),
-          stateTest(), encoderTest(), wsiTest()};
+inline std::vector<Test*> unitTests(const std::string& id) {
+  auto it = TIDs.find(id);
+
+  if (it == TIDs.end()) {
+    wprintf(L"\n! Unknown test `%s` requested", id.data());
+    return {};
+  }
+
+  std::vector<Test*> tests{};
+  for (const auto& tf : it->second)
+    tests.push_back(tf());
+  return tests;
 }
 
 TEST_NS_END

@@ -2,7 +2,7 @@
 // YF
 // Except.h
 //
-// Copyright © 2020 Gustavo C. Viegas.
+// Copyright © 2020-2021 Gustavo C. Viegas.
 //
 
 #ifndef YF_EXCEPT_H
@@ -35,6 +35,10 @@ struct DeviceExcept : std::runtime_error {
 };
 
 struct FileExcept : std::runtime_error {
+  using std::runtime_error::runtime_error;
+};
+
+struct ConversionExcept : std::runtime_error {
   using std::runtime_error::runtime_error;
 };
 

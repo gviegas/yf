@@ -21,20 +21,20 @@ using namespace std;
 
 void SG_NS::loadOBJ(Mesh::Data& dst, const wstring& pathname) {
   // Convert pathname string
-  const size_t len = (pathname.size() + 1) * sizeof(wchar_t);
-  char* path = new char[len];
+  string path{};
+  size_t len = (pathname.size() + 1) * sizeof(wchar_t);
+  path.resize(len);
   const wchar_t* wsrc = pathname.data();
   mbstate_t state;
   memset(&state, 0, sizeof state);
-  wcsrtombs(path, &wsrc, len, &state);
-  if (wsrc)
-    throw LimitExcept("Could not convert OBJ file path");
+  len = wcsrtombs(path.data(), &wsrc, path.size(), &state);
+  if (wsrc || static_cast<size_t>(-1) == len)
+    throw ConversionExcept("Could not convert OBJ file path");
+  path.resize(len);
 
   ifstream ifs(path);
   if (!ifs)
     throw FileExcept("Could not open OBJ file");
-
-  delete[] path;
 
   vector<Vec3f> positions;
   vector<Vec2f> texCoords;

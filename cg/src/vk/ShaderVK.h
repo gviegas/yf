@@ -2,7 +2,7 @@
 // CG
 // ShaderVK.h
 //
-// Copyright © 2020 Gustavo C. Viegas.
+// Copyright © 2020-2021 Gustavo C. Viegas.
 //
 
 #ifndef YF_CG_SHADERVK_H
@@ -23,11 +23,11 @@ class ShaderVK final : public Shader {
   /// Getters.
   ///
   VkShaderModule module() const;
-  const char* name() const;
+  const std::string& name() const;
 
  private:
   VkShaderModule module_ = VK_NULL_HANDLE;
-  char name_[80] = {'\0'};
+  std::string name_{};
 };
 
 /// Converts from a `Stage` value.

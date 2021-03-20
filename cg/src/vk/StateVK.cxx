@@ -72,7 +72,7 @@ GrStateVK::GrStateVK(const Config& config)
     info.flags = 0;
     info.stage = toShaderStageVK(shd->stage_);
     info.module = static_cast<ShaderVK*>(shd)->module();
-    info.pName = static_cast<ShaderVK*>(shd)->name();
+    info.pName = static_cast<ShaderVK*>(shd)->name().data();
     info.pSpecializationInfo = nullptr;
 
     if (info.stage & stgFlags_) {
@@ -314,7 +314,7 @@ CpStateVK::CpStateVK(const Config& config)
   stgInfo.flags = 0;
   stgInfo.stage = VK_SHADER_STAGE_COMPUTE_BIT;
   stgInfo.module = static_cast<ShaderVK*>(config.shader)->module();
-  stgInfo.pName = static_cast<ShaderVK*>(config.shader)->name();
+  stgInfo.pName = static_cast<ShaderVK*>(config.shader)->name().data();
   stgInfo.pSpecializationInfo = nullptr;
 
   // Create pipeline

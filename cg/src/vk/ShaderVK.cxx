@@ -28,20 +28,20 @@ ShaderVK::ShaderVK(Stage stage, wstring&& codeFile, wstring&& entryPoint)
   mbstate_t state;
 
   // Convert path string
+  string path{};
   len = (codeFile_.size() + 1) * sizeof(wchar_t);
-  char* path = new char[len];
+  path.resize(len);
   wsrc = codeFile_.data();
   memset(&state, 0, sizeof state);
-  wcsrtombs(path, &wsrc, len, &state);
-  if (wsrc)
-    throw LimitExcept("Could not convert shader code file path");
+  len = wcsrtombs(path.data(), &wsrc, path.size(), &state);
+  if (wsrc || static_cast<size_t>(-1) == len)
+    throw ConversionExcept("Could not convert shader code file path");
+  path.resize(len);
 
   // Get shader code data and create module
   ifstream ifs(path);
   if (!ifs)
     throw FileExcept("Could not open shader file");
-
-  delete[] path;
 
   ifs.seekg(0, ios_base::end);
   const auto sz = ifs.tellg();
@@ -71,8 +71,8 @@ ShaderVK::ShaderVK(Stage stage, wstring&& codeFile, wstring&& entryPoint)
   wsrc = entryPoint_.data();
   memset(&state, 0, sizeof state);
   len = wcsrtombs(name_.data(), &wsrc, name_.size(), &state);
-  if (wsrc)
-    throw LimitExcept("Could not set shader function name");
+  if (wsrc || static_cast<size_t>(-1) == len)
+    throw ConversionExcept("Could not set shader function name");
   name_.resize(len);
 }
 

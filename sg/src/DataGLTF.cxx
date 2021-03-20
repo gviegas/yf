@@ -18,6 +18,32 @@ using namespace std;
 
 INTERNAL_NS_BEGIN
 
+struct Symbol {
+  enum Type {
+    Str,
+    Num,
+    Bool,
+    Null,
+    Op,
+    End,
+    Err
+  };
+
+  ifstream& ifs;
+  Type type;
+  string tokens;
+
+  Symbol(ifstream& ifs) : ifs(ifs), type(End), tokens() { }
+  Symbol(const Symbol&) = delete;
+  Symbol& operator=(const Symbol&) = delete;
+  ~Symbol() = default;
+
+  Type next() {
+    // TODO
+    return Err;
+  }
+};
+
 // TODO
 struct GLTF {
   GLTF(const wstring& pathname) {
@@ -36,6 +62,8 @@ struct GLTF {
     ifstream ifs(path);
     if (!ifs)
       throw FileExcept("Could not open glTF file");
+
+    Symbol symbol(ifs);
 
     // TODO
   }

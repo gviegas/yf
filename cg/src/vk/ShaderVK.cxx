@@ -5,10 +5,10 @@
 // Copyright © 2020-2021 Gustavo C. Viegas.
 //
 
+#include <cwchar>
+#include <cstring>
 #include <fstream>
 #include <memory>
-#include <cstring>
-#include <cwchar>
 
 #include "ShaderVK.h"
 #include "DeviceVK.h"
@@ -24,13 +24,15 @@ ShaderVK::ShaderVK(Stage stage, wstring&& codeFile, wstring&& entryPoint)
     throw invalid_argument("ShaderVK requires valid codeFile and entryPoint");
 
   const wchar_t* wsrc;
+  size_t len;
   mbstate_t state;
 
   // Convert path string
-  char path[256];
+  len = (codeFile_.size() + 1) * sizeof(wchar_t);
+  char* path = new char[len];
   wsrc = codeFile_.data();
   memset(&state, 0, sizeof state);
-  wcsrtombs(path, &wsrc, sizeof path, &state);
+  wcsrtombs(path, &wsrc, len, &state);
   if (wsrc)
     throw LimitExcept("Could not convert shader code file path");
 
@@ -38,6 +40,8 @@ ShaderVK::ShaderVK(Stage stage, wstring&& codeFile, wstring&& entryPoint)
   ifstream ifs(path);
   if (!ifs)
     throw FileExcept("Could not open shader file");
+
+  delete[] path;
 
   ifs.seekg(0, ios_base::end);
   const auto sz = ifs.tellg();
@@ -62,11 +66,14 @@ ShaderVK::ShaderVK(Stage stage, wstring&& codeFile, wstring&& entryPoint)
     throw DeviceExcept("Could not create shader module");
 
   // Set shader function name
+  len = (entryPoint_.size() + 1) * sizeof(wchar_t);
+  name_.resize(len);
   wsrc = entryPoint_.data();
   memset(&state, 0, sizeof state);
-  wcsrtombs(name_, &wsrc, sizeof name_, &state);
+  len = wcsrtombs(name_.data(), &wsrc, name_.size(), &state);
   if (wsrc)
     throw LimitExcept("Could not set shader function name");
+  name_.resize(len);
 }
 
 ShaderVK::~ShaderVK() {
@@ -79,6 +86,6 @@ VkShaderModule ShaderVK::module() const {
   return module_;
 }
 
-const char* ShaderVK::name() const {
+const string& ShaderVK::name() const {
   return name_;
 }

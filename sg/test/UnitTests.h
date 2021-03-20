@@ -8,7 +8,11 @@
 #ifndef YF_SG_UNITTESTS_H
 #define YF_SG_UNITTESTS_H
 
-#include <cstring>
+#include <unordered_map>
+#include <string>
+#include <vector>
+#include <functional>
+#include <iostream>
 
 #include "Test.h"
 
@@ -22,23 +26,37 @@ Test* quaternionTest();
 Test* matrixTest();
 Test* meshTest();
 Test* textureTest();
-
-constexpr const char* TestIdCam = "camera";
 Test* cameraTest();
-
-constexpr const char* TestIdMisc = "misc";
 Test* miscTest();
 
+using TestFn = std::function<Test* ()>;
+const std::unordered_map<std::string, std::vector<TestFn>> TIDs{
+  {"node", {nodeTest}},
+  {"scene", {sceneTest}},
+  {"view", {viewTest}},
+  {"vector", {vectorTest}},
+  {"quaternion", {quaternionTest}},
+  {"matrix", {matrixTest}},
+  {"mesh", {meshTest}},
+  {"texture", {textureTest}},
+  {"camera", {cameraTest}},
+  {"misc", {miscTest}},
+  {"all", {nodeTest, viewTest, vectorTest, quaternionTest, matrixTest,
+           meshTest, textureTest, cameraTest, miscTest}}
+};
+
 inline std::vector<Test*> unitTests(const std::string& id) {
-  if (strcmp(id.data(), TestIdMisc) == 0)
-    return {miscTest()};
+  auto it = TIDs.find(id);
 
-  if (strcmp(id.data(), TestIdCam) == 0)
-    return {cameraTest()};
+  if (it == TIDs.end()) {
+    wprintf(L"\n! Unknown test `%s` requested", id.data());
+    return {};
+  }
 
-  return {nodeTest(), sceneTest(), viewTest(),
-          vectorTest(), quaternionTest(), matrixTest(),
-          meshTest(), textureTest()};
+  std::vector<Test*> tests{};
+  for (const auto& tf : it->second)
+    tests.push_back(tf());
+  return tests;
 }
 
 TEST_NS_END

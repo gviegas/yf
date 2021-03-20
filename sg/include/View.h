@@ -2,12 +2,13 @@
 // SG
 // View.h
 //
-// Copyright © 2020 Gustavo C. Viegas.
+// Copyright © 2020-2021 Gustavo C. Viegas.
 //
 
 #ifndef YF_SG_VIEW_H
 #define YF_SG_VIEW_H
 
+#include <cstdint>
 #include <functional>
 #include <chrono>
 #include <memory>

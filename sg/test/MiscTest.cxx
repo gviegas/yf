@@ -243,7 +243,7 @@ struct MiscTest : public Test {
   }
 
   Assertions run(const vector<string>&) {
-    return {{L"misc2()", misc2()}};
+    return {{L"misc1()", misc1()}};
   }
 };
 

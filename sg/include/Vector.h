@@ -2,7 +2,7 @@
 // SG
 // Vector.h
 //
-// Copyright © 2020 Gustavo C. Viegas.
+// Copyright © 2020-2021 Gustavo C. Viegas.
 //
 
 #ifndef YF_SG_VECTOR_H
@@ -187,18 +187,18 @@ constexpr T dot(const Vector<T, sz>& v1, const Vector<T, sz>& v2) {
 ///
 template<class T>
 constexpr Vector<T, 3> cross(const Vector<T, 3>& v1, const Vector<T, 3>& v2) {
-  return {v1[1] * v2[2] - v2[1] * v1[2],
-          v1[2] * v2[0] - v2[2] * v1[0],
-          v1[0] * v2[1] - v2[0] * v1[1]};
+  return {v1[1] * v2[2] - v1[2] * v2[1],
+          v1[2] * v2[0] - v1[0] * v2[2],
+          v1[0] * v2[1] - v1[1] * v2[0]};
 }
 
 /// Cross product (4-component).
 ///
 template<class T>
 constexpr Vector<T, 4> cross(const Vector<T, 4>& v1, const Vector<T, 4>& v2) {
-  return {v1[1] * v2[2] - v2[1] * v1[2],
-          v1[2] * v2[0] - v2[2] * v1[0],
-          v1[0] * v2[1] - v2[0] * v1[1],
+  return {v1[1] * v2[2] - v1[2] * v2[1],
+          v1[2] * v2[0] - v1[0] * v2[2],
+          v1[0] * v2[1] - v1[1] * v2[0],
           1};
 }
 

@@ -20,7 +20,12 @@ using namespace std;
 
 INTERNAL_NS_BEGIN
 
-struct Symbol {
+/// Symbol.
+///
+class Symbol {
+ public:
+  /// Type of symbol.
+  ///
   enum Type {
     Str,
     Num,
@@ -31,47 +36,45 @@ struct Symbol {
     Err
   };
 
-  ifstream& ifs;
-  Type type;
-  string tokens;
-
-  Symbol(ifstream& ifs) : ifs(ifs), type(End), tokens() { }
+  Symbol(ifstream& ifs) : ifs_(ifs), type_(End), tokens_() { }
   Symbol(const Symbol&) = delete;
   Symbol& operator=(const Symbol&) = delete;
   ~Symbol() = default;
 
+  /// Process the next symbol from stream.
+  ///
   Type next() {
-    tokens.clear();
+    tokens_.clear();
     char c;
 
-    while (ifs.get(c) && isspace(c)) { }
+    while (ifs_.get(c) && isspace(c)) { }
 
-    if (!ifs) {
-      type = End;
-      return type;
+    if (!ifs_) {
+      type_ = End;
+      return type_;
     }
 
     switch (c) {
     case '"':
       while (true) {
-        ifs.get(c);
-        if (!ifs) {
-          type = Err;
+        ifs_.get(c);
+        if (!ifs_) {
+          type_ = Err;
           break;
         }
         if (c == '"') {
-          type = Str;
+          type_ = Str;
           break;
         }
         if (c == '\\') {
-          ifs.get(c);
+          ifs_.get(c);
           if (c != '"' && c != '\\') {
             // TODO: other escape sequences
-            type = Err;
+            type_ = Err;
             break;
           }
         }
-        tokens.push_back(c);
+        tokens_.push_back(c);
       }
       break;
 
@@ -88,60 +91,60 @@ struct Symbol {
     case '8':
     case '9':
       while (true) {
-        tokens.push_back(c);
-        ifs.get(c);
+        tokens_.push_back(c);
+        ifs_.get(c);
         if (isxdigit(c) || c == '.' || c == '-' || c == '+')
           continue;
-        if (ifs)
-          ifs.unget();
+        if (ifs_)
+          ifs_.unget();
         break;
       }
-      type = Num;
+      type_ = Num;
       break;
 
     case 't':
       while (true) {
-        tokens.push_back(c);
-        ifs.get(c);
+        tokens_.push_back(c);
+        ifs_.get(c);
         if (!islower(c))
           break;
       }
-      if (ifs)
-        ifs.unget();
-      if (tokens == "true")
-        type = Bool;
+      if (ifs_)
+        ifs_.unget();
+      if (tokens_ == "true")
+        type_ = Bool;
       else
-        type = Err;
+        type_ = Err;
       break;
 
     case 'f':
       while (true) {
-        tokens.push_back(c);
-        ifs.get(c);
+        tokens_.push_back(c);
+        ifs_.get(c);
         if (!islower(c))
           break;
       }
-      if (ifs)
-        ifs.unget();
-      if (tokens == "false")
-        type = Bool;
+      if (ifs_)
+        ifs_.unget();
+      if (tokens_ == "false")
+        type_ = Bool;
       else
-        type = Err;
+        type_ = Err;
       break;
 
     case 'n':
       while (true) {
-        tokens.push_back(c);
-        ifs.get(c);
+        tokens_.push_back(c);
+        ifs_.get(c);
         if (!islower(c))
           break;
       }
-      if (ifs)
-        ifs.unget();
-      if (tokens == "null")
-        type = Null;
+      if (ifs_)
+        ifs_.unget();
+      if (tokens_ == "null")
+        type_ = Null;
       else
-        type = Err;
+        type_ = Err;
       break;
 
     case '{':
@@ -150,22 +153,24 @@ struct Symbol {
     case ']':
     case ':':
     case ',':
-      tokens.push_back(c);
-      type = Op;
+      tokens_.push_back(c);
+      type_ = Op;
       break;
 
     default:
-      type = Err;
+      type_ = Err;
     }
 
-    return type;
+    return type_;
   }
 
+  /// Consumes the current property.
+  ///
   void consumeProperty() {
-    assert(ifs);
-    assert(type == Str);
+    assert(ifs_);
+    assert(type_ == Str);
 
-    if (next() != Op || tokens[0] != ':')
+    if (next() != Op || tokens_[0] != ':')
       throw FileExcept("Invalid glTF file");
 
     switch (next()) {
@@ -176,7 +181,7 @@ struct Symbol {
       break;
 
     case Op: {
-      char op = tokens[0];
+      char op = tokens_[0];
       char cl;
       if (op == '{')
         cl = '}';
@@ -189,9 +194,9 @@ struct Symbol {
       do {
         switch (next()) {
           case Op:
-            if (tokens[0] == op)
+            if (tokens_[0] == op)
               ++n;
-            else if (tokens[0] == cl)
+            else if (tokens_[0] == cl)
               --n;
             break;
 
@@ -209,10 +214,35 @@ struct Symbol {
       throw FileExcept("Invalid glTF file");
     }
   }
+
+  /// The type of the current symbol.
+  ///
+  Type type() const {
+    return type_;
+  }
+
+  /// The tokens of the current symbol.
+  ///
+  const std::string& tokens() const {
+    return tokens_;
+  }
+
+  /// The first token of the current symbol.
+  ///
+  char token() const {
+    return tokens_.front();
+  }
+
+ private:
+  ifstream& ifs_;
+  Type type_{End};
+  string tokens_{};
 };
 
-// TODO
-struct GLTF {
+/// GLTF.
+/// TODO
+class GLTF {
+ public:
   GLTF(const wstring& pathname) {
     // Convert pathname string
     string path{};
@@ -238,32 +268,32 @@ struct GLTF {
     do {
       switch (symbol.next()) {
       case Symbol::Str:
-        wprintf(L"(Str) `%s`\n", symbol.tokens.data());
-        if (symbol.tokens == "nodes") {
+        wprintf(L"(Str) `%s`\n", symbol.tokens().data());
+        if (symbol.tokens() == "nodes") {
           wprintf(L"***consuming...\n");
           symbol.consumeProperty();
         }
         break;
       case Symbol::Num:
-        wprintf(L"(Num) `%s`\n", symbol.tokens.data());
+        wprintf(L"(Num) `%s`\n", symbol.tokens().data());
         break;
       case Symbol::Bool:
-        wprintf(L"(Bool) `%s`\n", symbol.tokens.data());
+        wprintf(L"(Bool) `%s`\n", symbol.tokens().data());
         break;
       case Symbol::Null:
-        wprintf(L"(Null) `%s`\n", symbol.tokens.data());
+        wprintf(L"(Null) `%s`\n", symbol.tokens().data());
         break;
       case Symbol::Op:
-        wprintf(L"(Op) `%s`\n", symbol.tokens.data());
+        wprintf(L"(Op) `%s`\n", symbol.tokens().data());
         break;
       case Symbol::End:
-        wprintf(L"(End) `%s`\n", symbol.tokens.data());
+        wprintf(L"(End) `%s`\n", symbol.tokens().data());
         break;
       case Symbol::Err:
-        wprintf(L"(ERR)\n `%s`", symbol.tokens.data());
+        wprintf(L"(ERR)\n `%s`", symbol.tokens().data());
         break;
       }
-    } while (symbol.type != Symbol::End && symbol.type != Symbol::Err);
+    } while (symbol.type() != Symbol::End && symbol.type() != Symbol::Err);
     //////////
   }
 

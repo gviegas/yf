@@ -7,6 +7,7 @@
 
 #include <cwchar>
 #include <cstring>
+#include <cctype>
 #include <fstream>
 
 #include "DataGLTF.h"
@@ -39,8 +40,124 @@ struct Symbol {
   ~Symbol() = default;
 
   Type next() {
-    // TODO
-    return Err;
+    tokens.clear();
+    char c;
+
+    while (ifs.get(c) && isspace(c)) { }
+
+    if (!ifs) {
+      type = End;
+      return type;
+    }
+
+    switch (c) {
+    case '"':
+      while (true) {
+        ifs.get(c);
+        if (!ifs) {
+          type = Err;
+          break;
+        }
+        if (c == '"') {
+          type = Str;
+          break;
+        }
+        if (c == '\\') {
+          ifs.get(c);
+          if (c != '"' && c != '\\') {
+            // TODO: other escape sequences
+            type = Err;
+            break;
+          }
+        }
+        tokens.push_back(c);
+      }
+      break;
+
+    case '-':
+    case '+':
+    case '0':
+    case '1':
+    case '2':
+    case '3':
+    case '4':
+    case '5':
+    case '6':
+    case '7':
+    case '8':
+    case '9':
+      while (true) {
+        tokens.push_back(c);
+        ifs.get(c);
+        if (isxdigit(c) || c == '.' || c == '-' || c == '+')
+          continue;
+        if (ifs)
+          ifs.unget();
+        break;
+      }
+      type = Num;
+      break;
+
+    case 't':
+      while (true) {
+        tokens.push_back(c);
+        ifs.get(c);
+        if (!islower(c))
+          break;
+      }
+      if (ifs)
+        ifs.unget();
+      if (tokens == "true")
+        type = Bool;
+      else
+        type = Err;
+      break;
+
+    case 'f':
+      while (true) {
+        tokens.push_back(c);
+        ifs.get(c);
+        if (!islower(c))
+          break;
+      }
+      if (ifs)
+        ifs.unget();
+      if (tokens == "false")
+        type = Bool;
+      else
+        type = Err;
+      break;
+
+    case 'n':
+      while (true) {
+        tokens.push_back(c);
+        ifs.get(c);
+        if (!islower(c))
+          break;
+      }
+      if (ifs)
+        ifs.unget();
+      if (tokens == "null")
+        type = Null;
+      else
+        type = Err;
+      break;
+
+    case '{':
+    case '}':
+    case '[':
+    case ']':
+    case ':':
+    case ',':
+      tokens.push_back(c);
+      type = Op;
+      break;
+
+    default:
+      type = Err;
+    }
+
+    return type;
   }
 };
 
@@ -66,6 +183,34 @@ struct GLTF {
     Symbol symbol(ifs);
 
     // TODO
+
+    //////////
+    do {
+      switch (symbol.next()) {
+      case Symbol::Str:
+        wprintf(L"(Str) `%s`\n", symbol.tokens.data());
+        break;
+      case Symbol::Num:
+        wprintf(L"(Num) `%s`\n", symbol.tokens.data());
+        break;
+      case Symbol::Bool:
+        wprintf(L"(Bool) `%s`\n", symbol.tokens.data());
+        break;
+      case Symbol::Null:
+        wprintf(L"(Null) `%s`\n", symbol.tokens.data());
+        break;
+      case Symbol::Op:
+        wprintf(L"(Op) `%s`\n", symbol.tokens.data());
+        break;
+      case Symbol::End:
+        wprintf(L"(End) `%s`\n", symbol.tokens.data());
+        break;
+      case Symbol::Err:
+        wprintf(L"(ERR)\n `%s`", symbol.tokens.data());
+        break;
+      }
+    } while (symbol.type != Symbol::End && symbol.type != Symbol::Err);
+    //////////
   }
 
   GLTF(const GLTF&) = delete;

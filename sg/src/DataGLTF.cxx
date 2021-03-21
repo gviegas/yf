@@ -201,22 +201,22 @@ class Symbol {
       size_t n = 1;
       do {
         switch (next()) {
-          case Op:
-            if (tokens_[0] == op)
-              ++n;
-            else if (tokens_[0] == cl)
-              --n;
-            break;
+        case Op:
+          if (tokens_[0] == op)
+            ++n;
+          else if (tokens_[0] == cl)
+            --n;
+          break;
 
-          case End:
-          case Err:
-            throw FileExcept("Invalid glTf file");
+        case End:
+        case Err:
+          throw FileExcept("Invalid glTf file");
 
-          default:
-            break;
+        default:
+          break;
         }
       } while (n > 0);
-    } break;
+      } break;
 
     default:
       throw FileExcept("Invalid glTF file");
@@ -268,14 +268,91 @@ class GLTF {
     if (!ifs)
       throw FileExcept("Could not open glTF file");
 
+    // Process symbols
     Symbol symbol(ifs);
 
-    // TODO
+    if (symbol.next() != Symbol::Op || symbol.token() != '{')
+      throw FileExcept("Invalid glTF file");
+
+    while (true) {
+      switch (symbol.next()) {
+      case Symbol::Str:
+        if (symbol.tokens() == "asset")
+          loadAsset(symbol);
+        // TODO...
+        else
+          symbol.consumeProperty();
+        break;
+
+      case Symbol::Op:
+        if (symbol.token() == '}')
+          return;
+        break;
+
+      default:
+        throw FileExcept("Invalid glTF file");
+      }
+    }
   }
 
   GLTF(const GLTF&) = delete;
   GLTF& operator=(const GLTF&) = delete;
   ~GLTF() = default;
+
+  /// `glTF.asset` property.
+  ///
+  struct Asset {
+    string copyright{};
+    string generator{};
+    string version{};
+    string minVersion{};
+  };
+
+  /// Loads `glTF.asset`.
+  ///
+  void loadAsset(Symbol& symbol) {
+    assert(symbol.type() == Symbol::Str && symbol.tokens() == "asset");
+
+    symbol.next(); // ':'
+    symbol.next(); // '{'
+
+    while (true) {
+      switch (symbol.next()) {
+      case Symbol::Str:
+        if (symbol.tokens() == "copyright") {
+          symbol.next();
+          symbol.next();
+          asset_.copyright = symbol.tokens();
+        } else if (symbol.tokens() == "generator") {
+          symbol.next();
+          symbol.next();
+          asset_.generator = symbol.tokens();
+        } else if (symbol.tokens() == "version") {
+          symbol.next();
+          symbol.next();
+          asset_.version = symbol.tokens();
+        } else if (symbol.tokens() == "minVersion") {
+          symbol.next();
+          symbol.next();
+          asset_.minVersion = symbol.tokens();
+        } else {
+          symbol.consumeProperty();
+        }
+        break;
+
+      case Symbol::Op:
+        if (symbol.token() == '}')
+          return;
+        break;
+
+      default:
+        throw FileExcept("Invalid glTF file");
+      }
+    }
+  }
+
+ private:
+  Asset asset_{};
 };
 
 INTERNAL_NS_END

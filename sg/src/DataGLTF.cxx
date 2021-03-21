@@ -41,6 +41,14 @@ class Symbol {
   Symbol& operator=(const Symbol&) = delete;
   ~Symbol() = default;
 
+  explicit operator bool() const {
+    return !operator!();
+  }
+
+  bool operator!() const {
+    return type_ == End || type_ == Err;
+  }
+
   /// Process the next symbol from stream.
   ///
   Type next() {
@@ -263,38 +271,6 @@ class GLTF {
     Symbol symbol(ifs);
 
     // TODO
-
-    //////////
-    do {
-      switch (symbol.next()) {
-      case Symbol::Str:
-        wprintf(L"(Str) `%s`\n", symbol.tokens().data());
-        if (symbol.tokens() == "nodes") {
-          wprintf(L"***consuming...\n");
-          symbol.consumeProperty();
-        }
-        break;
-      case Symbol::Num:
-        wprintf(L"(Num) `%s`\n", symbol.tokens().data());
-        break;
-      case Symbol::Bool:
-        wprintf(L"(Bool) `%s`\n", symbol.tokens().data());
-        break;
-      case Symbol::Null:
-        wprintf(L"(Null) `%s`\n", symbol.tokens().data());
-        break;
-      case Symbol::Op:
-        wprintf(L"(Op) `%s`\n", symbol.tokens().data());
-        break;
-      case Symbol::End:
-        wprintf(L"(End) `%s`\n", symbol.tokens().data());
-        break;
-      case Symbol::Err:
-        wprintf(L"(ERR)\n `%s`", symbol.tokens().data());
-        break;
-      }
-    } while (symbol.type() != Symbol::End && symbol.type() != Symbol::Err);
-    //////////
   }
 
   GLTF(const GLTF&) = delete;

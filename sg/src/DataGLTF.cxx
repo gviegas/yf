@@ -8,6 +8,7 @@
 #include <cwchar>
 #include <cstring>
 #include <cctype>
+#include <cassert>
 #include <fstream>
 
 #include "DataGLTF.h"
@@ -159,6 +160,55 @@ struct Symbol {
 
     return type;
   }
+
+  void consumeProperty() {
+    assert(ifs);
+    assert(type == Str);
+
+    if (next() != Op || tokens[0] != ':')
+      throw FileExcept("Invalid glTF file");
+
+    switch (next()) {
+    case Str:
+    case Num:
+    case Bool:
+    case Null:
+      break;
+
+    case Op: {
+      char op = tokens[0];
+      char cl;
+      if (op == '{')
+        cl = '}';
+      else if (op == '[')
+        cl = ']';
+      else
+        throw FileExcept("Invalid glTF file");
+
+      size_t n = 1;
+      do {
+        switch (next()) {
+          case Op:
+            if (tokens[0] == op)
+              ++n;
+            else if (tokens[0] == cl)
+              --n;
+            break;
+
+          case End:
+          case Err:
+            throw FileExcept("Invalid glTf file");
+
+          default:
+            break;
+        }
+      } while (n > 0);
+    } break;
+
+    default:
+      throw FileExcept("Invalid glTF file");
+    }
+  }
 };
 
 // TODO
@@ -189,6 +239,10 @@ struct GLTF {
       switch (symbol.next()) {
       case Symbol::Str:
         wprintf(L"(Str) `%s`\n", symbol.tokens.data());
+        if (symbol.tokens == "nodes") {
+          wprintf(L"***consuming...\n");
+          symbol.consumeProperty();
+        }
         break;
       case Symbol::Num:
         wprintf(L"(Num) `%s`\n", symbol.tokens.data());

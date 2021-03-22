@@ -320,9 +320,30 @@ class GLTF {
   GLTF& operator=(const GLTF&) = delete;
   ~GLTF() = default;
 
+  /// Parses an integer number.
+  ///
+  void parseNum(Symbol& symbol, int32_t& dst) {
+    if (symbol.type() != Symbol::Num)
+      symbol.consumeUntil(Symbol::Num);
+
+    dst = stol(symbol.tokens());
+  }
+
+  /// Parses a floating-point number.
+  ///
+  void parseNum(Symbol& symbol, float& dst) {
+    if (symbol.type() != Symbol::Num)
+      symbol.consumeUntil(Symbol::Num);
+
+    dst = stof(symbol.tokens());
+  }
+
   /// Parses an array of objects.
   ///
   void parseObjectArray(Symbol& symbol, function<void ()> callback) {
+    if (symbol.type() == Symbol::Op && symbol.token() == '{')
+      callback();
+
     while (true) {
       switch (symbol.next()) {
       case Symbol::Op:
@@ -344,8 +365,7 @@ class GLTF {
     assert(symbol.type() == Symbol::Str);
     assert(symbol.tokens() == "scene");
 
-    symbol.consumeUntil(Symbol::Num);
-    scene_ = stol(symbol.tokens());
+    parseNum(symbol, scene_);
   }
 
   /// Element of `glTF.scenes` property.

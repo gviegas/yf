@@ -455,6 +455,10 @@ class GLTF {
   int32_t scene_ = -1;
   vector<Scene> scenes_{};
   Asset asset_{};
+
+#ifdef YF_DEVEL
+  friend void printGLTF(const GLTF&);
+#endif
 };
 
 INTERNAL_NS_END
@@ -463,16 +467,59 @@ void SG_NS::loadGLTF(Node& dst, const wstring& pathname) {
   GLTF gltf(pathname);
 
   // TODO
+#ifdef YF_DEVEL
+  printGLTF(gltf);
+#endif
 }
 
 void SG_NS::loadGLTF(Model& dst, const wstring& pathname) {
   GLTF gltf(pathname);
 
   // TODO
+#ifdef YF_DEVEL
+  printGLTF(gltf);
+#endif
 }
 
 void SG_NS::loadGLTF(Mesh::Data& dst, const wstring& pathname) {
   GLTF gltf(pathname);
 
   // TODO
+#ifdef YF_DEVEL
+  printGLTF(gltf);
+#endif
 }
+
+//
+// DEVEL
+//
+
+#ifdef YF_DEVEL
+
+INTERNAL_NS_BEGIN
+
+void printGLTF(const GLTF& gltf) {
+  wprintf(L"\nGLTF");
+
+  wprintf(L"\n scene: %d", gltf.scene_);
+
+  wprintf(L"\n scenes:");
+  for (const auto& scn : gltf.scenes_) {
+    wprintf(L"\n  scene `%s`:", scn.name.data());
+    wprintf(L"\n   nodes:");
+    for (auto nd : scn.nodes)
+      wprintf(L" %d", nd);
+  }
+
+  wprintf(L"\n asset:");
+  wprintf(L"\n  copyright: %s", gltf.asset_.copyright.data());
+  wprintf(L"\n  generator: %s", gltf.asset_.generator.data());
+  wprintf(L"\n  version: %s", gltf.asset_.version.data());
+  wprintf(L"\n  minVersion: %s", gltf.asset_.minVersion.data());
+
+  wprintf(L"\n");
+}
+
+INTERNAL_NS_END
+
+#endif

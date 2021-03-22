@@ -5,6 +5,7 @@
 // Copyright © 2021 Gustavo C. Viegas.
 //
 
+#include <cstdint>
 #include <cwchar>
 #include <cstring>
 #include <cctype>
@@ -49,7 +50,7 @@ class Symbol {
     return type_ == End || type_ == Err;
   }
 
-  /// Process the next symbol from stream.
+  /// Gets the next symbol from file stream.
   ///
   Type next() {
     tokens_.clear();
@@ -293,7 +294,9 @@ class GLTF {
       switch (symbol.next()) {
       case Symbol::Str:
         if (symbol.tokens() == "asset")
-          loadAsset(symbol);
+          parseAsset(symbol);
+        else if (symbol.tokens() == "scene")
+          parseScene(symbol);
         // TODO...
         else
           symbol.consumeProperty();
@@ -323,10 +326,11 @@ class GLTF {
     string minVersion{};
   };
 
-  /// Loads `glTF.asset`.
+  /// Parses `glTF.asset`.
   ///
-  void loadAsset(Symbol& symbol) {
-    assert(symbol.type() == Symbol::Str && symbol.tokens() == "asset");
+  void parseAsset(Symbol& symbol) {
+    assert(symbol.type() == Symbol::Str);
+    assert(symbol.tokens() == "asset");
 
     symbol.next(); // ':'
     symbol.next(); // '{'
@@ -362,8 +366,19 @@ class GLTF {
     }
   }
 
+  /// Parses `gltf.scene`.
+  ///
+  void parseScene(Symbol& symbol) {
+    assert(symbol.type() == Symbol::Str);
+    assert(symbol.tokens() == "scene");
+
+    symbol.consumeUntil(Symbol::Num);
+    scene_ = stol(symbol.tokens());
+  }
+
  private:
   Asset asset_{};
+  int32_t scene_ = -1;
 };
 
 INTERNAL_NS_END

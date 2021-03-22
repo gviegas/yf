@@ -320,6 +320,24 @@ class GLTF {
   GLTF& operator=(const GLTF&) = delete;
   ~GLTF() = default;
 
+  /// Parses an array of objects.
+  ///
+  void parseObjectArray(Symbol& symbol, function<void ()> callback) {
+    while (true) {
+      switch (symbol.next()) {
+      case Symbol::Op:
+        if (symbol.token() == '{')
+          callback();
+        else if (symbol.token() == ']')
+          return;
+        break;
+
+      default:
+        throw FileExcept("Invalid glTF file");
+      }
+    }
+  }
+
   /// Parses `gltf.scene`.
   ///
   void parseScene(Symbol& symbol) {
@@ -343,10 +361,9 @@ class GLTF {
     assert(symbol.type() == Symbol::Str);
     assert(symbol.tokens() == "scenes");
 
-    symbol.next(); // ':'
-    symbol.next(); // '['
+    parseObjectArray(symbol, [&] {
+      scenes_.push_back({});
 
-    auto oneScene = [&] {
       while (true) {
         switch (symbol.next()) {
         case Symbol::Str:
@@ -382,23 +399,7 @@ class GLTF {
           throw FileExcept("Invalid glTF file");
         }
       }
-    };
-
-    while (true) {
-      switch (symbol.next()) {
-      case Symbol::Op:
-        if (symbol.token() == '{') {
-          scenes_.push_back({});
-          oneScene();
-        } else if (symbol.token() == ']') {
-          return;
-        }
-        break;
-
-      default:
-        throw FileExcept("Invalid glTF file");
-      }
-    }
+    });
   }
 
   /// `glTF.asset` property.

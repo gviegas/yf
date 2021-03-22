@@ -172,6 +172,21 @@ class Symbol {
     return type_;
   }
 
+  /// Consumes symbols until one with the given type is parsed.
+  ///
+  void consumeUntil(Type type) {
+    assert(ifs_);
+    assert(type != Err);
+
+    while (true) {
+      next();
+      if (type_ == type)
+        break;
+      if (type_ == End || type_ == Err)
+        throw FileExcept("Invalid glTF file");
+    }
+  }
+
   /// Consumes the current property.
   ///
   void consumeProperty() {
@@ -320,20 +335,16 @@ class GLTF {
       switch (symbol.next()) {
       case Symbol::Str:
         if (symbol.tokens() == "copyright") {
-          symbol.next();
-          symbol.next();
+          symbol.consumeUntil(Symbol::Str);
           asset_.copyright = symbol.tokens();
         } else if (symbol.tokens() == "generator") {
-          symbol.next();
-          symbol.next();
+          symbol.consumeUntil(Symbol::Str);
           asset_.generator = symbol.tokens();
         } else if (symbol.tokens() == "version") {
-          symbol.next();
-          symbol.next();
+          symbol.consumeUntil(Symbol::Str);
           asset_.version = symbol.tokens();
         } else if (symbol.tokens() == "minVersion") {
-          symbol.next();
-          symbol.next();
+          symbol.consumeUntil(Symbol::Str);
           asset_.minVersion = symbol.tokens();
         } else {
           symbol.consumeProperty();

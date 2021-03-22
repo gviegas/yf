@@ -351,6 +351,26 @@ class GLTF {
     dst = symbol.tokens();
   }
 
+  /// Parses an array of strings.
+  ///
+  void parseStrArray(Symbol& symbol, vector<string>& dst) {
+    while (true) {
+      switch (symbol.next()) {
+      case Symbol::Str:
+        dst.push_back(symbol.tokens());
+        break;
+
+      case Symbol::Op:
+        if (symbol.token() == ']')
+          return;
+        break;
+
+      default:
+        throw FileExcept("Invalid glTF file");
+      }
+    }
+  }
+
   /// Parses an integer number.
   ///
   void parseNum(Symbol& symbol, int32_t& dst, bool next = true) {

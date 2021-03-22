@@ -342,10 +342,19 @@ class GLTF {
     }
   }
 
+  /// Parses a string.
+  ///
+  void parseStr(Symbol& symbol, string& dst, bool next = true) {
+    if (next || symbol.type() != Symbol::Str)
+      symbol.consumeUntil(Symbol::Str);
+
+    dst = symbol.tokens();
+  }
+
   /// Parses an integer number.
   ///
-  void parseNum(Symbol& symbol, int32_t& dst) {
-    if (symbol.type() != Symbol::Num)
+  void parseNum(Symbol& symbol, int32_t& dst, bool next = true) {
+    if (next || symbol.type() != Symbol::Num)
       symbol.consumeUntil(Symbol::Num);
 
     dst = stol(symbol.tokens());
@@ -353,8 +362,8 @@ class GLTF {
 
   /// Parses a floating-point number.
   ///
-  void parseNum(Symbol& symbol, float& dst) {
-    if (symbol.type() != Symbol::Num)
+  void parseNum(Symbol& symbol, float& dst, bool next = true) {
+    if (next || symbol.type() != Symbol::Num)
       symbol.consumeUntil(Symbol::Num);
 
     dst = stof(symbol.tokens());
@@ -371,7 +380,7 @@ class GLTF {
     while (true) {
       switch (symbol.next()) {
       case Symbol::Num:
-        parseNum(symbol, num);
+        parseNum(symbol, num, false);
         dst.push_back(num);
         break;
 
@@ -451,27 +460,19 @@ class GLTF {
     assert(symbol.type() == Symbol::Str);
     assert(symbol.tokens() == "asset");
 
-    symbol.next(); // ':'
-    symbol.next(); // '{'
-
     while (true) {
       switch (symbol.next()) {
       case Symbol::Str:
-        if (symbol.tokens() == "copyright") {
-          symbol.consumeUntil(Symbol::Str);
-          asset_.copyright = symbol.tokens();
-        } else if (symbol.tokens() == "generator") {
-          symbol.consumeUntil(Symbol::Str);
-          asset_.generator = symbol.tokens();
-        } else if (symbol.tokens() == "version") {
-          symbol.consumeUntil(Symbol::Str);
-          asset_.version = symbol.tokens();
-        } else if (symbol.tokens() == "minVersion") {
-          symbol.consumeUntil(Symbol::Str);
-          asset_.minVersion = symbol.tokens();
-        } else {
+        if (symbol.tokens() == "copyright")
+          parseStr(symbol, asset_.copyright);
+        else if (symbol.tokens() == "generator")
+          parseStr(symbol, asset_.generator);
+        else if (symbol.tokens() == "version")
+          parseStr(symbol, asset_.version);
+        else if (symbol.tokens() == "minVersion")
+          parseStr(symbol, asset_.minVersion);
+        else
           symbol.consumeProperty();
-        }
         break;
 
       case Symbol::Op:

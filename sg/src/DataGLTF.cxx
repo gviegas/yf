@@ -12,6 +12,7 @@
 #include <cassert>
 #include <fstream>
 #include <vector>
+#include <type_traits>
 
 #include "DataGLTF.h"
 #include "yf/Except.h"
@@ -320,6 +321,27 @@ class GLTF {
   GLTF& operator=(const GLTF&) = delete;
   ~GLTF() = default;
 
+  /// Parses an array of objects.
+  ///
+  void parseObjectArray(Symbol& symbol, function<void ()> callback) {
+    if (symbol.type() == Symbol::Op && symbol.token() == '{')
+      callback();
+
+    while (true) {
+      switch (symbol.next()) {
+      case Symbol::Op:
+        if (symbol.token() == '{')
+          callback();
+        else if (symbol.token() == ']')
+          return;
+        break;
+
+      default:
+        throw FileExcept("Invalid glTF file");
+      }
+    }
+  }
+
   /// Parses an integer number.
   ///
   void parseNum(Symbol& symbol, int32_t& dst) {
@@ -338,18 +360,23 @@ class GLTF {
     dst = stof(symbol.tokens());
   }
 
-  /// Parses an array of objects.
+  /// Parses an array of numbers.
   ///
-  void parseObjectArray(Symbol& symbol, function<void ()> callback) {
-    if (symbol.type() == Symbol::Op && symbol.token() == '{')
-      callback();
+  template<class T>
+  void parseNumArray(Symbol& symbol, vector<T>& dst) {
+    static_assert(is_arithmetic<T>(),
+                  "parseNumArray() requires a numeric type");
+    T num;
 
     while (true) {
       switch (symbol.next()) {
+      case Symbol::Num:
+        parseNum(symbol, num);
+        dst.push_back(num);
+        break;
+
       case Symbol::Op:
-        if (symbol.token() == '{')
-          callback();
-        else if (symbol.token() == ']')
+        if (symbol.token() == ']')
           return;
         break;
 
@@ -388,20 +415,7 @@ class GLTF {
         switch (symbol.next()) {
         case Symbol::Str:
           if (symbol.tokens() == "nodes") {
-            symbol.next(); // ':'
-            symbol.next(); // '['
-            do {
-              switch (symbol.next()) {
-              case Symbol::Num:
-                scenes_.back().nodes.push_back(stol(symbol.tokens()));
-                break;
-              case Symbol::End:
-              case Symbol::Err:
-                throw FileExcept("Invalid glTF file");
-              default:
-                break;
-              }
-            } while (symbol.type() != Symbol::Op || symbol.token() != ']');
+            parseNumArray(symbol, scenes_.back().nodes);
           } else if (symbol.tokens() == "name") {
             symbol.consumeUntil(Symbol::Str);
             scenes_.back().name = symbol.tokens();

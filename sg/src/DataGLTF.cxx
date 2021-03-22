@@ -11,6 +11,7 @@
 #include <cctype>
 #include <cassert>
 #include <fstream>
+#include <vector>
 
 #include "DataGLTF.h"
 #include "yf/Except.h"
@@ -293,10 +294,12 @@ class GLTF {
     while (true) {
       switch (symbol.next()) {
       case Symbol::Str:
-        if (symbol.tokens() == "asset")
-          parseAsset(symbol);
-        else if (symbol.tokens() == "scene")
+        if (symbol.tokens() == "scene")
           parseScene(symbol);
+        else if (symbol.tokens() == "scenes")
+          parseScenes(symbol);
+        else if (symbol.tokens() == "asset")
+          parseAsset(symbol);
         // TODO...
         else
           symbol.consumeProperty();
@@ -316,6 +319,87 @@ class GLTF {
   GLTF(const GLTF&) = delete;
   GLTF& operator=(const GLTF&) = delete;
   ~GLTF() = default;
+
+  /// Parses `gltf.scene`.
+  ///
+  void parseScene(Symbol& symbol) {
+    assert(symbol.type() == Symbol::Str);
+    assert(symbol.tokens() == "scene");
+
+    symbol.consumeUntil(Symbol::Num);
+    scene_ = stol(symbol.tokens());
+  }
+
+  /// Element of `glTF.scenes` property.
+  ///
+  struct Scene {
+    vector<int32_t> nodes{};
+    string name{};
+  };
+
+  /// Parses `glTF.scenes`.
+  ///
+  void parseScenes(Symbol& symbol) {
+    assert(symbol.type() == Symbol::Str);
+    assert(symbol.tokens() == "scenes");
+
+    symbol.next(); // ':'
+    symbol.next(); // '['
+
+    auto oneScene = [&] {
+      while (true) {
+        switch (symbol.next()) {
+        case Symbol::Str:
+          if (symbol.tokens() == "nodes") {
+            symbol.next(); // ':'
+            symbol.next(); // '['
+            do {
+              switch (symbol.next()) {
+              case Symbol::Num:
+                scenes_.back().nodes.push_back(stol(symbol.tokens()));
+                break;
+              case Symbol::End:
+              case Symbol::Err:
+                throw FileExcept("Invalid glTF file");
+              default:
+                break;
+              }
+            } while (symbol.type() != Symbol::Op || symbol.token() != ']');
+          } else if (symbol.tokens() == "name") {
+            symbol.consumeUntil(Symbol::Str);
+            scenes_.back().name = symbol.tokens();
+          } else {
+            symbol.consumeProperty();
+          }
+          break;
+
+        case Symbol::Op:
+          if (symbol.token() == '}')
+            return;
+          break;
+
+        default:
+          throw FileExcept("Invalid glTF file");
+        }
+      }
+    };
+
+    while (true) {
+      switch (symbol.next()) {
+      case Symbol::Op:
+        if (symbol.token() == '{') {
+          scenes_.push_back({});
+          oneScene();
+        } else if (symbol.token() == ']') {
+          return;
+        }
+        break;
+
+      default:
+        throw FileExcept("Invalid glTF file");
+      }
+    }
+  }
 
   /// `glTF.asset` property.
   ///
@@ -366,19 +450,10 @@ class GLTF {
     }
   }
 
-  /// Parses `gltf.scene`.
-  ///
-  void parseScene(Symbol& symbol) {
-    assert(symbol.type() == Symbol::Str);
-    assert(symbol.tokens() == "scene");
-
-    symbol.consumeUntil(Symbol::Num);
-    scene_ = stol(symbol.tokens());
-  }
-
  private:
-  Asset asset_{};
   int32_t scene_ = -1;
+  vector<Scene> scenes_{};
+  Asset asset_{};
 };
 
 INTERNAL_NS_END

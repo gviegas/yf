@@ -299,6 +299,8 @@ class GLTF {
           parseScene(symbol);
         else if (symbol.tokens() == "scenes")
           parseScenes(symbol);
+        else if (symbol.tokens() == "nodes")
+          parseNodes(symbol);
         else if (symbol.tokens() == "asset")
           parseAsset(symbol);
         // TODO...
@@ -443,19 +445,113 @@ class GLTF {
       while (true) {
         switch (symbol.next()) {
         case Symbol::Str:
-          if (symbol.tokens() == "nodes") {
+          if (symbol.tokens() == "nodes")
             parseNumArray(symbol, scenes_.back().nodes);
-          } else if (symbol.tokens() == "name") {
-            symbol.consumeUntil(Symbol::Str);
-            scenes_.back().name = symbol.tokens();
-          } else {
+          else if (symbol.tokens() == "name")
+            parseStr(symbol, scenes_.back().name);
+          else
             symbol.consumeProperty();
-          }
           break;
 
         case Symbol::Op:
           if (symbol.token() == '}')
             return;
+          break;
+
+        default:
+          throw FileExcept("Invalid glTF file");
+        }
+      }
+    });
+  }
+
+  /// Element of `glTF.nodes` property.
+  ///
+  struct Node {
+    // `size()` tells whether this is a TRS or a matrix
+    vector<float> transform{0.0f, 0.0f, 0.0f,
+                            0.0f, 0.0f, 0.0f, 1.0f,
+                            1.0f, 1.0f, 1.0f};
+
+    vector<int32_t> children{};
+    int32_t camera = -1;
+    int32_t mesh = -1;
+    int32_t skin = -1;
+    vector<float> weights{};
+    string name{};
+  };
+
+  /// Parses `glTF.nodes`.
+  ///
+  void parseNodes(Symbol& symbol) {
+    assert(symbol.type() == Symbol::Str);
+    assert(symbol.tokens() == "nodes");
+
+    parseObjectArray(symbol, [&] {
+      nodes_.push_back({});
+
+      vector<float> t, r, s, m;
+
+      while (true) {
+        switch (symbol.next()) {
+        case Symbol::Str:
+          if (symbol.tokens() == "children")
+            parseNumArray(symbol, nodes_.back().children);
+          else if (symbol.tokens() == "camera")
+            parseNum(symbol, nodes_.back().camera);
+          else if (symbol.tokens() == "mesh")
+            parseNum(symbol, nodes_.back().mesh);
+          else if (symbol.tokens() == "skin")
+            parseNum(symbol, nodes_.back().skin);
+          else if (symbol.tokens() == "weights")
+            parseNumArray(symbol, nodes_.back().weights);
+          else if (symbol.tokens() == "translation")
+            parseNumArray(symbol, t);
+          else if (symbol.tokens() == "rotation")
+            parseNumArray(symbol, r);
+          else if (symbol.tokens() == "scale")
+            parseNumArray(symbol, s);
+          else if (symbol.tokens() == "matrix")
+            parseNumArray(symbol, m);
+          else if (symbol.tokens() == "name")
+            parseStr(symbol, nodes_.back().name);
+          else
+            symbol.consumeProperty();
+          break;
+
+        case Symbol::Op:
+          if (symbol.token() == '}') {
+            if (m.empty()) {
+              auto& xform = nodes_.back().transform;
+              if (!t.empty()) {
+                if (t.size() != 3)
+                  throw FileExcept("Invalid glTF file");
+                xform[0] = t[0];
+                xform[1] = t[1];
+                xform[2] = t[2];
+              }
+              if (!r.empty()) {
+                if (r.size() != 4)
+                  throw FileExcept("Invalid glTF file");
+                xform[3] = r[0];
+                xform[4] = r[1];
+                xform[5] = r[2];
+                xform[6] = r[3];
+              }
+              if (!s.empty()) {
+                if (s.size() != 3)
+                  throw FileExcept("Invalid glTF file");
+                xform[7] = s[0];
+                xform[8] = s[1];
+                xform[9] = s[2];
+              }
+            } else {
+              if (m.size() != 16)
+                throw FileExcept("Invalid glTF file");
+              nodes_.back().transform = m;
+            }
+            return;
+          }
           break;
 
         default:
@@ -509,6 +605,7 @@ class GLTF {
  private:
   int32_t scene_ = -1;
   vector<Scene> scenes_{};
+  vector<Node> nodes_{};
   Asset asset_{};
 
 #ifdef YF_DEVEL
@@ -564,6 +661,38 @@ void printGLTF(const GLTF& gltf) {
     wprintf(L"\n   nodes:");
     for (auto nd : scn.nodes)
       wprintf(L" %d", nd);
+  }
+
+  wprintf(L"\n nodes:");
+  for (const auto& nd : gltf.nodes_) {
+    wprintf(L"\n  node `%s`:", nd.name.data());
+    wprintf(L"\n   children:");
+    for (auto ch : nd.children)
+      wprintf(L" %d", ch);
+    wprintf(L"\n   camera: %d", nd.camera);
+    wprintf(L"\n   mesh: %d", nd.mesh);
+    wprintf(L"\n   skin: %d", nd.skin);
+    wprintf(L"\n   weights:");
+    for (auto wt : nd.weights)
+      wprintf(L" %.6f", wt);
+    wprintf(L"\n   transform:");
+    if (nd.transform.size() == 10) {
+      wprintf(L"\n    T:");
+      for (size_t i = 0; i < 3; ++i)
+        wprintf(L" %.6f", nd.transform[i]);
+      wprintf(L"\n    R:");
+      for (size_t i = 3; i < 7; ++i)
+        wprintf(L" %.6f", nd.transform[i]);
+      wprintf(L"\n    S:");
+      for (size_t i = 7; i < 10; ++i)
+        wprintf(L" %.6f", nd.transform[i]);
+    } else {
+      for (size_t i = 0; i < nd.transform.size(); ++i) {
+        if (i%4 == 0)
+          wprintf(L"\n   ");
+        wprintf(L" %.6f", nd.transform[i]);
+      }
+    }
   }
 
   wprintf(L"\n asset:");

@@ -310,6 +310,8 @@ class GLTF {
           parseTextures(symbol);
         else if (symbol.tokens() == "samplers")
           parseSamplers(symbol);
+        else if (symbol.tokens() == "images")
+          parseImages(symbol);
         else if (symbol.tokens() == "asset")
           parseAsset(symbol);
         // TODO...
@@ -1004,6 +1006,51 @@ class GLTF {
     });
   }
 
+  /// Element of `gltf.images` property.
+  ///
+  struct Image {
+    string uri{};
+    string mimeType{};
+    int32_t bufferView = -1;
+    string name{};
+  };
+
+  /// Parses `gltf.images`.
+  ///
+  void parseImages(Symbol& symbol) {
+    assert(symbol.type() == Symbol::Str);
+    assert(symbol.tokens() == "images");
+
+    parseObjectArray(symbol, [&] {
+      images_.push_back({});
+
+      while (true) {
+        switch (symbol.next()) {
+        case Symbol::Str:
+          if (symbol.tokens() == "uri")
+            parseStr(symbol, images_.back().uri);
+          else if (symbol.tokens() == "mimeType")
+            parseStr(symbol, images_.back().mimeType);
+          else if (symbol.tokens() == "bufferView")
+            parseNum(symbol, images_.back().bufferView);
+          else if (symbol.tokens() == "name")
+            parseStr(symbol, images_.back().name);
+          else
+            symbol.consumeProperty();
+          break;
+
+        case Symbol::Op:
+          if (symbol.token() == '}')
+            return;
+          break;
+
+        default:
+          throw FileExcept("Invalid glTF file");
+        }
+      }
+    });
+  }
+
   /// `glTF.asset` property.
   ///
   struct Asset {
@@ -1053,6 +1100,7 @@ class GLTF {
   vector<Material> materials_{};
   vector<Texture> textures_{};
   vector<Sampler> samplers_{};
+  vector<Image> images_{};
   Asset asset_{};
 
 #ifdef YF_DEVEL
@@ -1220,6 +1268,14 @@ void printGLTF(const GLTF& gltf) {
     wprintf(L"\n   wrapT: %d", spl.wrapT);
     wprintf(L"\n   magFilter: %d", spl.magFilter);
     wprintf(L"\n   minFilter: %d", spl.minFilter);
+  }
+
+  wprintf(L"\n images:");
+  for (const auto& img : gltf.images_) {
+    wprintf(L"\n  image `%s`:", img.name.data());
+    wprintf(L"\n   uri: %s", img.uri.data());
+    wprintf(L"\n   mimeType: %s", img.mimeType.data());
+    wprintf(L"\n   bufferView: %d", img.bufferView);
   }
 
   wprintf(L"\n asset:");

@@ -308,6 +308,8 @@ class GLTF {
           parseMaterials(symbol);
         else if (symbol.tokens() == "textures")
           parseTextures(symbol);
+        else if (symbol.tokens() == "samplers")
+          parseSamplers(symbol);
         else if (symbol.tokens() == "asset")
           parseAsset(symbol);
         // TODO...
@@ -592,7 +594,7 @@ class GLTF {
       int32_t material = -1;
       vector<unordered_map<string, int32_t>> targets{};
 
-      enum Mode {
+      enum Mode : int32_t {
         Points = 0,
         Lines = 1,
         LineLoop = 2,
@@ -933,6 +935,75 @@ class GLTF {
     });
   }
 
+  /// Element of `gltf.samplers` property.
+  ///
+  struct Sampler {
+    enum WrapMode : int32_t {
+      ClampToEdge = 33071,
+      MirroredRepeat = 33648,
+      Repeat = 10497
+    };
+
+    enum Filter : int32_t {
+      Nearest = 9728,
+      Linear = 9729,
+      NearestMipmapNearest = 9984,
+      LinearMipmapNearest = 9985,
+      NearestMipmapLinear = 9986,
+      LinearMipmapLinear = 9987,
+
+      Undefined = -1
+    };
+
+    WrapMode wrapS = Repeat;
+    WrapMode wrapT = Repeat;
+    Filter magFilter = Undefined;
+    Filter minFilter = Undefined;
+    string name{};
+  };
+
+  /// Parses `glTF.samplers`.
+  ///
+  void parseSamplers(Symbol& symbol) {
+    assert(symbol.type() == Symbol::Str);
+    assert(symbol.tokens() == "samplers");
+
+    parseObjectArray(symbol, [&] {
+      samplers_.push_back({});
+
+      while (true) {
+        switch (symbol.next()) {
+        case Symbol::Str:
+          if (symbol.tokens() == "wrapS")
+            parseNum(symbol,
+                     reinterpret_cast<int32_t&>(samplers_.back().wrapS));
+          else if (symbol.tokens() == "wrapT")
+            parseNum(symbol,
+                     reinterpret_cast<int32_t&>(samplers_.back().wrapT));
+          else if (symbol.tokens() == "magFilter")
+            parseNum(symbol,
+                     reinterpret_cast<int32_t&>(samplers_.back().magFilter));
+          else if (symbol.tokens() == "minFilter")
+            parseNum(symbol,
+                     reinterpret_cast<int32_t&>(samplers_.back().minFilter));
+          else if (symbol.tokens() == "name")
+            parseStr(symbol, samplers_.back().name);
+          else
+            symbol.consumeProperty();
+          break;
+
+        case Symbol::Op:
+          if (symbol.token() == '}')
+            return;
+          break;
+
+        default:
+          throw FileExcept("Invalid glTF file");
+        }
+      }
+    });
+  }
+
   /// `glTF.asset` property.
   ///
   struct Asset {
@@ -981,6 +1052,7 @@ class GLTF {
   vector<Mesh> meshes_{};
   vector<Material> materials_{};
   vector<Texture> textures_{};
+  vector<Sampler> samplers_{};
   Asset asset_{};
 
 #ifdef YF_DEVEL
@@ -1139,6 +1211,15 @@ void printGLTF(const GLTF& gltf) {
     wprintf(L"\n  texture `%s`:", tex.name.data());
     wprintf(L"\n   sampler: %d", tex.sampler);
     wprintf(L"\n   source: %d", tex.source);
+  }
+
+  wprintf(L"\n samplers:");
+  for (const auto& spl : gltf.samplers_) {
+    wprintf(L"\n  sampler `%s`:", spl.name.data());
+    wprintf(L"\n   wrapS: %d", spl.wrapS);
+    wprintf(L"\n   wrapT: %d", spl.wrapT);
+    wprintf(L"\n   magFilter: %d", spl.magFilter);
+    wprintf(L"\n   minFilter: %d", spl.minFilter);
   }
 
   wprintf(L"\n asset:");

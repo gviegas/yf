@@ -689,6 +689,41 @@ class GLTF {
     });
   }
 
+  /// Element of `glTF.materials` property.
+  ///
+  struct Material {
+    struct TextureInfo {
+      int32_t index = -1;
+      int32_t texCoord = 0;
+    };
+
+    struct PbrMetallicRoughness {
+      TextureInfo baseColorTexture{};
+      float baseColorFactor[4]{1.0f, 1.0f, 1.0f, 1.0f};
+      TextureInfo metallicRoughnessTexture{};
+      float metallicFactor = 1.0f;
+      float roughnessFactor = 1.0f;
+    };
+
+    struct NormalTextureInfo : TextureInfo {
+      float scale = 1.0f;
+    };
+
+    struct OcclusionTextureInfo : TextureInfo {
+      float strength = 1.0f;
+    };
+
+    PbrMetallicRoughness pbrMetallicRoughness{};
+    NormalTextureInfo normalTexture{};
+    OcclusionTextureInfo occlusionTexture{};
+    TextureInfo emissiveTexture{};
+    float emissiveFactor[3]{0.0f, 0.0f, 0.0f};
+    string alphaMode{"OPAQUE"};
+    float alphaCutoff = 0.5f;
+    bool doubleSided = false;
+    string name{};
+  };
+
   /// `glTF.asset` property.
   ///
   struct Asset {
@@ -735,6 +770,7 @@ class GLTF {
   vector<Scene> scenes_{};
   vector<Node> nodes_{};
   vector<Mesh> meshes_{};
+  vector<Material> materials_{};
   Asset asset_{};
 
 #ifdef YF_DEVEL

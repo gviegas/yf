@@ -303,6 +303,8 @@ class GLTF {
           parseNodes(symbol);
         else if (symbol.tokens() == "meshes")
           parseMeshes(symbol);
+        else if (symbol.tokens() == "materials")
+          parseMaterials(symbol);
         else if (symbol.tokens() == "asset")
           parseAsset(symbol);
         // TODO...
@@ -1031,6 +1033,48 @@ void printGLTF(const GLTF& gltf) {
     wprintf(L"\n   weights:");
     for (auto wt : msh.weights)
       wprintf(L" %.6f", wt);
+  }
+
+  wprintf(L"\n materials:");
+  for (const auto& ml : gltf.materials_) {
+    wprintf(L"\n  material `%s`:", ml.name.data());
+    wprintf(L"\n   pbrMetallicRoughness:");
+    wprintf(L"\n    baseColorTexture:");
+    wprintf(L"\n     index: %d",
+            ml.pbrMetallicRoughness.baseColorTexture.index);
+    wprintf(L"\n     texCoord: %d",
+            ml.pbrMetallicRoughness.baseColorTexture.texCoord);
+    wprintf(L"\n    baseColorFactor: [ ");
+    for (auto v : ml.pbrMetallicRoughness.baseColorFactor)
+      wprintf(L"%.6f ", v);
+    wprintf(L"]");
+    wprintf(L"\n    metallicRoughnessTexture:");
+    wprintf(L"\n     index: %d",
+            ml.pbrMetallicRoughness.metallicRoughnessTexture.index);
+    wprintf(L"\n     texCoord: %d",
+            ml.pbrMetallicRoughness.metallicRoughnessTexture.texCoord);
+    wprintf(L"\n    metallicFactor: %.6f",
+            ml.pbrMetallicRoughness.metallicFactor);
+    wprintf(L"\n    roughnessFactor: %.6f",
+            ml.pbrMetallicRoughness.roughnessFactor);
+    wprintf(L"\n   normalTexture:");
+    wprintf(L"\n    index: %d", ml.normalTexture.index);
+    wprintf(L"\n    texCoord: %d", ml.normalTexture.texCoord);
+    wprintf(L"\n    scale: %.6f", ml.normalTexture.scale);
+    wprintf(L"\n   occlusionTexture:");
+    wprintf(L"\n    index: %d", ml.occlusionTexture.index);
+    wprintf(L"\n    texCoord: %d", ml.occlusionTexture.texCoord);
+    wprintf(L"\n    strength: %.6f", ml.occlusionTexture.strength);
+    wprintf(L"\n   emissiveTexture:");
+    wprintf(L"\n    index: %d", ml.emissiveTexture.index);
+    wprintf(L"\n    texCoord: %d", ml.emissiveTexture.texCoord);
+    wprintf(L"\n   emissiveFactor: [ ");
+    for (auto v : ml.emissiveFactor)
+      wprintf(L"%.6f ", v);
+    wprintf(L"]");
+    wprintf(L"\n   alphaMode: `%s`", ml.alphaMode.data());
+    wprintf(L"\n   alphaCutoff: %.6f", ml.alphaCutoff);
+    wprintf(L"\n   doubleSided: %s", ml.doubleSided ? "true" : "false");
   }
 
   wprintf(L"\n asset:");

@@ -12,6 +12,7 @@
 #include <cassert>
 #include <fstream>
 #include <vector>
+#include <unordered_map>
 #include <type_traits>
 
 #include "DataGLTF.h"
@@ -359,7 +360,10 @@ class GLTF {
 
   /// Parses an array of strings.
   ///
-  void parseStrArray(Symbol& symbol, vector<string>& dst) {
+  void parseStrArray(Symbol& symbol, vector<string>& dst, bool clear = false) {
+    if (clear)
+      dst.clear();
+
     while (true) {
       switch (symbol.next()) {
       case Symbol::Str:
@@ -398,9 +402,12 @@ class GLTF {
   /// Parses an array of numbers.
   ///
   template<class T>
-  void parseNumArray(Symbol& symbol, vector<T>& dst) {
+  void parseNumArray(Symbol& symbol, vector<T>& dst, bool clear = false) {
     static_assert(is_arithmetic<T>(),
                   "parseNumArray() requires a numeric type");
+    if (clear)
+      dst.clear();
+
     T num;
 
     while (true) {
@@ -598,10 +605,7 @@ class GLTF {
     assert(symbol.type() == Symbol::Str);
     assert(symbol.tokens() == "meshes");
 
-    auto parseDictionary = [&] {
-      auto& dict = symbol.type() == Symbol::Str ?
-                   meshes_.back().primitives.back().attributes :
-                   meshes_.back().primitives.back().targets.back();
+    auto parseDictionary = [&](unordered_map<string, int32_t>& dict) {
       string key{};
       int32_t value{};
 
@@ -636,7 +640,7 @@ class GLTF {
         switch (symbol.next()) {
         case Symbol::Str:
           if (symbol.tokens() == "attributes")
-            parseDictionary();
+            parseDictionary(prim.attributes);
           else if (symbol.tokens() == "indices")
             parseNum(symbol, prim.indices);
           else if (symbol.tokens() == "material")
@@ -644,7 +648,7 @@ class GLTF {
           else if (symbol.tokens() == "targets")
             parseObjectArray(symbol, [&] {
               prim.targets.push_back({});
-              parseDictionary();
+              parseDictionary(prim.targets.back());
             });
           else if (symbol.tokens() == "mode")
             parseNum(symbol, reinterpret_cast<int32_t&>(prim.mode));
@@ -764,7 +768,7 @@ class GLTF {
           if (symbol.tokens() == "baseColorTexture")
             parseTextureInfo(pbrmr.baseColorTexture);
           else if (symbol.tokens() == "baseColorFactor")
-            parseNumArray(symbol, pbrmr.baseColorFactor);
+            parseNumArray(symbol, pbrmr.baseColorFactor, true);
           else if (symbol.tokens() == "metallicRoughnessTexture")
             parseTextureInfo(pbrmr.metallicRoughnessTexture);
           else if (symbol.tokens() == "metallicFactor")
@@ -851,7 +855,7 @@ class GLTF {
           else if (symbol.tokens() == "emissiveTexture")
             parseTextureInfo(materials_.back().emissiveTexture);
           else if (symbol.tokens() == "emissiveFactor")
-            parseNumArray(symbol, materials_.back().emissiveFactor);
+            parseNumArray(symbol, materials_.back().emissiveFactor, true);
           else if (symbol.tokens() == "alphaMode")
             parseStr(symbol, materials_.back().alphaMode);
           else if (symbol.tokens() == "alphaCutoff")

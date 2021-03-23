@@ -301,6 +301,8 @@ class GLTF {
           parseScenes(symbol);
         else if (symbol.tokens() == "nodes")
           parseNodes(symbol);
+        else if (symbol.tokens() == "meshes")
+          parseMeshes(symbol);
         else if (symbol.tokens() == "asset")
           parseAsset(symbol);
         // TODO...
@@ -612,7 +614,7 @@ class GLTF {
 
         switch (symbol.next()) {
         case Symbol::Op:
-          if (symbol.token() == ']')
+          if (symbol.token() == '}')
             return;
           if (symbol.next() != Symbol::Str)
             throw FileExcept("Invalid glTF file");
@@ -820,6 +822,28 @@ void printGLTF(const GLTF& gltf) {
         wprintf(L" %.6f", nd.transform[i]);
       }
     }
+  }
+
+  wprintf(L"\n meshes:");
+  for (const auto& msh : gltf.meshes_) {
+    wprintf(L"\n  mesh `%s`:", msh.name.data());
+    wprintf(L"\n   primitives:");
+    for (const auto& prm : msh.primitives) {
+      wprintf(L"\n    attributes:");
+      for (const auto& att : prm.attributes)
+        wprintf(L"\n     %s : %d", att.first.data(), att.second);
+      wprintf(L"\n    indices: %d", prm.indices);
+      wprintf(L"\n    material: %d", prm.material);
+      wprintf(L"\n    mode: %d", prm.mode);
+      for (const auto& tgt : prm.targets) {
+        wprintf(L"\n     target:");
+        for (const auto& att : tgt)
+          wprintf(L"\n      %s : %d", att.first.data(), att.second);
+      }
+    }
+    wprintf(L"\n   weights:");
+    for (auto wt : msh.weights)
+      wprintf(L" %.6f", wt);
   }
 
   wprintf(L"\n asset:");

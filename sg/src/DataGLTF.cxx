@@ -699,7 +699,7 @@ class GLTF {
 
     struct PbrMetallicRoughness {
       TextureInfo baseColorTexture{};
-      float baseColorFactor[4]{1.0f, 1.0f, 1.0f, 1.0f};
+      vector<float> baseColorFactor{1.0f, 1.0f, 1.0f, 1.0f};
       TextureInfo metallicRoughnessTexture{};
       float metallicFactor = 1.0f;
       float roughnessFactor = 1.0f;
@@ -717,12 +717,163 @@ class GLTF {
     NormalTextureInfo normalTexture{};
     OcclusionTextureInfo occlusionTexture{};
     TextureInfo emissiveTexture{};
-    float emissiveFactor[3]{0.0f, 0.0f, 0.0f};
+    vector<float> emissiveFactor{0.0f, 0.0f, 0.0f};
     string alphaMode{"OPAQUE"};
     float alphaCutoff = 0.5f;
     bool doubleSided = false;
     string name{};
   };
+
+  /// Parses `glTF.materials`.
+  ///
+  void parseMaterials(Symbol& symbol) {
+    assert(symbol.type() == Symbol::Str);
+    assert(symbol.tokens() == "materials");
+
+    auto parseTextureInfo = [&](Material::TextureInfo& dst) {
+      while (true) {
+        switch (symbol.next()) {
+        case Symbol::Str:
+          if (symbol.tokens() == "index")
+            parseNum(symbol, dst.index);
+          else if (symbol.tokens() == "texCoord")
+            parseNum(symbol, dst.texCoord);
+          else
+            symbol.consumeProperty();
+          break;
+
+        case Symbol::Op:
+          if (symbol.token() == '}')
+            return;
+          break;
+
+        default:
+          throw FileExcept("Invalid glTF file");
+        }
+      }
+    };
+
+    auto parsePbrMetallicRoughness = [&] {
+      auto& pbrmr = materials_.back().pbrMetallicRoughness;
+
+      while (true) {
+        switch (symbol.next()) {
+        case Symbol::Str:
+          if (symbol.tokens() == "baseColorTexture")
+            parseTextureInfo(pbrmr.baseColorTexture);
+          else if (symbol.tokens() == "baseColorFactor")
+            parseNumArray(symbol, pbrmr.baseColorFactor);
+          else if (symbol.tokens() == "metallicRoughnessTexture")
+            parseTextureInfo(pbrmr.metallicRoughnessTexture);
+          else if (symbol.tokens() == "metallicFactor")
+            parseNum(symbol, pbrmr.metallicFactor);
+          else if (symbol.tokens() == "roughnessFactor")
+            parseNum(symbol, pbrmr.roughnessFactor);
+          else
+            symbol.consumeProperty();
+          break;
+
+        case Symbol::Op:
+          if (symbol.token() == '}')
+            return;
+          break;
+
+        default:
+          throw FileExcept("Invalid glTF file");
+        }
+      }
+    };
+
+    auto parseNormalTexture = [&] {
+      while (true) {
+        switch (symbol.next()) {
+        case Symbol::Str:
+          if (symbol.tokens() == "index")
+            parseNum(symbol, materials_.back().normalTexture.index);
+          else if (symbol.tokens() == "texCoord")
+            parseNum(symbol, materials_.back().normalTexture.texCoord);
+          else if (symbol.tokens() == "scale")
+            parseNum(symbol, materials_.back().normalTexture.scale);
+          else
+            symbol.consumeProperty();
+          break;
+
+        case Symbol::Op:
+          if (symbol.token() == '}')
+            return;
+          break;
+
+        default:
+          throw FileExcept("Invalid glTF file");
+        }
+      }
+    };
+
+    auto parseOcclusionTexture = [&] {
+      while (true) {
+        switch (symbol.next()) {
+        case Symbol::Str:
+          if (symbol.tokens() == "index")
+            parseNum(symbol, materials_.back().occlusionTexture.index);
+          else if (symbol.tokens() == "texCoord")
+            parseNum(symbol, materials_.back().occlusionTexture.texCoord);
+          else if (symbol.tokens() == "strength")
+            parseNum(symbol, materials_.back().occlusionTexture.strength);
+          else
+            symbol.consumeProperty();
+          break;
+
+        case Symbol::Op:
+          if (symbol.token() == '}')
+            return;
+          break;
+
+        default:
+          throw FileExcept("Invalid glTF file");
+        }
+      }
+    };
+
+    parseObjectArray(symbol, [&] {
+      materials_.push_back({});
+
+      while (true) {
+        switch (symbol.next()) {
+        case Symbol::Str:
+          if (symbol.tokens() == "pbrMetallicRoughness")
+            parsePbrMetallicRoughness();
+          else if (symbol.tokens() == "normalTexture")
+            parseNormalTexture();
+          else if (symbol.tokens() == "occlusionTexture")
+            parseOcclusionTexture();
+          else if (symbol.tokens() == "emissiveTexture")
+            parseTextureInfo(materials_.back().emissiveTexture);
+          else if (symbol.tokens() == "emissiveFactor")
+            parseNumArray(symbol, materials_.back().emissiveFactor);
+          else if (symbol.tokens() == "alphaMode")
+            parseStr(symbol, materials_.back().alphaMode);
+          else if (symbol.tokens() == "alphaCutoff")
+            parseNum(symbol, materials_.back().alphaCutoff);
+          else if (symbol.tokens() == "doubleSided")
+            // TODO
+            ;
+          else if (symbol.tokens() == "name")
+            parseStr(symbol, materials_.back().name);
+          else
+            symbol.consumeProperty();
+          break;
+
+        case Symbol::Op:
+          if (symbol.token() == '}')
+            return;
+          break;
+
+        default:
+          throw FileExcept("Invalid glTF file");
+        }
+      }
+    });
+  }
 
   /// `glTF.asset` property.
   ///

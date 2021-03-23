@@ -428,6 +428,15 @@ class GLTF {
     }
   }
 
+  /// Parses a boolean value.
+  ///
+  void parseBool(Symbol& symbol, bool& dst, bool next = true) {
+    if (next || symbol.type() != Symbol::Bool)
+      symbol.consumeUntil(Symbol::Bool);
+
+    dst = symbol.tokens() == "true";
+  }
+
   /// Parses `gltf.scene`.
   ///
   void parseScene(Symbol& symbol) {
@@ -861,8 +870,7 @@ class GLTF {
           else if (symbol.tokens() == "alphaCutoff")
             parseNum(symbol, materials_.back().alphaCutoff);
           else if (symbol.tokens() == "doubleSided")
-            // TODO
-            ;
+            parseBool(symbol, materials_.back().doubleSided);
           else if (symbol.tokens() == "name")
             parseStr(symbol, materials_.back().name);
           else

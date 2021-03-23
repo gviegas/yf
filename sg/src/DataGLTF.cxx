@@ -312,6 +312,8 @@ class GLTF {
           parseSamplers(symbol);
         else if (symbol.tokens() == "images")
           parseImages(symbol);
+        else if (symbol.tokens() == "cameras")
+          parseCameras(symbol);
         else if (symbol.tokens() == "asset")
           parseAsset(symbol);
         // TODO...
@@ -1051,6 +1053,119 @@ class GLTF {
     });
   }
 
+  /// Element of `gltF.cameras` property.
+  ///
+  struct Camera {
+    union {
+      struct {
+        float aspectRatio = -1.0f;
+        float yfov = -1.0f;
+        float zfar = -1.0f;
+        float znear = -1.0f;
+      } perspective{};
+
+      struct {
+        float xmag = -1.0f;
+        float ymag = -1.0f;
+        float zfar = -1.0f;
+        float znear = -1.0f;
+      } orthographic;
+    };
+
+    string type{};
+    string name{};
+  };
+
+  /// Parses `glTF.cameras`.
+  ///
+  void parseCameras(Symbol& symbol) {
+    assert(symbol.type() == Symbol::Str);
+    assert(symbol.tokens() == "cameras");
+
+    auto parsePerspective = [&] {
+      while (true) {
+        switch (symbol.next()) {
+        case Symbol::Str:
+          if (symbol.tokens() == "aspectRatio")
+            parseNum(symbol, cameras_.back().perspective.aspectRatio);
+          else if (symbol.tokens() == "yfov")
+            parseNum(symbol, cameras_.back().perspective.yfov);
+          else if (symbol.tokens() == "zfar")
+            parseNum(symbol, cameras_.back().perspective.zfar);
+          else if (symbol.tokens() == "znear")
+            parseNum(symbol, cameras_.back().perspective.znear);
+          else
+            symbol.consumeProperty();
+          break;
+
+        case Symbol::Op:
+          if (symbol.token() == '}')
+            return;
+          break;
+
+        default:
+          throw FileExcept("Invalid glTF file");
+        }
+      }
+    };
+
+    auto parseOrthographic = [&] {
+      while (true) {
+        switch (symbol.next()) {
+        case Symbol::Str:
+          if (symbol.tokens() == "xmag")
+            parseNum(symbol, cameras_.back().orthographic.xmag);
+          else if (symbol.tokens() == "ymag")
+            parseNum(symbol, cameras_.back().orthographic.ymag);
+          else if (symbol.tokens() == "zfar")
+            parseNum(symbol, cameras_.back().orthographic.zfar);
+          else if (symbol.tokens() == "znear")
+            parseNum(symbol, cameras_.back().orthographic.znear);
+          else
+            symbol.consumeProperty();
+          break;
+
+        case Symbol::Op:
+          if (symbol.token() == '}')
+            return;
+          break;
+
+        default:
+          throw FileExcept("Invalid glTF file");
+        }
+      }
+    };
+
+    parseObjectArray(symbol, [&] {
+      cameras_.push_back({});
+
+      while (true) {
+        switch (symbol.next()) {
+        case Symbol::Str:
+          if (symbol.tokens() == "type")
+            parseStr(symbol, cameras_.back().type);
+          else if (symbol.tokens() == "perspective")
+            parsePerspective();
+          else if (symbol.tokens() == "orthographic")
+            parseOrthographic();
+          else if (symbol.tokens() == "name")
+            parseStr(symbol, cameras_.back().name);
+          else
+            symbol.consumeProperty();
+          break;
+
+        case Symbol::Op:
+          if (symbol.token() == '}')
+            return;
+          break;
+
+        default:
+          throw FileExcept("Invalid glTF file");
+        }
+      }
+    });
+  }
+
   /// `glTF.asset` property.
   ///
   struct Asset {
@@ -1101,6 +1216,7 @@ class GLTF {
   vector<Texture> textures_{};
   vector<Sampler> samplers_{};
   vector<Image> images_{};
+  vector<Camera> cameras_{};
   Asset asset_{};
 
 #ifdef YF_DEVEL
@@ -1276,6 +1392,27 @@ void printGLTF(const GLTF& gltf) {
     wprintf(L"\n   uri: %s", img.uri.data());
     wprintf(L"\n   mimeType: %s", img.mimeType.data());
     wprintf(L"\n   bufferView: %d", img.bufferView);
+  }
+
+  wprintf(L"\n cameras:");
+  for (const auto& cam : gltf.cameras_) {
+    wprintf(L"\n  camera `%s`:", cam.name.data());
+    wprintf(L"\n   type: %s", cam.type.data());
+    if (cam.type == "perspective") {
+      wprintf(L"\n   perspective:");
+      wprintf(L"\n    aspectRatio: %.6f", cam.perspective.aspectRatio);
+      wprintf(L"\n    yfov: %.6f", cam.perspective.yfov);
+      wprintf(L"\n    zfar: %.6f", cam.perspective.zfar);
+      wprintf(L"\n    znear: %.6f", cam.perspective.znear);
+    } else if (cam.type == "orthographic") {
+      wprintf(L"\n   orthographic:");
+      wprintf(L"\n    xmag: %.6f", cam.orthographic.xmag);
+      wprintf(L"\n    ymag: %.6f", cam.orthographic.ymag);
+      wprintf(L"\n    zfar: %.6f", cam.orthographic.zfar);
+      wprintf(L"\n    znear: %.6f", cam.orthographic.znear);
+    } else {
+      wprintf(L"\n   !unknown type!");
+    }
   }
 
   wprintf(L"\n asset:");

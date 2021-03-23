@@ -588,6 +588,105 @@ class GLTF {
     string name{};
   };
 
+  /// Parses `glTF.meshes`.
+  ///
+  void parseMeshes(Symbol& symbol) {
+    assert(symbol.type() == Symbol::Str);
+    assert(symbol.tokens() == "meshes");
+
+    auto parseDictionary = [&] {
+      auto& dict = symbol.type() == Symbol::Str ?
+                   meshes_.back().primitives.back().attributes :
+                   meshes_.back().primitives.back().targets.back();
+      string key{};
+      int32_t value{};
+
+      symbol.consumeUntil(Symbol::Str);
+
+      while (true) {
+        key = symbol.tokens();
+        if (symbol.next() != Symbol::Op || symbol.token() != ':')
+          throw FileExcept("Invalid glTF file");
+        parseNum(symbol, value);
+        dict.emplace(key, value);
+
+        switch (symbol.next()) {
+        case Symbol::Op:
+          if (symbol.token() == ']')
+            return;
+          if (symbol.next() != Symbol::Str)
+            throw FileExcept("Invalid glTF file");
+          break;
+
+        default:
+          throw FileExcept("Invalid glTF file");
+        }
+      }
+    };
+
+    auto parsePrimitive = [&] {
+      meshes_.back().primitives.push_back({});
+      auto& prim = meshes_.back().primitives.back();
+
+      while (true) {
+        switch (symbol.next()) {
+        case Symbol::Str:
+          if (symbol.tokens() == "attributes")
+            parseDictionary();
+          else if (symbol.tokens() == "indices")
+            parseNum(symbol, prim.indices);
+          else if (symbol.tokens() == "material")
+            parseNum(symbol, prim.material);
+          else if (symbol.tokens() == "targets")
+            parseObjectArray(symbol, [&] {
+              prim.targets.push_back({});
+              parseDictionary();
+            });
+          else if (symbol.tokens() == "mode")
+            parseNum(symbol, reinterpret_cast<int32_t&>(prim.mode));
+          else
+            symbol.consumeProperty();
+          break;
+
+        case Symbol::Op:
+          if (symbol.token() == '}')
+            return;
+          break;
+
+        default:
+          throw FileExcept("Invalid glTF file");
+        }
+      }
+    };
+
+    parseObjectArray(symbol, [&] {
+      meshes_.push_back({});
+
+      while (true) {
+        switch (symbol.next()) {
+        case Symbol::Str:
+          if (symbol.tokens() == "primitives")
+            parseObjectArray(symbol, parsePrimitive);
+          else if (symbol.tokens() == "weights")
+            parseNumArray(symbol, meshes_.back().weights);
+          else if (symbol.tokens() == "name")
+            parseStr(symbol, meshes_.back().name);
+          else
+            symbol.consumeProperty();
+          break;
+
+        case Symbol::Op:
+          if (symbol.token() == '}')
+            return;
+          break;
+
+        default:
+          throw FileExcept("Invalid glTF file");
+        }
+      }
+    });
+  }
+
   /// `glTF.asset` property.
   ///
   struct Asset {

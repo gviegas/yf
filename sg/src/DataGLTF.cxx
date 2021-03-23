@@ -561,6 +561,33 @@ class GLTF {
     });
   }
 
+  /// Element of `glTF.meshes` property.
+  ///
+  struct Mesh {
+    struct Primitives {
+      unordered_map<string, int32_t> attributes{};
+      int32_t indices = -1;
+      int32_t material = -1;
+      vector<unordered_map<string, int32_t>> targets{};
+
+      enum Mode {
+        Points = 0,
+        Lines = 1,
+        LineLoop = 2,
+        LineStrip = 3,
+        Triangles = 4,
+        TriangleStrip = 5,
+        TriangleFan = 6
+      };
+
+      Mode mode = Triangles;
+    };
+
+    vector<Primitives> primitives{};
+    vector<float> weights{};
+    string name{};
+  };
+
   /// `glTF.asset` property.
   ///
   struct Asset {
@@ -606,6 +633,7 @@ class GLTF {
   int32_t scene_ = -1;
   vector<Scene> scenes_{};
   vector<Node> nodes_{};
+  vector<Mesh> meshes_{};
   Asset asset_{};
 
 #ifdef YF_DEVEL

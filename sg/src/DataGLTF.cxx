@@ -306,6 +306,8 @@ class GLTF {
           parseMeshes(symbol);
         else if (symbol.tokens() == "materials")
           parseMaterials(symbol);
+        else if (symbol.tokens() == "textures")
+          parseTextures(symbol);
         else if (symbol.tokens() == "asset")
           parseAsset(symbol);
         // TODO...
@@ -889,6 +891,48 @@ class GLTF {
     });
   }
 
+  /// Element of `glTF.textures` property.
+  ///
+  struct Texture {
+    int32_t sampler = -1;
+    int32_t source = -1;
+    string name{};
+  };
+
+  /// Parses `glTF.textures`.
+  ///
+  void parseTextures(Symbol& symbol) {
+    assert(symbol.type() == Symbol::Str);
+    assert(symbol.tokens() == "textures");
+
+    parseObjectArray(symbol, [&] {
+      textures_.push_back({});
+
+      while (true) {
+        switch (symbol.next()) {
+        case Symbol::Str:
+          if (symbol.tokens() == "sampler")
+            parseNum(symbol, textures_.back().sampler);
+          else if (symbol.tokens() == "source")
+            parseNum(symbol, textures_.back().source);
+          else if (symbol.tokens() == "name")
+            parseStr(symbol, textures_.back().name);
+          else
+            symbol.consumeProperty();
+          break;
+
+        case Symbol::Op:
+          if (symbol.token() == '}')
+            return;
+          break;
+
+        default:
+          throw FileExcept("Invalid glTF file");
+        }
+      }
+    });
+  }
+
   /// `glTF.asset` property.
   ///
   struct Asset {
@@ -936,6 +980,7 @@ class GLTF {
   vector<Node> nodes_{};
   vector<Mesh> meshes_{};
   vector<Material> materials_{};
+  vector<Texture> textures_{};
   Asset asset_{};
 
 #ifdef YF_DEVEL
@@ -1087,6 +1132,13 @@ void printGLTF(const GLTF& gltf) {
     wprintf(L"\n   alphaMode: `%s`", ml.alphaMode.data());
     wprintf(L"\n   alphaCutoff: %.6f", ml.alphaCutoff);
     wprintf(L"\n   doubleSided: %s", ml.doubleSided ? "true" : "false");
+  }
+
+  wprintf(L"\n textures:");
+  for (const auto& tex : gltf.textures_) {
+    wprintf(L"\n  texture `%s`:", tex.name.data());
+    wprintf(L"\n   sampler: %d", tex.sampler);
+    wprintf(L"\n   source: %d", tex.source);
   }
 
   wprintf(L"\n asset:");

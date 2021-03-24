@@ -1681,6 +1681,68 @@ class GLTF {
     }
   }
 
+  /// Getters.
+  ///
+  int32_t scene() const {
+    return scene_;
+  }
+
+  const vector<Scene>& scenes() const {
+    return scenes_;
+  }
+
+  const vector<Node>& nodes() const {
+    return nodes_;
+  }
+
+  const vector<Mesh>& meshes() const {
+    return meshes_;
+  }
+
+  const vector<Skin>& skins() const {
+    return skins_;
+  }
+
+  const vector<Material>& materials() const {
+    return materials_;
+  }
+
+  const vector<Texture>& textures() const {
+    return textures_;
+  }
+
+  const vector<Sampler>& samplers() const {
+    return samplers_;
+  }
+
+  const vector<Image>& images() const {
+    return images_;
+  }
+
+  const vector<Camera>& cameras() const {
+    return cameras_;
+  }
+
+  const vector<Animation>& animations() const {
+    return animations_;
+  }
+
+  const vector<Accessor>& accessors() const {
+    return accessors_;
+  }
+
+  const vector<BufferView>& bufferViews() const {
+    return bufferViews_;
+  }
+
+  const vector<Buffer>& buffers() const {
+    return buffers_;
+  }
+
+  const Asset& asset() const {
+    return asset_;
+  }
+
  private:
   int32_t scene_ = -1;
   vector<Scene> scenes_{};

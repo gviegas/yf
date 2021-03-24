@@ -322,6 +322,8 @@ class GLTF {
           parseAccessors(symbol);
         else if (symbol.tokens() == "bufferViews")
           parseBufferViews(symbol);
+        else if (symbol.tokens() == "buffers")
+          parseBuffers(symbol);
         else if (symbol.tokens() == "asset")
           parseAsset(symbol);
         // TODO...
@@ -1599,6 +1601,48 @@ class GLTF {
     });
   }
 
+  /// Element of `glTF.buffers` property.
+  ///
+  struct Buffer {
+    string uri{};
+    int64_t byteLength = -1LL;
+    string name{};
+  };
+
+  /// Parses `glTF.buffers`.
+  ///
+  void parseBuffers(Symbol& symbol) {
+    assert(symbol.type() == Symbol::Str);
+    assert(symbol.tokens() == "buffers");
+
+    parseObjectArray(symbol, [&] {
+      buffers_.push_back({});
+
+      while (true) {
+        switch (symbol.next()) {
+        case Symbol::Str:
+          if (symbol.tokens() == "uri")
+            parseStr(symbol, buffers_.back().uri);
+          else if (symbol.tokens() == "byteLength")
+            parseNum(symbol, buffers_.back().byteLength);
+          else if (symbol.tokens() == "name")
+            parseStr(symbol, buffers_.back().name);
+          else
+            symbol.consumeProperty();
+          break;
+
+        case Symbol::Op:
+          if (symbol.token() == '}')
+            return;
+          break;
+
+        default:
+          throw FileExcept("Invalid glTF file");
+        }
+      }
+    });
+  }
+
   /// `glTF.asset` property.
   ///
   struct Asset {
@@ -1654,6 +1698,7 @@ class GLTF {
   vector<Animation> animations_{};
   vector<Accessor> accessors_{};
   vector<BufferView> bufferViews_{};
+  vector<Buffer> buffers_{};
   Asset asset_{};
 
 #ifdef YF_DEVEL
@@ -1918,6 +1963,13 @@ void printGLTF(const GLTF& gltf) {
     wprintf(L"\n   byteLength: %lld", bv.byteLength);
     wprintf(L"\n   byteStride: %d", bv.byteStride);
     wprintf(L"\n   target: %d", bv.target);
+  }
+
+  wprintf(L"\n buffers:");
+  for (const auto& b : gltf.buffers_) {
+    wprintf(L"\n  buffer `%s`:", b.name.data());
+    wprintf(L"\n   uri: %s", b.uri.data());
+    wprintf(L"\n   byteLength: %lld", b.byteLength);
   }
 
   wprintf(L"\n asset:");

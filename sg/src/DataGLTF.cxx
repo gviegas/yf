@@ -5,7 +5,6 @@
 // Copyright © 2021 Gustavo C. Viegas.
 //
 
-#include <cstdint>
 #include <cwchar>
 #include <cstring>
 #include <cctype>
@@ -1706,31 +1705,34 @@ class GLTF {
 
 INTERNAL_NS_END
 
-void SG_NS::loadGLTF(Node& dst, const wstring& pathname) {
+void SG_NS::loadGLTF(Node& dst, const wstring& pathname, uint32_t index) {
   GLTF gltf(pathname);
 
-  // TODO
 #ifdef YF_DEVEL
   printGLTF(gltf);
 #endif
+
+  // TODO
 }
 
-void SG_NS::loadGLTF(Model& dst, const wstring& pathname) {
+void SG_NS::loadGLTF(Model& dst, const wstring& pathname, uint32_t index) {
   GLTF gltf(pathname);
 
-  // TODO
 #ifdef YF_DEVEL
   printGLTF(gltf);
 #endif
+
+  // TODO
 }
 
-void SG_NS::loadGLTF(Mesh::Data& dst, const wstring& pathname) {
+void SG_NS::loadGLTF(Mesh::Data& dst, const wstring& pathname, uint32_t index) {
   GLTF gltf(pathname);
 
-  // TODO
 #ifdef YF_DEVEL
   printGLTF(gltf);
 #endif
+
+  // TODO
 }
 
 //

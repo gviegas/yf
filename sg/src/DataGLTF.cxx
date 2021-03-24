@@ -623,7 +623,7 @@ class GLTF {
   /// Element of `glTF.meshes` property.
   ///
   struct Mesh {
-    struct Primitives {
+    struct Primitive {
       enum Mode : int32_t {
         Points = 0,
         Lines = 1,
@@ -641,7 +641,7 @@ class GLTF {
       vector<unordered_map<string, int32_t>> targets{};
     };
 
-    vector<Primitives> primitives{};
+    vector<Primitive> primitives{};
     vector<float> weights{};
     string name{};
   };
@@ -1774,6 +1774,30 @@ class GLTF {
   friend void printGLTF(const GLTF&);
 #endif
 };
+
+/// Loads a single mesh from a GLTF object.
+///
+void loadMesh(Mesh::Data& dst, const GLTF& gltf, uint32_t index) {
+  assert(index <= gltf.meshes().size());
+
+  const auto& mesh = gltf.meshes()[index];
+
+  if (mesh.primitives.empty())
+    throw FileExcept("Invalid glTF file");
+
+  // TODO
+  if (mesh.primitives.size() > 1 ||
+      mesh.primitives.front().mode != GLTF::Mesh::Primitive::Triangles)
+    throw UnsupportedExcept("Unsupported glTF mesh");
+
+  for (const auto& prim : mesh.primitives) {
+    for (const auto& att : prim.attributes) {
+      const auto& acc = gltf.accessors()[att.second];
+
+      // TODO...
+    }
+  }
+}
 
 INTERNAL_NS_END
 

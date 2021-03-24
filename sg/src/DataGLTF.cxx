@@ -267,7 +267,7 @@ class Symbol {
 };
 
 /// GLTF.
-/// TODO
+///
 class GLTF {
  public:
   GLTF(const wstring& pathname) {
@@ -326,7 +326,6 @@ class GLTF {
           parseBuffers(symbol);
         else if (symbol.tokens() == "asset")
           parseAsset(symbol);
-        // TODO...
         else
           symbol.consumeProperty();
         break;
@@ -621,11 +620,6 @@ class GLTF {
   ///
   struct Mesh {
     struct Primitives {
-      unordered_map<string, int32_t> attributes{};
-      int32_t indices = -1;
-      int32_t material = -1;
-      vector<unordered_map<string, int32_t>> targets{};
-
       enum Mode : int32_t {
         Points = 0,
         Lines = 1,
@@ -636,7 +630,11 @@ class GLTF {
         TriangleFan = 6
       };
 
+      unordered_map<string, int32_t> attributes{};
+      int32_t indices = -1;
       Mode mode = Triangles;
+      int32_t material = -1;
+      vector<unordered_map<string, int32_t>> targets{};
     };
 
     vector<Primitives> primitives{};
@@ -688,6 +686,8 @@ class GLTF {
             parseDictionary(prim.attributes);
           else if (symbol.tokens() == "indices")
             parseNum(symbol, prim.indices);
+          else if (symbol.tokens() == "mode")
+            parseNum(symbol, reinterpret_cast<int32_t&>(prim.mode));
           else if (symbol.tokens() == "material")
             parseNum(symbol, prim.material);
           else if (symbol.tokens() == "targets")
@@ -695,8 +695,6 @@ class GLTF {
               prim.targets.push_back({});
               parseDictionary(prim.targets.back());
             });
-          else if (symbol.tokens() == "mode")
-            parseNum(symbol, reinterpret_cast<int32_t&>(prim.mode));
           else
             symbol.consumeProperty();
           break;
@@ -1052,17 +1050,17 @@ class GLTF {
         switch (symbol.next()) {
         case Symbol::Str:
           if (symbol.tokens() == "wrapS")
-            parseNum(symbol,
-                     reinterpret_cast<int32_t&>(samplers_.back().wrapS));
+            parseNum(symbol, reinterpret_cast<int32_t&>
+                             (samplers_.back().wrapS));
           else if (symbol.tokens() == "wrapT")
-            parseNum(symbol,
-                     reinterpret_cast<int32_t&>(samplers_.back().wrapT));
+            parseNum(symbol, reinterpret_cast<int32_t&>
+                             (samplers_.back().wrapT));
           else if (symbol.tokens() == "magFilter")
-            parseNum(symbol,
-                     reinterpret_cast<int32_t&>(samplers_.back().magFilter));
+            parseNum(symbol, reinterpret_cast<int32_t&>
+                             (samplers_.back().magFilter));
           else if (symbol.tokens() == "minFilter")
-            parseNum(symbol,
-                     reinterpret_cast<int32_t&>(samplers_.back().minFilter));
+            parseNum(symbol, reinterpret_cast<int32_t&>
+                             (samplers_.back().minFilter));
           else if (symbol.tokens() == "name")
             parseStr(symbol, samplers_.back().name);
           else
@@ -1751,34 +1749,40 @@ void printGLTF(const GLTF& gltf) {
   wprintf(L"\n scenes:");
   for (const auto& scn : gltf.scenes_) {
     wprintf(L"\n  scene `%s`:", scn.name.data());
-    wprintf(L"\n   nodes:");
+    wprintf(L"\n   nodes: [ ");
     for (auto nd : scn.nodes)
-      wprintf(L" %d", nd);
+      wprintf(L"%d ", nd);
+    wprintf(L"]");
   }
 
   wprintf(L"\n nodes:");
   for (const auto& nd : gltf.nodes_) {
     wprintf(L"\n  node `%s`:", nd.name.data());
-    wprintf(L"\n   children:");
+    wprintf(L"\n   children: [ ");
     for (auto ch : nd.children)
-      wprintf(L" %d", ch);
+      wprintf(L"%d ", ch);
+    wprintf(L"]");
     wprintf(L"\n   camera: %d", nd.camera);
     wprintf(L"\n   mesh: %d", nd.mesh);
     wprintf(L"\n   skin: %d", nd.skin);
-    wprintf(L"\n   weights:");
+    wprintf(L"\n   weights: [ ");
     for (auto wt : nd.weights)
-      wprintf(L" %.6f", wt);
+      wprintf(L"%.6f ", wt);
+    wprintf(L"]");
     wprintf(L"\n   transform:");
     if (nd.transform.size() == 10) {
-      wprintf(L"\n    T:");
+      wprintf(L"\n    T: [ ");
       for (size_t i = 0; i < 3; ++i)
-        wprintf(L" %.6f", nd.transform[i]);
-      wprintf(L"\n    R:");
+        wprintf(L"%.6f ", nd.transform[i]);
+      wprintf(L"]");
+      wprintf(L"\n    R: [ ");
       for (size_t i = 3; i < 7; ++i)
-        wprintf(L" %.6f", nd.transform[i]);
-      wprintf(L"\n    S:");
+        wprintf(L"%.6f ", nd.transform[i]);
+      wprintf(L"]");
+      wprintf(L"\n    S: [ ");
       for (size_t i = 7; i < 10; ++i)
-        wprintf(L" %.6f", nd.transform[i]);
+        wprintf(L"%.6f ", nd.transform[i]);
+      wprintf(L"]");
     } else {
       for (size_t i = 0; i < nd.transform.size(); ++i) {
         if (i%4 == 0)
@@ -1797,17 +1801,18 @@ void printGLTF(const GLTF& gltf) {
       for (const auto& att : prm.attributes)
         wprintf(L"\n     %s : %d", att.first.data(), att.second);
       wprintf(L"\n    indices: %d", prm.indices);
-      wprintf(L"\n    material: %d", prm.material);
       wprintf(L"\n    mode: %d", prm.mode);
+      wprintf(L"\n    material: %d", prm.material);
       for (const auto& tgt : prm.targets) {
         wprintf(L"\n     target:");
         for (const auto& att : tgt)
           wprintf(L"\n      %s : %d", att.first.data(), att.second);
       }
     }
-    wprintf(L"\n   weights:");
+    wprintf(L"\n   weights: [ ");
     for (auto wt : msh.weights)
-      wprintf(L" %.6f", wt);
+      wprintf(L"%.6f ", wt);
+    wprintf(L"]");
   }
 
   wprintf(L"\n skins:");
@@ -1815,9 +1820,10 @@ void printGLTF(const GLTF& gltf) {
     wprintf(L"\n  skin `%s`:", sk.name.data());
     wprintf(L"\n   inversebindMatrices: %d", sk.inverseBindMatrices);
     wprintf(L"\n   skeleton: %d", sk.skeleton);
-    wprintf(L"\n   joints:");
+    wprintf(L"\n   joints: [ ");
     for (auto jt : sk.joints)
-      wprintf(L" %d", jt);
+      wprintf(L"%d ", jt);
+    wprintf(L"]");
   }
 
   wprintf(L"\n materials:");

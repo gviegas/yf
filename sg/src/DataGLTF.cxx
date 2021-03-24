@@ -1237,6 +1237,117 @@ class GLTF {
     string name{};
   };
 
+  /// Parses `glTF.animations`.
+  ///
+  void parseAnimations(Symbol& symbol) {
+    assert(symbol.type() == Symbol::Str);
+    assert(symbol.tokens() == "animations");
+
+    auto parseChannel = [&] {
+      animations_.back().channels.push_back({});
+      auto& ch = animations_.back().channels.back();
+
+      auto parseTarget = [&] {
+        while (true) {
+          switch (symbol.next()) {
+          case Symbol::Str:
+            if (symbol.tokens() == "node")
+              parseNum(symbol, ch.target.node);
+            else if (symbol.tokens() == "path")
+              parseStr(symbol, ch.target.path);
+            else
+              symbol.consumeProperty();
+            break;
+
+          case Symbol::Op:
+            if (symbol.token() == '}')
+              return;
+            break;
+
+          default:
+            throw FileExcept("Invalid glTF file");
+          }
+        }
+      };
+
+      while (true) {
+        switch (symbol.next()) {
+        case Symbol::Str:
+          if (symbol.tokens() == "sampler")
+            parseNum(symbol, ch.sampler);
+          else if (symbol.tokens() == "target")
+            parseTarget();
+          else
+            symbol.consumeProperty();
+          break;
+
+        case Symbol::Op:
+          if (symbol.token() == '}')
+            return;
+          break;
+
+        default:
+          throw FileExcept("Invalid glTF file");
+        }
+      }
+    };
+
+    auto parseSampler = [&] {
+      animations_.back().samplers.push_back({});
+      auto& sp = animations_.back().samplers.back();
+
+      while (true) {
+        switch (symbol.next()) {
+        case Symbol::Str:
+          if (symbol.tokens() == "input")
+            parseNum(symbol, sp.input);
+          else if (symbol.tokens() == "interpolation")
+            parseStr(symbol, sp.interpolation);
+          else if (symbol.tokens() == "output")
+            parseNum(symbol, sp.output);
+          else
+            symbol.consumeProperty();
+          break;
+
+        case Symbol::Op:
+          if (symbol.token() == '}')
+            return;
+          break;
+
+        default:
+          throw FileExcept("Invalid glTF file");
+        }
+      }
+    };
+
+    parseObjectArray(symbol, [&] {
+      animations_.push_back({});
+
+      while (true) {
+        switch (symbol.next()) {
+        case Symbol::Str:
+          if (symbol.tokens() == "channels")
+            parseObjectArray(symbol, parseChannel);
+          else if (symbol.tokens() == "samplers")
+            parseObjectArray(symbol, parseSampler);
+          else if (symbol.tokens() == "name")
+            parseStr(symbol, animations_.back().name);
+          else
+            symbol.consumeProperty();
+          break;
+
+        case Symbol::Op:
+          if (symbol.token() == '}')
+            return;
+          break;
+
+        default:
+          throw FileExcept("Invalid glTF file");
+        }
+      }
+    });
+  }
+
   /// `glTF.asset` property.
   ///
   struct Asset {

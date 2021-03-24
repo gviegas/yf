@@ -320,6 +320,8 @@ class GLTF {
           parseAnimations(symbol);
         else if (symbol.tokens() == "accessors")
           parseAccessors(symbol);
+        else if (symbol.tokens() == "bufferViews")
+          parseBufferViews(symbol);
         else if (symbol.tokens() == "asset")
           parseAsset(symbol);
         // TODO...
@@ -1538,6 +1540,65 @@ class GLTF {
     });
   }
 
+  /// Element of `glTF.bufferViews` property.
+  ///
+  struct BufferView {
+    enum Target : int32_t {
+      ArrayBuffer = 34962,
+      ElementArrayBuffer = 34963,
+
+      Undefined = -1
+    };
+
+    int32_t buffer = -1;
+    int64_t byteOffset = 0LL;
+    int64_t byteLength = -1LL;
+    int32_t byteStride = -1;
+    Target target = Undefined;
+    string name{};
+  };
+
+  /// Parses `glTF.bufferViews`.
+  ///
+  void parseBufferViews(Symbol& symbol) {
+    assert(symbol.type() == Symbol::Str);
+    assert(symbol.tokens() == "bufferViews");
+
+    parseObjectArray(symbol, [&] {
+      bufferViews_.push_back({});
+
+      while (true) {
+        switch (symbol.next()) {
+        case Symbol::Str:
+          if (symbol.tokens() == "buffer")
+            parseNum(symbol, bufferViews_.back().buffer);
+          else if (symbol.tokens() == "byteOffset")
+            parseNum(symbol, bufferViews_.back().byteOffset);
+          else if (symbol.tokens() == "byteLength")
+            parseNum(symbol, bufferViews_.back().byteLength);
+          else if (symbol.tokens() == "byteStride")
+            parseNum(symbol, bufferViews_.back().byteStride);
+          else if (symbol.tokens() == "target")
+            parseNum(symbol, reinterpret_cast<int32_t&>
+                             (bufferViews_.back().target));
+          else if (symbol.tokens() == "name")
+            parseStr(symbol, bufferViews_.back().name);
+          else
+            symbol.consumeProperty();
+          break;
+
+        case Symbol::Op:
+          if (symbol.token() == '}')
+            return;
+          break;
+
+        default:
+          throw FileExcept("Invalid glTF file");
+        }
+      }
+    });
+  }
+
   /// `glTF.asset` property.
   ///
   struct Asset {
@@ -1592,6 +1653,7 @@ class GLTF {
   vector<Camera> cameras_{};
   vector<Animation> animations_{};
   vector<Accessor> accessors_{};
+  vector<BufferView> bufferViews_{};
   Asset asset_{};
 
 #ifdef YF_DEVEL
@@ -1846,6 +1908,16 @@ void printGLTF(const GLTF& gltf) {
     wprintf(L"\n    values:");
     wprintf(L"\n     bufferView: %d", ac.sparse.values.bufferView);
     wprintf(L"\n     byteOffset: %lld", ac.sparse.values.byteOffset);
+  }
+
+  wprintf(L"\n bufferViews:");
+  for (const auto& bv : gltf.bufferViews_) {
+    wprintf(L"\n  bufferView `%s`:", bv.name.data());
+    wprintf(L"\n   buffer: %d", bv.buffer);
+    wprintf(L"\n   byteOffset: %lld", bv.byteOffset);
+    wprintf(L"\n   byteLength: %lld", bv.byteLength);
+    wprintf(L"\n   byteStride: %d", bv.byteStride);
+    wprintf(L"\n   target: %d", bv.target);
   }
 
   wprintf(L"\n asset:");

@@ -1411,6 +1411,131 @@ class GLTF {
     string name{};
   };
 
+  /// Parses `glTF.accessors`.
+  ///
+  void parseAccessors(Symbol& symbol) {
+    assert(symbol.type() == Symbol::Str);
+    assert(symbol.tokens() == "accessors");
+
+    auto parseSparse = [&] {
+      auto& sparse = accessors_.back().sparse;
+
+      auto parseIndices = [&] {
+        while (true) {
+          switch (symbol.next()) {
+          case Symbol::Str:
+            if (symbol.tokens() == "bufferView")
+              parseNum(symbol, sparse.indices.bufferView);
+            else if (symbol.tokens() == "byteOffset")
+              parseNum(symbol, sparse.indices.byteOffset);
+            else if (symbol.tokens() == "componentType")
+              parseNum(symbol, reinterpret_cast<int32_t&>
+                               (sparse.indices.componentType));
+            else
+              symbol.consumeProperty();
+            break;
+
+          case Symbol::Op:
+            if (symbol.token() == '}')
+              return;
+            break;
+
+          default:
+            throw FileExcept("Invalid glTF file");
+          }
+        }
+      };
+
+      auto parseValues = [&] {
+        while (true) {
+          switch (symbol.next()) {
+          case Symbol::Str:
+            if (symbol.tokens() == "bufferView")
+              parseNum(symbol, sparse.values.bufferView);
+            else if (symbol.tokens() == "byteOffset")
+              parseNum(symbol, sparse.values.byteOffset);
+            else
+              symbol.consumeProperty();
+            break;
+
+          case Symbol::Op:
+            if (symbol.token() == '}')
+              return;
+            break;
+
+          default:
+            throw FileExcept("Invalid glTF file");
+          }
+        }
+      };
+
+      while (true) {
+        switch (symbol.next()) {
+        case Symbol::Str:
+          if (symbol.tokens() == "count")
+            parseNum(symbol, sparse.count);
+          else if (symbol.tokens() == "indices")
+            parseIndices();
+          else if (symbol.tokens() == "values")
+            parseValues();
+          else
+            symbol.consumeProperty();
+          break;
+
+        case Symbol::Op:
+          if (symbol.token() == '}')
+            return;
+          break;
+
+        default:
+          throw FileExcept("Invalid glTF file");
+        }
+      }
+    };
+
+    parseObjectArray(symbol, [&] {
+      accessors_.push_back({});
+
+      while (true) {
+        switch (symbol.next()) {
+        case Symbol::Str:
+          if (symbol.tokens() == "bufferView")
+            parseNum(symbol, accessors_.back().bufferView);
+          else if (symbol.tokens() == "byteOffset")
+            parseNum(symbol, accessors_.back().byteOffset);
+          else if (symbol.tokens() == "componentType")
+            parseNum(symbol, reinterpret_cast<int32_t&>
+                             (accessors_.back().componentType));
+          else if (symbol.tokens() == "normalized")
+            parseBool(symbol, accessors_.back().normalized);
+          else if (symbol.tokens() == "count")
+            parseNum(symbol, accessors_.back().count);
+          else if (symbol.tokens() == "type")
+            parseStr(symbol, accessors_.back().type);
+          else if (symbol.tokens() == "min")
+            parseNumArray(symbol, accessors_.back().min);
+          else if (symbol.tokens() == "max")
+            parseNumArray(symbol, accessors_.back().max);
+          else if (symbol.tokens() == "sparse")
+            parseSparse();
+          else if (symbol.tokens() == "name")
+            parseStr(symbol, accessors_.back().name);
+          else
+            symbol.consumeProperty();
+          break;
+
+        case Symbol::Op:
+          if (symbol.token() == '}')
+            return;
+          break;
+
+        default:
+          throw FileExcept("Invalid glTF file");
+        }
+      }
+    });
+  }
+
   /// `glTF.asset` property.
   ///
   struct Asset {
@@ -1464,6 +1589,7 @@ class GLTF {
   vector<Image> images_{};
   vector<Camera> cameras_{};
   vector<Animation> animations_{};
+  vector<Accessor> accessors_{};
   Asset asset_{};
 
 #ifdef YF_DEVEL

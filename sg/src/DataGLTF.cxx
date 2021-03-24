@@ -402,6 +402,15 @@ class GLTF {
     dst = stol(symbol.tokens());
   }
 
+  /// Parses a large integer number.
+  ///
+  void parseNum(Symbol& symbol, int64_t& dst, bool next = true) {
+    if (next || symbol.type() != Symbol::Num)
+      symbol.consumeUntil(Symbol::Num);
+
+    dst = stoll(symbol.tokens());
+  }
+
   /// Parses a floating-point number.
   ///
   void parseNum(Symbol& symbol, float& dst, bool next = true) {

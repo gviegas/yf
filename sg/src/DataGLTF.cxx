@@ -1213,6 +1213,30 @@ class GLTF {
     });
   }
 
+  /// Element of `glTF.animations` property.
+  ///
+  struct Animation {
+    struct Channel {
+      struct Target {
+        int32_t node = -1;
+        string path{};
+      };
+
+      int32_t sampler = -1;
+      Target target{};
+    };
+
+    struct Sampler {
+      int32_t input = -1;
+      string interpolation{};
+      int32_t output = -1;
+    };
+
+    vector<Channel> channels{};
+    vector<Sampler> samplers{};
+    string name{};
+  };
+
   /// `glTF.asset` property.
   ///
   struct Asset {
@@ -1265,6 +1289,7 @@ class GLTF {
   vector<Sampler> samplers_{};
   vector<Image> images_{};
   vector<Camera> cameras_{};
+  vector<Animation> animations_{};
   Asset asset_{};
 
 #ifdef YF_DEVEL

@@ -1359,6 +1359,49 @@ class GLTF {
     });
   }
 
+  /// Element of `glTF.accessors` property.
+  ///
+  struct Accessor {
+    enum ComponentType: int32_t {
+      Byte = 5120,
+      UnsignedByte = 5121,
+      Short = 5122,
+      UnsignedShort = 5123,
+      UnsignedInt = 5125,
+      Float = 5126,
+
+      Undefined = -1
+    };
+
+    struct Sparse {
+      struct Indices {
+        int32_t bufferView = -1;
+        int64_t byteOffset = 0LL;
+        ComponentType componentType = Undefined;
+      };
+
+      struct Values {
+        int32_t bufferView = -1;
+        int64_t byteOffset = 0LL;
+      };
+
+      int32_t count = -1;
+      Indices indices{};
+      Values values{};
+    };
+
+    int32_t bufferView = -1;
+    int64_t byteOffset = 0LL;
+    ComponentType componentType = Undefined;
+    bool normalized = false;
+    int32_t count = -1;
+    string type{};
+    vector<double> min{};
+    vector<double> max{};
+    Sparse sparse{};
+    string name{};
+  };
+
   /// `glTF.asset` property.
   ///
   struct Asset {

@@ -282,6 +282,11 @@ class GLTF {
       throw ConversionExcept("Could not convert glTF file path");
     path.resize(len);
 
+    // Set directory
+    const auto pos = path.find_last_of('/');
+    if (pos != 0 && pos != path.npos)
+      directory_ = {path.begin(), path.begin() + pos};
+
     ifstream ifs(path);
     if (!ifs)
       throw FileExcept("Could not open glTF file");
@@ -1683,6 +1688,10 @@ class GLTF {
 
   /// Getters.
   ///
+  const string& directory() const {
+    return directory_;
+  }
+
   int32_t scene() const {
     return scene_;
   }
@@ -1744,6 +1753,7 @@ class GLTF {
   }
 
  private:
+  string directory_{};
   int32_t scene_ = -1;
   vector<Scene> scenes_{};
   vector<Node> nodes_{};
@@ -1774,6 +1784,9 @@ void SG_NS::loadGLTF(Node& dst, const wstring& pathname, uint32_t index) {
   printGLTF(gltf);
 #endif
 
+  if (index >= gltf.nodes().size())
+    throw invalid_argument("loadGLTF() index out of bounds");
+
   // TODO
 }
 
@@ -1784,6 +1797,9 @@ void SG_NS::loadGLTF(Model& dst, const wstring& pathname, uint32_t index) {
   printGLTF(gltf);
 #endif
 
+  if (index >= gltf.nodes().size())
+    throw invalid_argument("loadGLTF() index out of bounds");
+
   // TODO
 }
 
@@ -1793,6 +1809,9 @@ void SG_NS::loadGLTF(Mesh::Data& dst, const wstring& pathname, uint32_t index) {
 #ifdef YF_DEVEL
   printGLTF(gltf);
 #endif
+
+  if (index >= gltf.meshes().size())
+    throw invalid_argument("loadGLTF() index out of bounds");
 
   // TODO
 }

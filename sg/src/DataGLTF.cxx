@@ -402,7 +402,7 @@ class GLTF {
     dst = stol(symbol.tokens());
   }
 
-  /// Parses a large integer number.
+  /// Parses a wide integer number.
   ///
   void parseNum(Symbol& symbol, int64_t& dst, bool next = true) {
     if (next || symbol.type() != Symbol::Num)
@@ -418,6 +418,15 @@ class GLTF {
       symbol.consumeUntil(Symbol::Num);
 
     dst = stof(symbol.tokens());
+  }
+
+  /// Parses a wide floating-point number.
+  ///
+  void parseNum(Symbol& symbol, double& dst, bool next = true) {
+    if (next || symbol.type() != Symbol::Num)
+      symbol.consumeUntil(Symbol::Num);
+
+    dst = stod(symbol.tokens());
   }
 
   /// Parses an array of numbers.

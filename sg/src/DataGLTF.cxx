@@ -304,6 +304,8 @@ class GLTF {
           parseNodes(symbol);
         else if (symbol.tokens() == "meshes")
           parseMeshes(symbol);
+        else if (symbol.tokens() == "skins")
+          parseSkins(symbol);
         else if (symbol.tokens() == "materials")
           parseMaterials(symbol);
         else if (symbol.tokens() == "textures")
@@ -696,6 +698,51 @@ class GLTF {
             parseNumArray(symbol, meshes_.back().weights);
           else if (symbol.tokens() == "name")
             parseStr(symbol, meshes_.back().name);
+          else
+            symbol.consumeProperty();
+          break;
+
+        case Symbol::Op:
+          if (symbol.token() == '}')
+            return;
+          break;
+
+        default:
+          throw FileExcept("Invalid glTF file");
+        }
+      }
+    });
+  }
+
+  /// Element of `glTF.skins` property.
+  ///
+  struct Skin {
+    int32_t inverseBindMatrices = -1;
+    int32_t skeleton = -1;
+    vector<int32_t> joints{};
+    string name{};
+  };
+
+  /// Parses `glTF.skins`.
+  ///
+  void parseSkins(Symbol& symbol) {
+    assert(symbol.type() == Symbol::Str);
+    assert(symbol.tokens() == "skins");
+
+    parseObjectArray(symbol, [&] {
+      skins_.push_back({});
+
+      while (true) {
+        switch (symbol.next()) {
+        case Symbol::Str:
+          if (symbol.tokens() == "inverseBindMatrices")
+            parseNum(symbol, skins_.back().inverseBindMatrices);
+          else if (symbol.tokens() == "skeleton")
+            parseNum(symbol, skins_.back().skeleton);
+          else if (symbol.tokens() == "joints")
+            parseNumArray(symbol, skins_.back().joints);
+          else if (symbol.tokens() == "name")
+            parseStr(symbol, skins_.back().name);
           else
             symbol.consumeProperty();
           break;
@@ -1212,6 +1259,7 @@ class GLTF {
   vector<Scene> scenes_{};
   vector<Node> nodes_{};
   vector<Mesh> meshes_{};
+  vector<Skin> skins_{};
   vector<Material> materials_{};
   vector<Texture> textures_{};
   vector<Sampler> samplers_{};
@@ -1326,6 +1374,16 @@ void printGLTF(const GLTF& gltf) {
     wprintf(L"\n   weights:");
     for (auto wt : msh.weights)
       wprintf(L" %.6f", wt);
+  }
+
+  wprintf(L"\n skins:");
+  for (const auto& sk : gltf.skins_) {
+    wprintf(L"\n  skin `%s`:", sk.name.data());
+    wprintf(L"\n   inversebindMatrices: %d", sk.inverseBindMatrices);
+    wprintf(L"\n   skeleton: %d", sk.skeleton);
+    wprintf(L"\n   joints:");
+    for (auto jt : sk.joints)
+      wprintf(L" %d", jt);
   }
 
   wprintf(L"\n materials:");

@@ -316,6 +316,8 @@ class GLTF {
           parseImages(symbol);
         else if (symbol.tokens() == "cameras")
           parseCameras(symbol);
+        else if (symbol.tokens() == "animations")
+          parseAnimations(symbol);
         else if (symbol.tokens() == "asset")
           parseAsset(symbol);
         // TODO...
@@ -1606,6 +1608,26 @@ void printGLTF(const GLTF& gltf) {
       wprintf(L"\n    znear: %.6f", cam.orthographic.znear);
     } else {
       wprintf(L"\n   !unknown type!");
+    }
+  }
+
+  wprintf(L"\n animations:");
+  for (const auto& an : gltf.animations_) {
+    wprintf(L"\n  animation `%s`:", an.name.data());
+    wprintf(L"\n   channels:");
+    for (const auto& ch : an.channels) {
+      wprintf(L"\n    channel:");
+      wprintf(L"\n     sampler: %d", ch.sampler);
+      wprintf(L"\n     target:");
+      wprintf(L"\n      node: %d", ch.target.node);
+      wprintf(L"\n      path: %s", ch.target.path.data());
+    }
+    wprintf(L"\n   samplers:");
+    for (const auto& sp : an.samplers) {
+      wprintf(L"\n    sampler:");
+      wprintf(L"\n     input: %d", sp.input);
+      wprintf(L"\n     interpolation: %s", sp.interpolation.data());
+      wprintf(L"\n     output: %d", sp.output);
     }
   }
 

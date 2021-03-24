@@ -318,6 +318,8 @@ class GLTF {
           parseCameras(symbol);
         else if (symbol.tokens() == "animations")
           parseAnimations(symbol);
+        else if (symbol.tokens() == "accessors")
+          parseAccessors(symbol);
         else if (symbol.tokens() == "asset")
           parseAsset(symbol);
         // TODO...
@@ -1816,6 +1818,34 @@ void printGLTF(const GLTF& gltf) {
       wprintf(L"\n     interpolation: %s", sp.interpolation.data());
       wprintf(L"\n     output: %d", sp.output);
     }
+  }
+
+  wprintf(L"\n accessors:");
+  for (const auto& ac : gltf.accessors_) {
+    wprintf(L"\n  accessor `%s`:", ac.name.data());
+    wprintf(L"\n   bufferView: %d", ac.bufferView);
+    wprintf(L"\n   byteOffset: %lld", ac.byteOffset);
+    wprintf(L"\n   componentType: %d", ac.componentType);
+    wprintf(L"\n   normalized: %s", ac.normalized ? "true" : "false");
+    wprintf(L"\n   count: %d", ac.count);
+    wprintf(L"\n   type: %s", ac.type.data());
+    wprintf(L"\n   min: [ ");
+    for (auto v : ac.min)
+      wprintf(L"%.6f ", v);
+    wprintf(L"]");
+    wprintf(L"\n   max: [ ");
+    for (auto v : ac.max)
+      wprintf(L"%.6f ", v);
+    wprintf(L"]");
+    wprintf(L"\n   sparse:");
+    wprintf(L"\n    count: %d", ac.sparse.count);
+    wprintf(L"\n    indices:");
+    wprintf(L"\n     bufferView: %d", ac.sparse.indices.bufferView);
+    wprintf(L"\n     byteOffset: %lld", ac.sparse.indices.byteOffset);
+    wprintf(L"\n     componentType: %d", ac.sparse.indices.componentType);
+    wprintf(L"\n    values:");
+    wprintf(L"\n     bufferView: %d", ac.sparse.values.bufferView);
+    wprintf(L"\n     byteOffset: %lld", ac.sparse.values.byteOffset);
   }
 
   wprintf(L"\n asset:");

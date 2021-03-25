@@ -623,7 +623,7 @@ class GLTF {
   /// Element of `glTF.meshes` property.
   ///
   struct Mesh {
-    struct Primitives {
+    struct Primitive {
       enum Mode : int32_t {
         Points = 0,
         Lines = 1,
@@ -641,7 +641,7 @@ class GLTF {
       vector<unordered_map<string, int32_t>> targets{};
     };
 
-    vector<Primitives> primitives{};
+    vector<Primitive> primitives{};
     vector<float> weights{};
     string name{};
   };
@@ -1417,6 +1417,45 @@ class GLTF {
     vector<double> max{};
     Sparse sparse{};
     string name{};
+
+    /// Size of `componentType`.
+    ///
+    size_t sizeOfComponentType() const {
+      switch (componentType) {
+      case Byte:
+      case UnsignedByte:
+        return 1;
+      case Short:
+      case UnsignedShort:
+        return 2;
+      case UnsignedInt:
+      case Float:
+        return 4;
+      default:
+        break;
+      }
+      return 0;
+    }
+
+    /// Size of `type`.
+    ///
+    size_t sizeOfType() const {
+      if (type == "SCALAR")
+        return 1;
+      if (type == "VEC2")
+        return 2;
+      if (type == "VEC3")
+        return 3;
+      if (type == "VEC4")
+        return 4;
+      if (type == "MAT2")
+        return 4;
+      if (type == "MAT3")
+        return 9;
+      if (type == "MAT4")
+        return 16;
+      return 0;
+    }
   };
 
   /// Parses `glTF.accessors`.
@@ -1775,6 +1814,125 @@ class GLTF {
 #endif
 };
 
+/// Loads a single mesh from a GLTF object.
+///
+void loadMesh(Mesh::Data& dst, const GLTF& gltf, uint32_t index) {
+  assert(index <= gltf.meshes().size());
+
+  const auto& mesh = gltf.meshes()[index];
+
+  if (mesh.primitives.empty())
+    throw runtime_error("Invalid glTF primitives");
+
+  // TODO: multiple primitives & other primitive topologies
+  if (mesh.primitives.size() > 1 ||
+      mesh.primitives.front().mode != GLTF::Mesh::Primitive::Triangles)
+    throw UnsupportedExcept("Unsupported glTF mesh");
+
+  // Convert from primitive's attribute string to `VxType` value
+  auto typeOfAttribute = [](const string& attr) -> VxType {
+    if (attr == "POSITION")
+      return VxTypePosition;
+    if (attr == "TANGENT")
+      return VxTypeTangent;
+    if (attr == "NORMAL")
+      return VxTypeNormal;
+    if (attr == "TEXCOORD_0")
+      return VxTypeTexCoord0;
+    if (attr == "TEXCOORD_1")
+      return VxTypeTexCoord1;
+    if (attr == "COLOR_0")
+      return VxTypeColor0;
+    if (attr == "JOINTS_0")
+      return VxTypeJoints0;
+    if (attr == "WEIGHTS_0")
+      return VxTypeWeights0;
+    throw UnsupportedExcept("Unsupported glTF primitive");
+  };
+
+  // Description of data in a given buffer
+  struct Desc {
+    int32_t type;
+    const GLTF::Accessor& accessor;
+    const GLTF::BufferView& bufferView;
+  };
+
+  unordered_map<int32_t, vector<Desc>> bufferMap{};
+
+  // TODO: validate glTF data
+  for (const auto& prim : mesh.primitives) {
+    for (const auto& att : prim.attributes) {
+
+      const auto type = typeOfAttribute(att.first);
+      const auto& acc = gltf.accessors()[att.second];
+      const auto& view = gltf.bufferViews()[acc.bufferView];
+
+      auto it = bufferMap.find(view.buffer);
+      if (it == bufferMap.end())
+        bufferMap.emplace(view.buffer, vector<Desc>{{type, acc, view}});
+      else
+        it->second.push_back({type, acc, view});
+    }
+
+    if (prim.indices >= 0) {
+      const auto& acc = gltf.accessors()[prim.indices];
+      const auto& view = gltf.bufferViews()[acc.bufferView];
+
+      auto it = bufferMap.find(view.buffer);
+      assert(it != bufferMap.end());
+      it->second.push_back({-1, acc, view});
+    }
+  }
+
+  for (const auto& bm : bufferMap) {
+    const auto& buffer = gltf.buffers()[bm.first];
+
+    // TODO: .glb
+    if (buffer.uri.empty())
+      throw UnsupportedExcept("Unsupported glTF buffer");
+
+    ifstream ifs(gltf.directory() + '/' + buffer.uri);
+    if (!ifs)
+      throw FileExcept("Could not open glTF .bin file");
+
+    for (const auto& dc : bm.second) {
+      size_t size = dc.accessor.sizeOfComponentType() *
+                    dc.accessor.sizeOfType();
+
+      const Mesh::Data::Accessor da{static_cast<uint32_t>(dst.data.size()),
+                                    0,
+                                    static_cast<uint32_t>(dc.accessor.count),
+                                    static_cast<uint32_t>(size)};
+
+      size *= da.elementN;
+      dst.data.push_back(make_unique<uint8_t[]>(size));
+      auto dt = reinterpret_cast<char*>(dst.data.back().get());
+
+      if (!ifs.seekg(dc.accessor.byteOffset + dc.bufferView.byteOffset))
+        throw FileExcept("Could not seek glTF .bin file");
+
+      if (dc.bufferView.byteStride > 0) {
+        // interleaved
+        for (size_t i = 0; i < da.elementN; ++i) {
+          if (!ifs.seekg(dc.bufferView.byteStride * i, ios_base::cur))
+            throw FileExcept("Could not seek glTF .bin file");
+          if (!ifs.read(dt, da.elementSize))
+            throw FileExcept("Could not read from glTF .bin file");
+        }
+      } else {
+        // packed
+        if (!ifs.read(dt, size))
+          throw FileExcept("Could not read from glTF .bin file");
+      }
+
+      if (dc.type >= 0)
+        dst.vxAccessors.emplace(static_cast<VxType>(dc.type), da);
+      else
+        dst.ixAccessor = da;
+    }
+  }
+}
+
 INTERNAL_NS_END
 
 void SG_NS::loadGLTF(Node& dst, const wstring& pathname, uint32_t index) {
@@ -1813,7 +1971,7 @@ void SG_NS::loadGLTF(Mesh::Data& dst, const wstring& pathname, uint32_t index) {
   if (index >= gltf.meshes().size())
     throw invalid_argument("loadGLTF() index out of bounds");
 
-  // TODO
+  loadMesh(dst, gltf, index);
 }
 
 //

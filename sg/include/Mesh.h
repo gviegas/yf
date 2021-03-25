@@ -8,6 +8,7 @@
 #ifndef YF_SG_MESH_H
 #define YF_SG_MESH_H
 
+#include <cstdint>
 #include <string>
 #include <memory>
 
@@ -27,7 +28,7 @@ class Mesh {
     Obj
   };
 
-  Mesh(FileType fileType, const std::wstring& meshFile);
+  Mesh(FileType fileType, const std::wstring& meshFile, uint32_t index = 0);
   Mesh(const Mesh&) = delete;
   Mesh& operator=(const Mesh&) = delete;
   ~Mesh();

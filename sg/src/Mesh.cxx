@@ -12,12 +12,13 @@
 #include "yf/cg/Device.h"
 
 #include "MeshImpl.h"
+#include "DataGLTF.h"
 #include "DataOBJ.h"
 
 using namespace SG_NS;
 using namespace std;
 
-Mesh::Mesh(FileType fileType, const wstring& meshFile) {
+Mesh::Mesh(FileType fileType, const wstring& meshFile, uint32_t index) {
   Data data;
 
   switch (fileType) {
@@ -25,8 +26,8 @@ Mesh::Mesh(FileType fileType, const wstring& meshFile) {
     // TODO
     throw runtime_error("Mesh::Internal unimplemented");
   case Gltf:
-    // TODO
-    throw runtime_error("Mesh::Gltf unimplemented");
+    loadGLTF(data, meshFile, index);
+    break;
   case Obj:
     loadOBJ(data, meshFile);
     break;

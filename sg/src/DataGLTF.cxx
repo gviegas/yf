@@ -1417,6 +1417,45 @@ class GLTF {
     vector<double> max{};
     Sparse sparse{};
     string name{};
+
+    /// Size of `componentType`.
+    ///
+    size_t sizeOfComponentType() const {
+      switch (componentType) {
+      case Byte:
+      case UnsignedByte:
+        return 1;
+      case Short:
+      case UnsignedShort:
+        return 2;
+      case UnsignedInt:
+      case Float:
+        return 4;
+      default:
+        break;
+      }
+      return 0;
+    }
+
+    /// Size of `type`.
+    ///
+    size_t sizeOfType() const {
+      if (type == "SCALAR")
+        return 1;
+      if (type == "VEC2")
+        return 2;
+      if (type == "VEC3")
+        return 3;
+      if (type == "VEC4")
+        return 4;
+      if (type == "MAT2")
+        return 4;
+      if (type == "MAT3")
+        return 9;
+      if (type == "MAT4")
+        return 16;
+      return 0;
+    }
   };
 
   /// Parses `glTF.accessors`.

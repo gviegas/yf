@@ -175,8 +175,7 @@ struct MiscTest : public Test {
     auto buf = dev.buffer(1024);
     buf->write(0, msize, mat.data());
 
-    struct Vertex { float pos[3]; float tc[2]; float norm[3]; };
-    Mesh mesh(Mesh::Obj, L"tmp/cube.obj");
+    Mesh mesh(Mesh::Gltf, L"tmp/cube.gltf");
     Texture tex(Texture::Bmp, L"tmp/cube.bmp");
 
     CG_NS::DcEntries dcs{{0, {CG_NS::DcTypeUniform, 1}},
@@ -243,7 +242,7 @@ struct MiscTest : public Test {
   }
 
   Assertions run(const vector<string>&) {
-    return {{L"misc1()", misc1()}};
+    return {{L"misc2()", misc2()}};
   }
 };
 

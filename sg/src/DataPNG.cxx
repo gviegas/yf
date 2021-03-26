@@ -35,12 +35,52 @@ using namespace std;
 INTERNAL_NS_BEGIN
 
 class PNG {
-  // TODO
+ public:
+  /// File signature.
+  ///
+  static constexpr uint8_t Signature[]{137, 80, 78, 71, 13, 10, 26, 10};
+
+  PNG(const std::wstring& pathname) {
+    // Convert pathname string
+    string path{};
+    size_t len = (pathname.size() + 1) * sizeof(wchar_t);
+    path.resize(len);
+    const wchar_t* wsrc = pathname.data();
+    mbstate_t state;
+    memset(&state, 0, sizeof state);
+    len = wcsrtombs(path.data(), &wsrc, path.size(), &state);
+    if (wsrc || static_cast<size_t>(-1) == len)
+      throw ConversionExcept("Could not convert PNG file path");
+    path.resize(len);
+
+    ifstream ifs(path);
+    if (!ifs)
+      throw FileExcept("Could not open PNG file");
+
+    // Check signature
+    uint8_t sign[sizeof Signature];
+
+    if (!ifs.read(reinterpret_cast<char*>(sign), sizeof sign))
+      throw FileExcept("Could not read from PNG file");
+
+    if (memcmp(sign, Signature, sizeof sign) != 0)
+      throw FileExcept("Invalid PNG file");
+
+    // TODO...
+  }
+
+  PNG(const PNG&) = delete;
+  PNG& operator=(const PNG&) = delete;
+  ~PNG() = default;
+
+ private:
 };
 
 INTERNAL_NS_END
 
 void SG_NS::loadPNG(Texture::Data& dst, const std::wstring& pathname) {
+  PNG png(pathname);
+
   // TODO
-  throw runtime_error("Unimplemented");
+  exit(0);
 }

@@ -63,7 +63,7 @@ class PNG {
 
   /// Computes CRC.
   ///
-  uint32_t computeCRC(const uint8_t* data, uint32_t n) const {
+  uint32_t computeCRC(const char* data, uint32_t n) const {
     assert(data);
     assert(n > 0);
 
@@ -90,7 +90,7 @@ class PNG {
     return crc ^ 0xFFFFFFFF;
   }
 
-  PNG(const std::wstring& pathname) {
+  PNG(const std::wstring& pathname) : ihdr_{} {
     // Convert pathname string
     string path{};
     size_t len = (pathname.size() + 1) * sizeof(wchar_t);
@@ -117,17 +117,75 @@ class PNG {
       throw FileExcept("Invalid PNG file");
 
     // Process chunks
-    vector<uint8_t> buffer{};
+    vector<char> buffer{};
     buffer.resize(4096);
+
+    const uint32_t lengthOff = 0;
+    const uint32_t typeOff = 4;
     const uint32_t dataOff = 8;
+    uint32_t length;
+    uint32_t type;
+    uint32_t crc;
 
-    if (!ifs.read(reinterpret_cast<char*>(buffer.data()), dataOff))
-      throw FileExcept("Could not read from PNG file");
+    auto setLength = [&] {
+      memcpy(&length, &buffer[lengthOff], sizeof length);
+      length = betoh(length);
+      auto required = dataOff + length + sizeof crc;
+      if (required > buffer.size())
+        buffer.resize(required);
+    };
 
-    if (memcmp(buffer.data()+4, IHDRType, 4) != 0)
+    auto processChunk = [&] {
+      if (!ifs.read(buffer.data(), dataOff))
+        throw FileExcept("Could not read from PNG file");
+
+      memcpy(&type, &buffer[typeOff], sizeof type);
+
+      // IHDR
+      if (memcmp(&type, IHDRType, sizeof IHDRType) == 0) {
+        setLength();
+        if (length < IHDRSize)
+          throw FileExcept("Invalid PNG file");
+
+        if (!ifs.read(&buffer[dataOff], length))
+          throw FileExcept("Could not read from PNG file");
+
+        memcpy(&ihdr_, &buffer[dataOff], length);
+        ihdr_.width = betoh(ihdr_.width);
+        ihdr_.height = betoh(ihdr_.height);
+
+      // TODO: other chunk types
+      } else {
+        // TODO
+        exit(0);
+      }
+
+      if (!ifs.read(reinterpret_cast<char*>(&crc), sizeof crc))
+        throw FileExcept("Could not read from PNG file");
+
+      crc = betoh(crc);
+      if (crc != computeCRC(&buffer[typeOff], length + sizeof type))
+        throw FileExcept("Invalid CRC for PNG file");
+    };
+
+    processChunk();
+    if (memcmp(&type, IHDRType, sizeof type) != 0)
       throw FileExcept("Invalid PNG file");
 
     // TODO...
+
+    //////////
+    wprintf(L"\nPNG");
+    wprintf(L"\n IHDR:");
+    wprintf(L"\n  width: %u", ihdr_.width);
+    wprintf(L"\n  height: %u", ihdr_.height);
+    wprintf(L"\n  bitDepth: %u", ihdr_.bitDepth);
+    wprintf(L"\n  colorType: %u", ihdr_.colorType);
+    wprintf(L"\n  compressionMethod: %u", ihdr_.compressionMethod);
+    wprintf(L"\n  filterMethod: %u", ihdr_.filterMethod);
+    wprintf(L"\n  interlaceMethod: %u", ihdr_.interlaceMethod);
+    wprintf(L"\n");
+    //////////
   }
 
   PNG(const PNG&) = delete;
@@ -135,6 +193,7 @@ class PNG {
   ~PNG() = default;
 
  private:
+  IHDR ihdr_{};
 };
 
 INTERNAL_NS_END

@@ -339,14 +339,26 @@ void SG_NS::loadBMP(Texture::Data& dst, const wstring& pathname) {
   int32_t to, from, increment;
   if (height > -1) {
     // pixel data is stored bottom-up
+#ifdef YF_FLIP_BMP
     from = 0;
     to = height;
     increment = 1;
+#else
+    from = height-1;
+    to = -1;
+    increment = -1;
+#endif
   } else {
     // pixel data is stored top-down
+#ifdef YF_FLIP_BMP
     from = -height-1;
     to = -1;
     increment = -1;
+#else
+    from = 0;
+    to = -height;
+    increment = 1;
+#endif
   }
 
   // Read next bytes as 16bpp format

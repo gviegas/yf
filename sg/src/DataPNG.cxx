@@ -9,7 +9,9 @@
 #include <cstdint>
 #include <cwchar>
 #include <cstring>
+#include <cassert>
 #include <fstream>
+#include <atomic>
 
 #include "DataPNG.h"
 #include "yf/Except.h"
@@ -59,6 +61,35 @@ class PNG {
   static constexpr uint32_t IHDRSize = 13;
   static_assert(offsetof(IHDR, interlaceMethod) == IHDRSize-1, "!offsetof");
 
+  /// Computes CRC.
+  ///
+  uint32_t computeCRC(const uint8_t* data, uint32_t n) const {
+    assert(data);
+    assert(n > 0);
+
+    static uint32_t table[256]{};
+    static atomic pending{true};
+    static bool wait = true;
+
+    if (pending.exchange(false)) {
+      for (uint32_t i = 0; i < 256; ++i) {
+        auto x = i;
+        for (uint32_t j = 0; j < 8; ++j)
+          x = (x & 1) ? (0xEDB88320 ^ (x >> 1)) : (x >> 1);
+        table[i] = x;
+      }
+      wait = false;
+    } else {
+      while (wait) { }
+    }
+
+    uint32_t crc = 0xFFFFFFFF;
+    for (uint32_t i = 0; i < n; ++i)
+      crc = table[(crc ^ data[i]) & 0xFF] ^ (crc >> 8);
+
+    return crc ^ 0xFFFFFFFF;
+  }
+
   PNG(const std::wstring& pathname) {
     // Convert pathname string
     string path{};
@@ -86,15 +117,14 @@ class PNG {
       throw FileExcept("Invalid PNG file");
 
     // Process chunks
-    uint32_t length;
-    uint32_t type;
-    uint32_t crc;
+    vector<uint8_t> buffer{};
+    buffer.resize(4096);
+    const uint32_t dataOff = 8;
 
-    if (!ifs.read(reinterpret_cast<char*>(&length), sizeof length) ||
-        !ifs.read(reinterpret_cast<char*>(&type), sizeof type))
+    if (!ifs.read(reinterpret_cast<char*>(buffer.data()), dataOff))
       throw FileExcept("Could not read from PNG file");
 
-    if (memcmp(&type, IHDRType, sizeof type) != 0)
+    if (memcmp(buffer.data()+4, IHDRType, 4) != 0)
       throw FileExcept("Invalid PNG file");
 
     // TODO...

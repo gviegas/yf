@@ -5,6 +5,7 @@
 // Copyright © 2021 Gustavo C. Viegas.
 //
 
+#include <cstddef>
 #include <cstdint>
 #include <cwchar>
 #include <cstring>
@@ -40,6 +41,24 @@ class PNG {
   ///
   static constexpr uint8_t Signature[]{137, 80, 78, 71, 13, 10, 26, 10};
 
+  /// Chunk names.
+  ///
+  static constexpr uint8_t IHDRType[]{'I', 'H', 'D', 'R'};
+
+  /// IHDR.
+  ///
+  struct IHDR {
+    uint32_t width;
+    uint32_t height;
+    uint8_t bitDepth;
+    uint8_t colorType;
+    uint8_t compressionMethod;
+    uint8_t filterMethod;
+    uint8_t interlaceMethod;
+  };
+  static constexpr uint32_t IHDRSize = 13;
+  static_assert(offsetof(IHDR, interlaceMethod) == IHDRSize-1, "!offsetof");
+
   PNG(const std::wstring& pathname) {
     // Convert pathname string
     string path{};
@@ -64,6 +83,18 @@ class PNG {
       throw FileExcept("Could not read from PNG file");
 
     if (memcmp(sign, Signature, sizeof sign) != 0)
+      throw FileExcept("Invalid PNG file");
+
+    // Process chunks
+    uint32_t length;
+    uint32_t type;
+    uint32_t crc;
+
+    if (!ifs.read(reinterpret_cast<char*>(&length), sizeof length) ||
+        !ifs.read(reinterpret_cast<char*>(&type), sizeof type))
+      throw FileExcept("Could not read from PNG file");
+
+    if (memcmp(&type, IHDRType, sizeof type) != 0)
       throw FileExcept("Invalid PNG file");
 
     // TODO...

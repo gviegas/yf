@@ -37,6 +37,30 @@ using namespace std;
 
 INTERNAL_NS_BEGIN
 
+struct ZNode {
+  bool isLeaf;
+  union {
+    uint16_t next[2];
+    uint32_t value;
+  };
+
+  ZNode() : isLeaf(false), next{0, 0} { }
+  ZNode(uint16_t next0, uint16_t next1) : isLeaf(false), next{next0, next1} { }
+  ZNode(uint32_t value) : isLeaf(true), value(value) { }
+
+  constexpr const uint16_t& operator[](size_t index) const {
+    assert(index <= 1);
+    return next[index];
+  };
+
+  constexpr uint16_t& operator[](size_t index) {
+    assert(index <= 1);
+    return next[index];
+  }
+};
+
+using ZTree = vector<ZNode>;
+
 class PNG {
  public:
   /// File signature.

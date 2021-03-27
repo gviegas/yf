@@ -47,6 +47,7 @@ class PNG {
   ///
   static constexpr uint8_t IHDRType[]{'I', 'H', 'D', 'R'};
   static constexpr uint8_t PLTEType[]{'P', 'L', 'T', 'E'};
+  static constexpr uint8_t IDATType[]{'I', 'D', 'A', 'T'};
 
   /// IHDR.
   ///
@@ -91,7 +92,7 @@ class PNG {
     return crc ^ 0xFFFFFFFF;
   }
 
-  PNG(const std::wstring& pathname) : ihdr_{}, plte_{} {
+  PNG(const std::wstring& pathname) : ihdr_{}, plte_{}, idat_{} {
     // Convert pathname string
     string path{};
     size_t len = (pathname.size() + 1) * sizeof(wchar_t);
@@ -172,6 +173,14 @@ class PNG {
         plte_.resize(length);
         memcpy(plte_.data(), &buffer[dataOff], length);
 
+      // IDAT
+      } else if (memcmp(&type, IDATType, sizeof IDATType) == 0) {
+        if (length > 0) {
+          const auto offset = idat_.size();
+          idat_.resize(offset + length);
+          memcpy(&idat_[offset], &buffer[dataOff], length);
+        }
+
       // TODO: other chunk types
       } else {
         // TODO
@@ -206,6 +215,7 @@ class PNG {
  private:
   IHDR ihdr_{};
   vector<uint8_t> plte_{};
+  vector<uint8_t> idat_{};
 };
 
 INTERNAL_NS_END

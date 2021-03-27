@@ -68,25 +68,42 @@ void createCodeTree(const vector<uint8_t>& codeLengths, ZTree& codeTree) {
   assert(!codeLengths.empty());
   assert(codeTree.empty());
 
+  // Count number of codes per length
   const auto maxLen = *max_element(codeLengths.begin(), codeLengths.end());
   vector<uint32_t> count{};
   count.resize(maxLen + 1);
   for (const auto& len : codeLengths)
     ++count[len];
 
+  // Set initial codes for each length
   count[0] = 0;
   vector<uint32_t> nextCode{};
   nextCode.resize(maxLen + 1);
   for (uint8_t i = 1; i <= maxLen; ++i)
     nextCode[i] = (nextCode[i-1] + count[i-1]) << 1;
 
-  vector<uint32_t> codes;
-  for (const auto& len : codeLengths) {
-    if (len != 0)
-      codes.push_back(nextCode[len]++);
-  }
+  // Create tree
+  codeTree.push_back({});
+  for (uint32_t i = 0; i < codeLengths.size(); ++i) {
+    if (codeLengths[i] == 0)
+      continue;
 
-  // TODO...
+    const auto length = codeLengths[i];
+    const auto code = nextCode[length]++;
+
+    uint16_t node = 0;
+    for (uint8_t j = 0; j < length; ++j) {
+      const uint8_t bit = (code >> (length-j-1)) & 1;
+
+      if (codeTree[node][bit] == 0) {
+        codeTree[node][bit] = codeTree.size();
+        codeTree.push_back({});
+      }
+      node = codeTree[node][bit];
+    }
+
+    codeTree.back() = {i};
+  }
 }
 
 class PNG {

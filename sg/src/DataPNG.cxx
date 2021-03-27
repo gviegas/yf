@@ -189,7 +189,10 @@ class PNG {
       }
     }
 
-    // TODO...
+    if (ihdr_.width == 0 || ihdr_.height == 0 ||
+        ihdr_.compressionMethod != 0 || ihdr_.filterMethod != 0 ||
+        ihdr_.interlaceMethod > 1 || idat_.empty())
+      throw FileExcept("Invalid PNG file");
   }
 
   PNG(const PNG&) = delete;

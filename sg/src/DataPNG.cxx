@@ -38,6 +38,8 @@ using namespace std;
 
 INTERNAL_NS_BEGIN
 
+/// Node of a code tree.
+///
 struct ZNode {
   bool isLeaf;
   union {
@@ -60,6 +62,8 @@ struct ZNode {
   }
 };
 
+/// Code tree.
+///
 using ZTree = vector<ZNode>;
 
 /// Creates a code tree from ordered code lengths.
@@ -94,7 +98,6 @@ void createCodeTree(const vector<uint8_t>& codeLengths, ZTree& codeTree) {
     uint16_t node = 0;
     for (uint8_t j = 0; j < length; ++j) {
       const uint8_t bit = (code >> (length-j-1)) & 1;
-
       if (codeTree[node][bit] == 0) {
         codeTree[node][bit] = codeTree.size();
         codeTree.push_back({});
@@ -106,6 +109,12 @@ void createCodeTree(const vector<uint8_t>& codeLengths, ZTree& codeTree) {
   }
 }
 
+#ifdef YF_DEVEL
+void printCodeTree(const ZTree& codeTree);
+#endif
+
+/// PNG.
+///
 class PNG {
  public:
   /// File signature.
@@ -253,6 +262,7 @@ class PNG {
       } else if (memcmp(&buffer[typeOff], IENDType, sizeof IENDType) == 0) {
         break;
 
+      // XXX: cannot ignore critical chunks
       } else if (!(buffer[typeOff] & 32)) {
         throw UnsupportedExcept("Unsupported PNG file");
       }
@@ -288,7 +298,12 @@ void SG_NS::loadPNG(Texture::Data& dst, const std::wstring& pathname) {
 #endif
 
   // TODO
+#ifdef YF_DEVEL
+  ZTree tree;
+  createCodeTree({3, 3, 3, 3, 3, 2, 4, 4}, tree);
+  printCodeTree(tree);
   exit(0);
+#endif
 }
 
 //
@@ -298,6 +313,18 @@ void SG_NS::loadPNG(Texture::Data& dst, const std::wstring& pathname) {
 #ifdef YF_DEVEL
 
 INTERNAL_NS_BEGIN
+
+void printCodeTree(const ZTree& codeTree) {
+  wprintf(L"\nCode Tree");
+  for (size_t i = 0; i < codeTree.size(); ++i) {
+    wprintf(L"\n (%lu) ", i);
+    if (codeTree[i].isLeaf)
+      wprintf(L"value: %u", codeTree[i].value);
+    else
+      wprintf(L"next: %u/%u", codeTree[i][0], codeTree[i][1]);
+  }
+  wprintf(L"\n");
+}
 
 void printPNG(const PNG& png) {
   wprintf(L"\nPNG");

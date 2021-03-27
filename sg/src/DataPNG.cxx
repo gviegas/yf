@@ -48,6 +48,7 @@ class PNG {
   static constexpr uint8_t IHDRType[]{'I', 'H', 'D', 'R'};
   static constexpr uint8_t PLTEType[]{'P', 'L', 'T', 'E'};
   static constexpr uint8_t IDATType[]{'I', 'D', 'A', 'T'};
+  static constexpr uint8_t IENDType[]{'I', 'E', 'N', 'D'};
 
   /// IHDR.
   ///
@@ -137,7 +138,7 @@ class PNG {
         buffer.resize(required);
     };
 
-    auto processChunk = [&] {
+    while (true) {
       // Read length and type
       if (!ifs.read(buffer.data(), dataOff))
         throw FileExcept("Could not read from PNG file");
@@ -154,10 +155,8 @@ class PNG {
       if (crc != computeCRC(&buffer[typeOff], length + sizeof type))
         throw FileExcept("Invalid CRC for PNG file");
 
-      memcpy(&type, &buffer[typeOff], sizeof type);
-
       // IHDR
-      if (memcmp(&type, IHDRType, sizeof IHDRType) == 0) {
+      if (memcmp(&buffer[typeOff], IHDRType, sizeof IHDRType) == 0) {
         if (length < IHDRSize)
           throw FileExcept("Invalid PNG file");
 
@@ -166,7 +165,7 @@ class PNG {
         ihdr_.height = betoh(ihdr_.height);
 
       // PLTE
-      } else if (memcmp(&type, PLTEType, sizeof PLTEType) == 0) {
+      } else if (memcmp(&buffer[typeOff], PLTEType, sizeof PLTEType) == 0) {
         if (length % 3 != 0 || plte_.size() != 0)
           throw FileExcept("Invalid PNG file");
 
@@ -174,23 +173,21 @@ class PNG {
         memcpy(plte_.data(), &buffer[dataOff], length);
 
       // IDAT
-      } else if (memcmp(&type, IDATType, sizeof IDATType) == 0) {
+      } else if (memcmp(&buffer[typeOff], IDATType, sizeof IDATType) == 0) {
         if (length > 0) {
           const auto offset = idat_.size();
           idat_.resize(offset + length);
           memcpy(&idat_[offset], &buffer[dataOff], length);
         }
 
-      // TODO: other chunk types
-      } else {
-        // TODO
-        exit(0);
-      }
-    };
+      // IEND
+      } else if (memcmp(&buffer[typeOff], IENDType, sizeof IENDType) == 0) {
+        break;
 
-    processChunk();
-    if (memcmp(&type, IHDRType, sizeof type) != 0)
-      throw FileExcept("Invalid PNG file");
+      } else if (!(buffer[typeOff] & 32)) {
+        throw UnsupportedExcept("Unsupported PNG file");
+      }
+    }
 
     // TODO...
 
@@ -204,6 +201,8 @@ class PNG {
     wprintf(L"\n  compressionMethod: %u", ihdr_.compressionMethod);
     wprintf(L"\n  filterMethod: %u", ihdr_.filterMethod);
     wprintf(L"\n  interlaceMethod: %u", ihdr_.interlaceMethod);
+    wprintf(L"\n PLTE: %lu byte(s)", plte_.size());
+    wprintf(L"\n IDAT: %lu byte(s)", idat_.size());
     wprintf(L"\n");
     //////////
   }

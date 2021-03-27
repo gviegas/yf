@@ -190,21 +190,6 @@ class PNG {
     }
 
     // TODO...
-
-    //////////
-    wprintf(L"\nPNG");
-    wprintf(L"\n IHDR:");
-    wprintf(L"\n  width: %u", ihdr_.width);
-    wprintf(L"\n  height: %u", ihdr_.height);
-    wprintf(L"\n  bitDepth: %u", ihdr_.bitDepth);
-    wprintf(L"\n  colorType: %u", ihdr_.colorType);
-    wprintf(L"\n  compressionMethod: %u", ihdr_.compressionMethod);
-    wprintf(L"\n  filterMethod: %u", ihdr_.filterMethod);
-    wprintf(L"\n  interlaceMethod: %u", ihdr_.interlaceMethod);
-    wprintf(L"\n PLTE: %lu byte(s)", plte_.size());
-    wprintf(L"\n IDAT: %lu byte(s)", idat_.size());
-    wprintf(L"\n");
-    //////////
   }
 
   PNG(const PNG&) = delete;
@@ -215,6 +200,10 @@ class PNG {
   IHDR ihdr_{};
   vector<uint8_t> plte_{};
   vector<uint8_t> idat_{};
+
+#ifdef YF_DEVEL
+  friend void printPNG(const PNG& png);
+#endif
 };
 
 INTERNAL_NS_END
@@ -222,6 +211,37 @@ INTERNAL_NS_END
 void SG_NS::loadPNG(Texture::Data& dst, const std::wstring& pathname) {
   PNG png(pathname);
 
+#ifdef YF_DEVEL
+  printPNG(png);
+#endif
+
   // TODO
   exit(0);
 }
+
+//
+// DEVEL
+//
+
+#ifdef YF_DEVEL
+
+INTERNAL_NS_BEGIN
+
+void printPNG(const PNG& png) {
+  wprintf(L"\nPNG");
+  wprintf(L"\n IHDR:");
+  wprintf(L"\n  width: %u", png.ihdr_.width);
+  wprintf(L"\n  height: %u", png.ihdr_.height);
+  wprintf(L"\n  bitDepth: %u", png.ihdr_.bitDepth);
+  wprintf(L"\n  colorType: %u", png.ihdr_.colorType);
+  wprintf(L"\n  compressionMethod: %u", png.ihdr_.compressionMethod);
+  wprintf(L"\n  filterMethod: %u", png.ihdr_.filterMethod);
+  wprintf(L"\n  interlaceMethod: %u", png.ihdr_.interlaceMethod);
+  wprintf(L"\n PLTE: %lu byte(s)", png.plte_.size());
+  wprintf(L"\n IDAT: %lu byte(s)", png.idat_.size());
+  wprintf(L"\n");
+}
+
+INTERNAL_NS_END
+
+#endif

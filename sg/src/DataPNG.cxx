@@ -138,7 +138,7 @@ void inflate(const vector<uint8_t>& src, vector<uint8_t>& dst) {
 
   auto nextBit = [&] {
     assert(bitOff < 8);
-    const uint8_t bit = (src[byteOff] >> (7-bitOff)) & 1;
+    const uint8_t bit = (src[byteOff] >> bitOff) & 1;
     const div_t d = div(++bitOff, 8);
     byteOff += d.quot;
     bitOff = d.rem;
@@ -147,7 +147,7 @@ void inflate(const vector<uint8_t>& src, vector<uint8_t>& dst) {
 
   while (true) {
     const auto bfinal = nextBit();
-    const auto btype = (nextBit() << 1) | nextBit();
+    const auto btype = nextBit() | (nextBit() << 1);
 
     // No compression
     if (btype == 0) {
@@ -177,9 +177,24 @@ void inflate(const vector<uint8_t>& src, vector<uint8_t>& dst) {
 
     // Compression
     } else {
+      ZTree literals{};
+      ZTree distances{};
+
       if (btype == 1) {
         // Fixed H. codes
-        // TODO
+        vector<uint8_t> litLengths{};
+        litLengths.resize(288);
+        fill_n(litLengths.begin(), 144, 8);
+        fill_n(litLengths.begin()+144, 112, 9);
+        fill_n(litLengths.begin()+256, 24, 7);
+        fill_n(litLengths.begin()+280, 8, 8);
+
+        vector<uint8_t> distLengths{};
+        distLengths.resize(32, 5);
+
+        createCodeTree(litLengths, literals);
+        createCodeTree(distLengths, distances);
+
       } else if (btype == 2) {
         // Dynamic H. codes
         // TODO

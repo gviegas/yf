@@ -118,6 +118,7 @@ void printCodeTree(const ZTree& codeTree);
 void inflate(const vector<uint8_t>& src, vector<uint8_t>& dst) {
   assert(src.size() > 2);
 
+  // Datastream header
   struct {
     uint8_t cm:4, cinfo:4;
     uint8_t fcheck:5, fdict:1, flevel:2;
@@ -130,10 +131,66 @@ void inflate(const vector<uint8_t>& src, vector<uint8_t>& dst) {
       betoh(*reinterpret_cast<uint16_t*>(&hdr)) % 31 != 0)
     throw runtime_error("Invalid data for decompression");
 
+  // Process blocks
+  size_t dataOff = 0;
+  size_t byteOff = 2;
+  size_t bitOff = 0;
+
+  auto nextBit = [&] {
+    assert(bitOff < 8);
+    const uint8_t bit = (src[byteOff] >> (7-bitOff)) & 1;
+    const div_t d = div(++bitOff, 8);
+    byteOff += d.quot;
+    bitOff = d.rem;
+    return bit;
+  };
+
   while (true) {
-    // TODO...
+    const auto bfinal = nextBit();
+    const auto btype = (nextBit() << 1) | nextBit();
+
+    // No compression
+    if (btype == 0) {
+      if (bitOff != 0) {
+        ++byteOff;
+        bitOff = 0;
+      }
+
+      uint16_t len;
+      memcpy(&len, &src[byteOff], sizeof len);
+      len = letoh(len);
+      byteOff += 2;
+
+      uint16_t nlen;
+      memcpy(&nlen, &src[byteOff], sizeof nlen);
+      nlen = letoh(nlen);
+      byteOff += 2;
+
+      if ((nlen ^ len) != 0xFFFF)
+        throw runtime_error("Invalid data for decompression");
+
+      assert(dataOff + len <= dst.size());
+
+      memcpy(&dst[dataOff], &src[byteOff], len);
+      dataOff += len;
+      byteOff += len;
+
+    // Compression
+    } else {
+      if (btype == 1) {
+        // Fixed H. codes
+        // TODO
+      } else if (btype == 2) {
+        // Dynamic H. codes
+        // TODO
+      } else {
+        throw runtime_error("Invalid data for decompression");
+      }
+    }
+
+    if (bfinal)
+      break;
   }
-  // TODO...
 }
 
 /// PNG.

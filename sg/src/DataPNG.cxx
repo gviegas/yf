@@ -271,7 +271,31 @@ void inflate(const vector<uint8_t>& src, vector<uint8_t>& dst) {
         throw runtime_error("Invalid data for decompression");
       }
 
-      // TODO...
+      // Decompress data using the literal and distance code trees
+      while (true) {
+        uint16_t node = 0;
+        do
+          node = literals[node][nextBit()];
+        while (!literals[node].isLeaf);
+        const auto value = literals[node].value;
+
+        if (value < 256) {
+          // Literal
+          assert(dataOff + 1 <= dst.size());
+          dst[dataOff++] = value;
+
+        } else if (value == 256) {
+          // End of block
+          break;
+
+        } else if (value < 286) {
+          // Length/Distance pair
+          // TODO
+
+        } else {
+          throw runtime_error("Invalid file for decompression");
+        }
+      }
     }
 
     if (bfinal)

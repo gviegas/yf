@@ -290,7 +290,43 @@ void inflate(const vector<uint8_t>& src, vector<uint8_t>& dst) {
 
         } else if (value < 286) {
           // Length/Distance pair
-          // TODO
+          uint8_t extraBits = 0;
+
+          // Compute length
+          uint16_t length = 0;
+          if (value <= 264) {
+            extraBits = 0;
+            length = 10 - (264-value);
+          } else if (value <= 284) {
+            extraBits = 1 + ((value-265) >> 2);
+            length = 3 + (4 << extraBits) + (((value-265) & 3) << extraBits);
+          } else {
+            extraBits = 0;
+            length = 258;
+          }
+          for (uint8_t i = 0; i < extraBits; ++i)
+            length += nextBit() << i;
+
+          // Compute distance
+          uint16_t distance = 0;
+          if (value <= 3) {
+            extraBits = 0;
+            distance = value + 1;
+          } else {
+            extraBits = 1 + ((value-4) >> 1);
+            distance = 1 + (2 << extraBits) + (((value-4) & 1) << extraBits);
+          }
+          for (uint8_t i = 0; i < extraBits; ++i)
+            distance += nextBit() << i;
+
+          assert(distance <= dataOff);
+          assert(dataOff + length <= dst.size());
+
+          // Copy data
+          while (length--) {
+            dst[dataOff] = dst[dataOff-distance];
+            ++dataOff;
+          }
 
         } else {
           throw runtime_error("Invalid file for decompression");

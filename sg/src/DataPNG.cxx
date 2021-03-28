@@ -197,10 +197,81 @@ void inflate(const vector<uint8_t>& src, vector<uint8_t>& dst) {
 
       } else if (btype == 2) {
         // Dynamic H. codes
-        // TODO
+        uint16_t hlit = 0;
+        for (uint16_t i = 0; i < 5; ++i)
+          hlit |= nextBit() << i;
+        hlit += 257;
+
+        uint16_t hdist = 0;
+        for (uint16_t i = 0; i < 5; ++i)
+          hdist |= nextBit() << i;
+        ++hdist;
+
+        uint16_t hclen = 0;
+        for (uint16_t i = 0; i < 4; ++i)
+          hclen |= nextBit() << i;
+        hclen += 4;
+
+        // Create code length tree
+        static constexpr uint8_t lenMap[19]{16, 17, 18, 0, 8, 7, 9, 6, 10, 5,
+                                            11, 4, 12, 3, 13, 2, 14, 1, 15};
+        vector<uint8_t> lenLengths{};
+        lenLengths.resize(19);
+        for (uint16_t i = 0; i < hclen; ++i)
+          lenLengths[lenMap[i]] = nextBit() | (nextBit()<<1) | (nextBit()<<2);
+        ZTree lenTree{};
+        createCodeTree(lenLengths, lenTree);
+
+        // Decompress code lengths using the code length tree
+        auto decompressLengths = [&](vector<uint8_t>& lengths, uint16_t n) {
+          for (uint16_t i = 0; i < n; ++i) {
+            uint16_t node = 0;
+            do
+              node = lenTree[node][nextBit()];
+            while (!lenTree[node].isLeaf);
+            const auto value = lenTree[node].value;
+
+            if (value < 16) {
+              // Code length
+              lengths.push_back(value);
+            } else if (value == 16) {
+              // Copy previous
+              uint8_t times = 3 + (nextBit() | (nextBit() << 1));
+              while (times--)
+                lengths.push_back(lengths.back());
+            } else {
+              // Repeat zero length
+              uint8_t times = 0;
+              uint8_t bits = 0;
+              if (value == 17) {
+                times = 3;
+                bits = 3;
+              } else if (value == 18) {
+                times = 11;
+                bits = 7;
+              } else {
+                throw runtime_error("Invalid data for decompression");
+              }
+              for (uint8_t i = 0; i < bits; ++i)
+                times += nextBit() << i;
+              lengths.resize(lengths.size() + times);
+            }
+          }
+        };
+
+        // Decompress literal & distance code lengths and create code trees
+        vector<uint8_t> litLengths{};
+        vector<uint8_t> distLengths{};
+        decompressLengths(litLengths, hlit);
+        decompressLengths(distLengths, hdist);
+        createCodeTree(litLengths, literals);
+        createCodeTree(distLengths, distances);
+
       } else {
         throw runtime_error("Invalid data for decompression");
       }
+
+      // TODO...
     }
 
     if (bfinal)
@@ -393,12 +464,7 @@ void SG_NS::loadPNG(Texture::Data& dst, const std::wstring& pathname) {
 #endif
 
   // TODO
-#ifdef YF_DEVEL
-  ZTree tree;
-  createCodeTree({3, 3, 3, 3, 3, 2, 4, 4}, tree);
-  printCodeTree(tree);
   exit(0);
-#endif
 }
 
 //

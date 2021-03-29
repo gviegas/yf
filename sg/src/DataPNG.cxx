@@ -224,7 +224,8 @@ void inflate(const vector<uint8_t>& src, vector<uint8_t>& dst) {
 
         // Decompress code lengths using the code length tree
         auto decompressLengths = [&](vector<uint8_t>& lengths, uint16_t n) {
-          for (uint16_t i = 0; i < n; ++i) {
+          uint16_t count = 0;
+          while (count < n) {
             uint16_t node = 0;
             do
               node = lenTree[node][nextBit()];
@@ -234,9 +235,11 @@ void inflate(const vector<uint8_t>& src, vector<uint8_t>& dst) {
             if (value < 16) {
               // Code length
               lengths.push_back(value);
+              ++count;
             } else if (value == 16) {
               // Copy previous
               uint8_t times = 3 + (nextBit() | (nextBit() << 1));
+              count += times;
               while (times--)
                 lengths.push_back(lengths.back());
             } else {
@@ -254,6 +257,7 @@ void inflate(const vector<uint8_t>& src, vector<uint8_t>& dst) {
               }
               for (uint8_t i = 0; i < bits; ++i)
                 times += nextBit() << i;
+              count += times;
               lengths.resize(lengths.size() + times);
             }
           }
@@ -273,11 +277,15 @@ void inflate(const vector<uint8_t>& src, vector<uint8_t>& dst) {
 
       // Decompress data using the literal and distance code trees
       while (true) {
-        uint16_t node = 0;
+        uint16_t node;
+        uint32_t value;
+
+        // Decode literal/length
+        node = 0;
         do
           node = literals[node][nextBit()];
         while (!literals[node].isLeaf);
-        const auto value = literals[node].value;
+        value = literals[node].value;
 
         if (value < 256) {
           // Literal
@@ -306,6 +314,13 @@ void inflate(const vector<uint8_t>& src, vector<uint8_t>& dst) {
           }
           for (uint8_t i = 0; i < extraBits; ++i)
             length += nextBit() << i;
+
+          // Decode distance
+          node = 0;
+          do
+            node = distances[node][nextBit()];
+          while (!distances[node].isLeaf);
+          value = distances[node].value;
 
           // Compute distance
           uint16_t distance = 0;

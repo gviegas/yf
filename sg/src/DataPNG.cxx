@@ -500,6 +500,29 @@ class PNG {
   PNG& operator=(const PNG&) = delete;
   ~PNG() = default;
 
+  /// Produces raw image data.
+  ///
+  unique_ptr<uint8_t[]> imageData() const {
+    vector<uint8_t> cdata{};
+    decompress(cdata);
+    unfilter(cdata);
+
+    auto idata = make_unique<uint8_t[]>(ihdr_.width * ihdr_.height * Bpp_);
+
+    const size_t cpSize = ihdr_.width * Bpp_;
+    const size_t advSize = sclnSize_;
+
+    if (ihdr_.bitDepth >= 8) {
+      for (uint32_t i = 0; i < ihdr_.height; ++i)
+        memcpy(&idata[i*cpSize], &cdata[1+i*advSize], cpSize);
+    } else {
+      // TODO
+      throw runtime_error("PNG::imageData() - Unimplemented");
+    }
+
+    return idata;
+  }
+
  private:
   /// File signature.
   ///

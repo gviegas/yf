@@ -584,13 +584,13 @@ class PNG {
       case 3:
         // Average
         if (i > 0) {
-          for (uint32_t i = 1+Bpp; 1 < sclnSize; ++i) {
+          for (uint32_t i = 1+Bpp; i < sclnSize; ++i) {
             const uint16_t prev = scanline[i-Bpp];
             const uint16_t prior = priorScln[i];
             scanline[i] += (prev + prior) >> 1;
           }
         } else {
-          for (uint32_t i = 1+Bpp; 1 < sclnSize; ++i)
+          for (uint32_t i = 1+Bpp; i < sclnSize; ++i)
             scanline[i] += scanline[i-Bpp] >> 1;
         }
         break;

@@ -359,7 +359,10 @@ void inflate(const vector<uint8_t>& src, vector<uint8_t>& dst) {
 ///
 class PNG {
  public:
-  PNG(const std::wstring& pathname) : ihdr_{}, plte_{}, idat_{} {
+  PNG(const std::wstring& pathname)
+    : ihdr_{}, plte_{}, idat_{},
+      components_(0), bpp_(0), Bpp_(0), sclnSize_(0) {
+
     // Convert pathname string
     string path{};
     size_t len = (pathname.size() + 1) * sizeof(wchar_t);
@@ -456,10 +459,41 @@ class PNG {
       }
     }
 
+    // TODO: check if colorType/bitDepth combinations are valid
     if (ihdr_.width == 0 || ihdr_.height == 0 ||
         ihdr_.compressionMethod != 0 || ihdr_.filterMethod != 0 ||
         ihdr_.interlaceMethod > 1 || idat_.empty())
       throw FileExcept("Invalid PNG file");
+
+    // Set auxiliar data members
+    switch (ihdr_.colorType) {
+    case 0:
+    case 3:
+      components_ = 1;
+      break;
+    case 2:
+      components_ = 3;
+      break;
+    case 4:
+      components_ = 2;
+      break;
+    case 6:
+      components_ = 4;
+      break;
+    default:
+      throw FileExcept("Invalid PNG file");
+    }
+
+    bpp_ = components_ * ihdr_.bitDepth;
+    Bpp_ = max(bpp_ >> 3, 1U);
+
+    if (bpp_ & 7) {
+      // XXX: scanlines must begin at byte boundaries
+      const div_t d = div(ihdr_.width * bpp_, 8);
+      sclnSize_ = 1 + d.quot + (d.rem != 0);
+    } else {
+      sclnSize_ = 1 + ihdr_.width * (bpp_ >> 3);
+    }
   }
 
   PNG(const PNG&) = delete;
@@ -494,45 +528,19 @@ class PNG {
 
   IHDR ihdr_{};
   vector<uint8_t> plte_{};
-  vector<uint8_t> idat_{};
+  vector<uint8_t> idat_{}; // XXX: concatenation of chunks
+
+  uint32_t components_ = 0;
+  uint32_t bpp_ = 0;
+  uint32_t Bpp_ = 0;
+  uint32_t sclnSize_ = 0; // XXX: including filter byte
 
   /// Decompresses concatenated IDAT datastream.
   ///
   void decompress(vector<uint8_t>& dst) const {
     assert(dst.empty());
 
-    uint32_t components;
-
-    switch (ihdr_.colorType) {
-    case 0:
-    case 3:
-      components = 1;
-      break;
-    case 2:
-      components = 3;
-      break;
-    case 4:
-      components = 2;
-      break;
-    case 6:
-      components = 4;
-      break;
-    default:
-      throw runtime_error("Invalid PNG data for decompressing");
-    }
-
-    const uint32_t bpp = components * ihdr_.bitDepth;
-    uint32_t sclnSize;
-
-    if (bpp & 7) {
-      // XXX: scanlines must begin at byte boundaries
-      const div_t d = div(ihdr_.width * bpp, 8);
-      sclnSize = 1 + d.quot + (d.rem != 0);
-    } else {
-      sclnSize = 1 + ihdr_.width * (bpp >> 3);
-    }
-
-    dst.resize(sclnSize * ihdr_.height);
+    dst.resize(sclnSize_ * ihdr_.height);
     inflate(idat_, dst);
   }
 
@@ -541,42 +549,9 @@ class PNG {
   void unfilter(vector<uint8_t>& data) const {
     assert(!data.empty());
 
-    uint32_t components;
-
-    switch (ihdr_.colorType) {
-    case 0:
-    case 3:
-      components = 1;
-      break;
-    case 2:
-      components = 3;
-      break;
-    case 4:
-      components = 2;
-      break;
-    case 6:
-      components = 4;
-      break;
-    default:
-      throw runtime_error("Invalid PNG data for unfiltering");
-    }
-
-    const uint32_t bpp = components * ihdr_.bitDepth;
-    uint32_t sclnSize;
-
-    if (bpp & 7) {
-      // XXX: scanlines must begin at byte boundaries
-      const div_t d = div(ihdr_.width * bpp, 8);
-      sclnSize = 1 + d.quot + (d.rem != 0);
-    } else {
-      sclnSize = 1 + ihdr_.width * (bpp >> 3);
-    }
-
-    const uint8_t Bpp = max(bpp >> 3, 1U);
-
     for (uint32_t i = 0; i < ihdr_.height; ++i) {
-      auto scanline = &data[i*sclnSize];
-      const auto priorScln = scanline-sclnSize;
+      auto scanline = &data[i*sclnSize_];
+      const auto priorScln = scanline-sclnSize_;
       const auto filter = scanline[0];
 
       switch (filter) {
@@ -586,14 +561,14 @@ class PNG {
 
       case 1:
         // Sub
-        for (uint32_t i = 1+Bpp; i < sclnSize; ++i)
-          scanline[i] += scanline[i-Bpp];
+        for (uint32_t i = 1+Bpp_; i < sclnSize_; ++i)
+          scanline[i] += scanline[i-Bpp_];
         break;
 
       case 2:
         // Up
         if (i > 0) {
-          for (uint32_t i = 1; i < sclnSize; ++i)
+          for (uint32_t i = 1; i < sclnSize_; ++i)
             scanline[i] += priorScln[i];
         }
         break;
@@ -601,14 +576,14 @@ class PNG {
       case 3:
         // Average
         if (i > 0) {
-          for (uint32_t i = 1+Bpp; i < sclnSize; ++i) {
-            const uint16_t prev = scanline[i-Bpp];
+          for (uint32_t i = 1+Bpp_; i < sclnSize_; ++i) {
+            const uint16_t prev = scanline[i-Bpp_];
             const uint16_t prior = priorScln[i];
             scanline[i] += (prev + prior) >> 1;
           }
         } else {
-          for (uint32_t i = 1+Bpp; i < sclnSize; ++i)
-            scanline[i] += scanline[i-Bpp] >> 1;
+          for (uint32_t i = 1+Bpp_; i < sclnSize_; ++i)
+            scanline[i] += scanline[i-Bpp_] >> 1;
         }
         break;
 
@@ -622,12 +597,12 @@ class PNG {
             const int16_t pc = abs(p-c);
             return (pa <= pb && pa <= pc) ? (a) : (pb <= pc ? b : c);
           };
-          for (uint32_t i = 1+Bpp; i < sclnSize; ++i)
-            scanline[i] += paeth(scanline[i-Bpp], priorScln[i],
-                                 priorScln[i-Bpp]);
+          for (uint32_t i = 1+Bpp_; i < sclnSize_; ++i)
+            scanline[i] += paeth(scanline[i-Bpp_], priorScln[i],
+                                 priorScln[i-Bpp_]);
         } else {
-          for (uint32_t i = 1+Bpp; i < sclnSize; ++i)
-            scanline[i] += scanline[i-Bpp];
+          for (uint32_t i = 1+Bpp_; i < sclnSize_; ++i)
+            scanline[i] += scanline[i-Bpp_];
         }
         break;
 

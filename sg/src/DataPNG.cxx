@@ -504,6 +504,71 @@ class PNG {
   PNG& operator=(const PNG&) = delete;
   ~PNG() = default;
 
+  /// Reverses filters from decompressed data.
+  ///
+  void unfilter(vector<uint8_t>& data) const {
+    assert(!data.empty());
+
+    size_t components;
+
+    switch (ihdr_.colorType) {
+    case 0:
+    case 3:
+      components = 1;
+      break;
+    case 2:
+      components = 3;
+      break;
+    case 4:
+      components = 2;
+      break;
+    case 6:
+      components = 4;
+      break;
+    default:
+      throw runtime_error("Invalid PNG data for unfiltering");
+    }
+
+    const size_t bpp = components * ihdr_.bitDepth;
+    size_t sclnSize;
+
+    if (bpp & 7) {
+      // XXX: scanlines must begin at byte boundaries
+      const div_t d = div(ihdr_.width * bpp, 8);
+      sclnSize = 1 + d.quot + (d.rem != 0);
+    } else {
+      sclnSize = 1 + ihdr_.width * (bpp > 3);
+    }
+
+    for (uint32_t i = 0; i < ihdr_.height; ++i) {
+      const auto filter = data[i*sclnSize];
+
+      switch (filter) {
+      case 0:
+        // None
+        break;
+      case 1:
+        // Sub
+        // TODO
+        break;
+      case 2:
+        // Up
+        // TODO
+        break;
+      case 3:
+        // Average
+        // TODO
+        break;
+      case 4:
+        // Paeth
+        // TODO
+        break;
+      default:
+        throw runtime_error("Invalid PNG data for unfiltering");
+      }
+    }
+  }
+
  private:
   IHDR ihdr_{};
   vector<uint8_t> plte_{};

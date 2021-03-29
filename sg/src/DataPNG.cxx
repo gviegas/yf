@@ -509,7 +509,7 @@ class PNG {
   void unfilter(vector<uint8_t>& data) const {
     assert(!data.empty());
 
-    size_t components;
+    uint32_t components;
 
     switch (ihdr_.colorType) {
     case 0:
@@ -529,40 +529,76 @@ class PNG {
       throw runtime_error("Invalid PNG data for unfiltering");
     }
 
-    const size_t bpp = components * ihdr_.bitDepth;
-    size_t sclnSize;
+    const uint32_t bpp = components * ihdr_.bitDepth;
+    uint32_t sclnSize;
 
     if (bpp & 7) {
       // XXX: scanlines must begin at byte boundaries
       const div_t d = div(ihdr_.width * bpp, 8);
       sclnSize = 1 + d.quot + (d.rem != 0);
     } else {
-      sclnSize = 1 + ihdr_.width * (bpp > 3);
+      sclnSize = 1 + ihdr_.width * (bpp >> 3);
     }
 
+    const uint8_t Bpp = max(bpp >> 3, 1U);
+
     for (uint32_t i = 0; i < ihdr_.height; ++i) {
-      const auto filter = data[i*sclnSize];
+      auto scanline = &data[i*sclnSize];
+      const auto priorScln = scanline-sclnSize;
+      const auto filter = scanline[0];
 
       switch (filter) {
       case 0:
         // None
         break;
+
       case 1:
         // Sub
-        // TODO
+        for (uint32_t i = 1+Bpp; i < sclnSize; ++i)
+          scanline[i] += scanline[i-Bpp];
         break;
+
       case 2:
         // Up
-        // TODO
+        if (i > 0) {
+          for (uint32_t i = 1; i < sclnSize; ++i)
+            scanline[i] += priorScln[i];
+        }
         break;
+
       case 3:
         // Average
-        // TODO
+        if (i > 0) {
+          for (uint32_t i = 1+Bpp; 1 < sclnSize; ++i) {
+            const uint16_t prev = scanline[i-Bpp];
+            const uint16_t prior = priorScln[i];
+            scanline[i] += (prev + prior) >> 1;
+          }
+        } else {
+          for (uint32_t i = 1+Bpp; 1 < sclnSize; ++i)
+            scanline[i] += scanline[i-Bpp] >> 1;
+        }
         break;
+
       case 4:
         // Paeth
-        // TODO
+        if (i > 0) {
+          auto paeth = [](int16_t a, int16_t b, int16_t c) -> uint8_t {
+            const int16_t p = a + b - c;
+            const int16_t pa = abs(p-a);
+            const int16_t pb = abs(p-b);
+            const int16_t pc = abs(p-c);
+            return (pa <= pb && pa <= pc) ? (a) : (pb <= pc ? b : c);
+          };
+          for (uint32_t i = 1+Bpp; i < sclnSize; ++i)
+            scanline[i] += paeth(scanline[i-Bpp], priorScln[i],
+                                 priorScln[i-Bpp]);
+        } else {
+          for (uint32_t i = 1+Bpp; i < sclnSize; ++i)
+            scanline[i] += scanline[i-Bpp];
+        }
         break;
+
       default:
         throw runtime_error("Invalid PNG data for unfiltering");
       }

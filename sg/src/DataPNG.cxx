@@ -117,6 +117,7 @@ void printCodeTree(const ZTree& codeTree);
 ///
 void inflate(const vector<uint8_t>& src, vector<uint8_t>& dst) {
   assert(src.size() > 2);
+  assert(!dst.empty());
 
   // Datastream header
   struct {
@@ -358,60 +359,6 @@ void inflate(const vector<uint8_t>& src, vector<uint8_t>& dst) {
 ///
 class PNG {
  public:
-  /// File signature.
-  ///
-  static constexpr uint8_t Signature[]{137, 80, 78, 71, 13, 10, 26, 10};
-
-  /// Chunk names.
-  ///
-  static constexpr uint8_t IHDRType[]{'I', 'H', 'D', 'R'};
-  static constexpr uint8_t PLTEType[]{'P', 'L', 'T', 'E'};
-  static constexpr uint8_t IDATType[]{'I', 'D', 'A', 'T'};
-  static constexpr uint8_t IENDType[]{'I', 'E', 'N', 'D'};
-
-  /// IHDR.
-  ///
-  struct IHDR {
-    uint32_t width;
-    uint32_t height;
-    uint8_t bitDepth;
-    uint8_t colorType;
-    uint8_t compressionMethod;
-    uint8_t filterMethod;
-    uint8_t interlaceMethod;
-  };
-  static constexpr uint32_t IHDRSize = 13;
-  static_assert(offsetof(IHDR, interlaceMethod) == IHDRSize-1, "!offsetof");
-
-  /// Computes CRC.
-  ///
-  uint32_t computeCRC(const char* data, uint32_t n) const {
-    assert(data);
-    assert(n > 0);
-
-    static uint32_t table[256]{};
-    static atomic pending{true};
-    static bool wait = true;
-
-    if (pending.exchange(false)) {
-      for (uint32_t i = 0; i < 256; ++i) {
-        auto x = i;
-        for (uint32_t j = 0; j < 8; ++j)
-          x = (x & 1) ? (0xEDB88320 ^ (x >> 1)) : (x >> 1);
-        table[i] = x;
-      }
-      wait = false;
-    } else {
-      while (wait) { }
-    }
-
-    uint32_t crc = 0xFFFFFFFF;
-    for (uint32_t i = 0; i < n; ++i)
-      crc = table[(crc ^ data[i]) & 0xFF] ^ (crc >> 8);
-
-    return crc ^ 0xFFFFFFFF;
-  }
-
   PNG(const std::wstring& pathname) : ihdr_{}, plte_{}, idat_{} {
     // Convert pathname string
     string path{};
@@ -519,6 +466,76 @@ class PNG {
   PNG& operator=(const PNG&) = delete;
   ~PNG() = default;
 
+ private:
+  /// File signature.
+  ///
+  static constexpr uint8_t Signature[]{137, 80, 78, 71, 13, 10, 26, 10};
+
+  /// Chunk names.
+  ///
+  static constexpr uint8_t IHDRType[]{'I', 'H', 'D', 'R'};
+  static constexpr uint8_t PLTEType[]{'P', 'L', 'T', 'E'};
+  static constexpr uint8_t IDATType[]{'I', 'D', 'A', 'T'};
+  static constexpr uint8_t IENDType[]{'I', 'E', 'N', 'D'};
+
+  /// IHDR.
+  ///
+  struct IHDR {
+    uint32_t width;
+    uint32_t height;
+    uint8_t bitDepth;
+    uint8_t colorType;
+    uint8_t compressionMethod;
+    uint8_t filterMethod;
+    uint8_t interlaceMethod;
+  };
+  static constexpr uint32_t IHDRSize = 13;
+  static_assert(offsetof(IHDR, interlaceMethod) == IHDRSize-1, "!offsetof");
+
+  IHDR ihdr_{};
+  vector<uint8_t> plte_{};
+  vector<uint8_t> idat_{};
+
+  /// Decompresses concatenated IDAT datastream.
+  ///
+  void decompress(vector<uint8_t>& dst) const {
+    assert(dst.empty());
+
+    uint32_t components;
+
+    switch (ihdr_.colorType) {
+    case 0:
+    case 3:
+      components = 1;
+      break;
+    case 2:
+      components = 3;
+      break;
+    case 4:
+      components = 2;
+      break;
+    case 6:
+      components = 4;
+      break;
+    default:
+      throw runtime_error("Invalid PNG data for decompressing");
+    }
+
+    const uint32_t bpp = components * ihdr_.bitDepth;
+    uint32_t sclnSize;
+
+    if (bpp & 7) {
+      // XXX: scanlines must begin at byte boundaries
+      const div_t d = div(ihdr_.width * bpp, 8);
+      sclnSize = 1 + d.quot + (d.rem != 0);
+    } else {
+      sclnSize = 1 + ihdr_.width * (bpp >> 3);
+    }
+
+    dst.resize(sclnSize * ihdr_.height);
+    inflate(idat_, dst);
+  }
+
   /// Reverses filters from decompressed data.
   ///
   void unfilter(vector<uint8_t>& data) const {
@@ -620,10 +637,34 @@ class PNG {
     }
   }
 
- private:
-  IHDR ihdr_{};
-  vector<uint8_t> plte_{};
-  vector<uint8_t> idat_{};
+  /// Computes CRC.
+  ///
+  uint32_t computeCRC(const char* data, uint32_t n) const {
+    assert(data);
+    assert(n > 0);
+
+    static uint32_t table[256]{};
+    static atomic pending{true};
+    static bool wait = true;
+
+    if (pending.exchange(false)) {
+      for (uint32_t i = 0; i < 256; ++i) {
+        auto x = i;
+        for (uint32_t j = 0; j < 8; ++j)
+          x = (x & 1) ? (0xEDB88320 ^ (x >> 1)) : (x >> 1);
+        table[i] = x;
+      }
+      wait = false;
+    } else {
+      while (wait) { }
+    }
+
+    uint32_t crc = 0xFFFFFFFF;
+    for (uint32_t i = 0; i < n; ++i)
+      crc = table[(crc ^ data[i]) & 0xFF] ^ (crc >> 8);
+
+    return crc ^ 0xFFFFFFFF;
+  }
 
 #ifdef YF_DEVEL
   friend void printPNG(const PNG& png);

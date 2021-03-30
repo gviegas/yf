@@ -10,6 +10,7 @@
 #include "yf/cg/Device.h"
 
 #include "TextureImpl.h"
+#include "DataPNG.h"
 #include "DataBMP.h"
 
 using namespace SG_NS;
@@ -23,8 +24,8 @@ Texture::Texture(FileType fileType, const wstring& textureFile) {
     // TODO
     throw runtime_error("Mesh::Internal unimplemented");
   case Png:
-    // TODO
-    throw runtime_error("Mesh::Png unimplemented");
+    loadPNG(data, textureFile);
+    break;
   case Bmp:
     loadBMP(data, textureFile);
     break;

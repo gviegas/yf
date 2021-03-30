@@ -507,17 +507,21 @@ class PNG {
     decompress(cdata);
     unfilter(cdata);
 
-    auto idata = make_unique<uint8_t[]>(ihdr_.width * ihdr_.height * Bpp_);
+    const size_t lnSize = ihdr_.width * (ihdr_.colorType == 3 ? 3 : Bpp_);
+    auto idata = make_unique<uint8_t[]>(lnSize * ihdr_.height);
 
-    const size_t cpSize = ihdr_.width * Bpp_;
-    const size_t advSize = sclnSize_;
+    // Palette indices
+    if (ihdr_.colorType == 3) {
+      // TODO...
 
-    if (ihdr_.bitDepth >= 8) {
-      for (uint32_t i = 0; i < ihdr_.height; ++i)
-        memcpy(&idata[i*cpSize], &cdata[1+i*advSize], cpSize);
+    // 1/2/4 bit depth greyscale
+    } else if (ihdr_.bitDepth < 8) {
+      // TODO...
+
+    // 8/16 bit depth truecolor or greyscale
     } else {
-      // TODO
-      throw runtime_error("PNG::imageData() - Unimplemented");
+      for (uint32_t i = 0; i < ihdr_.height; ++i)
+        memcpy(&idata[i*lnSize], &cdata[1+i*sclnSize_], lnSize);
     }
 
     return idata;
@@ -529,7 +533,7 @@ class PNG {
     return ihdr_.width;
   }
 
-  /// Height of `imageData()`;
+  /// Height of `imageData()`.
   ///
   uint32_t height() const {
     return ihdr_.height;

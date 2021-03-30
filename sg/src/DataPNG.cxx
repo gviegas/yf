@@ -523,6 +523,53 @@ class PNG {
     return idata;
   }
 
+  /// Width of `imageData()`.
+  ///
+  uint32_t width() const {
+    return ihdr_.width;
+  }
+
+  /// Height of `imageData()`;
+  ///
+  uint32_t height() const {
+    return ihdr_.height;
+  }
+
+  /// Format of `imageData()`.
+  ///
+  CG_NS::PxFormat format() const {
+    switch (ihdr_.colorType) {
+    case 0:
+      if (ihdr_.bitDepth == 16)
+        return CG_NS::PxFormatR16Unorm;
+      return CG_NS::PxFormatR8Unorm;
+
+    case 2:
+      if (ihdr_.bitDepth == 16)
+        return CG_NS::PxFormatRgb16Unorm;
+      return CG_NS::PxFormatRgb8Unorm;
+
+    case 3:
+      return CG_NS::PxFormatRgb8Unorm;
+
+    case 4:
+      if (ihdr_.bitDepth == 16)
+        return CG_NS::PxFormatRg16Unorm;
+      return CG_NS::PxFormatRg8Unorm;
+
+    case 6:
+      if (ihdr_.bitDepth == 16)
+        return CG_NS::PxFormatRgba16Unorm;
+      return CG_NS::PxFormatRgba8Unorm;
+
+    default:
+      break;
+    }
+
+    // XXX: should never happen
+    return CG_NS::PxFormatUndefined;
+  }
+
  private:
   /// File signature.
   ///
@@ -718,6 +765,10 @@ void printPNG(const PNG& png) {
   wprintf(L"\n  interlaceMethod: %u", png.ihdr_.interlaceMethod);
   wprintf(L"\n PLTE: %lu byte(s)", png.plte_.size());
   wprintf(L"\n IDAT: %lu byte(s)", png.idat_.size());
+  wprintf(L"\n Components: %u", png.components_);
+  wprintf(L"\n bpp: %u", png.bpp_);
+  wprintf(L"\n Bpp: %u", png.Bpp_);
+  wprintf(L"\n sclnSize: %u", png.sclnSize_);
   wprintf(L"\n");
 }
 

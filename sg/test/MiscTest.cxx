@@ -70,7 +70,7 @@ struct MiscTest : public Test {
 
     const uint16_t idata[]{0, 1, 2, 0, 2, 3};
 
-    const auto mat = scale(0.5f, 0.5f, 0.5f) * translate(-0.65f, -0.65f, 0.0f);
+    const auto mat = scale(0.5f, -0.5f, 0.5f) * translate(-0.65f, -0.65f, 0.0f);
     const size_t msize = mat.columns() * mat.rows() * sizeof(float);
 
     auto buf = dev.buffer(1024);
@@ -78,7 +78,7 @@ struct MiscTest : public Test {
     buf->write(sizeof vdata, sizeof idata, idata);
     buf->write(sizeof vdata+sizeof idata, msize, mat.data());
 
-    Texture tex(Texture::Bmp, L"tmp/64.bmp");
+    Texture tex(Texture::Png, L"tmp/64.png");
 
     CG_NS::DcEntries dcs{{0, {CG_NS::DcTypeUniform, 1}},
                          {1, {CG_NS::DcTypeImgSampler, 1}}};
@@ -93,7 +93,7 @@ struct MiscTest : public Test {
 
     CG_NS::GrState::Config config{pass.get(), {vert.get(), frag.get()},
                                   {dtb.get()}, {vin}, CG_NS::PrimitiveTriangle,
-                                  CG_NS::PolyModeFill, CG_NS::CullModeBack,
+                                  CG_NS::PolyModeFill, CG_NS::CullModeNone,
                                   CG_NS::WindingCounterCw};
 
     auto state = dev.state(config);
@@ -242,7 +242,7 @@ struct MiscTest : public Test {
   }
 
   Assertions run(const vector<string>&) {
-    return {{L"misc2()", misc2()}};
+    return {{L"misc1()", misc1()}};
   }
 };
 

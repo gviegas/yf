@@ -508,20 +508,58 @@ class PNG {
     unfilter(cdata);
 
     const size_t lnSize = ihdr_.width * (ihdr_.colorType == 3 ? 3 : Bpp_);
-    auto idata = make_unique<uint8_t[]>(lnSize * ihdr_.height);
+    const size_t size = lnSize * ihdr_.height;
+    auto idata = make_unique<uint8_t[]>(size);
 
     // Palette indices
     if (ihdr_.colorType == 3) {
-      // TODO...
+      // XXX: needs testing
+      for (uint32_t i = 0; i < ihdr_.height; ++i) {
+        const auto scanline = &cdata[1+i*sclnSize_];
+        uint32_t byteOff = 0;
+        uint32_t bitOff = 0;
+        for (uint32_t j = 0; j < ihdr_.width; ++j) {
+          uint8_t index = 0;
+          for (uint8_t k = 0; k < ihdr_.bitDepth; ++k)
+            index |= scanline[byteOff] & (1 << (k+bitOff));
+          index >>= bitOff;
+          memcpy(&idata[i*lnSize+j*3], &plte_[index], 3);
+          const div_t d = div(bitOff + ihdr_.bitDepth, 8);
+          byteOff += d.quot;
+          bitOff = d.rem;
+        }
+      }
 
     // 1/2/4 bit depth greyscale
     } else if (ihdr_.bitDepth < 8) {
-      // TODO...
+      // XXX: needs testing
+      for (uint32_t i = 0; i < ihdr_.height; ++i) {
+        const auto scanline = &cdata[1+i*sclnSize_];
+        uint32_t byteOff = 0;
+        uint32_t bitOff = 0;
+        for (uint32_t j = 0; j < ihdr_.width; ++j) {
+          uint8_t value = 0;
+          for (uint8_t k = 0; k < ihdr_.bitDepth; ++k)
+            value |= scanline[byteOff] & (1 << (k+bitOff));
+          idata[i*lnSize+j] = value >> bitOff;
+          const div_t d = div(bitOff + ihdr_.bitDepth, 8);
+          byteOff += d.quot;
+          bitOff = d.rem;
+        }
+      }
 
     // 8/16 bit depth truecolor or greyscale
     } else {
       for (uint32_t i = 0; i < ihdr_.height; ++i)
         memcpy(&idata[i*lnSize], &cdata[1+i*sclnSize_], lnSize);
+      if (ihdr_.bitDepth == 16) {
+        for (size_t i = 0; i < size; i += 2) {
+          uint16_t x;
+          memcpy(&x, &idata[i], 2);
+          x = betoh(x);
+          memcpy(&idata[i], &x, 2);
+        }
+      }
     }
 
     return idata;

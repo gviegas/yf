@@ -619,11 +619,38 @@ class PNG {
   void unfilter(vector<uint8_t>& data) const {
     assert(!data.empty());
 
-    for (uint32_t i = 0; i < ihdr_.height; ++i) {
-      auto scanline = &data[i*sclnSize_];
-      const auto priorScln = scanline-sclnSize_;
-      const auto filter = scanline[0];
+    uint8_t* curScln = nullptr;
+    uint8_t* priorScln = nullptr;
+    uint8_t filter = UINT8_MAX;
 
+    // Don't have prior scanline
+    auto reverse0 = [&] {
+      switch (filter) {
+      case 0:
+      case 2:
+        // None/Up
+        break;
+
+      case 1:
+      case 4:
+        // Sub/Paeth
+        for (uint32_t i = Bpp_+1; i < sclnSize_; ++i)
+          curScln[i] += curScln[i-Bpp_];
+        break;
+
+      case 3:
+        // Average
+        for (uint32_t i = Bpp_+1; i < sclnSize_; ++i)
+          curScln[i] += curScln[i-Bpp_] >> 1;
+        break;
+
+      default:
+        throw runtime_error("Invalid PNG data for unfiltering");
+      }
+    };
+
+    // Have prior scanline
+    auto reverse = [&] {
       switch (filter) {
       case 0:
         // None
@@ -631,58 +658,56 @@ class PNG {
 
       case 1:
         // Sub
-        for (uint32_t i = 1+Bpp_; i < sclnSize_; ++i)
-          scanline[i] += scanline[i-Bpp_];
+        for (uint32_t i = Bpp_+1; i < sclnSize_; ++i)
+          curScln[i] += curScln[i-Bpp_];
         break;
 
       case 2:
         // Up
-        if (i > 0) {
-          for (uint32_t i = 1; i < sclnSize_; ++i)
-            scanline[i] += priorScln[i];
-        }
+        for (uint32_t i = 1; i < sclnSize_; ++i)
+          curScln[i] += priorScln[i];
         break;
 
       case 3:
         // Average
-        if (i > 0) {
-          for (uint32_t i = 1; i < Bpp_; ++i)
-            scanline[i] += priorScln[i] >> 1;
-          for (uint32_t i = 1+Bpp_; i < sclnSize_; ++i) {
-            const uint16_t prev = scanline[i-Bpp_];
-            const uint16_t prior = priorScln[i];
-            scanline[i] += (prev + prior) >> 1;
-          }
-        } else {
-          for (uint32_t i = 1+Bpp_; i < sclnSize_; ++i)
-            scanline[i] += scanline[i-Bpp_] >> 1;
+        for (uint32_t i = 1; i <= Bpp_; ++i)
+          curScln[i] += priorScln[i] >> 1;
+        for (uint32_t i = Bpp_+1; i < sclnSize_; ++i) {
+          const uint16_t prev = curScln[i-Bpp_];
+          const uint16_t prior = priorScln[i];
+          curScln[i] += (prev + prior) >> 1;
         }
         break;
 
       case 4:
         // Paeth
-        if (i > 0) {
-          auto paeth = [](int16_t a, int16_t b, int16_t c) -> uint8_t {
-            const int16_t p = a + b - c;
-            const int16_t pa = abs(p-a);
-            const int16_t pb = abs(p-b);
-            const int16_t pc = abs(p-c);
-            return (pa <= pb && pa <= pc) ? (a) : (pb <= pc ? b : c);
-          };
-          for (uint32_t i = 1; i < Bpp_; ++i)
-            scanline[i] += priorScln[i];
-          for (uint32_t i = 1+Bpp_; i < sclnSize_; ++i)
-            scanline[i] += paeth(scanline[i-Bpp_], priorScln[i],
-                                 priorScln[i-Bpp_]);
-        } else {
-          for (uint32_t i = 1+Bpp_; i < sclnSize_; ++i)
-            scanline[i] += scanline[i-Bpp_];
+        for (uint32_t i = 1; i <= Bpp_; ++i)
+          curScln[i] += priorScln[i];
+        for (uint32_t i = Bpp_+1; i < sclnSize_; ++i) {
+          const int16_t a = curScln[i-Bpp_];
+          const int16_t b = priorScln[i];
+          const int16_t c = priorScln[i-Bpp_];
+          const int16_t p = a + b - c;
+          const int16_t pa = abs(p-a);
+          const int16_t pb = abs(p-b);
+          const int16_t pc = abs(p-c);
+          curScln[i] += (pa <= pb && pa <= pc) ? (a) : (pb <= pc ? b : c);
         }
         break;
 
       default:
         throw runtime_error("Invalid PNG data for unfiltering");
       }
+    };
+
+    curScln = data.data();
+    filter = curScln[0];
+    reverse0();
+    for (uint32_t i = 1; i < ihdr_.height; ++i) {
+      priorScln = curScln;
+      curScln = &data[i*sclnSize_];
+      filter = curScln[0];
+      reverse();
     }
   }
 

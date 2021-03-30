@@ -459,11 +459,27 @@ class PNG {
       }
     }
 
-    // TODO: check if colorType/bitDepth combinations are valid
+    // Validate
     if (ihdr_.width == 0 || ihdr_.height == 0 ||
         ihdr_.compressionMethod != 0 || ihdr_.filterMethod != 0 ||
         ihdr_.interlaceMethod > 1 || idat_.empty())
       throw FileExcept("Invalid PNG file");
+
+    if (ihdr_.colorType == 2 || ihdr_.colorType == 4 || ihdr_.colorType == 6) {
+      if (ihdr_.bitDepth != 8 && ihdr_.bitDepth != 16)
+        throw FileExcept("Invalid PNG file");
+    } else if (ihdr_.colorType == 0) {
+      if (ihdr_.bitDepth != 1 && ihdr_.bitDepth != 2 &&
+          ihdr_.bitDepth != 4 && ihdr_.bitDepth != 8 &&
+          ihdr_.bitDepth != 16)
+        throw FileExcept("Invalid PNG file");
+    } else if (ihdr_.colorType == 3) {
+      if (ihdr_.bitDepth != 1 && ihdr_.bitDepth != 2 &&
+          ihdr_.bitDepth != 4 && ihdr_.bitDepth != 8)
+        throw FileExcept("Invalid PNG file");
+    } else {
+      throw FileExcept("Invalid PNG file");
+    }
 
     // Set auxiliar data members
     switch (ihdr_.colorType) {

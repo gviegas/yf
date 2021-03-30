@@ -492,7 +492,7 @@ class PNG {
       const div_t d = div(ihdr_.width * bpp_, 8);
       sclnSize_ = 1 + d.quot + (d.rem != 0);
     } else {
-      sclnSize_ = 1 + ihdr_.width * (bpp_ >> 3);
+      sclnSize_ = 1 + ihdr_.width * Bpp_;
     }
   }
 
@@ -599,6 +599,8 @@ class PNG {
       case 3:
         // Average
         if (i > 0) {
+          for (uint32_t i = 1; i < Bpp_; ++i)
+            scanline[i] += priorScln[i] >> 1;
           for (uint32_t i = 1+Bpp_; i < sclnSize_; ++i) {
             const uint16_t prev = scanline[i-Bpp_];
             const uint16_t prior = priorScln[i];
@@ -620,6 +622,8 @@ class PNG {
             const int16_t pc = abs(p-c);
             return (pa <= pb && pa <= pc) ? (a) : (pb <= pc ? b : c);
           };
+          for (uint32_t i = 1; i < Bpp_; ++i)
+            scanline[i] += priorScln[i];
           for (uint32_t i = 1+Bpp_; i < sclnSize_; ++i)
             scanline[i] += paeth(scanline[i-Bpp_], priorScln[i],
                                  priorScln[i-Bpp_]);

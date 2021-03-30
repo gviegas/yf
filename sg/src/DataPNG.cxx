@@ -474,12 +474,16 @@ class PNG {
           ihdr_.bitDepth != 16)
         throw FileExcept("Invalid PNG file");
     } else if (ihdr_.colorType == 3) {
-      if (ihdr_.bitDepth != 1 && ihdr_.bitDepth != 2 &&
-          ihdr_.bitDepth != 4 && ihdr_.bitDepth != 8)
+      if (plte_.empty() || (ihdr_.bitDepth != 1 && ihdr_.bitDepth != 2 &&
+                            ihdr_.bitDepth != 4 && ihdr_.bitDepth != 8))
         throw FileExcept("Invalid PNG file");
     } else {
       throw FileExcept("Invalid PNG file");
     }
+
+    // TODO
+    if (ihdr_.interlaceMethod != 0)
+      throw UnsupportedExcept("Interlaced PNG images not supported");
 
     // Set auxiliar data members
     switch (ihdr_.colorType) {
@@ -769,7 +773,7 @@ class PNG {
     }
   }
 
-  /// Computes CRC.
+  /// Computes the CRC of a chunk.
   ///
   uint32_t computeCRC(const char* data, uint32_t n) const {
     assert(data);
@@ -812,8 +816,11 @@ void SG_NS::loadPNG(Texture::Data& dst, const std::wstring& pathname) {
   printPNG(png);
 #endif
 
-  // TODO
-  exit(0);
+  dst.data = png.imageData();
+  dst.format = png.format();
+  dst.size = {png.width(), png.height()};
+  dst.levels = 1;
+  dst.samples = CG_NS::Samples1;
 }
 
 //
@@ -824,6 +831,7 @@ void SG_NS::loadPNG(Texture::Data& dst, const std::wstring& pathname) {
 
 INTERNAL_NS_BEGIN
 
+[[maybe_unused]]
 void printCodeTree(const ZTree& codeTree) {
   wprintf(L"\nCode Tree");
   for (size_t i = 0; i < codeTree.size(); ++i) {
@@ -848,10 +856,12 @@ void printPNG(const PNG& png) {
   wprintf(L"\n  interlaceMethod: %u", png.ihdr_.interlaceMethod);
   wprintf(L"\n PLTE: %lu byte(s)", png.plte_.size());
   wprintf(L"\n IDAT: %lu byte(s)", png.idat_.size());
-  wprintf(L"\n Components: %u", png.components_);
-  wprintf(L"\n bpp: %u", png.bpp_);
-  wprintf(L"\n Bpp: %u", png.Bpp_);
-  wprintf(L"\n sclnSize: %u", png.sclnSize_);
+  wprintf(L"\n *Aux.:");
+  wprintf(L"\n  *Components: %u", png.components_);
+  wprintf(L"\n  *bpp: %u", png.bpp_);
+  wprintf(L"\n  *Bpp: %u", png.Bpp_);
+  wprintf(L"\n  *sclnSize: %u", png.sclnSize_);
+  wprintf(L"\n  *format: %d", png.format());
   wprintf(L"\n");
 }
 

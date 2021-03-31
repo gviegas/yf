@@ -6,7 +6,6 @@
 //
 
 #include <algorithm>
-#include <array>
 #include <cassert>
 
 #include "WsiVK.h"
@@ -259,20 +258,17 @@ void WsiVK::querySurface() {
     throw DeviceExcept("Could not query surface formats");
 
   // Choose a suitable format
-  array<VkFormat, 2> prefFmts{VK_FORMAT_B8G8R8A8_SRGB,
-                              VK_FORMAT_B8G8R8A8_UNORM};
+  constexpr VkFormat prefFmt = VK_FORMAT_B8G8R8A8_SRGB;
 
-  auto fmtIt = find_first_of(fmts.begin(), fmts.end(),
-                             prefFmts.begin(), prefFmts.end(),
-                             [](const auto& fmt, const auto& pref) {
-                               return fmt.format == pref &&
-                                      fmt.colorSpace ==
-                                      VK_COLOR_SPACE_SRGB_NONLINEAR_KHR; });
+  auto fmtIt = find_if(fmts.begin(), fmts.end(), [&](const auto& fmt) {
+    return fmt.format == prefFmt &&
+           fmt.colorSpace == VK_COLOR_SPACE_SRGB_NONLINEAR_KHR;
+  });
 
   if (fmtIt == fmts.end()) {
-    fmtIt = find_if(fmts.begin(), fmts.end(),
-                    [](const auto& fmt) { return fromFormatVK(fmt.format) !=
-                                                 PxFormatUndefined; });
+    fmtIt = find_if(fmts.begin(), fmts.end(), [](const auto& fmt) {
+      return fromFormatVK(fmt.format) != PxFormatUndefined;
+    });
     if (fmtIt == fmts.end())
       throw UnsupportedExcept("Surface format(s) not supported");
   }

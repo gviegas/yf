@@ -609,10 +609,12 @@ class PNG {
     case 2:
       if (ihdr_.bitDepth == 16)
         return CG_NS::PxFormatRgb16Unorm;
-      return CG_NS::PxFormatRgb8Unorm;
+      //return CG_NS::PxFormatRgb8Unorm;
+      return CG_NS::PxFormatRgb8Srgb;
 
     case 3:
-      return CG_NS::PxFormatRgb8Unorm;
+      //return CG_NS::PxFormatRgb8Unorm;
+      return CG_NS::PxFormatRgb8Srgb;
 
     case 4:
       if (ihdr_.bitDepth == 16)
@@ -622,7 +624,8 @@ class PNG {
     case 6:
       if (ihdr_.bitDepth == 16)
         return CG_NS::PxFormatRgba16Unorm;
-      return CG_NS::PxFormatRgba8Unorm;
+      //return CG_NS::PxFormatRgba8Unorm;
+      return CG_NS::PxFormatRgba8Srgb;
 
     default:
       break;

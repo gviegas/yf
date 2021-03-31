@@ -349,6 +349,391 @@ class GLTF {
   GLTF& operator=(const GLTF&) = delete;
   ~GLTF() = default;
 
+  /// Element of `glTF.scenes` property.
+  ///
+  struct Scene {
+    vector<int32_t> nodes{};
+    string name{};
+  };
+
+  /// Element of `glTF.nodes` property.
+  ///
+  struct Node {
+    // `size()` tells whether this is a TRS or a matrix
+    vector<float> transform{0.0f, 0.0f, 0.0f,
+                            0.0f, 0.0f, 0.0f, 1.0f,
+                            1.0f, 1.0f, 1.0f};
+
+    vector<int32_t> children{};
+    int32_t camera = -1;
+    int32_t mesh = -1;
+    int32_t skin = -1;
+    vector<float> weights{};
+    string name{};
+  };
+
+  /// Element of `glTF.meshes` property.
+  ///
+  struct Mesh {
+    struct Primitive {
+      enum Mode : int32_t {
+        Points = 0,
+        Lines = 1,
+        LineLoop = 2,
+        LineStrip = 3,
+        Triangles = 4,
+        TriangleStrip = 5,
+        TriangleFan = 6
+      };
+
+      unordered_map<string, int32_t> attributes{};
+      int32_t indices = -1;
+      Mode mode = Triangles;
+      int32_t material = -1;
+      vector<unordered_map<string, int32_t>> targets{};
+    };
+
+    vector<Primitive> primitives{};
+    vector<float> weights{};
+    string name{};
+  };
+
+  /// Element of `glTF.skins` property.
+  ///
+  struct Skin {
+    int32_t inverseBindMatrices = -1;
+    int32_t skeleton = -1;
+    vector<int32_t> joints{};
+    string name{};
+  };
+
+  /// Element of `glTF.materials` property.
+  ///
+  struct Material {
+    struct TextureInfo {
+      int32_t index = -1;
+      int32_t texCoord = 0;
+    };
+
+    struct PbrMetallicRoughness {
+      TextureInfo baseColorTexture{};
+      vector<float> baseColorFactor{1.0f, 1.0f, 1.0f, 1.0f};
+      TextureInfo metallicRoughnessTexture{};
+      float metallicFactor = 1.0f;
+      float roughnessFactor = 1.0f;
+    };
+
+    struct NormalTextureInfo : TextureInfo {
+      float scale = 1.0f;
+    };
+
+    struct OcclusionTextureInfo : TextureInfo {
+      float strength = 1.0f;
+    };
+
+    PbrMetallicRoughness pbrMetallicRoughness{};
+    NormalTextureInfo normalTexture{};
+    OcclusionTextureInfo occlusionTexture{};
+    TextureInfo emissiveTexture{};
+    vector<float> emissiveFactor{0.0f, 0.0f, 0.0f};
+    string alphaMode{"OPAQUE"};
+    float alphaCutoff = 0.5f;
+    bool doubleSided = false;
+    string name{};
+  };
+
+  /// Element of `glTF.textures` property.
+  ///
+  struct Texture {
+    int32_t sampler = -1;
+    int32_t source = -1;
+    string name{};
+  };
+
+  /// Element of `gltf.samplers` property.
+  ///
+  struct Sampler {
+    enum WrapMode : int32_t {
+      ClampToEdge = 33071,
+      MirroredRepeat = 33648,
+      Repeat = 10497
+    };
+
+    enum Filter : int32_t {
+      Nearest = 9728,
+      Linear = 9729,
+      NearestMipmapNearest = 9984,
+      LinearMipmapNearest = 9985,
+      NearestMipmapLinear = 9986,
+      LinearMipmapLinear = 9987,
+
+      Undefined = -1
+    };
+
+    WrapMode wrapS = Repeat;
+    WrapMode wrapT = Repeat;
+    Filter magFilter = Undefined;
+    Filter minFilter = Undefined;
+    string name{};
+  };
+
+  /// Element of `gltf.images` property.
+  ///
+  struct Image {
+    string uri{};
+    string mimeType{};
+    int32_t bufferView = -1;
+    string name{};
+  };
+
+  /// Element of `gltF.cameras` property.
+  ///
+  struct Camera {
+    union {
+      struct {
+        float aspectRatio = -1.0f;
+        float yfov = -1.0f;
+        float zfar = -1.0f;
+        float znear = -1.0f;
+      } perspective{};
+
+      struct {
+        float xmag = -1.0f;
+        float ymag = -1.0f;
+        float zfar = -1.0f;
+        float znear = -1.0f;
+      } orthographic;
+    };
+
+    string type{};
+    string name{};
+  };
+
+  /// Element of `glTF.animations` property.
+  ///
+  struct Animation {
+    struct Channel {
+      struct Target {
+        int32_t node = -1;
+        string path{};
+      };
+
+      int32_t sampler = -1;
+      Target target{};
+    };
+
+    struct Sampler {
+      int32_t input = -1;
+      string interpolation{};
+      int32_t output = -1;
+    };
+
+    vector<Channel> channels{};
+    vector<Sampler> samplers{};
+    string name{};
+  };
+
+  /// Element of `glTF.accessors` property.
+  ///
+  struct Accessor {
+    enum ComponentType: int32_t {
+      Byte = 5120,
+      UnsignedByte = 5121,
+      Short = 5122,
+      UnsignedShort = 5123,
+      UnsignedInt = 5125,
+      Float = 5126,
+
+      Undefined = -1
+    };
+
+    struct Sparse {
+      struct Indices {
+        int32_t bufferView = -1;
+        int64_t byteOffset = 0LL;
+        ComponentType componentType = Undefined;
+      };
+
+      struct Values {
+        int32_t bufferView = -1;
+        int64_t byteOffset = 0LL;
+      };
+
+      int32_t count = -1;
+      Indices indices{};
+      Values values{};
+    };
+
+    int32_t bufferView = -1;
+    int64_t byteOffset = 0LL;
+    ComponentType componentType = Undefined;
+    bool normalized = false;
+    int32_t count = -1;
+    string type{};
+    vector<double> min{};
+    vector<double> max{};
+    Sparse sparse{};
+    string name{};
+
+    /// Size of `componentType`.
+    ///
+    size_t sizeOfComponentType() const {
+      switch (componentType) {
+      case Byte:
+      case UnsignedByte:
+        return 1;
+      case Short:
+      case UnsignedShort:
+        return 2;
+      case UnsignedInt:
+      case Float:
+        return 4;
+      default:
+        break;
+      }
+      return 0;
+    }
+
+    /// Size of `type`.
+    ///
+    size_t sizeOfType() const {
+      if (type == "SCALAR")
+        return 1;
+      if (type == "VEC2")
+        return 2;
+      if (type == "VEC3")
+        return 3;
+      if (type == "VEC4")
+        return 4;
+      if (type == "MAT2")
+        return 4;
+      if (type == "MAT3")
+        return 9;
+      if (type == "MAT4")
+        return 16;
+      return 0;
+    }
+  };
+
+  /// Element of `glTF.bufferViews` property.
+  ///
+  struct BufferView {
+    enum Target : int32_t {
+      ArrayBuffer = 34962,
+      ElementArrayBuffer = 34963,
+
+      Undefined = -1
+    };
+
+    int32_t buffer = -1;
+    int64_t byteOffset = 0LL;
+    int64_t byteLength = -1LL;
+    int32_t byteStride = -1;
+    Target target = Undefined;
+    string name{};
+  };
+
+  /// Element of `glTF.buffers` property.
+  ///
+  struct Buffer {
+    string uri{};
+    int64_t byteLength = -1LL;
+    string name{};
+  };
+
+  /// `glTF.asset` property.
+  ///
+  struct Asset {
+    string copyright{};
+    string generator{};
+    string version{};
+    string minVersion{};
+  };
+
+  /// Getters.
+  ///
+  const string& directory() const {
+    return directory_;
+  }
+
+  int32_t scene() const {
+    return scene_;
+  }
+
+  const vector<Scene>& scenes() const {
+    return scenes_;
+  }
+
+  const vector<Node>& nodes() const {
+    return nodes_;
+  }
+
+  const vector<Mesh>& meshes() const {
+    return meshes_;
+  }
+
+  const vector<Skin>& skins() const {
+    return skins_;
+  }
+
+  const vector<Material>& materials() const {
+    return materials_;
+  }
+
+  const vector<Texture>& textures() const {
+    return textures_;
+  }
+
+  const vector<Sampler>& samplers() const {
+    return samplers_;
+  }
+
+  const vector<Image>& images() const {
+    return images_;
+  }
+
+  const vector<Camera>& cameras() const {
+    return cameras_;
+  }
+
+  const vector<Animation>& animations() const {
+    return animations_;
+  }
+
+  const vector<Accessor>& accessors() const {
+    return accessors_;
+  }
+
+  const vector<BufferView>& bufferViews() const {
+    return bufferViews_;
+  }
+
+  const vector<Buffer>& buffers() const {
+    return buffers_;
+  }
+
+  const Asset& asset() const {
+    return asset_;
+  }
+
+ private:
+  string directory_{};
+  int32_t scene_ = -1;
+  vector<Scene> scenes_{};
+  vector<Node> nodes_{};
+  vector<Mesh> meshes_{};
+  vector<Skin> skins_{};
+  vector<Material> materials_{};
+  vector<Texture> textures_{};
+  vector<Sampler> samplers_{};
+  vector<Image> images_{};
+  vector<Camera> cameras_{};
+  vector<Animation> animations_{};
+  vector<Accessor> accessors_{};
+  vector<BufferView> bufferViews_{};
+  vector<Buffer> buffers_{};
+  Asset asset_{};
+
   /// Parses an array of objects.
   ///
   void parseObjectArray(Symbol& symbol, function<void ()> callback) {
@@ -485,13 +870,6 @@ class GLTF {
     parseNum(symbol, scene_);
   }
 
-  /// Element of `glTF.scenes` property.
-  ///
-  struct Scene {
-    vector<int32_t> nodes{};
-    string name{};
-  };
-
   /// Parses `glTF.scenes`.
   ///
   void parseScenes(Symbol& symbol) {
@@ -523,22 +901,6 @@ class GLTF {
       }
     });
   }
-
-  /// Element of `glTF.nodes` property.
-  ///
-  struct Node {
-    // `size()` tells whether this is a TRS or a matrix
-    vector<float> transform{0.0f, 0.0f, 0.0f,
-                            0.0f, 0.0f, 0.0f, 1.0f,
-                            1.0f, 1.0f, 1.0f};
-
-    vector<int32_t> children{};
-    int32_t camera = -1;
-    int32_t mesh = -1;
-    int32_t skin = -1;
-    vector<float> weights{};
-    string name{};
-  };
 
   /// Parses `glTF.nodes`.
   ///
@@ -619,32 +981,6 @@ class GLTF {
       }
     });
   }
-
-  /// Element of `glTF.meshes` property.
-  ///
-  struct Mesh {
-    struct Primitive {
-      enum Mode : int32_t {
-        Points = 0,
-        Lines = 1,
-        LineLoop = 2,
-        LineStrip = 3,
-        Triangles = 4,
-        TriangleStrip = 5,
-        TriangleFan = 6
-      };
-
-      unordered_map<string, int32_t> attributes{};
-      int32_t indices = -1;
-      Mode mode = Triangles;
-      int32_t material = -1;
-      vector<unordered_map<string, int32_t>> targets{};
-    };
-
-    vector<Primitive> primitives{};
-    vector<float> weights{};
-    string name{};
-  };
 
   /// Parses `glTF.meshes`.
   ///
@@ -742,15 +1078,6 @@ class GLTF {
     });
   }
 
-  /// Element of `glTF.skins` property.
-  ///
-  struct Skin {
-    int32_t inverseBindMatrices = -1;
-    int32_t skeleton = -1;
-    vector<int32_t> joints{};
-    string name{};
-  };
-
   /// Parses `glTF.skins`.
   ///
   void parseSkins(Symbol& symbol) {
@@ -786,41 +1113,6 @@ class GLTF {
       }
     });
   }
-
-  /// Element of `glTF.materials` property.
-  ///
-  struct Material {
-    struct TextureInfo {
-      int32_t index = -1;
-      int32_t texCoord = 0;
-    };
-
-    struct PbrMetallicRoughness {
-      TextureInfo baseColorTexture{};
-      vector<float> baseColorFactor{1.0f, 1.0f, 1.0f, 1.0f};
-      TextureInfo metallicRoughnessTexture{};
-      float metallicFactor = 1.0f;
-      float roughnessFactor = 1.0f;
-    };
-
-    struct NormalTextureInfo : TextureInfo {
-      float scale = 1.0f;
-    };
-
-    struct OcclusionTextureInfo : TextureInfo {
-      float strength = 1.0f;
-    };
-
-    PbrMetallicRoughness pbrMetallicRoughness{};
-    NormalTextureInfo normalTexture{};
-    OcclusionTextureInfo occlusionTexture{};
-    TextureInfo emissiveTexture{};
-    vector<float> emissiveFactor{0.0f, 0.0f, 0.0f};
-    string alphaMode{"OPAQUE"};
-    float alphaCutoff = 0.5f;
-    bool doubleSided = false;
-    string name{};
-  };
 
   /// Parses `glTF.materials`.
   ///
@@ -972,14 +1264,6 @@ class GLTF {
     });
   }
 
-  /// Element of `glTF.textures` property.
-  ///
-  struct Texture {
-    int32_t sampler = -1;
-    int32_t source = -1;
-    string name{};
-  };
-
   /// Parses `glTF.textures`.
   ///
   void parseTextures(Symbol& symbol) {
@@ -1013,33 +1297,6 @@ class GLTF {
       }
     });
   }
-
-  /// Element of `gltf.samplers` property.
-  ///
-  struct Sampler {
-    enum WrapMode : int32_t {
-      ClampToEdge = 33071,
-      MirroredRepeat = 33648,
-      Repeat = 10497
-    };
-
-    enum Filter : int32_t {
-      Nearest = 9728,
-      Linear = 9729,
-      NearestMipmapNearest = 9984,
-      LinearMipmapNearest = 9985,
-      NearestMipmapLinear = 9986,
-      LinearMipmapLinear = 9987,
-
-      Undefined = -1
-    };
-
-    WrapMode wrapS = Repeat;
-    WrapMode wrapT = Repeat;
-    Filter magFilter = Undefined;
-    Filter minFilter = Undefined;
-    string name{};
-  };
 
   /// Parses `glTF.samplers`.
   ///
@@ -1083,15 +1340,6 @@ class GLTF {
     });
   }
 
-  /// Element of `gltf.images` property.
-  ///
-  struct Image {
-    string uri{};
-    string mimeType{};
-    int32_t bufferView = -1;
-    string name{};
-  };
-
   /// Parses `gltf.images`.
   ///
   void parseImages(Symbol& symbol) {
@@ -1127,29 +1375,6 @@ class GLTF {
       }
     });
   }
-
-  /// Element of `gltF.cameras` property.
-  ///
-  struct Camera {
-    union {
-      struct {
-        float aspectRatio = -1.0f;
-        float yfov = -1.0f;
-        float zfar = -1.0f;
-        float znear = -1.0f;
-      } perspective{};
-
-      struct {
-        float xmag = -1.0f;
-        float ymag = -1.0f;
-        float zfar = -1.0f;
-        float znear = -1.0f;
-      } orthographic;
-    };
-
-    string type{};
-    string name{};
-  };
 
   /// Parses `glTF.cameras`.
   ///
@@ -1240,30 +1465,6 @@ class GLTF {
       }
     });
   }
-
-  /// Element of `glTF.animations` property.
-  ///
-  struct Animation {
-    struct Channel {
-      struct Target {
-        int32_t node = -1;
-        string path{};
-      };
-
-      int32_t sampler = -1;
-      Target target{};
-    };
-
-    struct Sampler {
-      int32_t input = -1;
-      string interpolation{};
-      int32_t output = -1;
-    };
-
-    vector<Channel> channels{};
-    vector<Sampler> samplers{};
-    string name{};
-  };
 
   /// Parses `glTF.animations`.
   ///
@@ -1375,88 +1576,6 @@ class GLTF {
       }
     });
   }
-
-  /// Element of `glTF.accessors` property.
-  ///
-  struct Accessor {
-    enum ComponentType: int32_t {
-      Byte = 5120,
-      UnsignedByte = 5121,
-      Short = 5122,
-      UnsignedShort = 5123,
-      UnsignedInt = 5125,
-      Float = 5126,
-
-      Undefined = -1
-    };
-
-    struct Sparse {
-      struct Indices {
-        int32_t bufferView = -1;
-        int64_t byteOffset = 0LL;
-        ComponentType componentType = Undefined;
-      };
-
-      struct Values {
-        int32_t bufferView = -1;
-        int64_t byteOffset = 0LL;
-      };
-
-      int32_t count = -1;
-      Indices indices{};
-      Values values{};
-    };
-
-    int32_t bufferView = -1;
-    int64_t byteOffset = 0LL;
-    ComponentType componentType = Undefined;
-    bool normalized = false;
-    int32_t count = -1;
-    string type{};
-    vector<double> min{};
-    vector<double> max{};
-    Sparse sparse{};
-    string name{};
-
-    /// Size of `componentType`.
-    ///
-    size_t sizeOfComponentType() const {
-      switch (componentType) {
-      case Byte:
-      case UnsignedByte:
-        return 1;
-      case Short:
-      case UnsignedShort:
-        return 2;
-      case UnsignedInt:
-      case Float:
-        return 4;
-      default:
-        break;
-      }
-      return 0;
-    }
-
-    /// Size of `type`.
-    ///
-    size_t sizeOfType() const {
-      if (type == "SCALAR")
-        return 1;
-      if (type == "VEC2")
-        return 2;
-      if (type == "VEC3")
-        return 3;
-      if (type == "VEC4")
-        return 4;
-      if (type == "MAT2")
-        return 4;
-      if (type == "MAT3")
-        return 9;
-      if (type == "MAT4")
-        return 16;
-      return 0;
-    }
-  };
 
   /// Parses `glTF.accessors`.
   ///
@@ -1583,24 +1702,6 @@ class GLTF {
     });
   }
 
-  /// Element of `glTF.bufferViews` property.
-  ///
-  struct BufferView {
-    enum Target : int32_t {
-      ArrayBuffer = 34962,
-      ElementArrayBuffer = 34963,
-
-      Undefined = -1
-    };
-
-    int32_t buffer = -1;
-    int64_t byteOffset = 0LL;
-    int64_t byteLength = -1LL;
-    int32_t byteStride = -1;
-    Target target = Undefined;
-    string name{};
-  };
-
   /// Parses `glTF.bufferViews`.
   ///
   void parseBufferViews(Symbol& symbol) {
@@ -1642,14 +1743,6 @@ class GLTF {
     });
   }
 
-  /// Element of `glTF.buffers` property.
-  ///
-  struct Buffer {
-    string uri{};
-    int64_t byteLength = -1LL;
-    string name{};
-  };
-
   /// Parses `glTF.buffers`.
   ///
   void parseBuffers(Symbol& symbol) {
@@ -1684,15 +1777,6 @@ class GLTF {
     });
   }
 
-  /// `glTF.asset` property.
-  ///
-  struct Asset {
-    string copyright{};
-    string generator{};
-    string version{};
-    string minVersion{};
-  };
-
   /// Parses `glTF.asset`.
   ///
   void parseAsset(Symbol& symbol) {
@@ -1724,90 +1808,6 @@ class GLTF {
       }
     }
   }
-
-  /// Getters.
-  ///
-  const string& directory() const {
-    return directory_;
-  }
-
-  int32_t scene() const {
-    return scene_;
-  }
-
-  const vector<Scene>& scenes() const {
-    return scenes_;
-  }
-
-  const vector<Node>& nodes() const {
-    return nodes_;
-  }
-
-  const vector<Mesh>& meshes() const {
-    return meshes_;
-  }
-
-  const vector<Skin>& skins() const {
-    return skins_;
-  }
-
-  const vector<Material>& materials() const {
-    return materials_;
-  }
-
-  const vector<Texture>& textures() const {
-    return textures_;
-  }
-
-  const vector<Sampler>& samplers() const {
-    return samplers_;
-  }
-
-  const vector<Image>& images() const {
-    return images_;
-  }
-
-  const vector<Camera>& cameras() const {
-    return cameras_;
-  }
-
-  const vector<Animation>& animations() const {
-    return animations_;
-  }
-
-  const vector<Accessor>& accessors() const {
-    return accessors_;
-  }
-
-  const vector<BufferView>& bufferViews() const {
-    return bufferViews_;
-  }
-
-  const vector<Buffer>& buffers() const {
-    return buffers_;
-  }
-
-  const Asset& asset() const {
-    return asset_;
-  }
-
- private:
-  string directory_{};
-  int32_t scene_ = -1;
-  vector<Scene> scenes_{};
-  vector<Node> nodes_{};
-  vector<Mesh> meshes_{};
-  vector<Skin> skins_{};
-  vector<Material> materials_{};
-  vector<Texture> textures_{};
-  vector<Sampler> samplers_{};
-  vector<Image> images_{};
-  vector<Camera> cameras_{};
-  vector<Animation> animations_{};
-  vector<Accessor> accessors_{};
-  vector<BufferView> bufferViews_{};
-  vector<Buffer> buffers_{};
-  Asset asset_{};
 
 #ifdef YF_DEVEL
   friend void printGLTF(const GLTF&);

@@ -78,7 +78,7 @@ struct MiscTest : public Test {
     buf->write(sizeof vdata, sizeof idata, idata);
     buf->write(sizeof vdata+sizeof idata, msize, mat.data());
 
-    Texture tex(Texture::Png, L"tmp/64.png");
+    Texture tex(Texture::Png, L"tmp/192.png");
 
     CG_NS::DcEntries dcs{{0, {CG_NS::DcTypeUniform, 1}},
                          {1, {CG_NS::DcTypeImgSampler, 1}}};
@@ -176,7 +176,7 @@ struct MiscTest : public Test {
     buf->write(0, msize, mat.data());
 
     Mesh mesh(Mesh::Gltf, L"tmp/cube.gltf");
-    Texture tex(Texture::Bmp, L"tmp/cube.bmp");
+    Texture tex(Texture::Png, L"tmp/cube.png");
 
     CG_NS::DcEntries dcs{{0, {CG_NS::DcTypeUniform, 1}},
                          {1, {CG_NS::DcTypeImgSampler, 1}}};

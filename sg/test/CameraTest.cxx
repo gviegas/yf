@@ -130,7 +130,7 @@ struct CameraTest : Test {
     buf->write(0, msize, mat.data());
 
     Mesh mesh(Mesh::Gltf, L"tmp/cube.gltf");
-    Texture tex(Texture::Bmp, L"tmp/cube.bmp");
+    Texture tex(Texture::Png, L"tmp/cube.png");
 
     CG_NS::DcEntries dcs{{0, {CG_NS::DcTypeUniform, 1}},
                          {1, {CG_NS::DcTypeImgSampler, 1}}};

@@ -198,6 +198,7 @@ void SG_NS::loadBMP(Texture::Data& dst, const wstring& pathname) {
   int32_t height;
   uint16_t bpp;
   uint32_t compression;
+  uint32_t ciN;
   uint32_t maskRgba[4];
   uint32_t lshfRgba[4];
   uint32_t bitsRgba[4];
@@ -215,6 +216,7 @@ void SG_NS::loadBMP(Texture::Data& dst, const wstring& pathname) {
     height = letoh(ih.height);
     bpp = letoh(ih.bpp);
     compression = letoh(ih.compression);
+    ciN = letoh(ih.ciN);
     // info header only supports non-alpha colors
     maskRgba[3] = 0;
     lshfRgba[3] = bpp;
@@ -225,9 +227,9 @@ void SG_NS::loadBMP(Texture::Data& dst, const wstring& pathname) {
       break;
     case BMPComprBitFld:
       if (readN == letoh(fh.dataOffset) ||
-          !ifs.read(reinterpret_cast<char*>(maskRgba), 3*sizeof *maskRgba))
+          !ifs.read(reinterpret_cast<char*>(maskRgba), 3 * sizeof *maskRgba))
         throw FileExcept("Invalid BMP file");
-      readN += 3*sizeof *maskRgba;
+      readN += 3 * sizeof *maskRgba;
       maskRgba[0] = letoh(maskRgba[0]);
       maskRgba[1] = letoh(maskRgba[1]);
       maskRgba[2] = letoh(maskRgba[2]);
@@ -254,10 +256,9 @@ void SG_NS::loadBMP(Texture::Data& dst, const wstring& pathname) {
     height = letoh(v4.height);
     bpp = letoh(v4.bpp);
     compression = letoh(v4.compression);
+    ciN = letoh(v4.ciN);
     // 16/32 bpp formats have alpha channel
     maskRgba[3] = (bpp == 16 || bpp == 32) ? letoh(v4.maskA) : 0;
-    lshfRgba[3] = lshfBMP(maskRgba[3], bpp);
-    bitsRgba[3] = bitsBMP(maskRgba[3], bpp, lshfRgba[3]);
 
     switch (compression) {
     case BMPComprRgb:
@@ -289,10 +290,9 @@ void SG_NS::loadBMP(Texture::Data& dst, const wstring& pathname) {
     height = letoh(v5.height);
     bpp = letoh(v5.bpp);
     compression = letoh(v5.compression);
+    ciN = letoh(v5.compression);
     // 16/32 bpp formats have alpha channel
     maskRgba[3] = (bpp == 16 || bpp == 32) ? letoh(v5.maskA) : 0;
-    lshfRgba[3] = lshfBMP(maskRgba[3], bpp);
-    bitsRgba[3] = bitsBMP(maskRgba[3], bpp, lshfRgba[3]);
 
     switch (compression) {
     case BMPComprRgb:
@@ -325,11 +325,11 @@ void SG_NS::loadBMP(Texture::Data& dst, const wstring& pathname) {
     throw FileExcept("Could not identify BMP file header");
   }
 
-  if (width <= 0 || height == 0 || bpp == 0 || bpp > 32)
+  if (width <= 0 || height == 0 || bpp == 0 || bpp > 64)
     throw FileExcept("Invalid BMP file");
 
   const uint32_t dataOffset = letoh(fh.dataOffset);
-  if (readN != fh.dataOffset && !ifs.seekg(dataOffset))
+  if (bpp > 8 && readN != fh.dataOffset && !ifs.seekg(dataOffset))
     throw FileExcept("Invalid BMP file");
 
   const size_t channels = maskRgba[3] != 0 ? 4 : 3;
@@ -361,6 +361,29 @@ void SG_NS::loadBMP(Texture::Data& dst, const wstring& pathname) {
 #endif
   }
 
+  // Read next bytes as 8bpp format
+  auto read8 = [&] {
+    if (ciN == 0)
+      ciN = 256;
+    auto ci = make_unique<uint32_t[]>(ciN);
+    if (!ifs.read(reinterpret_cast<char*>(ci.get()), ciN * sizeof(uint32_t)))
+      throw FileExcept("Could not read from BMP file");
+
+    const size_t padding = width & 3 ? 4 - (width & 3) : 0;
+    const size_t lineSize = width + padding;
+    auto scanline = make_unique<uint8_t[]>(lineSize);
+
+    for (auto i = from; i != to; i += increment) {
+      if (!ifs.read(reinterpret_cast<char*>(scanline.get()), lineSize))
+        throw FileExcept("Could not read from BMP file");
+
+      for (int32_t j = 0; j < width; ++j) {
+        auto index = channels*width*i + channels*j;
+        memcpy(&data[index], &scanline[j], channels);
+      }
+    }
+  };
+
   // Read next bytes as 16bpp format
   auto read16 = [&] {
     if (compression == BMPComprRgb) {
@@ -368,21 +391,20 @@ void SG_NS::loadBMP(Texture::Data& dst, const wstring& pathname) {
       maskRgba[1] = 0x03e0;
       maskRgba[2] = 0x001f;
     }
-    lshfRgba[0] = lshfBMP(maskRgba[0], bpp);
-    lshfRgba[1] = lshfBMP(maskRgba[1], bpp);
-    lshfRgba[2] = lshfBMP(maskRgba[2], bpp);
-    bitsRgba[0] = bitsBMP(maskRgba[0], bpp, lshfRgba[0]);
-    bitsRgba[1] = bitsBMP(maskRgba[1], bpp, lshfRgba[1]);
-    bitsRgba[2] = bitsBMP(maskRgba[2], bpp, lshfRgba[2]);
+    for (size_t i = 0; i < channels; ++i) {
+      lshfRgba[i] = lshfBMP(maskRgba[i], bpp);
+      bitsRgba[i] = bitsBMP(maskRgba[i], bpp, lshfRgba[i]);
+    }
 
     const size_t padding = (width & 1) << 1;
     const size_t lineSize = (width << 1) + padding;
     auto scanline = make_unique<uint16_t[]>(lineSize >> 1);
 
     // each channel will be scaled to the 8-bit range
-    const uint32_t diffRgba[3]{min(8U, 8U-bitsRgba[0]),
+    const uint32_t diffRgba[4]{min(8U, 8U-bitsRgba[0]),
                                min(8U, 8U-bitsRgba[1]),
-                               min(8U, 8U-bitsRgba[2])};
+                               min(8U, 8U-bitsRgba[2]),
+                               min(8U, 8U-bitsRgba[3])};
     uint16_t pixel;
     uint32_t scale;
     uint32_t component;
@@ -410,7 +432,7 @@ void SG_NS::loadBMP(Texture::Data& dst, const wstring& pathname) {
       throw FileExcept("Invalid BMP file");
 
     const size_t padding = width % 4;
-    const size_t lineSize = 3*width + padding;
+    const size_t lineSize = 3 * width + padding;
     auto scanline = make_unique<uint8_t[]>(lineSize);
 
     size_t k0, k2;
@@ -442,9 +464,8 @@ void SG_NS::loadBMP(Texture::Data& dst, const wstring& pathname) {
       maskRgba[1] = 0x0000ff00;
       maskRgba[2] = 0x000000ff;
     }
-    lshfRgba[0] = lshfBMP(maskRgba[0], bpp);
-    lshfRgba[1] = lshfBMP(maskRgba[1], bpp);
-    lshfRgba[2] = lshfBMP(maskRgba[2], bpp);
+    for (size_t i = 0; i < channels; ++i)
+      lshfRgba[i] = lshfBMP(maskRgba[i], bpp);
 
     // no padding needed
     const size_t lineSize = width << 2;
@@ -465,6 +486,9 @@ void SG_NS::loadBMP(Texture::Data& dst, const wstring& pathname) {
   };
 
   switch (bpp) {
+  case 8:
+    read8();
+    break;
   case 16:
     read16();
     break;

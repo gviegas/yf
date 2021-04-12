@@ -380,9 +380,10 @@ void SG_NS::loadBMP(Texture::Data& dst, const wstring& pathname) {
     auto scanline = make_unique<uint16_t[]>(lineSize >> 1);
 
     // each channel will be scaled to the 8-bit range
-    const uint32_t diffRgba[3]{min(8U, 8U-bitsRgba[0]),
+    const uint32_t diffRgba[4]{min(8U, 8U-bitsRgba[0]),
                                min(8U, 8U-bitsRgba[1]),
-                               min(8U, 8U-bitsRgba[2])};
+                               min(8U, 8U-bitsRgba[2]),
+                               min(8U, 8U-bitsRgba[3])};
     uint16_t pixel;
     uint32_t scale;
     uint32_t component;

@@ -361,6 +361,29 @@ void SG_NS::loadBMP(Texture::Data& dst, const wstring& pathname) {
 #endif
   }
 
+  // Read next bytes as 8bpp format
+  auto read8 = [&] {
+    if (ciN == 0)
+      ciN = 256;
+    auto ci = make_unique<uint32_t[]>(ciN);
+    if (!ifs.read(reinterpret_cast<char*>(ci.get()), ciN * sizeof(uint32_t)))
+      throw FileExcept("Could not read from BMP file");
+
+    const size_t padding = width & 3 ? 4 - (width & 3) : 0;
+    const size_t lineSize = width + padding;
+    auto scanline = make_unique<uint8_t[]>(lineSize);
+
+    for (auto i = from; i != to; i += increment) {
+      if (!ifs.read(reinterpret_cast<char*>(scanline.get()), lineSize))
+        throw FileExcept("Could not read from BMP file");
+
+      for (int32_t j = 0; j < width; ++j) {
+        auto index = channels*width*i + channels*j;
+        memcpy(&data[index], &scanline[j], channels);
+      }
+    }
+  };
+
   // Read next bytes as 16bpp format
   auto read16 = [&] {
     if (compression == BMPComprRgb) {
@@ -409,7 +432,7 @@ void SG_NS::loadBMP(Texture::Data& dst, const wstring& pathname) {
       throw FileExcept("Invalid BMP file");
 
     const size_t padding = width % 4;
-    const size_t lineSize = 3*width + padding;
+    const size_t lineSize = 3 * width + padding;
     auto scanline = make_unique<uint8_t[]>(lineSize);
 
     size_t k0, k2;
@@ -463,6 +486,9 @@ void SG_NS::loadBMP(Texture::Data& dst, const wstring& pathname) {
   };
 
   switch (bpp) {
+  case 8:
+    read8();
+    break;
   case 16:
     read16();
     break;

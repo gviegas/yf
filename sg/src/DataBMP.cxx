@@ -227,9 +227,9 @@ void SG_NS::loadBMP(Texture::Data& dst, const wstring& pathname) {
       break;
     case BMPComprBitFld:
       if (readN == letoh(fh.dataOffset) ||
-          !ifs.read(reinterpret_cast<char*>(maskRgba), 3*sizeof *maskRgba))
+          !ifs.read(reinterpret_cast<char*>(maskRgba), 3 * sizeof *maskRgba))
         throw FileExcept("Invalid BMP file");
-      readN += 3*sizeof *maskRgba;
+      readN += 3 * sizeof *maskRgba;
       maskRgba[0] = letoh(maskRgba[0]);
       maskRgba[1] = letoh(maskRgba[1]);
       maskRgba[2] = letoh(maskRgba[2]);
@@ -255,12 +255,10 @@ void SG_NS::loadBMP(Texture::Data& dst, const wstring& pathname) {
     width = letoh(v4.width);
     height = letoh(v4.height);
     bpp = letoh(v4.bpp);
-    ciN = letoh(v4.ciN);
     compression = letoh(v4.compression);
+    ciN = letoh(v4.ciN);
     // 16/32 bpp formats have alpha channel
     maskRgba[3] = (bpp == 16 || bpp == 32) ? letoh(v4.maskA) : 0;
-    lshfRgba[3] = lshfBMP(maskRgba[3], bpp);
-    bitsRgba[3] = bitsBMP(maskRgba[3], bpp, lshfRgba[3]);
 
     switch (compression) {
     case BMPComprRgb:
@@ -295,8 +293,6 @@ void SG_NS::loadBMP(Texture::Data& dst, const wstring& pathname) {
     ciN = letoh(v5.compression);
     // 16/32 bpp formats have alpha channel
     maskRgba[3] = (bpp == 16 || bpp == 32) ? letoh(v5.maskA) : 0;
-    lshfRgba[3] = lshfBMP(maskRgba[3], bpp);
-    bitsRgba[3] = bitsBMP(maskRgba[3], bpp, lshfRgba[3]);
 
     switch (compression) {
     case BMPComprRgb:
@@ -372,12 +368,10 @@ void SG_NS::loadBMP(Texture::Data& dst, const wstring& pathname) {
       maskRgba[1] = 0x03e0;
       maskRgba[2] = 0x001f;
     }
-    lshfRgba[0] = lshfBMP(maskRgba[0], bpp);
-    lshfRgba[1] = lshfBMP(maskRgba[1], bpp);
-    lshfRgba[2] = lshfBMP(maskRgba[2], bpp);
-    bitsRgba[0] = bitsBMP(maskRgba[0], bpp, lshfRgba[0]);
-    bitsRgba[1] = bitsBMP(maskRgba[1], bpp, lshfRgba[1]);
-    bitsRgba[2] = bitsBMP(maskRgba[2], bpp, lshfRgba[2]);
+    for (size_t i = 0; i < channels; ++i) {
+      lshfRgba[i] = lshfBMP(maskRgba[i], bpp);
+      bitsRgba[i] = bitsBMP(maskRgba[i], bpp, lshfRgba[i]);
+    }
 
     const size_t padding = (width & 1) << 1;
     const size_t lineSize = (width << 1) + padding;
@@ -447,9 +441,8 @@ void SG_NS::loadBMP(Texture::Data& dst, const wstring& pathname) {
       maskRgba[1] = 0x0000ff00;
       maskRgba[2] = 0x000000ff;
     }
-    lshfRgba[0] = lshfBMP(maskRgba[0], bpp);
-    lshfRgba[1] = lshfBMP(maskRgba[1], bpp);
-    lshfRgba[2] = lshfBMP(maskRgba[2], bpp);
+    for (size_t i = 0; i < channels; ++i)
+      lshfRgba[i] = lshfBMP(maskRgba[i], bpp);
 
     // no padding needed
     const size_t lineSize = width << 2;

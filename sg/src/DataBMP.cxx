@@ -198,6 +198,7 @@ void SG_NS::loadBMP(Texture::Data& dst, const wstring& pathname) {
   int32_t height;
   uint16_t bpp;
   uint32_t compression;
+  uint32_t ciN;
   uint32_t maskRgba[4];
   uint32_t lshfRgba[4];
   uint32_t bitsRgba[4];
@@ -215,6 +216,7 @@ void SG_NS::loadBMP(Texture::Data& dst, const wstring& pathname) {
     height = letoh(ih.height);
     bpp = letoh(ih.bpp);
     compression = letoh(ih.compression);
+    ciN = letoh(ih.ciN);
     // info header only supports non-alpha colors
     maskRgba[3] = 0;
     lshfRgba[3] = bpp;
@@ -253,6 +255,7 @@ void SG_NS::loadBMP(Texture::Data& dst, const wstring& pathname) {
     width = letoh(v4.width);
     height = letoh(v4.height);
     bpp = letoh(v4.bpp);
+    ciN = letoh(v4.ciN);
     compression = letoh(v4.compression);
     // 16/32 bpp formats have alpha channel
     maskRgba[3] = (bpp == 16 || bpp == 32) ? letoh(v4.maskA) : 0;
@@ -289,6 +292,7 @@ void SG_NS::loadBMP(Texture::Data& dst, const wstring& pathname) {
     height = letoh(v5.height);
     bpp = letoh(v5.bpp);
     compression = letoh(v5.compression);
+    ciN = letoh(v5.compression);
     // 16/32 bpp formats have alpha channel
     maskRgba[3] = (bpp == 16 || bpp == 32) ? letoh(v5.maskA) : 0;
     lshfRgba[3] = lshfBMP(maskRgba[3], bpp);
@@ -325,11 +329,11 @@ void SG_NS::loadBMP(Texture::Data& dst, const wstring& pathname) {
     throw FileExcept("Could not identify BMP file header");
   }
 
-  if (width <= 0 || height == 0 || bpp == 0 || bpp > 32)
+  if (width <= 0 || height == 0 || bpp == 0 || bpp > 64)
     throw FileExcept("Invalid BMP file");
 
   const uint32_t dataOffset = letoh(fh.dataOffset);
-  if (readN != fh.dataOffset && !ifs.seekg(dataOffset))
+  if (bpp > 8 && readN != fh.dataOffset && !ifs.seekg(dataOffset))
     throw FileExcept("Invalid BMP file");
 
   const size_t channels = maskRgba[3] != 0 ? 4 : 3;

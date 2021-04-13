@@ -743,13 +743,13 @@ void CmdBufferVK::encode(const TfEncoder& encoder) {
 
     // TODO: check need to be done against mip level size instead
     if (sub->size.width == 0 || sub->size.height == 0 || sub->layerCount == 0 ||
-        sub->level >= dst->levels_ || sub->level >= src->levels_ ||
         sub->dstOffset.x + sub->size.width > dst->size_.width ||
         sub->dstOffset.y + sub->size.height > dst->size_.height ||
         sub->srcOffset.x + sub->size.width > src->size_.width ||
         sub->srcOffset.y + sub->size.height > src->size_.height ||
-        sub->dstFirstLayer + sub->layerCount > dst->layers_ ||
-        sub->srcFirstLayer + sub->layerCount > src->layers_)
+        sub->dstLayer + sub->layerCount > dst->layers_ ||
+        sub->srcLayer + sub->layerCount > src->layers_ ||
+        sub->dstLevel >= dst->levels_ || sub->srcLevel >= src->levels_)
       throw invalid_argument("copy(img, img) invalid range");
 
     // XXX
@@ -758,13 +758,13 @@ void CmdBufferVK::encode(const TfEncoder& encoder) {
 
     VkImageCopy region;
     region.srcSubresource.aspectMask = aspectOfVK(src->format_);
-    region.srcSubresource.mipLevel = sub->level;
-    region.srcSubresource.baseArrayLayer = sub->srcFirstLayer;
+    region.srcSubresource.mipLevel = sub->srcLevel;
+    region.srcSubresource.baseArrayLayer = sub->srcLayer;
     region.srcSubresource.layerCount = sub->layerCount;
     region.srcOffset = {sub->srcOffset.x, sub->srcOffset.y, 0};
     region.dstSubresource.aspectMask = aspectOfVK(dst->format_);
-    region.dstSubresource.mipLevel = sub->level;
-    region.dstSubresource.baseArrayLayer = sub->dstFirstLayer;
+    region.dstSubresource.mipLevel = sub->dstLevel;
+    region.dstSubresource.baseArrayLayer = sub->dstLayer;
     region.dstSubresource.layerCount = sub->layerCount;
     region.dstOffset = {sub->dstOffset.x, sub->dstOffset.y, 0};
     region.extent = {sub->size.width, sub->size.height, 0};

@@ -132,6 +132,8 @@ class Mesh::Impl {
 
   std::unordered_map<VxType, DataEntry> vxData_{};
   DataEntry ixData_{UINT64_MAX, UINT32_MAX, UINT32_MAX};
+
+  void resizeBuffer(uint64_t);
 };
 
 SG_NS_END

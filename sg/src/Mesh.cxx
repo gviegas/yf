@@ -72,6 +72,7 @@ Mesh::Impl::Impl(const Data& data) {
 
       return offset;
     }
+
     return UINT64_MAX;
   };
 
@@ -221,4 +222,20 @@ void Mesh::Impl::encode(CG_NS::GrEncoder& encoder, uint32_t baseInstance,
 
   encodeBindings(encoder);
   encodeDraw(encoder, baseInstance, instanceCount);
+}
+
+void Mesh::Impl::resizeBuffer(uint64_t newSize) {
+  auto& dev = CG_NS::device();
+  auto newBuf = dev.buffer(newSize);
+
+  auto& que = dev.queue(CG_NS::Queue::Transfer);
+  auto cb = que.cmdBuffer();
+
+  CG_NS::TfEncoder enc;
+  enc.copy(newBuf.get(), 0, buffer_.get(), 0, buffer_->size_);
+  cb->encode(enc);
+  cb->enqueue();
+  que.submit();
+
+  buffer_.reset(newBuf.release());
 }

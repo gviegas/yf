@@ -717,9 +717,70 @@ void CmdBufferVK::encode(const CpEncoder& encoder) {
 }
 
 void CmdBufferVK::encode(const TfEncoder& encoder) {
+
+  // Copy buffer
+  auto copyBB = [&](const CopyBBCmd* sub) {
+    auto dst = static_cast<BufferVK*>(sub->dst);
+    auto src = static_cast<BufferVK*>(sub->src);
+
+    if (sub->size == 0 ||
+        sub->dstOffset + sub->size > dst->size_ ||
+        sub->srcOffset + sub->size > src->size_)
+      throw invalid_argument("copy(buf, buf) invalid range");
+
+    VkBufferCopy region;
+    region.srcOffset = sub->srcOffset;
+    region.dstOffset = sub->dstOffset;
+    region.size = sub->size;
+
+    vkCmdCopyBuffer(handle_, src->handle(), dst->handle(), 1, &region);
+  };
+
+  // Copy image
+  auto copyII = [&](const CopyIICmd* sub) {
+    auto dst = static_cast<ImageVK*>(sub->dst);
+    auto src = static_cast<ImageVK*>(sub->src);
+
+    // TODO: check need to be done against mip level size instead
+    if (sub->size.width == 0 || sub->size.height == 0 || sub->layerCount == 0 ||
+        sub->level >= dst->levels_ || sub->level >= src->levels_ ||
+        sub->dstOffset.x + sub->size.width > dst->size_.width ||
+        sub->dstOffset.y + sub->size.height > dst->size_.height ||
+        sub->srcOffset.x + sub->size.width > src->size_.width ||
+        sub->srcOffset.y + sub->size.height > src->size_.height ||
+        sub->dstFirstLayer + sub->layerCount > dst->layers_ ||
+        sub->srcFirstLayer + sub->layerCount > src->layers_)
+      throw invalid_argument("copy(img, img) invalid range");
+
+    // XXX
+    dst->changeLayout(VK_IMAGE_LAYOUT_GENERAL, true);
+    src->changeLayout(VK_IMAGE_LAYOUT_GENERAL, true);
+
+    VkImageCopy region;
+    region.srcSubresource.aspectMask = aspectOfVK(src->format_);
+    region.srcSubresource.mipLevel = sub->level;
+    region.srcSubresource.baseArrayLayer = sub->srcFirstLayer;
+    region.srcSubresource.layerCount = sub->layerCount;
+    region.srcOffset = {sub->srcOffset.x, sub->srcOffset.y, 0};
+    region.dstSubresource.aspectMask = aspectOfVK(dst->format_);
+    region.dstSubresource.mipLevel = sub->level;
+    region.dstSubresource.baseArrayLayer = sub->dstFirstLayer;
+    region.dstSubresource.layerCount = sub->layerCount;
+    region.dstOffset = {sub->dstOffset.x, sub->dstOffset.y, 0};
+    region.extent = {sub->size.width, sub->size.height, 0};
+
+    vkCmdCopyImage(handle_, src->handle(), src->layout().second, dst->handle(),
+                   dst->layout().second, 1, &region);
+  };
+
   for (const auto& cmd : encoder.encoding()) {
-    // TODO
     switch (cmd->cmd) {
+    case Cmd::CopyBBT:
+      copyBB(static_cast<CopyBBCmd*>(cmd.get()));
+      break;
+    case Cmd::CopyIIT:
+      copyII(static_cast<CopyIICmd*>(cmd.get()));
+      break;
     default:
       assert(false);
       abort();

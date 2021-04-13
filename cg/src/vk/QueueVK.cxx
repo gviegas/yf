@@ -720,7 +720,20 @@ void CmdBufferVK::encode(const TfEncoder& encoder) {
 
   // Copy buffer
   auto copyBB = [&](const CopyBBCmd* sub) {
-    // TODO
+    auto dst = static_cast<BufferVK*>(sub->dst);
+    auto src = static_cast<BufferVK*>(sub->src);
+
+    if (sub->size == 0 ||
+        sub->dstOffset + sub->size > dst->size_ ||
+        sub->srcOffset + sub->size > src->size_)
+      throw invalid_argument("copy(buf, buf) invalid range");
+
+    VkBufferCopy region;
+    region.srcOffset = sub->srcOffset;
+    region.dstOffset = sub->dstOffset;
+    region.size = sub->size;
+
+    vkCmdCopyBuffer(handle_, src->handle(), dst->handle(), 1, &region);
   };
 
   // Copy image

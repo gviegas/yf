@@ -717,9 +717,25 @@ void CmdBufferVK::encode(const CpEncoder& encoder) {
 }
 
 void CmdBufferVK::encode(const TfEncoder& encoder) {
-  for (const auto& cmd : encoder.encoding()) {
+
+  // Copy buffer
+  auto copyBB = [&](const CopyBBCmd* sub) {
     // TODO
+  };
+
+  // Copy image
+  auto copyII = [&](const CopyIICmd* sub) {
+    // TODO
+  };
+
+  for (const auto& cmd : encoder.encoding()) {
     switch (cmd->cmd) {
+    case Cmd::CopyBBT:
+      copyBB(static_cast<CopyBBCmd*>(cmd.get()));
+      break;
+    case Cmd::CopyIIT:
+      copyII(static_cast<CopyIICmd*>(cmd.get()));
+      break;
     default:
       assert(false);
       abort();

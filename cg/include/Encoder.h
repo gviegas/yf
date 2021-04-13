@@ -194,9 +194,9 @@ class TfEncoder final : public Encoder {
 
   /// Copies data between images.
   ///
-  void copy(Image* dst, uint32_t dstFirstLayer,
-            Image* src, uint32_t srcFirstLayer,
-            uint32_t layerCount);
+  void copy(Image* dst, Offset2 dstOffset, uint32_t dstFirstLayer,
+            Image* src, Offset2 srcOffset, uint32_t srcFirstLayer,
+            Size2 size, uint32_t layerCount, uint32_t level);
 };
 
 CG_NS_END

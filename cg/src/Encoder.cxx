@@ -139,10 +139,11 @@ void TfEncoder::copy(Buffer* dst, uint64_t dstOffset,
     .push_back(make_unique<CopyBBCmd>(dst, dstOffset, src, srcOffset, size));
 }
 
-void TfEncoder::copy(Image* dst, uint32_t dstFirstLayer,
-                     Image* src, uint32_t srcFirstLayer,
-                     uint32_t layerCount) {
+void TfEncoder::copy(Image* dst, Offset2 dstOffset, uint32_t dstFirstLayer,
+                     Image* src, Offset2 srcOffset, uint32_t srcFirstLayer,
+                     Size2 size, uint32_t layerCount, uint32_t level) {
   impl_->encoding_
-    .push_back(make_unique<CopyIICmd>(dst, dstFirstLayer, src, srcFirstLayer,
-                                      layerCount));
+    .push_back(make_unique<CopyIICmd>(dst, dstOffset, dstFirstLayer,
+                                      src, srcOffset, srcFirstLayer,
+                                      size, layerCount, level));
 }

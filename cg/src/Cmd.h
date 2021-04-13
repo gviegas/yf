@@ -203,15 +203,22 @@ struct CopyBBCmd : Cmd {
 ///
 struct CopyIICmd : Cmd {
   Image* dst;
+  Offset2 dstOffset;
   uint32_t dstFirstLayer;
   Image* src;
+  Offset2 srcOffset;
   uint32_t srcFirstLayer;
+  Size2 size;
   uint32_t layerCount;
+  uint32_t level;
 
-  CopyIICmd(Image* dst, uint32_t dstFirstLayer, Image* src,
-            uint32_t srcFirstLayer, uint32_t layerCount)
-    : Cmd(CopyIIT), dst(dst), dstFirstLayer(dstFirstLayer), src(src),
-      srcFirstLayer(srcFirstLayer), layerCount(layerCount) { }
+  CopyIICmd(Image* dst, Offset2 dstOffset, uint32_t dstFirstLayer,
+            Image* src, Offset2 srcOffset, uint32_t srcFirstLayer,
+            Size2 size, uint32_t layerCount, uint32_t level)
+    : Cmd(CopyIIT),
+      dst(dst), dstOffset(dstOffset), dstFirstLayer(dstFirstLayer),
+      src(src), srcOffset(srcOffset), srcFirstLayer(srcFirstLayer),
+      size(size), layerCount(layerCount), level(level) { }
 };
 
 CG_NS_END

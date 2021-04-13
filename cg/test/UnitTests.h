@@ -30,6 +30,7 @@ Test* stateTest();
 Test* encoderTest();
 Test* wsiTest();
 Test* drawTest();
+Test* copyTest();
 
 using TestFn = std::function<Test* ()>;
 const std::unordered_map<std::string, std::vector<TestFn>> TIDs{
@@ -45,8 +46,10 @@ const std::unordered_map<std::string, std::vector<TestFn>> TIDs{
   {"encoder", {encoderTest}},
   {"wsi", {wsiTest}},
   {"draw", {drawTest}},
+  {"copy", {copyTest}},
   {"all", {typesTest, deviceTest, queueTest, bufferTest, imageTest, shaderTest,
-           dcTableTest, passTest, stateTest, encoderTest, wsiTest, drawTest}}
+           dcTableTest, passTest, stateTest, encoderTest, wsiTest, drawTest,
+           copyTest}}
 };
 
 inline std::vector<Test*> unitTests(const std::string& id) {

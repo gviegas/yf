@@ -5,8 +5,11 @@
 // Copyright © 2021 Gustavo C. Viegas.
 //
 
+#include <iostream>
+
 #include "UnitTests.h"
 #include "CG.h"
+#include "yf/ws/WS.h"
 
 using namespace TEST_NS;
 using namespace CG_NS;
@@ -26,7 +29,7 @@ struct CopyTest : Test {
     auto frag = dev.shader(StageFragment, L"tmp/frag");
 
     // Wsi
-    auto win = WS_NS::createWindow(400, 400, name_);
+    auto win = WS_NS::createWindow(480, 320, name_);
     Size2 winSz{win->width(), win->height()};
     auto wsi = dev.wsi(win.get());
     auto wsiImgs = wsi->images();
@@ -75,13 +78,106 @@ struct CopyTest : Test {
     auto img = dev.image(PxFormatRgb8Unorm, {3, 1}, 1, 1, Samples1);
     img->write({0}, {3, 1}, 0, 0, pixels);
 
-    // TODO...
+    // DcTable
+    DcEntries dcs{{0, {DcTypeUniform, 1}}, {1, {DcTypeImgSampler, 1}}};
+    auto dtb = dev.dcTable(dcs);
+    dtb->allocate(1);
+    dtb->write(0, 0, 0, *buf, sizeof pos + sizeof tc, sizeof xform);
+    dtb->write(0, 1, 0, *img, 0, 0);
+
+    // GrState
+    GrState::Config config;
+    config.pass = pass.get();
+    config.shaders = {vert.get(), frag.get()};
+    config.dcTables = {dtb.get()};
+    config.vxInputs = {
+      {{{0, {VxFormatFlt3, 0}}}, sizeof(float[3]), VxStepFnVertex},
+      {{{1, {VxFormatFlt2, 0}}}, sizeof(float[2]), VxStepFnVertex} };
+    config.primitive = PrimitiveTriangle;
+    config.polyMode = PolyModeFill;
+    config.cullMode = CullModeNone;
+    config.winding = WindingCounterCw;
+
+    auto state = dev.state(config);
+
+    // CmdBuffer
+    auto cb = que.cmdBuffer();
+
+    // Render
+    auto quit = false;
+    auto key = WS_NS::KeyCodeUnknown;
+
+    WS_NS::KbDelegate deleg{{}, {},
+      [&](WS_NS::KeyCode k, WS_NS::KeyState s, WS_NS::KeyModMask) {
+        if (s == WS_NS::KeyStatePressed)
+          key = k;
+      }
+    };
+    WS_NS::setDelegate(deleg);
+
+    Viewport vport{0.0f, 0.0f, static_cast<float>(winSz.width),
+                   static_cast<float>(winSz.height), 0.0f, 1.0f};
+    Scissor sciss{{0}, winSz};
+
+    while (!quit) {
+      WS_NS::dispatch();
+
+      if (key == WS_NS::KeyCodeB) {
+        key = WS_NS::KeyCodeUnknown;
+        auto tmp = dev.buffer(buf->size_);
+        TfEncoder enc;
+        enc.copy(tmp.get(), 0, buf.get(), 0, buf->size_);
+        cb->encode(enc);
+        cb->enqueue();
+        que.submit();
+        buf.reset(tmp.release());
+        dtb->write(0, 0, 0, *buf, sizeof pos + sizeof tc, sizeof xform);
+        wcout << "( buffer copied )" << endl;
+      } else if (key == WS_NS::KeyCodeI) {
+        key = WS_NS::KeyCodeUnknown;
+        auto tmp = dev.image(img->format_, img->size_, 1, 1, Samples1);
+        TfEncoder enc;
+        enc.copy(tmp.get(), {0}, 0, img.get(), {0}, 0, img->size_, 1, 0);
+        cb->encode(enc);
+        cb->enqueue();
+        que.submit();
+        img.reset(tmp.release());
+        dtb->write(0, 1, 0, *img, 0, 0);
+        wcout << "( image copied )" << endl;
+      } else if (key == WS_NS::KeyCodeEsc) {
+        quit = true;
+        break;
+      }
+
+      Image* next = wsi->nextImage(false);
+      auto tgtIt = find_if(tgts.begin(), tgts.end(), [&](auto& tgt) {
+        return tgt->colors_->front().image == next;
+      });
+
+      // Encoder
+      GrEncoder enc;
+      enc.setState(state.get());
+      enc.setViewport(vport);
+      enc.setScissor(sciss);
+      enc.setTarget(tgtIt->get());
+      enc.setDcTable(0, 0);
+      enc.setVertexBuffer(buf.get(), 0, 0);
+      enc.setVertexBuffer(buf.get(), sizeof pos, 1);
+      enc.clearColor({0.0f, 0.0f, 0.0f, 1.0f});
+      enc.clearDepth(1.0f);
+      enc.draw(0, 3, 0, 1);
+
+      cb->encode(enc);
+      cb->enqueue();
+      que.submit();
+      wsi->present(next);
+    }
+
     return true;
   }
 
   Assertions run(const vector<string>&) {
-    // TODO
-    return {};
+    return {{L"copy()", copy()}};
   }
 };
 

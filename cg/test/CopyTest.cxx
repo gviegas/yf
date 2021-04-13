@@ -137,7 +137,7 @@ struct CopyTest : Test {
         key = WS_NS::KeyCodeUnknown;
         auto tmp = dev.image(img->format_, img->size_, 1, 1, Samples1);
         TfEncoder enc;
-        enc.copy(tmp.get(), {0}, 0, img.get(), {0}, 0, img->size_, 1, 0);
+        enc.copy(tmp.get(), {0}, 0, 0, img.get(), {0}, 0, 0, img->size_, 1);
         cb->encode(enc);
         cb->enqueue();
         que.submit();

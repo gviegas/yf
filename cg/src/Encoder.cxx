@@ -132,4 +132,17 @@ void CpEncoder::dispatch(Size3 size) {
 
 TfEncoder::TfEncoder() : Encoder(Transfer) { }
 
-// TODO...
+void TfEncoder::copy(Buffer* dst, uint64_t dstOffset,
+                     Buffer* src, uint64_t srcOffset,
+                     uint64_t size) {
+  impl_->encoding_
+    .push_back(make_unique<CopyBBCmd>(dst, dstOffset, src, srcOffset, size));
+}
+
+void TfEncoder::copy(Image* dst, uint32_t dstFirstLayer,
+                     Image* src, uint32_t srcFirstLayer,
+                     uint32_t layerCount) {
+  impl_->encoding_
+    .push_back(make_unique<CopyIICmd>(dst, dstFirstLayer, src, srcFirstLayer,
+                                      layerCount));
+}

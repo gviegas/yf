@@ -82,6 +82,7 @@ class CpState;
 class Target;
 class DcTable;
 class Buffer;
+class Image;
 
 struct Cmd;
 using Encoding = std::vector<std::unique_ptr<Cmd>>;
@@ -185,7 +186,17 @@ class TfEncoder final : public Encoder {
   TfEncoder();
   ~TfEncoder() = default;
 
-  // TODO
+  /// Copies data between buffers.
+  ///
+  void copy(Buffer* dst, uint64_t dstOffset,
+            Buffer* src, uint64_t srcOffset,
+            uint64_t size);
+
+  /// Copies data between images.
+  ///
+  void copy(Image* dst, uint32_t dstFirstLayer,
+            Image* src, uint32_t srcFirstLayer,
+            uint32_t layerCount);
 };
 
 CG_NS_END

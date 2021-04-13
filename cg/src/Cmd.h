@@ -31,7 +31,9 @@ struct Cmd {
     DispatchT,
     ClearClT,
     ClearDpT,
-    ClearScT
+    ClearScT,
+    CopyBBT,
+    CopyIIT
   };
 
   /// The subclass of this command.
@@ -180,6 +182,36 @@ struct ClearScCmd : Cmd {
   uint32_t value;
 
   explicit ClearScCmd(uint32_t value) : Cmd(ClearScT), value(value) { }
+};
+
+/// Copy buffer command.
+///
+struct CopyBBCmd : Cmd {
+  Buffer* dst;
+  uint64_t dstOffset;
+  Buffer* src;
+  uint64_t srcOffset;
+  uint64_t size;
+
+  CopyBBCmd(Buffer* dst, uint64_t dstOffset, Buffer* src, uint64_t srcOffset,
+            uint64_t size)
+    : Cmd(CopyBBT), dst(dst), dstOffset(dstOffset), src(src),
+      srcOffset(srcOffset), size(size) { }
+};
+
+/// Copy image command.
+///
+struct CopyIICmd : Cmd {
+  Image* dst;
+  uint32_t dstFirstLayer;
+  Image* src;
+  uint32_t srcFirstLayer;
+  uint32_t layerCount;
+
+  CopyIICmd(Image* dst, uint32_t dstFirstLayer, Image* src,
+            uint32_t srcFirstLayer, uint32_t layerCount)
+    : Cmd(CopyIIT), dst(dst), dstFirstLayer(dstFirstLayer), src(src),
+      srcFirstLayer(srcFirstLayer), layerCount(layerCount) { }
 };
 
 CG_NS_END

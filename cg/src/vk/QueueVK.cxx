@@ -742,7 +742,7 @@ void CmdBufferVK::encode(const TfEncoder& encoder) {
     auto src = static_cast<ImageVK*>(sub->src);
 
     // TODO: check need to be done against mip level size instead
-    if (sub->size.width == 0 || sub->size.height || sub->layerCount == 0 ||
+    if (sub->size.width == 0 || sub->size.height == 0 || sub->layerCount == 0 ||
         sub->level >= dst->levels_ || sub->level >= src->levels_ ||
         sub->dstOffset.x + sub->size.width > dst->size_.width ||
         sub->dstOffset.y + sub->size.height > dst->size_.height ||

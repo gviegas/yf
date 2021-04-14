@@ -237,5 +237,30 @@ void Mesh::Impl::resizeBuffer(uint64_t newSize) {
   cb->enqueue();
   que.submit();
 
+  auto oldSize = buffer_->size_;
   buffer_.reset(newBuf.release());
+
+  if (newSize > oldSize) {
+    if (segments_.empty()) {
+      segments_.push_front({oldSize, newSize});
+    } else {
+      auto& back = segments_.back();
+      if (back.offset + back.size == oldSize)
+        back.size = newSize - back.offset;
+      else
+        segments_.push_back({oldSize, newSize});
+    }
+  } else {
+    if (segments_.empty())
+      throw runtime_error("Bad buffer resize");
+
+    auto& back = segments_.back();
+    if (back.offset + back.size != oldSize || back.offset > newSize)
+      throw runtime_error("Bad buffer resize");
+
+    if (back.offset == newSize)
+      segments_.pop_back();
+    else
+      back.size = newSize - back.offset;
+  }
 }

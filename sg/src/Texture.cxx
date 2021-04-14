@@ -152,7 +152,21 @@ bool Texture::Impl::setLayerCount(Resource& resource, uint32_t newCount) {
   cb->enqueue();
   que.submit();
 
-  // TODO...
+  const auto oldCount = resource.image->layers_;
+  resource.image.reset(newImg.release());
+
+  if (newCount > oldCount) {
+    resource.layers.unused.resize(newCount, true);
+    resource.layers.remaining += newCount - oldCount;
+  } else {
+    for (auto i = oldCount-1; i >= newCount; --i) {
+      if (!resource.layers.unused[i])
+        throw runtime_error("Bad texture layer count");
+    }
+    resource.layers.unused.resize(newCount);
+    resource.layers.remaining -= oldCount - newCount;
+    resource.layers.current %= newCount;
+  }
 
   return true;
 }

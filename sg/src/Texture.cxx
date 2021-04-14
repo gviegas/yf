@@ -67,8 +67,9 @@ Texture::Impl::Impl(const Data& data)
     it = res.first;
 
   } else if (it->second.layers.remaining == 0) {
-    // TODO: create a new image with more layers and transfer data
-    throw runtime_error("Texture image resize unimplemented");
+    if (!setLayerCount(it->second, it->second.image->layers_ << 1) &&
+        !setLayerCount(it->second, it->second.image->layers_ + 1))
+      throw NoMemoryExcept("Failed to allocate space for texture object");
   }
 
   auto& resource = it->second;

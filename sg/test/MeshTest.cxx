@@ -54,9 +54,14 @@ struct MeshTest : Test {
 
     Mesh m1(data);
     print();
-    if (segs.size() != 1 || segs.front().offset != (24*12) ||
-        segs.front().size != buf->size_ - (24*12))
-      ctorChk = false;
+    if (buf->size_ == (24*12)) {
+      if (segs.size() != 0)
+        ctorChk = false;
+    } else {
+      if (segs.size() != 1 || segs.front().offset != (24*12) ||
+          segs.front().size != buf->size_ - (24*12))
+        ctorChk = false;
+    }
     if (!m1.impl().canBind(VxTypePosition) || m1.impl().canBind(VxTypeNormal))
       bindChk = false;
     if (m1.impl().isIndexed())
@@ -64,9 +69,14 @@ struct MeshTest : Test {
 
     Mesh m2(data);
     print();
-    if (segs.size() != 1 || segs.front().offset != (2*24*12) ||
-        segs.front().size != buf->size_ - (2*24*12))
-      ctorChk = false;
+    if (buf->size_ == (2*24*12)) {
+      if (segs.size() != 0)
+        ctorChk = false;
+    } else {
+      if (segs.size() != 1 || segs.front().offset != (2*24*12) ||
+          segs.front().size != buf->size_ - (2*24*12))
+        ctorChk = false;
+    }
     if (!m2.impl().canBind(VxTypePosition) || m2.impl().canBind(VxTypeJoints0))
       bindChk = false;
 

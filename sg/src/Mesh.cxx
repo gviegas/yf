@@ -46,7 +46,8 @@ Mesh::Impl& Mesh::impl() {
   return *impl_;
 }
 
-constexpr const uint64_t Length = 1<<24;
+// TODO: consider allowing custom length values
+constexpr const uint64_t Length = 1ULL << 21;
 
 CG_NS::Buffer::Ptr Mesh::Impl::buffer_{CG_NS::device().buffer(Length)};
 list<Mesh::Impl::Segment> Mesh::Impl::segments_{{0, Length}};
@@ -72,6 +73,7 @@ Mesh::Impl::Impl(const Data& data) {
 
       return offset;
     }
+
     return UINT64_MAX;
   };
 
@@ -83,14 +85,20 @@ Mesh::Impl::Impl(const Data& data) {
 
     const uint64_t sz = va.second.elementN * va.second.elementSize;
     const void* dt = data.data[va.second.dataIndex].get()+va.second.dataOffset;
-    const uint64_t off = copy(sz, dt);
+    uint64_t off = copy(sz, dt);
 
-    if (off == UINT64_MAX)
-      // TODO: create a larger buffer and transfer data
-      throw runtime_error("Mesh buffer resize unimplemented");
+    if (off == UINT64_MAX) {
+      if (!resizeBuffer(max(sz, buffer_->size_ << 1)) &&
+          (sz >= buffer_->size_ || !resizeBuffer(sz)))
+        throw NoMemoryExcept("Failed to allocate space for mesh object");
 
-    vxData_.emplace(va.first,
-                    DataEntry{off, va.second.elementN, va.second.elementSize});
+      off = copy(sz, dt);
+
+      assert(off != UINT64_MAX);
+    }
+
+    vxData_.emplace(va.first, DataEntry{off, va.second.elementN,
+                                        va.second.elementSize});
   }
 
   // Copy index data
@@ -104,9 +112,15 @@ Mesh::Impl::Impl(const Data& data) {
                      data.ixAccessor.dataOffset;
     ixData_.offset = copy(sz, dt);
 
-    if (ixData_.offset == UINT64_MAX)
-      // TODO: create a larger buffer and transfer data
-      throw runtime_error("Mesh buffer resize unimplemented");
+    if (ixData_.offset == UINT64_MAX) {
+      if (!resizeBuffer(max(sz, buffer_->size_ << 1)) &&
+          (sz >= buffer_->size_ || !resizeBuffer(sz)))
+        throw NoMemoryExcept("Failed to allocate space for mesh object");
+
+      ixData_.offset = copy(sz, dt);
+
+      assert(ixData_.offset != UINT64_MAX);
+    }
 
     ixData_.count = data.ixAccessor.elementN;
     ixData_.stride = data.ixAccessor.elementSize;
@@ -160,6 +174,8 @@ Mesh::Impl::~Impl() {
 
   if (ixData_.offset != UINT64_MAX)
     yield(ixData_.offset, ixData_.count * ixData_.stride);
+
+  // TODO: consider shrinking the buffer, or provide a way to do so
 }
 
 bool Mesh::Impl::canBind(VxType type) const {
@@ -221,4 +237,56 @@ void Mesh::Impl::encode(CG_NS::GrEncoder& encoder, uint32_t baseInstance,
 
   encodeBindings(encoder);
   encodeDraw(encoder, baseInstance, instanceCount);
+}
+
+bool Mesh::Impl::resizeBuffer(uint64_t newSize) {
+  auto& dev = CG_NS::device();
+
+  // Try to create a new buffer
+  // XXX: this restricts the buffer size to half the available memory
+  CG_NS::Buffer::Ptr newBuf;
+  try {
+    newBuf = dev.buffer(newSize);
+  } catch (DeviceExcept&) {
+    return false;
+  }
+
+  // Copy data to new buffer
+  auto& que = dev.queue(CG_NS::Queue::Transfer);
+  auto cb = que.cmdBuffer();
+  CG_NS::TfEncoder enc;
+  enc.copy(newBuf.get(), 0, buffer_.get(), 0, buffer_->size_);
+  cb->encode(enc);
+  cb->enqueue();
+  que.submit();
+
+  auto oldSize = buffer_->size_;
+  buffer_.reset(newBuf.release());
+
+  // Update segment list
+  if (newSize > oldSize) {
+    if (segments_.empty()) {
+      segments_.push_front({oldSize, newSize - oldSize});
+    } else {
+      auto& back = segments_.back();
+      if (back.offset + back.size == oldSize)
+        back.size = newSize - back.offset;
+      else
+        segments_.push_back({oldSize, newSize - oldSize});
+    }
+  } else {
+    if (segments_.empty())
+      throw runtime_error("Bad buffer resize");
+
+    auto& back = segments_.back();
+    if (back.offset + back.size != oldSize || back.offset > newSize)
+      throw runtime_error("Bad buffer resize");
+
+    if (back.offset == newSize)
+      segments_.pop_back();
+    else
+      back.size = newSize - back.offset;
+  }
+
+  return true;
 }

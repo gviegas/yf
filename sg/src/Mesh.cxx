@@ -259,13 +259,13 @@ bool Mesh::Impl::resizeBuffer(uint64_t newSize) {
 
   if (newSize > oldSize) {
     if (segments_.empty()) {
-      segments_.push_front({oldSize, newSize});
+      segments_.push_front({oldSize, newSize - oldSize});
     } else {
       auto& back = segments_.back();
       if (back.offset + back.size == oldSize)
         back.size = newSize - back.offset;
       else
-        segments_.push_back({oldSize, newSize});
+        segments_.push_back({oldSize, newSize - oldSize});
     }
   } else {
     if (segments_.empty())

@@ -109,6 +109,8 @@ class Texture::Impl {
 
   Key key_{};
   uint32_t layer_ = UINT32_MAX;
+
+  bool setLayerCount(Resource&, uint32_t);
 };
 
 SG_NS_END

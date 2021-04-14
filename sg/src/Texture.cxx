@@ -8,6 +8,7 @@
 #include "yf/Except.h"
 
 #include "yf/cg/Device.h"
+#include "yf/cg/Encoder.h"
 
 #include "TextureImpl.h"
 #include "DataPNG.h"
@@ -125,4 +126,33 @@ void Texture::Impl::copy(CG_NS::DcTable& dcTable, uint32_t allocation,
     dcTable.write(allocation, id, element, image, layer_, level, *sampler);
   else
     dcTable.write(allocation, id, element, image, layer_, level);
+}
+
+bool Texture::Impl::setLayerCount(Resource& resource, uint32_t newCount) {
+  auto& dev = CG_NS::device();
+
+  CG_NS::Image::Ptr newImg;
+  try {
+    newImg = dev.image(resource.image->format_, resource.image->size_,
+                       newCount, resource.image->levels_,
+                       resource.image->samples_);
+  } catch (DeviceExcept&) {
+    return false;
+  }
+
+  CG_NS::TfEncoder enc;
+  const auto cpyCount = min(newCount, resource.image->layers_);
+  for (uint32_t i = 0; i < resource.image->levels_; ++i)
+    enc.copy(newImg.get(), {0}, 0, i, resource.image.get(), {0}, 0, i,
+             resource.image->size_, cpyCount);
+
+  auto& que = dev.queue(CG_NS::Queue::Transfer);
+  auto cb = que.cmdBuffer();
+  cb->encode(enc);
+  cb->enqueue();
+  que.submit();
+
+  // TODO...
+
+  return true;
 }

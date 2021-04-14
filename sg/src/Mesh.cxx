@@ -46,7 +46,8 @@ Mesh::Impl& Mesh::impl() {
   return *impl_;
 }
 
-constexpr const uint64_t Length = 1<<24;
+// TODO: consider allowing custom length values
+constexpr const uint64_t Length = 1ULL << 21;
 
 CG_NS::Buffer::Ptr Mesh::Impl::buffer_{CG_NS::device().buffer(Length)};
 list<Mesh::Impl::Segment> Mesh::Impl::segments_{{0, Length}};
@@ -173,6 +174,8 @@ Mesh::Impl::~Impl() {
 
   if (ixData_.offset != UINT64_MAX)
     yield(ixData_.offset, ixData_.count * ixData_.stride);
+
+  // TODO: consider shrinking the buffer, or provide a way to do so
 }
 
 bool Mesh::Impl::canBind(VxType type) const {
@@ -239,6 +242,8 @@ void Mesh::Impl::encode(CG_NS::GrEncoder& encoder, uint32_t baseInstance,
 bool Mesh::Impl::resizeBuffer(uint64_t newSize) {
   auto& dev = CG_NS::device();
 
+  // Try to create a new buffer
+  // XXX: this restricts the buffer size to half the available memory
   CG_NS::Buffer::Ptr newBuf;
   try {
     newBuf = dev.buffer(newSize);
@@ -246,6 +251,7 @@ bool Mesh::Impl::resizeBuffer(uint64_t newSize) {
     return false;
   }
 
+  // Copy data to new buffer
   auto& que = dev.queue(CG_NS::Queue::Transfer);
   auto cb = que.cmdBuffer();
   CG_NS::TfEncoder enc;
@@ -257,6 +263,7 @@ bool Mesh::Impl::resizeBuffer(uint64_t newSize) {
   auto oldSize = buffer_->size_;
   buffer_.reset(newBuf.release());
 
+  // Update segment list
   if (newSize > oldSize) {
     if (segments_.empty()) {
       segments_.push_front({oldSize, newSize - oldSize});

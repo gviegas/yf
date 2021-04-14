@@ -84,14 +84,20 @@ Mesh::Impl::Impl(const Data& data) {
 
     const uint64_t sz = va.second.elementN * va.second.elementSize;
     const void* dt = data.data[va.second.dataIndex].get()+va.second.dataOffset;
-    const uint64_t off = copy(sz, dt);
+    uint64_t off = copy(sz, dt);
 
-    if (off == UINT64_MAX)
-      // TODO: create a larger buffer and transfer data
-      throw runtime_error("Mesh buffer resize unimplemented");
+    if (off == UINT64_MAX) {
+      if (!resizeBuffer(max(sz, buffer_->size_ << 1)) &&
+          (sz >= buffer_->size_ || !resizeBuffer(sz)))
+        throw NoMemoryExcept("Failed to allocate space for mesh object");
 
-    vxData_.emplace(va.first,
-                    DataEntry{off, va.second.elementN, va.second.elementSize});
+      off = copy(sz, dt);
+
+      assert(off != UINT64_MAX);
+    }
+
+    vxData_.emplace(va.first, DataEntry{off, va.second.elementN,
+                                        va.second.elementSize});
   }
 
   // Copy index data
@@ -105,9 +111,15 @@ Mesh::Impl::Impl(const Data& data) {
                      data.ixAccessor.dataOffset;
     ixData_.offset = copy(sz, dt);
 
-    if (ixData_.offset == UINT64_MAX)
-      // TODO: create a larger buffer and transfer data
-      throw runtime_error("Mesh buffer resize unimplemented");
+    if (ixData_.offset == UINT64_MAX) {
+      if (!resizeBuffer(max(sz, buffer_->size_ << 1)) &&
+          (sz >= buffer_->size_ || !resizeBuffer(sz)))
+        throw NoMemoryExcept("Failed to allocate space for mesh object");
+
+      ixData_.offset = copy(sz, dt);
+
+      assert(ixData_.offset != UINT64_MAX);
+    }
 
     ixData_.count = data.ixAccessor.elementN;
     ixData_.stride = data.ixAccessor.elementSize;

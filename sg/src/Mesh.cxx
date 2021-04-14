@@ -224,13 +224,18 @@ void Mesh::Impl::encode(CG_NS::GrEncoder& encoder, uint32_t baseInstance,
   encodeDraw(encoder, baseInstance, instanceCount);
 }
 
-void Mesh::Impl::resizeBuffer(uint64_t newSize) {
+bool Mesh::Impl::resizeBuffer(uint64_t newSize) {
   auto& dev = CG_NS::device();
-  auto newBuf = dev.buffer(newSize);
+
+  CG_NS::Buffer::Ptr newBuf;
+  try {
+    newBuf = dev.buffer(newSize);
+  } catch (DeviceExcept&) {
+    return false;
+  }
 
   auto& que = dev.queue(CG_NS::Queue::Transfer);
   auto cb = que.cmdBuffer();
-
   CG_NS::TfEncoder enc;
   enc.copy(newBuf.get(), 0, buffer_.get(), 0, buffer_->size_);
   cb->encode(enc);
@@ -263,4 +268,6 @@ void Mesh::Impl::resizeBuffer(uint64_t newSize) {
     else
       back.size = newSize - back.offset;
   }
+
+  return true;
 }

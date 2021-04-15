@@ -144,6 +144,20 @@ struct CopyTest : Test {
         img.reset(tmp.release());
         dtb->write(0, 1, 0, *img, 0, 0);
         wcout << "( image copied )" << endl;
+      } else if (key == WS_NS::KeyCodeO) {
+        static uint64_t cpySz = 31;
+        key = WS_NS::KeyCodeUnknown;
+        TfEncoder enc;
+        enc.copy(buf.get(), 200, buf.get(), 170, cpySz);
+        try {
+          cb->encode(enc);
+          cb->enqueue();
+          que.submit();
+          wcout << "( buffer memory do not overlap - copied )" << endl;
+        } catch (invalid_argument& e) {
+          wcout << "( buffer memory do overlap - not copied )" << endl;
+          --cpySz;
+        }
       } else if (key == WS_NS::KeyCodeEsc) {
         quit = true;
         break;

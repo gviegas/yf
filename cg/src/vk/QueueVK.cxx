@@ -5,6 +5,7 @@
 // Copyright © 2020-2021 Gustavo C. Viegas.
 //
 
+#include <cstdlib>
 #include <cassert>
 #include <stdexcept>
 
@@ -727,6 +728,10 @@ void CmdBufferVK::encode(const TfEncoder& encoder) {
         sub->srcOffset + sub->size > src->size_)
       throw invalid_argument("copy(buf, buf) invalid range");
 
+    if (dst == src &&
+        (uint64_t)abs((int64_t)(sub->srcOffset - sub->dstOffset)) < sub->size)
+      throw invalid_argument("copy(buf, buf) memory overlap");
+
     VkBufferCopy region;
     region.srcOffset = sub->srcOffset;
     region.dstOffset = sub->dstOffset;
@@ -740,16 +745,25 @@ void CmdBufferVK::encode(const TfEncoder& encoder) {
     auto dst = static_cast<ImageVK*>(sub->dst);
     auto src = static_cast<ImageVK*>(sub->src);
 
-    // TODO: check need to be done against mip level size instead
     if (sub->size.width == 0 || sub->size.height == 0 || sub->layerCount == 0 ||
-        sub->dstOffset.x + sub->size.width > dst->size_.width ||
-        sub->dstOffset.y + sub->size.height > dst->size_.height ||
-        sub->srcOffset.x + sub->size.width > src->size_.width ||
-        sub->srcOffset.y + sub->size.height > src->size_.height ||
+        sub->dstOffset.x + sub->size.width >
+          dst->size_.width >> sub->dstLevel ||
+        sub->dstOffset.y + sub->size.height >
+          dst->size_.height >> sub->dstLevel ||
+        sub->srcOffset.x + sub->size.width >
+          src->size_.width >> sub->srcLevel ||
+        sub->srcOffset.y + sub->size.height >
+          src->size_.height >> sub->srcLevel ||
         sub->dstLayer + sub->layerCount > dst->layers_ ||
         sub->srcLayer + sub->layerCount > src->layers_ ||
         sub->dstLevel >= dst->levels_ || sub->srcLevel >= src->levels_)
       throw invalid_argument("copy(img, img) invalid range");
+
+    if (dst->format_ != src->format_)
+      throw invalid_argument("copy(img, img) formats differ");
+
+    if (dst->samples_ != src->samples_)
+      throw invalid_argument("copy(img, img) samples differ");
 
     // XXX
     dst->changeLayout(VK_IMAGE_LAYOUT_GENERAL, true);

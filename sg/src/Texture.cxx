@@ -131,6 +131,10 @@ void Texture::Impl::copy(CG_NS::DcTable& dcTable, uint32_t allocation,
 }
 
 bool Texture::Impl::setLayerCount(Resource& resource, uint32_t newCount) {
+  const auto oldCount = resource.image->layers_;
+  if (newCount == oldCount)
+    return true;
+
   auto& dev = CG_NS::device();
 
   // Try to create a new image
@@ -157,7 +161,6 @@ bool Texture::Impl::setLayerCount(Resource& resource, uint32_t newCount) {
   cb->enqueue();
   que.submit();
 
-  const auto oldCount = resource.image->layers_;
   resource.image.reset(newImg.release());
 
   // Update resource

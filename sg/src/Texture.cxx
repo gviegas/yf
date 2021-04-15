@@ -8,6 +8,7 @@
 #include "yf/Except.h"
 
 #include "yf/cg/Device.h"
+#include "yf/cg/Encoder.h"
 
 #include "TextureImpl.h"
 #include "DataPNG.h"
@@ -44,6 +45,7 @@ Texture::Impl& Texture::impl() {
   return *impl_;
 }
 
+// TODO: consider allowing custom layers value
 constexpr const uint32_t Layers = 16;
 
 Texture::Impl::Resources Texture::Impl::resources_{};
@@ -66,8 +68,9 @@ Texture::Impl::Impl(const Data& data)
     it = res.first;
 
   } else if (it->second.layers.remaining == 0) {
-    // TODO: create a new image with more layers and transfer data
-    throw runtime_error("Texture image resize unimplemented");
+    if (!setLayerCount(it->second, it->second.image->layers_ << 1) &&
+        !setLayerCount(it->second, it->second.image->layers_ + 1))
+      throw NoMemoryExcept("Failed to allocate space for texture object");
   }
 
   auto& resource = it->second;
@@ -92,8 +95,8 @@ Texture::Impl::Impl(const Data& data)
   for (uint32_t i = 0; i < data.levels; ++i) {
     image.write({0}, size, layer_, i, bytes);
     bytes += (image.bitsPerTexel_ >> 3) * size.width * size.height;
-    size.width /= 2;
-    size.height /= 2;
+    size.width = max(1U, size.width >> 1);
+    size.height = max(1U, size.height >> 1);
   }
 }
 
@@ -125,4 +128,51 @@ void Texture::Impl::copy(CG_NS::DcTable& dcTable, uint32_t allocation,
     dcTable.write(allocation, id, element, image, layer_, level, *sampler);
   else
     dcTable.write(allocation, id, element, image, layer_, level);
+}
+
+bool Texture::Impl::setLayerCount(Resource& resource, uint32_t newCount) {
+  auto& dev = CG_NS::device();
+
+  // Try to create a new image
+  CG_NS::Image::Ptr newImg;
+  try {
+    newImg = dev.image(resource.image->format_, resource.image->size_,
+                       newCount, resource.image->levels_,
+                       resource.image->samples_);
+  } catch (DeviceExcept&) {
+    return false;
+  }
+
+  // Copy data to new image
+  CG_NS::TfEncoder enc;
+  const auto cpyCount = min(newCount, resource.image->layers_);
+  const auto cpySize = resource.image->size_;
+  for (uint32_t i = 0; i < resource.image->levels_; ++i)
+    enc.copy(newImg.get(), {0}, 0, i, resource.image.get(), {0}, 0, i,
+             {cpySize.width >> i, cpySize.height >> i}, cpyCount);
+
+  auto& que = dev.queue(CG_NS::Queue::Transfer);
+  auto cb = que.cmdBuffer();
+  cb->encode(enc);
+  cb->enqueue();
+  que.submit();
+
+  const auto oldCount = resource.image->layers_;
+  resource.image.reset(newImg.release());
+
+  // Update resource
+  if (newCount > oldCount) {
+    resource.layers.unused.resize(newCount, true);
+    resource.layers.remaining += newCount - oldCount;
+  } else {
+    for (auto i = oldCount-1; i >= newCount; --i) {
+      if (!resource.layers.unused[i])
+        throw runtime_error("Bad texture layer count");
+    }
+    resource.layers.unused.resize(newCount);
+    resource.layers.remaining -= oldCount - newCount;
+    resource.layers.current %= newCount;
+  }
+
+  return true;
 }

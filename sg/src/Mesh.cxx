@@ -47,7 +47,7 @@ Mesh::Impl& Mesh::impl() {
 }
 
 // TODO: consider allowing custom length values
-constexpr const uint64_t Length = 1ULL << 21;
+constexpr uint64_t Length = 1ULL << 21;
 
 CG_NS::Buffer::Ptr Mesh::Impl::buffer_{CG_NS::device().buffer(Length)};
 list<Mesh::Impl::Segment> Mesh::Impl::segments_{{0, Length}};

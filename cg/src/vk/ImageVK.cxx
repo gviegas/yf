@@ -236,7 +236,7 @@ void ImageVK::write(Offset2 offset, Size2 size, uint32_t layer, uint32_t level,
     VkImageSubresource subres;
     subres.aspectMask = aspectOfVK(format_);
     subres.mipLevel = level;
-    subres.arrayLayer = layer;
+    subres.arrayLayer = 0;
 
     if (subres.aspectMask != VK_IMAGE_ASPECT_COLOR_BIT &&
         subres.aspectMask != VK_IMAGE_ASPECT_DEPTH_BIT &&
@@ -252,7 +252,7 @@ void ImageVK::write(Offset2 offset, Size2 size, uint32_t layer, uint32_t level,
     const auto len = (bitsPerTexel_ >> 3) * size.width;
     auto src = reinterpret_cast<const uint8_t*>(data);
     auto dst = reinterpret_cast<uint8_t*>(data_);
-    dst += layout.offset + layout.arrayPitch*layer;
+    dst += layout.offset + layout.arrayPitch * layer;
     dst += offset.y * layout.rowPitch + offset.x * (bitsPerTexel_ >> 3);
 
     for (uint32_t row = 0; row < size.height; ++row) {

@@ -717,7 +717,6 @@ void CmdBufferVK::encode(const CpEncoder& encoder) {
 }
 
 void CmdBufferVK::encode(const TfEncoder& encoder) {
-
   // Copy buffer
   auto copyBB = [&](const CopyBBCmd* sub) {
     auto dst = static_cast<BufferVK*>(sub->dst);
@@ -767,7 +766,7 @@ void CmdBufferVK::encode(const TfEncoder& encoder) {
     region.dstSubresource.baseArrayLayer = sub->dstLayer;
     region.dstSubresource.layerCount = sub->layerCount;
     region.dstOffset = {sub->dstOffset.x, sub->dstOffset.y, 0};
-    region.extent = {sub->size.width, sub->size.height, 0};
+    region.extent = {sub->size.width, sub->size.height, 1};
 
     vkCmdCopyImage(handle_, src->handle(), src->layout().second, dst->handle(),
                    dst->layout().second, 1, &region);

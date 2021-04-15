@@ -324,22 +324,30 @@ constexpr Matrix<T, 3, 3> rotate3(T angle, const Vector<T, 3>& axis) {
   Matrix<T, 3, 3> res;
 
   const auto v = normalize(axis);
-  const auto x = v[0];
-  const auto y = v[1];
-  const auto z = v[2];
-  const auto c = std::cos(angle);
-  const auto s = std::sin(angle);
-  const T one = 1.0;
+  const T x = v[0];
+  const T y = v[1];
+  const T z = v[2];
+  const T c = std::cos(angle);
+  const T s = std::sin(angle);
 
-  res[0][0] = c + (one - c) * x*x;
-  res[0][1] = (one - c) * x*y + s*z;
-  res[0][2] = (one - c) * x*z - s*y;
-  res[1][0] = (one - c) * x*y - s*z;
-  res[1][1] = c + (one - c) * y*y;
-  res[1][2] = (one - c) * y*z + s*x;
-  res[2][0] = (one - c) * x*z + s*y;
-  res[2][1] = (one - c) * y*z - s*x;
-  res[2][2] = c + (one - c) * z*z;
+  const T one = 1.0;
+  const T omc = one - c;
+  const T omcxy = omc * x * y;
+  const T omcxz = omc * x * z;
+  const T omcyz = omc * y * z;
+  const T sx = s * x;
+  const T sy = s * y;
+  const T sz = s * z;
+
+  res[0][0] = c + omc * x * x;
+  res[0][1] = omcxy + sz;
+  res[0][2] = omcxz - sy;
+  res[1][0] = omcxy - sz;
+  res[1][1] = c + omc * y * y;
+  res[1][2] = omcyz + sx;
+  res[2][0] = omcxz + sy;
+  res[2][1] = omcyz - sx;
+  res[2][2] = c + omc * z * z;
 
   return res;
 }
@@ -454,22 +462,30 @@ constexpr Matrix<T, 4, 4> rotate(T angle, const Vector<T, 3>& axis) {
   Matrix<T, 4, 4> res;
 
   const auto v = normalize(axis);
-  const auto x = v[0];
-  const auto y = v[1];
-  const auto z = v[2];
-  const auto c = std::cos(angle);
-  const auto s = std::sin(angle);
-  const T one = 1.0;
+  const T x = v[0];
+  const T y = v[1];
+  const T z = v[2];
+  const T c = std::cos(angle);
+  const T s = std::sin(angle);
 
-  res[0][0] = c + (one - c) * x*x;
-  res[0][1] = (one - c) * x*y + s*z;
-  res[0][2] = (one - c) * x*z - s*y;
-  res[1][0] = (one - c) * x*y - s*z;
-  res[1][1] = c + (one - c) * y*y;
-  res[1][2] = (one - c) * y*z + s*x;
-  res[2][0] = (one - c) * x*z + s*y;
-  res[2][1] = (one - c) * y*z - s*x;
-  res[2][2] = c + (one - c) * z*z;
+  const T one = 1.0;
+  const T omc = one - c;
+  const T omcxy = omc * x * y;
+  const T omcxz = omc * x * z;
+  const T omcyz = omc * y * z;
+  const T sx = s * x;
+  const T sy = s * y;
+  const T sz = s * z;
+
+  res[0][0] = c + omc * x * x;
+  res[0][1] = omcxy + sz;
+  res[0][2] = omcxz - sy;
+  res[1][0] = omcxy - sz;
+  res[1][1] = c + omc * y * y;
+  res[1][2] = omcyz + sx;
+  res[2][0] = omcxz + sy;
+  res[2][1] = omcyz - sx;
+  res[2][2] = c + omc * z * z;
   res[3][3] = one;
 
   return res;

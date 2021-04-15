@@ -240,6 +240,10 @@ void Mesh::Impl::encode(CG_NS::GrEncoder& encoder, uint32_t baseInstance,
 }
 
 bool Mesh::Impl::resizeBuffer(uint64_t newSize) {
+  const auto oldSize = buffer_->size_;
+  if (newSize == oldSize)
+    return true;
+
   auto& dev = CG_NS::device();
 
   // Try to create a new buffer
@@ -252,15 +256,14 @@ bool Mesh::Impl::resizeBuffer(uint64_t newSize) {
   }
 
   // Copy data to new buffer
-  auto& que = dev.queue(CG_NS::Queue::Transfer);
-  auto cb = que.cmdBuffer();
   CG_NS::TfEncoder enc;
   enc.copy(newBuf.get(), 0, buffer_.get(), 0, buffer_->size_);
+  auto& que = dev.queue(CG_NS::Queue::Transfer);
+  auto cb = que.cmdBuffer();
   cb->encode(enc);
   cb->enqueue();
   que.submit();
 
-  auto oldSize = buffer_->size_;
   buffer_.reset(newBuf.release());
 
   // Update segment list

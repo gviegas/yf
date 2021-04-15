@@ -46,7 +46,7 @@ Texture::Impl& Texture::impl() {
 }
 
 // TODO: consider allowing custom layers value
-constexpr const uint32_t Layers = 16;
+constexpr uint32_t Layers = 16;
 
 Texture::Impl::Resources Texture::Impl::resources_{};
 

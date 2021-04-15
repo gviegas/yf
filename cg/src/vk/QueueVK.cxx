@@ -5,6 +5,7 @@
 // Copyright © 2020-2021 Gustavo C. Viegas.
 //
 
+#include <cstdlib>
 #include <cassert>
 #include <stdexcept>
 
@@ -726,6 +727,10 @@ void CmdBufferVK::encode(const TfEncoder& encoder) {
         sub->dstOffset + sub->size > dst->size_ ||
         sub->srcOffset + sub->size > src->size_)
       throw invalid_argument("copy(buf, buf) invalid range");
+
+    if (dst == src &&
+        (uint64_t)abs((int64_t)(sub->srcOffset - sub->dstOffset)) < sub->size)
+      throw invalid_argument("copy(buf, buf) memory overlap");
 
     VkBufferCopy region;
     region.srcOffset = sub->srcOffset;

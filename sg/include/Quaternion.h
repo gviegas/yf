@@ -92,8 +92,8 @@ constexpr Quaternion<T> operator*(const Quaternion<T>& left,
 template<class T>
 constexpr Quaternion<T> rotateQ(T angle, const Vector<T, 3>& axis) {
   const T a = angle * 0.5;
-  const T c = cos(a);
-  const T s = sin(a);
+  const T c = std::cos(a);
+  const T s = std::sin(a);
 
   return {c, normalize(axis) * s};
 }
@@ -103,8 +103,8 @@ constexpr Quaternion<T> rotateQ(T angle, const Vector<T, 3>& axis) {
 template<class T>
 constexpr Quaternion<T> rotateQX(T angle) {
   const T a = angle * 0.5;
-  const T c = cos(a);
-  const T s = sin(a);
+  const T c = std::cos(a);
+  const T s = std::sin(a);
 
   return {c, {s, 0.0, 0.0}};
 }
@@ -114,8 +114,8 @@ constexpr Quaternion<T> rotateQX(T angle) {
 template<class T>
 constexpr Quaternion<T> rotateQY(T angle) {
   const T a = angle * 0.5;
-  const T c = cos(a);
-  const T s = sin(a);
+  const T c = std::cos(a);
+  const T s = std::sin(a);
 
   return {c, {0.0, s, 0.0}};
 }
@@ -125,8 +125,8 @@ constexpr Quaternion<T> rotateQY(T angle) {
 template<class T>
 constexpr Quaternion<T> rotateQZ(T angle) {
   const T a = angle * 0.5;
-  const T c = cos(a);
-  const T s = sin(a);
+  const T c = std::cos(a);
+  const T s = std::sin(a);
 
   return {c, {0.0, 0.0, s}};
 }

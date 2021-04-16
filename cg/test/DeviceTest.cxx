@@ -7,7 +7,7 @@
 
 #include <thread>
 
-#include "UnitTests.h"
+#include "Test.h"
 #include "Device.h"
 
 using namespace TEST_NS;
@@ -24,8 +24,7 @@ struct DeviceTest : Test {
 
     auto& dev = device();
     auto& que = dev.defaultQueue();
-    auto win = WS_NS::createWindow(400, 400, L"Device Test",
-                                   WS_NS::Window::Resizable);
+    auto win = WS_NS::createWindow(400, 400, name_, WS_NS::Window::Resizable);
     auto wsi = dev.wsi(win.get());
 
     this_thread::sleep_for(chrono::seconds(1));
@@ -40,7 +39,11 @@ struct DeviceTest : Test {
 
 INTERNAL_NS_END
 
-Test* TEST_NS::deviceTest() {
+TEST_NS_BEGIN
+
+Test* deviceTest() {
   static DeviceTest test;
   return &test;
 }
+
+TEST_NS_END

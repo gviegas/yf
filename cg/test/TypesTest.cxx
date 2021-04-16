@@ -2,10 +2,10 @@
 // CG
 // TypesTest.cxx
 //
-// Copyright © 2020 Gustavo C. Viegas.
+// Copyright © 2020-2021 Gustavo C. Viegas.
 //
 
-#include "UnitTests.h"
+#include "Test.h"
 #include "Types.h"
 
 using namespace TEST_NS;
@@ -74,7 +74,11 @@ struct TypesTest : Test {
 
 INTERNAL_NS_END
 
-Test* TEST_NS::typesTest() {
+TEST_NS_BEGIN
+
+Test* typesTest() {
   static TypesTest test;
   return &test;
 }
+
+TEST_NS_END

@@ -10,7 +10,7 @@
 #include <algorithm>
 #include <cassert>
 
-#include "UnitTests.h"
+#include "Test.h"
 #include "Device.h"
 #include "Encoder.h"
 
@@ -154,7 +154,11 @@ struct DrawTest : Test {
 
 INTERNAL_NS_END
 
-Test* TEST_NS::drawTest() {
+TEST_NS_BEGIN
+
+Test* drawTest() {
   static DrawTest test;
   return &test;
 }
+
+TEST_NS_END

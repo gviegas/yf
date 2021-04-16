@@ -8,7 +8,7 @@
 #include <thread>
 #include <cassert>
 
-#include "UnitTests.h"
+#include "Test.h"
 #include "Wsi.h"
 
 using namespace TEST_NS;
@@ -31,9 +31,8 @@ struct WsiTest : Test {
 
     Assertions a;
 
-    auto win = WS_NS::createWindow(240, 144, L"wsi test",
-                                   WS_NS::Window::Resizable |
-                                   WS_NS::Window::Hidden);
+    auto win = WS_NS::createWindow(240, 144, name_, WS_NS::Window::Resizable |
+                                                    WS_NS::Window::Hidden);
     Wsi_ wsi(win.get());
 
     wsi.window_->open();
@@ -49,7 +48,11 @@ struct WsiTest : Test {
 
 INTERNAL_NS_END
 
-Test* TEST_NS::wsiTest() {
+TEST_NS_BEGIN
+
+Test* wsiTest() {
   static WsiTest test;
   return &test;
 }
+
+TEST_NS_END

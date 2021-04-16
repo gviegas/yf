@@ -8,7 +8,7 @@
 #include <cstring>
 #include <iostream>
 
-#include "UnitTests.h"
+#include "Test.h"
 #include "Matrix.h"
 
 using namespace TEST_NS;
@@ -228,7 +228,11 @@ struct MatrixTest : Test {
 
 INTERNAL_NS_END
 
-Test* TEST_NS::matrixTest() {
+TEST_NS_BEGIN
+
+Test* matrixTest() {
   static MatrixTest test;
   return &test;
 }
+
+TEST_NS_END

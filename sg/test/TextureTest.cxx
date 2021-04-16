@@ -2,13 +2,12 @@
 // SG
 // TextureTest.cxx
 //
-// Copyright © 2020 Gustavo C. Viegas.
+// Copyright © 2020-2021 Gustavo C. Viegas.
 //
 
 #include <iostream>
 
-#include "UnitTests.h"
-
+#include "Test.h"
 #include "TextureImpl.h"
 
 using namespace TEST_NS;
@@ -191,7 +190,11 @@ struct TextureTest : Test {
 
 INTERNAL_NS_END
 
-Test* TEST_NS::textureTest() {
+TEST_NS_BEGIN
+
+Test* textureTest() {
   static TextureTest test;
   return &test;
 }
+
+TEST_NS_END

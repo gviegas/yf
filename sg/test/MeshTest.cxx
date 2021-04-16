@@ -7,8 +7,7 @@
 
 #include <iostream>
 
-#include "UnitTests.h"
-
+#include "Test.h"
 #include "MeshImpl.h"
 
 using namespace TEST_NS;
@@ -139,7 +138,11 @@ struct MeshTest : Test {
 
 INTERNAL_NS_END
 
-Test* TEST_NS::meshTest() {
+TEST_NS_BEGIN
+
+Test* meshTest() {
   static MeshTest test;
   return &test;
 }
+
+TEST_NS_END

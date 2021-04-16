@@ -8,7 +8,7 @@
 #include <iostream>
 #include <map>
 
-#include "UnitTests.h"
+#include "Test.h"
 #include "Node.h"
 
 using namespace TEST_NS;
@@ -126,7 +126,11 @@ struct NodeTest : Test {
 
 INTERNAL_NS_END
 
-Test* TEST_NS::nodeTest() {
+TEST_NS_BEGIN
+
+Test* nodeTest() {
   static NodeTest test;
   return &test;
 }
+
+TEST_NS_END

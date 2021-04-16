@@ -7,7 +7,7 @@
 
 #include <iostream>
 
-#include "UnitTests.h"
+#include "Test.h"
 #include "Quaternion.h"
 
 using namespace TEST_NS;
@@ -104,7 +104,11 @@ struct QuaternionTest : Test {
 
 INTERNAL_NS_END
 
-Test* TEST_NS::quaternionTest() {
+TEST_NS_BEGIN
+
+Test* quaternionTest() {
   static QuaternionTest test;
   return &test;
 }
+
+TEST_NS_END

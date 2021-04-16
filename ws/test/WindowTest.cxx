@@ -7,7 +7,7 @@
 
 #include <thread>
 
-#include "UnitTests.h"
+#include "Test.h"
 #include "Window.h"
 
 using namespace TEST_NS;
@@ -47,7 +47,11 @@ struct WindowTest : Test {
 
 INTERNAL_NS_END
 
-Test* TEST_NS::windowTest() {
+TEST_NS_BEGIN
+
+Test* windowTest() {
   static WindowTest test;
   return &test;
 }
+
+TEST_NS_END

@@ -2,26 +2,26 @@
 // SG
 // Model.cxx
 //
-// Copyright © 2020 Gustavo C. Viegas.
+// Copyright © 2020-2021 Gustavo C. Viegas.
 //
 
 #include "Model.h"
 #include "Mesh.h"
-#include "Texture.h"
+#include "Material.h"
 
 using namespace SG_NS;
 using namespace std;
 
 class Model::Impl {
  public:
-  Impl(Mesh* mesh, Texture* texture) : mesh_(mesh), texture_(texture) { }
+  Impl(Mesh* mesh, Material* material) : mesh_(mesh), material_(material) { }
 
   Mesh* mesh_;
-  Texture* texture_;
+  Material* material_;
 };
 
-Model::Model(Mesh& mesh, Texture& texture)
-  : impl_(make_unique<Impl>(&mesh, &texture)) { }
+Model::Model(Mesh& mesh, Material& material)
+  : impl_(make_unique<Impl>(&mesh, &material)) { }
 
 Model::Model(Mesh& mesh) : impl_(make_unique<Impl>(&mesh, nullptr)) { }
 
@@ -33,14 +33,14 @@ void Model::setMesh(Mesh* mesh) {
   impl_->mesh_ = mesh;
 }
 
-void Model::setTexture(Texture* texture) {
-  impl_->texture_ = texture;
+void Model::setMaterial(Material* material) {
+  impl_->material_ = material;
 }
 
 Mesh* Model::mesh() const {
   return impl_->mesh_;
 }
 
-Texture* Model::texture() const {
-  return impl_->texture_;
+Material* Model::material() const {
+  return impl_->material_;
 }

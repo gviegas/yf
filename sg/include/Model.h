@@ -2,7 +2,7 @@
 // SG
 // Model.h
 //
-// Copyright © 2020 Gustavo C. Viegas.
+// Copyright © 2020-2021 Gustavo C. Viegas.
 //
 
 #ifndef YF_SG_MODEL_H
@@ -15,13 +15,13 @@
 SG_NS_BEGIN
 
 class Mesh;
-class Texture;
+class Material;
 
 /// Model.
 ///
 class Model : public Node {
  public:
-  Model(Mesh& mesh, Texture& texture);
+  Model(Mesh& mesh, Material& material);
   Model(Mesh& mesh);
   Model();
   ~Model();
@@ -29,12 +29,12 @@ class Model : public Node {
   /// Setters.
   ///
   void setMesh(Mesh* mesh);
-  void setTexture(Texture* texture);
+  void setMaterial(Material* material);
 
   /// Getters.
   ///
   Mesh* mesh() const;
-  Texture* texture() const;
+  Material* material() const;
 
  private:
   class Impl;

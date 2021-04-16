@@ -38,6 +38,22 @@ class Material::Impl {
     return emissive_;
   }
 
+  void set(const Pbrmr& pbrmr) {
+    pbrmr_ = pbrmr;
+  }
+
+  void set(const Normal& normal) {
+    normal_ = normal;
+  }
+
+  void set(const Occlusion& occlusion) {
+    occlusion_ = occlusion;
+  }
+
+  void set(const Emissive& emissive) {
+    emissive_ = emissive;
+  }
+
  private:
   Pbrmr pbrmr_{};
   Normal normal_{};
@@ -63,4 +79,20 @@ const Material::Occlusion& Material::occlusion() const {
 
 const Material::Emissive& Material::emissive() const {
   return impl_->emissive();
+}
+
+void Material::setPbrmr(const Pbrmr& pbrmr) {
+  impl_->set(pbrmr);
+}
+
+void Material::setNormal(const Normal& normal) {
+  impl_->set(normal);
+}
+
+void Material::setOcclusion(const Occlusion& occlusion) {
+  impl_->set(occlusion);
+}
+
+void Material::setEmissive(const Emissive& emissive) {
+  impl_->set(emissive);
 }

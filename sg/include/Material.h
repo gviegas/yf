@@ -52,6 +52,7 @@ class Material {
     Vec3f factor{};
   };
 
+  Material(const Pbrmr&, const Normal&, const Occlusion&, const Emissive&);
   Material();
   ~Material();
 

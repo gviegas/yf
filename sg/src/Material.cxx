@@ -17,7 +17,7 @@ class Material::Impl {
     : pbrmr_(pbrmr), normal_(normal), occlusion_(occlusion),
       emissive_(emissive) { }
 
-  Impl() { }
+  Impl() = default;
   Impl(const Impl&) = delete;
   Impl& operator=(const Impl&) = delete;
   ~Impl() = default;
@@ -60,6 +60,10 @@ class Material::Impl {
   Occlusion occlusion_{};
   Emissive emissive_{};
 };
+
+Material::Material(const Pbrmr& pbrmr, const Normal& normal,
+                   const Occlusion& occlusion, const Emissive& emissive)
+  : impl_(make_unique<Impl>(pbrmr, normal, occlusion, emissive)) { }
 
 Material::Material() : impl_(make_unique<Impl>()) { }
 

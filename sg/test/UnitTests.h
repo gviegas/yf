@@ -26,6 +26,7 @@ Test* quaternionTest();
 Test* matrixTest();
 Test* meshTest();
 Test* textureTest();
+Test* materialTest();
 Test* cameraTest();
 Test* miscTest();
 
@@ -39,10 +40,11 @@ const std::unordered_map<std::string, std::vector<TestFn>> TIDs{
   {"matrix", {matrixTest}},
   {"mesh", {meshTest}},
   {"texture", {textureTest}},
+  {"material", {materialTest}},
   {"camera", {cameraTest}},
   {"misc", {miscTest}},
   {"all", {nodeTest, viewTest, vectorTest, quaternionTest, matrixTest,
-           meshTest, textureTest, cameraTest, miscTest}}
+           meshTest, textureTest, materialTest, cameraTest, miscTest}}
 };
 
 inline std::vector<Test*> unitTests(const std::string& id) {

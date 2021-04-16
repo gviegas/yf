@@ -14,7 +14,7 @@
 #include "Test.h"
 #include "MeshImpl.h"
 #include "TextureImpl.h"
-#include "Matrix.h"
+#include "SG.h"
 
 using namespace TEST_NS;
 using namespace SG_NS;

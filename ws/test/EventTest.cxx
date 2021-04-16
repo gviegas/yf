@@ -8,7 +8,7 @@
 #include <thread>
 #include <iostream>
 
-#include "UnitTests.h"
+#include "Test.h"
 #include "Window.h"
 #include "Event.h"
 #include "Keyboard.h"
@@ -26,6 +26,8 @@ struct EventTest : Test {
   Assertions run(const vector<string>&) {
     Assertions a;
 
+    KeyCode key = KeyCodeUnknown;
+
     WdDelegate wdDeleg{
       [](Window* win) { wcout << "wd close: " << win << endl; },
       [](Window* win, uint32_t w, uint32_t h) {
@@ -36,9 +38,10 @@ struct EventTest : Test {
     KbDelegate kbDeleg{
       [](Window* win) { wcout << "kb enter: " << win << endl; },
       [](Window* win) { wcout << "kb leave: " << win << endl; },
-      [](KeyCode c, KeyState s, KeyModMask m) {
+      [&key](KeyCode c, KeyState s, KeyModMask m) {
         wcout << "kb key: " << c << ", " << s << ", " << hex << m << dec
-              << endl; }
+              << endl;
+        key = c; }
     };
     setDelegate(kbDeleg);
 
@@ -57,10 +60,13 @@ struct EventTest : Test {
     auto win1 = createWindow(300, 200, L"Window 1");
     auto win2 = createWindow(100, 300, L"Window 2");
 
-    auto tm = chrono::system_clock::now() + chrono::seconds(10);
+    auto tm = chrono::system_clock::now() + chrono::minutes(1);
     while (tm > chrono::system_clock::now()) {
       dispatch();
       this_thread::sleep_for(chrono::milliseconds(10));
+
+      if (key == KeyCodeEsc)
+        break;
     }
 
     a.push_back({L"setDelegate(WdDelegate)", true});
@@ -74,7 +80,11 @@ struct EventTest : Test {
 
 INTERNAL_NS_END
 
-Test* TEST_NS::eventTest() {
+TEST_NS_BEGIN
+
+Test* eventTest() {
   static EventTest test;
   return &test;
 }
+
+TEST_NS_END

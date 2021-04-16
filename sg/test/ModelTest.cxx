@@ -24,7 +24,31 @@ struct ModelTest : Test {
   Assertions run(const vector<string>&) {
     Assertions a;
 
-    // TODO
+    Model mdl1;
+
+    a.push_back({L"Model()", !mdl1.mesh() && !mdl1.material()});
+
+    Mesh mesh{Mesh::FileType::Gltf, L"tmp/cube.gltf"};
+    Model mdl2{mesh};
+
+    a.push_back({L"Model(mesh)", mdl2.mesh() == &mesh && !mdl2.material()});
+
+    Material material;
+    Model mdl3{mesh, material};
+
+    a.push_back({L"Model(mesh, material)", mdl3.mesh() == &mesh &&
+                                           mdl3.material() == &material});
+
+    mdl1.setMesh(&mesh);
+    mdl1.setMaterial(&material);
+    mdl2.setMaterial(nullptr);
+    mdl3.setMesh(nullptr);
+
+    a.push_back({L"set*()", mdl1.mesh() == &mesh &&
+                            mdl1.material() == &material &&
+                            mdl2.mesh() == &mesh  && !mdl2.material() &&
+                            !mdl3.mesh() && mdl3.material() == &material});
+
     return a;
   }
 };

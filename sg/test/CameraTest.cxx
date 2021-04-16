@@ -5,11 +5,10 @@
 // Copyright © 2021 Gustavo C. Viegas.
 //
 
-#include "UnitTests.h"
-
 #include "yf/cg/CG.h"
 #include "yf/ws/WS.h"
 
+#include "Test.h"
 #include "MeshImpl.h"
 #include "TextureImpl.h"
 #include "Camera.h"
@@ -238,7 +237,11 @@ Input CameraTest::input{};
 
 INTERNAL_NS_END
 
-Test* TEST_NS::cameraTest() {
+TEST_NS_BEGIN
+
+Test* cameraTest() {
   static CameraTest test;
   return &test;
 }
+
+TEST_NS_END

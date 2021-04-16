@@ -2,12 +2,12 @@
 // SG
 // VectorTest.cxx
 //
-// Copyright © 2020 Gustavo C. Viegas.
+// Copyright © 2020-2021 Gustavo C. Viegas.
 //
 
 #include <iostream>
 
-#include "UnitTests.h"
+#include "Test.h"
 #include "Vector.h"
 
 using namespace TEST_NS;
@@ -117,7 +117,11 @@ struct VectorTest : Test {
 
 INTERNAL_NS_END
 
-Test* TEST_NS::vectorTest() {
+TEST_NS_BEGIN
+
+Test* vectorTest() {
   static VectorTest test;
   return &test;
 }
+
+TEST_NS_END

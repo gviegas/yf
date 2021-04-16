@@ -2,10 +2,10 @@
 // SG
 // SceneTest.cxx
 //
-// Copyright © 2020 Gustavo C. Viegas.
+// Copyright © 2020-2021 Gustavo C. Viegas.
 //
 
-#include "UnitTests.h"
+#include "Test.h"
 #include "Scene.h"
 
 using namespace TEST_NS;
@@ -26,7 +26,11 @@ struct SceneTest : Test {
 
 INTERNAL_NS_END
 
-Test* TEST_NS::sceneTest() {
+TEST_NS_BEGIN
+
+Test* sceneTest() {
   static SceneTest test;
   return &test;
 }
+
+TEST_NS_END

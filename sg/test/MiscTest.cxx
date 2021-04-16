@@ -11,7 +11,7 @@
 #include "yf/ws/WS.h"
 #include "yf/cg/CG.h"
 
-#include "UnitTests.h"
+#include "Test.h"
 #include "MeshImpl.h"
 #include "TextureImpl.h"
 #include "Matrix.h"
@@ -248,7 +248,11 @@ struct MiscTest : public Test {
 
 INTERNAL_NS_END
 
-Test* TEST_NS::miscTest() {
+TEST_NS_BEGIN
+
+Test* miscTest() {
   static MiscTest test;
   return &test;
 }
+
+TEST_NS_END

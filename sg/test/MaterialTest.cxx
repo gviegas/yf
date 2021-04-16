@@ -7,7 +7,7 @@
 
 #include <iostream>
 
-#include "UnitTests.h"
+#include "Test.h"
 #include "Material.h"
 
 using namespace TEST_NS;
@@ -128,7 +128,11 @@ struct MaterialTest : Test {
 
 INTERNAL_NS_END
 
-Test* TEST_NS::materialTest() {
+TEST_NS_BEGIN
+
+Test* materialTest() {
   static MaterialTest test;
   return &test;
 }
+
+TEST_NS_END

@@ -7,7 +7,7 @@
 
 #include <iostream>
 
-#include "UnitTests.h"
+#include "Test.h"
 #include "View.h"
 #include "Scene.h"
 
@@ -43,7 +43,11 @@ struct ViewTest : Test {
 
 INTERNAL_NS_END
 
-Test* TEST_NS::viewTest() {
+TEST_NS_BEGIN
+
+Test* viewTest() {
   static ViewTest test;
   return &test;
 }
+
+TEST_NS_END

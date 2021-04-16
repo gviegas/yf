@@ -22,22 +22,6 @@ class Material::Impl {
   Impl& operator=(const Impl&) = delete;
   ~Impl() = default;
 
-  const Pbrmr& pbrmr() const {
-    return pbrmr_;
-  }
-
-  const Normal& normal() const {
-    return normal_;
-  }
-
-  const Occlusion& occlusion() const {
-    return occlusion_;
-  }
-
-  const Emissive& emissive() const {
-    return emissive_;
-  }
-
   void set(const Pbrmr& pbrmr) {
     pbrmr_ = pbrmr;
   }
@@ -52,6 +36,22 @@ class Material::Impl {
 
   void set(const Emissive& emissive) {
     emissive_ = emissive;
+  }
+
+  const Pbrmr& pbrmr() const {
+    return pbrmr_;
+  }
+
+  const Normal& normal() const {
+    return normal_;
+  }
+
+  const Occlusion& occlusion() const {
+    return occlusion_;
+  }
+
+  const Emissive& emissive() const {
+    return emissive_;
   }
 
  private:
@@ -69,22 +69,6 @@ Material::Material() : impl_(make_unique<Impl>()) { }
 
 Material::~Material() { }
 
-const Material::Pbrmr& Material::pbrmr() const {
-  return impl_->pbrmr();
-}
-
-const Material::Normal& Material::normal() const {
-  return impl_->normal();
-}
-
-const Material::Occlusion& Material::occlusion() const {
-  return impl_->occlusion();
-}
-
-const Material::Emissive& Material::emissive() const {
-  return impl_->emissive();
-}
-
 void Material::setPbrmr(const Pbrmr& pbrmr) {
   impl_->set(pbrmr);
 }
@@ -99,4 +83,20 @@ void Material::setOcclusion(const Occlusion& occlusion) {
 
 void Material::setEmissive(const Emissive& emissive) {
   impl_->set(emissive);
+}
+
+const Material::Pbrmr& Material::pbrmr() const {
+  return impl_->pbrmr();
+}
+
+const Material::Normal& Material::normal() const {
+  return impl_->normal();
+}
+
+const Material::Occlusion& Material::occlusion() const {
+  return impl_->occlusion();
+}
+
+const Material::Emissive& Material::emissive() const {
+  return impl_->emissive();
 }

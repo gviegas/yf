@@ -56,19 +56,19 @@ class Material {
   Material();
   ~Material();
 
-  /// Getters.
-  ///
-  const Pbrmr& pbrmr() const;
-  const Normal& normal() const;
-  const Occlusion& occlusion() const;
-  const Emissive& emissive() const;
-
   /// Setters.
   ///
   void setPbrmr(const Pbrmr&);
   void setNormal(const Normal&);
   void setOcclusion(const Occlusion&);
   void setEmissive(const Emissive&);
+
+  /// Getters.
+  ///
+  const Pbrmr& pbrmr() const;
+  const Normal& normal() const;
+  const Occlusion& occlusion() const;
+  const Emissive& emissive() const;
 
  private:
   class Impl;

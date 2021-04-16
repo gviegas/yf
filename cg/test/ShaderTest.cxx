@@ -2,10 +2,10 @@
 // CG
 // ShaderTest.cxx
 //
-// Copyright © 2020 Gustavo C. Viegas.
+// Copyright © 2020-2021 Gustavo C. Viegas.
 //
 
-#include "UnitTests.h"
+#include "Test.h"
 #include "Shader.h"
 
 using namespace TEST_NS;
@@ -39,7 +39,11 @@ struct ShaderTest : Test {
 
 INTERNAL_NS_END
 
-Test* TEST_NS::shaderTest() {
+TEST_NS_BEGIN
+
+Test* shaderTest() {
   static ShaderTest test;
   return &test;
 }
+
+TEST_NS_END

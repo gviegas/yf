@@ -2,10 +2,10 @@
 // CG
 // EncoderTest.cxx
 //
-// Copyright © 2020 Gustavo C. Viegas.
+// Copyright © 2020-2021 Gustavo C. Viegas.
 //
 
-#include "UnitTests.h"
+#include "Test.h"
 #include "Encoder.h"
 #include "Cmd.h"
 
@@ -148,7 +148,11 @@ struct EncoderTest : Test {
 
 INTERNAL_NS_END
 
-Test* TEST_NS::encoderTest() {
+TEST_NS_BEGIN
+
+Test* encoderTest() {
   static EncoderTest test;
   return &test;
 }
+
+TEST_NS_END

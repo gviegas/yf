@@ -5,7 +5,7 @@
 // Copyright © 2020-2021 Gustavo C. Viegas.
 //
 
-#include "UnitTests.h"
+#include "Test.h"
 #include "Queue.h"
 
 using namespace TEST_NS;
@@ -55,7 +55,11 @@ struct QueueTest : Test {
 
 INTERNAL_NS_END
 
-Test* TEST_NS::queueTest() {
+TEST_NS_BEGIN
+
+Test* queueTest() {
   static QueueTest test;
   return &test;
 }
+
+TEST_NS_END

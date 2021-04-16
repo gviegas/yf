@@ -2,10 +2,10 @@
 // CG
 // StateTest.cxx
 //
-// Copyright © 2020 Gustavo C. Viegas.
+// Copyright © 2020-2021 Gustavo C. Viegas.
 //
 
-#include "UnitTests.h"
+#include "Test.h"
 #include "State.h"
 
 using namespace TEST_NS;
@@ -62,7 +62,11 @@ struct StateTest : Test {
 
 INTERNAL_NS_END
 
-Test* TEST_NS::stateTest() {
+TEST_NS_BEGIN
+
+Test* stateTest() {
   static StateTest test;
   return &test;
 }
+
+TEST_NS_END

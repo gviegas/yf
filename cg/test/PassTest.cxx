@@ -5,7 +5,7 @@
 // Copyright © 2020-2021 Gustavo C. Viegas.
 //
 
-#include "UnitTests.h"
+#include "Test.h"
 #include "Pass.h"
 
 using namespace TEST_NS;
@@ -117,7 +117,11 @@ struct PassTest : Test {
 
 INTERNAL_NS_END
 
-Test* TEST_NS::passTest() {
+TEST_NS_BEGIN
+
+Test* passTest() {
   static PassTest test;
   return &test;
 }
+
+TEST_NS_END

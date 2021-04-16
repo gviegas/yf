@@ -7,7 +7,7 @@
 
 #include <iostream>
 
-#include "UnitTests.h"
+#include "Test.h"
 #include "CG.h"
 #include "yf/ws/WS.h"
 
@@ -132,7 +132,7 @@ struct CopyTest : Test {
         que.submit();
         buf.reset(tmp.release());
         dtb->write(0, 0, 0, *buf, sizeof pos + sizeof tc, sizeof xform);
-        wcout << "( buffer copied )" << endl;
+        wcout << "\n> buffer copied\n";
       } else if (key == WS_NS::KeyCodeI) {
         key = WS_NS::KeyCodeUnknown;
         auto tmp = dev.image(img->format_, img->size_, 1, 1, Samples1);
@@ -143,7 +143,7 @@ struct CopyTest : Test {
         que.submit();
         img.reset(tmp.release());
         dtb->write(0, 1, 0, *img, 0, 0);
-        wcout << "( image copied )" << endl;
+        wcout << "\n> image copied\n";
       } else if (key == WS_NS::KeyCodeO) {
         static uint64_t cpySz = 31;
         key = WS_NS::KeyCodeUnknown;
@@ -153,9 +153,9 @@ struct CopyTest : Test {
           cb->encode(enc);
           cb->enqueue();
           que.submit();
-          wcout << "( buffer memory do not overlap - copied )" << endl;
+          wcout << "\n> buffer memory do not overlap - copied\n";
         } catch (invalid_argument& e) {
-          wcout << "( buffer memory do overlap - not copied )" << endl;
+          wcout << "\n> buffer memory do overlap - not copied\n";
           --cpySz;
         }
       } else if (key == WS_NS::KeyCodeEsc) {
@@ -197,7 +197,11 @@ struct CopyTest : Test {
 
 INTERNAL_NS_END
 
-Test* TEST_NS::copyTest() {
+TEST_NS_BEGIN
+
+Test* copyTest() {
   static CopyTest test;
   return &test;
 }
+
+TEST_NS_END

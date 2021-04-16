@@ -8,6 +8,8 @@
 #ifndef YF_SG_MATERIAL_H
 #define YF_SG_MATERIAL_H
 
+#include <memory>
+
 #include "yf/sg/Defs.h"
 #include "yf/sg/Vector.h"
 

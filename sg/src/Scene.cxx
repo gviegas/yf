@@ -11,10 +11,13 @@
 using namespace SG_NS;
 using namespace std;
 
-// TODO
-
 class Scene::Impl {
  public:
+  Impl() = default;
+  Impl(const Impl&) = delete;
+  Impl& operator=(const Impl&) = delete;
+  ~Impl() = default;
+
   Camera camera_{{20.0f, 20.0f, 20.0f}, {}, 1.0f};
   array<float, 4> color_{0.0f, 0.0f, 0.0f, 1.0f};
 };

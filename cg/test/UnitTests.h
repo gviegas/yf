@@ -57,6 +57,9 @@ inline std::vector<Test*> unitTests(const std::string& id) {
 
   if (it == TIDs.end()) {
     wprintf(L"\n! Unknown test `%s` requested", id.data());
+    wprintf(L"\n\nThe following tests are available:");
+    for (const auto& kv : TIDs)
+      wprintf(L"\n- %s", kv.first.data());
     return {};
   }
 

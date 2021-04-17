@@ -62,6 +62,49 @@ class View::Impl {
   unordered_map<CG_NS::Image*, CG_NS::Target::Ptr> targets_{};
   bool looping_ = false;
   Scene* scene_ = nullptr;
+
+  void initTargets() {
+    if (!wsi_)
+      throw runtime_error("View failed to create a valid Wsi object");
+
+    if (pass_) {
+      targets_.clear();
+      pass_.reset();
+      depthStencil_.reset();
+    }
+
+    auto& dev = CG_NS::device();
+    const auto& imgs = wsi_->images();
+    const CG_NS::Size2 size{wsi_->window_->width(), wsi_->window_->height()};
+
+    // Create depth/stencil image
+    depthStencil_ = dev.image(CG_NS::PxFormatD16Unorm, size, 1, 1,
+                              imgs[0]->samples_);
+
+    // Create pass
+    const vector<CG_NS::ColorAttach> clrAtts{{imgs[0]->format_,
+                                              imgs[0]->samples_,
+                                              CG_NS::LoadOpDontCare,
+                                              CG_NS::StoreOpStore}};
+
+    const CG_NS::DepStenAttach dsAtt{depthStencil_->format_,
+                                     depthStencil_->samples_,
+                                     CG_NS::LoadOpDontCare,
+                                     CG_NS::StoreOpStore,
+                                     CG_NS::LoadOpDontCare,
+                                     CG_NS::StoreOpDontCare};
+
+    pass_ = dev.pass(&clrAtts, nullptr, &dsAtt);
+
+    // Create targets
+    vector<CG_NS::AttachImg> clrs{{nullptr, 0, 0}};
+    const CG_NS::AttachImg ds{depthStencil_.get(), 0, 0};
+
+    for (const auto& img : imgs) {
+      clrs[0].image = img;
+      targets_.emplace(img, pass_->target(size, 1, &clrs, nullptr, &ds));
+    }
+  }
 };
 
 View::View(WS_NS::Window* window) : impl_(make_unique<Impl>(window)) { }

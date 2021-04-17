@@ -8,7 +8,7 @@
 #include "Platform.h"
 #include "yf/Except.h"
 
-#if defined(__linux__) // TODO: add other unix systems here
+#if defined(__linux__) // TODO: other unix systems
 //# include "unix/WindowWL.h"
 //# include "unix/EventWL.h"
 # include "unix/WindowXCB.h"
@@ -54,7 +54,7 @@ void dispatchDummy() {
 #else
 // TODO: other systems
 # error "Unimplemented"
-#endif
+#endif // defined(__linux__)
 
   dispatchFn();
 }
@@ -83,7 +83,7 @@ Platform platform() {
 #else
 // TODO: other systems
 # error "Unimplemented"
-#endif
+#endif // defined(__linux__)
   }
 
   return curPfm;
@@ -91,7 +91,6 @@ Platform platform() {
 
 Window::Ptr createWindow(uint32_t width, uint32_t height, const wstring& title,
                          Window::CreationMask mask) {
-
 #if defined(__linux__)
   switch (platform()) {
   case PlatformNone:
@@ -104,7 +103,7 @@ Window::Ptr createWindow(uint32_t width, uint32_t height, const wstring& title,
 #else
 // TODO: other systems
 # error "Unimplemented"
-#endif
+#endif // defined(__linux__)
 
   return nullptr;
 }
@@ -136,6 +135,6 @@ xcb_window_t windowXCB(const Window* window) {
 }
 #else
 // TODO: other systems
-#endif
+#endif // defined(__linux__)
 
 WS_NS_END

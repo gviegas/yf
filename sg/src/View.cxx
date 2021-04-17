@@ -21,7 +21,9 @@ using namespace std;
 
 class View::Impl {
  public:
-  Impl(WS_NS::Window* window) : wsi_(CG_NS::device().wsi(window)) { }
+  Impl(WS_NS::Window* window) : wsi_(CG_NS::device().wsi(window)) {
+    initTargets();
+  }
 
   void loop(Scene* scene, uint32_t fps, const UpdateFn& update) {
     looping_ = true;
@@ -63,6 +65,8 @@ class View::Impl {
   bool looping_ = false;
   Scene* scene_ = nullptr;
 
+  /// Creates/recreates targets and their dependencies.
+  ///
   void initTargets() {
     if (!wsi_)
       throw runtime_error("View failed to create a valid Wsi object");

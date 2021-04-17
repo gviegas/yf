@@ -8,9 +8,13 @@
 #include <thread>
 #include <stdexcept>
 
+#include "yf/cg/Device.h"
+#include "yf/cg/Queue.h"
+#include "yf/cg/Pass.h"
+#include "yf/cg/Image.h"
+
 #include "View.h"
 #include "Scene.h"
-#include "yf/cg/Device.h"
 
 using namespace SG_NS;
 using namespace std;
@@ -43,8 +47,8 @@ class View::Impl {
     looping_ = false;
   }
 
-  void swapScene(Scene* scene) {
-    scene_ = scene;
+  void swapScene(Scene* newScene) {
+    scene_ = newScene;
   }
 
   void render(Scene* scene) {
@@ -52,7 +56,10 @@ class View::Impl {
   }
 
  private:
-  CG_NS::Wsi::Ptr wsi_;
+  CG_NS::Wsi::Ptr wsi_{};
+  CG_NS::Image::Ptr depthStencil_{};
+  CG_NS::Pass::Ptr pass_{};
+  unordered_map<CG_NS::Image*, CG_NS::Target::Ptr> targets_{};
   bool looping_ = false;
   Scene* scene_ = nullptr;
 };
@@ -68,8 +75,8 @@ void View::loop(Scene& scene, uint32_t fps, const UpdateFn& update) {
   impl_->loop(&scene, fps, update);
 }
 
-void View::swapScene(Scene& scene) {
-  impl_->swapScene(&scene);
+void View::swapScene(Scene& newScene) {
+  impl_->swapScene(&newScene);
 }
 
 void View::render(Scene& scene) {

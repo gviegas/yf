@@ -121,7 +121,7 @@ struct MiscTest : public Test {
       enc.setScissor(sciss);
       enc.setTarget(tgtIt->get());
       enc.setDcTable(0, 0);
-      enc.setVertexBuffer(buf.get(), 0);
+      enc.setVertexBuffer(buf.get(), 0, 0);
       enc.setIndexBuffer(buf.get(), sizeof vdata, CG_NS::IndexTypeU16);
       enc.clearColor({0.0f, 0.0f, 0.0f, 1.0f});
       enc.clearDepth(1.0f);

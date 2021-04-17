@@ -31,7 +31,7 @@ struct EncoderTest : Test {
     enc1.setScissor(sciss);
     enc1.setTarget(nullptr);
     enc1.setDcTable(1, 15);
-    enc1.setVertexBuffer(nullptr, 128);
+    enc1.setVertexBuffer(nullptr, 128, 0);
     enc1.setIndexBuffer(nullptr, 256, IndexTypeU16);
     enc1.draw(0, 3, 0, 1);
     enc1.drawIndexed(6, 36, -6, 10, 50);

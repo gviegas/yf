@@ -126,7 +126,7 @@ struct DrawTest : Test {
       enc.setScissor({{0}, winSz});
       enc.setTarget(tgtIt->get());
       enc.setDcTable(0, 0);
-      enc.setVertexBuffer(buf.get(), 0);
+      enc.setVertexBuffer(buf.get(), 0, 0);
       enc.clearColor({0.005f, 0.005f, 0.005f, 1.0f});
       enc.clearDepth(1.0f);
       enc.draw(0, 3, 0, 1);

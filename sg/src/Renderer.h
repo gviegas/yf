@@ -8,9 +8,12 @@
 #ifndef YF_SG_RENDERER_H
 #define YF_SG_RENDERER_H
 
+#include <unordered_map>
+
 #include "yf/cg/Pass.h"
 
 #include "Scene.h"
+#include "Model.h"
 
 SG_NS_BEGIN
 
@@ -28,6 +31,31 @@ class Renderer {
   void render(Scene& scene, CG_NS::Target& target);
 
  private:
+  /// Key for the model map.
+  ///
+  struct MdlKey {
+    Mesh* mesh{};
+    Material* material{};
+
+    bool operator==(const MdlKey& other) {
+      return mesh == other.mesh && material == other.material;
+    }
+  };
+
+  /// Hasher for the model map.
+  ///
+  struct MdlHash {
+    size_t operator()(const MdlKey& k) const {
+      return std::hash<void*>()(k.mesh) ^ std::hash<void*>()(k.material);
+    }
+  };
+
+  /// Value for the model map.
+  ///
+  using MdlValue = std::vector<Model*>;
+
+  std::unordered_map<MdlKey, MdlValue, MdlHash> models_{};
+
   // TODO...
   Scene* prevScene_{};
 };

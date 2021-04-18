@@ -21,5 +21,27 @@ void Renderer::render(Scene& scene, CG_NS::Target& target) {
     prevScene_ = &scene;
   }
 
+  processGraph(scene);
+
   // TODO...
+}
+
+void Renderer::processGraph(Scene& scene) {
+  if (scene.isLeaf())
+    return;
+
+  models_.clear();
+
+  scene.traverse([&](Node& node) {
+    if (typeid(node) == typeid(Model)) {
+      auto& mdl = static_cast<Model&>(node);
+      const MdlKey key{mdl.mesh(), mdl.material()};
+
+      auto it = models_.find(key);
+      if (it == models_.end())
+        models_.emplace(key, MdlValue{&mdl});
+      else
+        it->second.push_back(&mdl);
+    }
+  }, true);
 }

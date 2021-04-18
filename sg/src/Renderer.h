@@ -31,13 +31,16 @@ class Renderer {
   void render(Scene& scene, CG_NS::Target& target);
 
  private:
+  // TODO...
+  Scene* prevScene_{};
+
   /// Key for the model map.
   ///
   struct MdlKey {
     Mesh* mesh{};
     Material* material{};
 
-    bool operator==(const MdlKey& other) {
+    bool operator==(const MdlKey& other) const {
       return mesh == other.mesh && material == other.material;
     }
   };
@@ -56,8 +59,9 @@ class Renderer {
 
   std::unordered_map<MdlKey, MdlValue, MdlHash> models_{};
 
-  // TODO...
-  Scene* prevScene_{};
+  /// Processes a scene graph.
+  ///
+  void processGraph(Scene& scene);
 };
 
 SG_NS_END

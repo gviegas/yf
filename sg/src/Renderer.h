@@ -11,6 +11,9 @@
 #include <unordered_map>
 
 #include "yf/cg/Pass.h"
+#include "yf/cg/Shader.h"
+#include "yf/cg/DcTable.h"
+#include "yf/cg/State.h"
 
 #include "Scene.h"
 #include "Model.h"
@@ -31,8 +34,8 @@ class Renderer {
   void render(Scene& scene, CG_NS::Target& target);
 
  private:
-  // TODO...
   Scene* prevScene_{};
+  CG_NS::DcTable::Ptr glbTable_{};
 
   /// Key for the model map.
   ///
@@ -58,6 +61,10 @@ class Renderer {
   using MdlValue = std::vector<Model*>;
 
   std::unordered_map<MdlKey, MdlValue, MdlHash> models_{};
+  CG_NS::Shader::Ptr mdlShader_{};
+  CG_NS::DcTable::Ptr mdlTable_{};
+  CG_NS::GrState::Ptr mdlState_{};
+  // TODO: resources for instanced draw
 
   /// Processes a scene graph.
   ///

@@ -17,8 +17,9 @@
 using namespace CG_NS;
 using namespace std;
 
-ShaderVK::ShaderVK(Stage stage, wstring&& codeFile, wstring&& entryPoint)
-  : Shader(stage, move(codeFile), move(entryPoint)) {
+ShaderVK::ShaderVK(Stage stage, const wstring& codeFile,
+                   const wstring& entryPoint)
+  : Shader(stage, codeFile, entryPoint) {
 
   if (codeFile_.empty() || entryPoint_.empty())
     throw invalid_argument("ShaderVK requires valid codeFile and entryPoint");

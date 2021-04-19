@@ -94,6 +94,10 @@ class Renderer {
   /// Processes a scene graph.
   ///
   void processGraph(Scene& scene);
+
+  /// Prepares for rendering.
+  ///
+  void prepare();
 };
 
 SG_NS_END

@@ -24,7 +24,7 @@ SG_NS_BEGIN
 ///
 class Renderer {
  public:
-  Renderer() = default;
+  Renderer();
   Renderer(const Renderer&) = delete;
   Renderer& operator=(const Renderer&) = delete;
   ~Renderer() = default;

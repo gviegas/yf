@@ -8,11 +8,22 @@
 #include <typeinfo>
 #include <stdexcept>
 
+#include "yf/cg/Device.h"
+
 #include "Renderer.h"
 #include "Model.h"
 
 using namespace SG_NS;
 using namespace std;
+
+Renderer::Renderer() {
+  auto& dev = CG_NS::device();
+
+  // One global table instance for shared uniforms
+  const CG_NS::DcEntries glb{{0, {CG_NS::DcTypeUniform, 1}}};
+  glbTable_ = dev.dcTable(glb);
+  glbTable_->allocate(1);
+}
 
 void Renderer::render(Scene& scene, CG_NS::Target& target) {
   if (&scene == prevScene_) {

@@ -2,7 +2,7 @@
 // CG
 // Shader.h
 //
-// Copyright © 2020 Gustavo C. Viegas.
+// Copyright © 2020-2021 Gustavo C. Viegas.
 //
 
 #ifndef YF_CG_SHADER_H
@@ -32,8 +32,8 @@ class Shader {
  public:
   using Ptr = std::unique_ptr<Shader>;
 
-  Shader(Stage stage, std::wstring&& codeFile,
-         std::wstring&& entryPoint = L"main");
+  Shader(Stage stage, const std::wstring& codeFile,
+         const std::wstring& entryPoint = L"main");
 
   virtual ~Shader() = 0;
 

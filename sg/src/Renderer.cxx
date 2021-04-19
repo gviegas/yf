@@ -70,5 +70,13 @@ void Renderer::prepare() {
              [](const auto& kv) { return kv.second.size() > 1; }))
     throw runtime_error("Instanced rendering of models unimplemented");
 
+  auto& dev = CG_NS::device();
+
+  if (resource_.shaders.empty()) {
+    for (const auto& tp : MdlShaders)
+      resource_.shaders.push_back(dev.shader(tp.first,
+                                             wstring(ShaderDir) + tp.second));
+  }
+
   // TODO...
 }

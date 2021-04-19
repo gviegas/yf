@@ -29,7 +29,7 @@ class Renderer {
   Renderer& operator=(const Renderer&) = delete;
   ~Renderer() = default;
 
-  /// Resource identifiers that shaders must abide to.
+  /// Resource identifiers that shaders must abide by.
   ///
   static constexpr uint32_t GlbTable = 0;
   static constexpr uint32_t MdlTable = 1;
@@ -76,6 +76,15 @@ class Renderer {
   CG_NS::DcTable::Ptr mdlTable_{};
   CG_NS::GrState::Ptr mdlState_{};
   // TODO: resources for instanced draw
+  // TODO: resources for different kinds of models (e.g., points primitives)
+
+  /// Resource for rendering.
+  ///
+  struct Resource {
+    CG_NS::Shader::Ptr shader{};
+    CG_NS::DcTable::Ptr table{};
+    CG_NS::GrState::Ptr state{};
+  };
 
   /// Processes a scene graph.
   ///

@@ -20,7 +20,7 @@ struct ShaderTest : Test {
   Assertions run(const vector<string>&) {
     struct Shader_ : Shader {
       Shader_(Stage stage, wstring&& codeFile, wstring&& entryPoint)
-        : Shader(stage, move(codeFile), move(entryPoint)) { }
+        : Shader(stage, codeFile, entryPoint) { }
     };
 
     Assertions a;

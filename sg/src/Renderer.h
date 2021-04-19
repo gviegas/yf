@@ -79,6 +79,12 @@ class Renderer {
     CG_NS::Shader::Ptr shader{};
     CG_NS::DcTable::Ptr table{};
     CG_NS::GrState::Ptr state{};
+
+    void reset() {
+      shader.reset();
+      table.reset();
+      state.reset();
+    }
   };
 
   // TODO: resources for different kinds of models (e.g., points primitives)

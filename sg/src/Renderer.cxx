@@ -59,9 +59,7 @@ void Renderer::processGraph(Scene& scene) {
 
   // TODO: instanced rendering
   if (models_.empty()) {
-    mdlShader_.reset();
-    mdlTable_.reset();
-    mdlState_.reset();
+    resource_.reset();
   } else {
     // XXX
     if (any_of(models_.begin(), models_.end(),

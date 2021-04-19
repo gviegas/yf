@@ -78,5 +78,24 @@ void Renderer::prepare() {
                                              wstring(ShaderDir) + tp.second));
   }
 
+  // TODO: compute this value on `processGraph()`
+  const auto uniqMdlN = count_if(models_.begin(), models_.end(),
+                                 [](const auto& kv)
+                                 { return kv.second.size() == 1; });
+
+  if (!resource_.table) {
+    const CG_NS::DcEntries inst{
+      {Uniform,              {CG_NS::DcTypeUniform,    1}},
+      {ColorImgSampler,      {CG_NS::DcTypeImgSampler, 1}},
+      {MetalRoughImgSampler, {CG_NS::DcTypeImgSampler, 1}},
+      {NormalImgSampler,     {CG_NS::DcTypeImgSampler, 1}},
+      {OcclusionImgSampler,  {CG_NS::DcTypeImgSampler, 1}},
+      {EmissiveImgSampler,   {CG_NS::DcTypeImgSampler, 1}}};
+    resource_.table = dev.dcTable(inst);
+  }
+
+  if (resource_.table->allocations() != uniqMdlN)
+    resource_.table->allocate(uniqMdlN);
+
   // TODO...
 }

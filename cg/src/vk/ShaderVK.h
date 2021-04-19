@@ -17,7 +17,8 @@ CG_NS_BEGIN
 
 class ShaderVK final : public Shader {
  public:
-  ShaderVK(Stage stage, std::wstring&& codeFile, std::wstring&& entryPoint);
+  ShaderVK(Stage stage, const std::wstring& codeFile,
+           const std::wstring& entryPoint);
   ~ShaderVK();
 
   /// Getters.

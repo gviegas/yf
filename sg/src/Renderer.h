@@ -8,6 +8,7 @@
 #ifndef YF_SG_RENDERER_H
 #define YF_SG_RENDERER_H
 
+#include <vector>
 #include <unordered_map>
 
 #include "yf/cg/Pass.h"
@@ -76,14 +77,14 @@ class Renderer {
   /// Resource for rendering.
   ///
   struct Resource {
-    CG_NS::Shader::Ptr shader{};
+    std::vector<CG_NS::Shader::Ptr> shaders{};
     CG_NS::DcTable::Ptr table{};
     CG_NS::GrState::Ptr state{};
 
     void reset() {
-      shader.reset();
-      table.reset();
       state.reset();
+      table.reset();
+      shaders.clear();
     }
   };
 

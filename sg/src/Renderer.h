@@ -72,11 +72,6 @@ class Renderer {
   using MdlValue = std::vector<Model*>;
 
   std::unordered_map<MdlKey, MdlValue, MdlHash> models_{};
-  CG_NS::Shader::Ptr mdlShader_{};
-  CG_NS::DcTable::Ptr mdlTable_{};
-  CG_NS::GrState::Ptr mdlState_{};
-  // TODO: resources for instanced draw
-  // TODO: resources for different kinds of models (e.g., points primitives)
 
   /// Resource for rendering.
   ///
@@ -85,6 +80,10 @@ class Renderer {
     CG_NS::DcTable::Ptr table{};
     CG_NS::GrState::Ptr state{};
   };
+
+  // TODO: resources for different kinds of models (e.g., points primitives)
+  // TODO: resources for instanced draw
+  Resource resource_{};
 
   /// Processes a scene graph.
   ///

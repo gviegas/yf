@@ -41,6 +41,13 @@ class Renderer {
   static constexpr CG_NS::DcId OcclusionImgSampler = 4;
   static constexpr CG_NS::DcId EmissiveImgSampler = 5;
 
+  /// Shader pathnames.
+  /// TODO
+  using Shader = std::pair<CG_NS::Stage, const wchar_t*>;
+  static constexpr wchar_t ShaderDir[] = L"tmp/";
+  static constexpr Shader MdlShaders[]{{CG_NS::StageVertex, L"vert"},
+                                       {CG_NS::StageFragment, L"frag"}};
+
   /// Renders a scene on a given target.
   ///
   void render(Scene& scene, CG_NS::Target& target);

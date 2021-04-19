@@ -20,7 +20,7 @@ Renderer::Renderer() {
   auto& dev = CG_NS::device();
 
   // One global table instance for shared uniforms
-  const CG_NS::DcEntries glb{{0, {CG_NS::DcTypeUniform, 1}}};
+  const CG_NS::DcEntries glb{{Uniform, {CG_NS::DcTypeUniform, 1}}};
   glbTable_ = dev.dcTable(glb);
   glbTable_->allocate(1);
 }

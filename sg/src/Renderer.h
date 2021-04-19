@@ -29,6 +29,17 @@ class Renderer {
   Renderer& operator=(const Renderer&) = delete;
   ~Renderer() = default;
 
+  /// Resource identifiers that shaders must abide to.
+  ///
+  static constexpr uint32_t GlbTable = 0;
+  static constexpr uint32_t MdlTable = 1;
+  static constexpr CG_NS::DcId Uniform = 0;
+  static constexpr CG_NS::DcId ColorImgSampler = 1;
+  static constexpr CG_NS::DcId MetalRoughImgSampler = 2;
+  static constexpr CG_NS::DcId NormalImgSampler = 3;
+  static constexpr CG_NS::DcId OcclusionImgSampler = 4;
+  static constexpr CG_NS::DcId EmissiveImgSampler = 5;
+
   /// Renders a scene on a given target.
   ///
   void render(Scene& scene, CG_NS::Target& target);

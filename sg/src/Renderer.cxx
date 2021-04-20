@@ -52,6 +52,9 @@ void Renderer::render(Scene& scene, CG_NS::Target& target) {
                    static_cast<float>(target.size_.height), 0.0f, 1.0f});
   enc.setScissor({{0}, target.size_});
   enc.setDcTable(GlbTable, 0);
+  const auto color = scene.color();
+  enc.clearColor({color[0], color[1], color[2], color[3]});
+  enc.clearDepth(1.0f);
 
   // TODO: update global uniform buffer
 
@@ -96,7 +99,7 @@ void Renderer::render(Scene& scene, CG_NS::Target& target) {
       }
 
       if (mesh)
-        mesh->impl().encode(enc, 0, 0);
+        mesh->impl().encode(enc, 0, 1);
       else
         // TODO
         throw runtime_error("Cannot render models with no mesh set");

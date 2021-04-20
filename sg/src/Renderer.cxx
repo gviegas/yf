@@ -43,6 +43,26 @@ void Renderer::render(Scene& scene, CG_NS::Target& target) {
   processGraph(scene);
   prepare();
 
+  // Encode common commands
+  CG_NS::GrEncoder enc;
+  enc.setTarget(&target);
+  enc.setViewport({0.0f, 0.0f, static_cast<float>(target.size_.width),
+                   static_cast<float>(target.size_.height), 0.0f, 1.0f});
+  enc.setScissor({{0}, target.size_});
+  enc.setDcTable(GlbTable, 0);
+
+  // Render unique models
+  auto renderMdl = [&] {
+    for (auto& kv : models_) {
+      if (kv.second.size() > 1)
+        continue;
+
+      // TODO...
+    }
+  };
+
+  renderMdl();
+
   // TODO...
 }
 

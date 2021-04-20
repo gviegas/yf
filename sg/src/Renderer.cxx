@@ -20,6 +20,9 @@
 using namespace SG_NS;
 using namespace std;
 
+// TODO: consider allowing custom length values
+constexpr uint64_t UnifLength = 1ULL << 14;
+
 Renderer::Renderer() {
   auto& dev = CG_NS::device();
 
@@ -29,6 +32,8 @@ Renderer::Renderer() {
   glbTable_->allocate(1);
 
   cmdBuffer_ = dev.defaultQueue().cmdBuffer();
+
+  unifBuffer_ = dev.buffer(UnifLength);
 }
 
 void Renderer::render(Scene& scene, CG_NS::Target& target) {

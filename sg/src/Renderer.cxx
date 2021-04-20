@@ -16,6 +16,7 @@
 #include "Material.h"
 #include "TextureImpl.h"
 #include "MeshImpl.h"
+#include "Camera.h"
 
 using namespace SG_NS;
 using namespace std;
@@ -61,7 +62,19 @@ void Renderer::render(Scene& scene, CG_NS::Target& target) {
   enc.clearColor({color[0], color[1], color[2], color[3]});
   enc.clearDepth(1.0f);
 
-  // TODO: update global uniform buffer
+  // Update global uniform buffer
+  // TODO: compute required buffer length
+  uint64_t off = 0;
+  uint64_t len;
+
+  len = 64;
+  unifBuffer_->write(off, len, scene.camera().view().data());
+  off += len;
+  unifBuffer_->write(off, len, scene.camera().projection().data());
+  off += len;
+  // TODO: other global data (light, viewport, ortho matrix, ...)
+
+  glbTable_->write(0, Uniform, 0, *unifBuffer_, 0, off);
 
   // Render unique models
   auto renderMdl = [&] {

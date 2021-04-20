@@ -27,11 +27,15 @@ Renderer::Renderer() {
 }
 
 void Renderer::render(Scene& scene, CG_NS::Target& target) {
-  if (&scene == prevScene_) {
+  auto pass = &target.pass();
+  if (pass != prevPass_) {
+    resource_.reset();
+  } else if (&scene == prevScene_) {
     // TODO
-  } else {
-    prevScene_ = &scene;
   }
+
+  prevScene_ = &scene;
+  prevPass_ = pass;
 
   processGraph(scene);
   prepare();

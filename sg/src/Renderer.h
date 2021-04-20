@@ -54,6 +54,7 @@ class Renderer {
 
  private:
   Scene* prevScene_{};
+  CG_NS::Pass* prevPass_{};
   CG_NS::DcTable::Ptr glbTable_{};
 
   /// Key for the model map.

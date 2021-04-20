@@ -13,6 +13,8 @@
 
 #include "Renderer.h"
 #include "Model.h"
+#include "Material.h"
+#include "TextureImpl.h"
 #include "MeshImpl.h"
 
 using namespace SG_NS;
@@ -51,13 +53,55 @@ void Renderer::render(Scene& scene, CG_NS::Target& target) {
   enc.setScissor({{0}, target.size_});
   enc.setDcTable(GlbTable, 0);
 
+  // TODO: update global uniform buffer
+
   // Render unique models
   auto renderMdl = [&] {
+    uint32_t inst = 0;
+
     for (auto& kv : models_) {
       if (kv.second.size() > 1)
         continue;
 
-      // TODO...
+      auto mdl = kv.second[0];
+      auto matl = mdl->material();
+      auto mesh = mdl->mesh();
+      auto& tab = *resource_.table;
+
+      enc.setState(resource_.state.get());
+      enc.setDcTable(MdlTable, inst);
+
+      // TODO: update instance's uniform buffer
+
+      if (matl) {
+        // TODO: also copy factors to uniform buffer
+        if (matl->pbrmr().colorTex)
+          matl->pbrmr().colorTex->impl()
+            .copy(tab, inst, ColorImgSampler, 0, 0, nullptr);
+        if (matl->pbrmr().metalRoughTex)
+          matl->pbrmr().metalRoughTex->impl()
+            .copy(tab, inst, MetalRoughImgSampler, 0, 0, nullptr);
+        if (matl->normal().texture)
+          matl->normal().texture->impl()
+            .copy(tab, inst, NormalImgSampler, 0, 0, nullptr);
+        if (matl->occlusion().texture)
+          matl->occlusion().texture->impl()
+            .copy(tab, inst, OcclusionImgSampler, 0, 0, nullptr);
+        if (matl->emissive().texture)
+          matl->emissive().texture->impl()
+            .copy(tab, inst, EmissiveImgSampler, 0, 0, nullptr);
+      } else {
+        // TODO
+        throw runtime_error("Cannot render models with no material set");
+      }
+
+      if (mesh)
+        mesh->impl().encode(enc, 0, 0);
+      else
+        // TODO
+        throw runtime_error("Cannot render models with no mesh set");
+
+      ++inst;
     }
   };
 

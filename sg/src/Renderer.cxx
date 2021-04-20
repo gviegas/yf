@@ -23,6 +23,9 @@ using namespace std;
 
 // TODO: consider allowing custom length values
 constexpr uint64_t UnifLength = 1ULL << 14;
+// TODO
+constexpr uint32_t GlbLength = 128;
+constexpr uint32_t MdlLength = 128;
 
 Renderer::Renderer() {
   auto& dev = CG_NS::device();
@@ -63,7 +66,6 @@ void Renderer::render(Scene& scene, CG_NS::Target& target) {
   enc.clearDepth(1.0f);
 
   // Update global uniform buffer
-  // TODO: compute required buffer length
   uint64_t off = 0;
   uint64_t len;
 
@@ -165,61 +167,77 @@ void Renderer::processGraph(Scene& scene) {
 }
 
 void Renderer::prepare() {
-  if (models_.empty()) {
-    resource_.reset();
-    return;
-  }
+  uint64_t unifLen = 0;
 
-  // TODO: instanced rendering
-  if (any_of(models_.begin(), models_.end(),
-             [](const auto& kv) { return kv.second.size() > 1; }))
-    throw runtime_error("Instanced rendering of models unimplemented");
+  // Set model resources and returns required uniform space
+  auto setMdl = [&]() -> uint64_t {
+    if (models_.empty()) {
+      resource_.reset();
+      return 0;
+    }
 
-  auto& dev = CG_NS::device();
+    // TODO: instanced rendering
+    if (any_of(models_.begin(), models_.end(),
+               [](const auto& kv) { return kv.second.size() > 1; }))
+      throw runtime_error("Instanced rendering of models unimplemented");
 
-  if (resource_.shaders.empty()) {
-    for (const auto& tp : MdlShaders)
-      resource_.shaders.push_back(dev.shader(tp.first,
-                                             wstring(ShaderDir) + tp.second));
-  }
+    auto& dev = CG_NS::device();
 
-  // TODO: compute this value on `processGraph()`
-  const auto uniqMdlN = count_if(models_.begin(), models_.end(),
-                                 [](const auto& kv)
-                                 { return kv.second.size() == 1; });
+    if (resource_.shaders.empty()) {
+      for (const auto& tp : MdlShaders)
+        resource_.shaders.push_back(dev.shader(tp.first,
+                                               wstring(ShaderDir)+tp.second));
+    }
 
-  if (!resource_.table) {
-    const CG_NS::DcEntries inst{
-      {Uniform,              {CG_NS::DcTypeUniform,    1}},
-      {ColorImgSampler,      {CG_NS::DcTypeImgSampler, 1}},
-      {MetalRoughImgSampler, {CG_NS::DcTypeImgSampler, 1}},
-      {NormalImgSampler,     {CG_NS::DcTypeImgSampler, 1}},
-      {OcclusionImgSampler,  {CG_NS::DcTypeImgSampler, 1}},
-      {EmissiveImgSampler,   {CG_NS::DcTypeImgSampler, 1}}};
-    resource_.table = dev.dcTable(inst);
-  }
+    // TODO: compute this value on `processGraph()`
+    const auto uniqMdlN = count_if(models_.begin(), models_.end(),
+                                   [](const auto& kv)
+                                   { return kv.second.size() == 1; });
 
-  if (resource_.table->allocations() != uniqMdlN)
-    resource_.table->allocate(uniqMdlN);
+    if (!resource_.table) {
+      const CG_NS::DcEntries inst{
+        {Uniform,              {CG_NS::DcTypeUniform,    1}},
+        {ColorImgSampler,      {CG_NS::DcTypeImgSampler, 1}},
+        {MetalRoughImgSampler, {CG_NS::DcTypeImgSampler, 1}},
+        {NormalImgSampler,     {CG_NS::DcTypeImgSampler, 1}},
+        {OcclusionImgSampler,  {CG_NS::DcTypeImgSampler, 1}},
+        {EmissiveImgSampler,   {CG_NS::DcTypeImgSampler, 1}}};
+      resource_.table = dev.dcTable(inst);
+    }
 
-  if (!resource_.state) {
-    vector<CG_NS::Shader*> shd;
-    for (const auto& s : resource_.shaders)
-      shd.push_back(s.get());
+    if (resource_.table->allocations() != uniqMdlN)
+      resource_.table->allocate(uniqMdlN);
 
-    const vector<CG_NS::DcTable*> tab{glbTable_.get(), resource_.table.get()};
+    if (!resource_.state) {
+      vector<CG_NS::Shader*> shd;
+      for (const auto& s : resource_.shaders)
+        shd.push_back(s.get());
 
-    const vector<CG_NS::VxInput> inp{vxInputFor(VxTypePosition),
-                                     vxInputFor(VxTypeTangent),
-                                     vxInputFor(VxTypeNormal),
-                                     vxInputFor(VxTypeTexCoord0),
-                                     vxInputFor(VxTypeTexCoord1),
-                                     vxInputFor(VxTypeColor0),
-                                     vxInputFor(VxTypeJoints0),
-                                     vxInputFor(VxTypeWeights0)};
+      const vector<CG_NS::DcTable*> tab{glbTable_.get(), resource_.table.get()};
 
-    resource_.state = dev.state({prevPass_, shd, tab, inp,
-                                 CG_NS::PrimitiveTriangle, CG_NS::PolyModeFill,
-                                 CG_NS::CullModeBack, CG_NS::WindingCounterCw});
-  }
+      const vector<CG_NS::VxInput> inp{vxInputFor(VxTypePosition),
+        vxInputFor(VxTypeTangent),
+        vxInputFor(VxTypeNormal),
+        vxInputFor(VxTypeTexCoord0),
+        vxInputFor(VxTypeTexCoord1),
+        vxInputFor(VxTypeColor0),
+        vxInputFor(VxTypeJoints0),
+        vxInputFor(VxTypeWeights0)};
+
+      resource_.state = dev.state({prevPass_, shd, tab, inp,
+                                   CG_NS::PrimitiveTriangle,
+                                   CG_NS::PolyModeFill, CG_NS::CullModeBack,
+                                   CG_NS::WindingCounterCw});
+    }
+
+    return uniqMdlN * MdlLength;
+  };
+
+  unifLen = GlbLength + setMdl();
+  unifLen = (unifLen & ~255) + 256;
+
+  // TODO: improve resizing
+  // TODO: also consider shrinking if buffer grows too much
+  if (unifLen > unifBuffer_->size_)
+    unifBuffer_ = CG_NS::device().buffer(unifLen);
 }

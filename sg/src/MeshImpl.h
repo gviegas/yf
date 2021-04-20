@@ -13,8 +13,10 @@
 #include <vector>
 #include <unordered_map>
 #include <memory>
+#include <stdexcept>
 
 #include "yf/cg/Buffer.h"
+#include "yf/cg/State.h"
 #include "yf/cg/Encoder.h"
 
 #include "Mesh.h"
@@ -33,6 +35,44 @@ enum VxType {
   VxTypeJoints0,
   VxTypeWeights0
 };
+
+/// Produces a vertex input object for a given vertex attribute type.
+///
+/// `Renderer` creates graphics states using these inputs, thus mesh data
+/// must be provided accordingly.
+///
+inline CG_NS::VxInput vxInputFor(VxType type) {
+  CG_NS::VxFormat format;
+  uint32_t stride;
+
+  switch (type) {
+  case VxTypePosition:
+  case VxTypeNormal:
+    format = CG_NS::VxFormatFlt3;
+    stride = sizeof(float[3]);
+    break;
+  case VxTypeTangent:
+  case VxTypeColor0:
+  case VxTypeWeights0:
+    format = CG_NS::VxFormatFlt4;
+    stride = sizeof(float[4]);
+    break;
+  case VxTypeTexCoord0:
+  case VxTypeTexCoord1:
+    format = CG_NS::VxFormatFlt2;
+    stride = sizeof(float[2]);
+    break;
+  case VxTypeJoints0:
+    // TODO: use a short type instead
+    format = CG_NS::VxFormatUint4;
+    stride = sizeof(uint32_t[4]);
+    break;
+  default:
+    throw std::invalid_argument("Invalid VxType value");
+  }
+
+  return {{{type, {format, 0}}}, stride, CG_NS::VxStepFnVertex};
+}
 
 /// Generic mesh data for copying.
 ///

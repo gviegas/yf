@@ -13,6 +13,7 @@
 
 #include "Renderer.h"
 #include "Model.h"
+#include "MeshImpl.h"
 
 using namespace SG_NS;
 using namespace std;
@@ -101,5 +102,24 @@ void Renderer::prepare() {
   if (resource_.table->allocations() != uniqMdlN)
     resource_.table->allocate(uniqMdlN);
 
-  // TODO...
+  if (!resource_.state) {
+    vector<CG_NS::Shader*> shd;
+    for (const auto& s : resource_.shaders)
+      shd.push_back(s.get());
+
+    const vector<CG_NS::DcTable*> tab{glbTable_.get(), resource_.table.get()};
+
+    const vector<CG_NS::VxInput> inp{vxInputFor(VxTypePosition),
+                                     vxInputFor(VxTypeTangent),
+                                     vxInputFor(VxTypeNormal),
+                                     vxInputFor(VxTypeTexCoord0),
+                                     vxInputFor(VxTypeTexCoord1),
+                                     vxInputFor(VxTypeColor0),
+                                     vxInputFor(VxTypeJoints0),
+                                     vxInputFor(VxTypeWeights0)};
+
+    resource_.state = dev.state({prevPass_, shd, tab, inp,
+                                 CG_NS::PrimitiveTriangle, CG_NS::PolyModeFill,
+                                 CG_NS::CullModeBack, CG_NS::WindingCounterCw});
+  }
 }

@@ -110,7 +110,9 @@ void Renderer::render(Scene& scene, CG_NS::Target& target) {
 
   renderMdl();
 
-  // TODO...
+  cmdBuffer_->encode(enc);
+  cmdBuffer_->enqueue();
+  const_cast<CG_NS::Queue&>(cmdBuffer_->queue()).submit();
 }
 
 void Renderer::processGraph(Scene& scene) {

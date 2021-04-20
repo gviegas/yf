@@ -15,6 +15,7 @@
 #include "yf/cg/Shader.h"
 #include "yf/cg/DcTable.h"
 #include "yf/cg/State.h"
+#include "yf/cg/Queue.h"
 
 #include "Scene.h"
 #include "Model.h"
@@ -56,6 +57,7 @@ class Renderer {
   Scene* prevScene_{};
   CG_NS::Pass* prevPass_{};
   CG_NS::DcTable::Ptr glbTable_{};
+  CG_NS::CmdBuffer::Ptr cmdBuffer_{};
 
   /// Key for the model map.
   ///

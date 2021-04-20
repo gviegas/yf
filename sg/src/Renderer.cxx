@@ -25,6 +25,8 @@ Renderer::Renderer() {
   const CG_NS::DcEntries glb{{Uniform, {CG_NS::DcTypeUniform, 1}}};
   glbTable_ = dev.dcTable(glb);
   glbTable_->allocate(1);
+
+  cmdBuffer_ = dev.defaultQueue().cmdBuffer();
 }
 
 void Renderer::render(Scene& scene, CG_NS::Target& target) {

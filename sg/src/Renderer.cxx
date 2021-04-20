@@ -92,7 +92,18 @@ void Renderer::render(Scene& scene, CG_NS::Target& target) {
       enc.setState(resource_.state.get());
       enc.setDcTable(MdlTable, inst);
 
-      // TODO: update instance's uniform buffer
+      // TODO: node's transform()
+      const auto m = Mat4f::identity();
+      const auto mv = scene.camera().view() * m;
+      const auto beg = off;
+      len = 64;
+      unifBuffer_->write(off, len, m.data());
+      off += len;
+      unifBuffer_->write(off, len, mv.data());
+      off += len;
+      // TODO: other instance data
+
+      tab.write(inst, Uniform, 0, *unifBuffer_, beg, off);
 
       if (matl) {
         // TODO: also copy factors to uniform buffer

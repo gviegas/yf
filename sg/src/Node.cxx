@@ -188,8 +188,8 @@ class Node::Impl {
     return n;
   }
 
-  void setName(const wstring& name) {
-    name_ = name;
+  wstring& name() {
+    return name_;
   }
 
   const wstring& name() const {
@@ -263,8 +263,8 @@ size_t Node::children(vector<Node*>& dst) const {
   return impl_->children(dst);
 }
 
-void Node::setName(const wstring& name) {
-  impl_->setName(name);
+wstring& Node::name() {
+  return impl_->name();
 }
 
 const wstring& Node::name() const {

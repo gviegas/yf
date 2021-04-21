@@ -70,12 +70,9 @@ class Node {
   std::vector<Node*> children() const;
   size_t children(std::vector<Node*>& dst) const;
 
-  /// Sets the node name.
-  ///
-  void setName(const std::wstring& name);
-
   /// Gets the node name.
   ///
+  std::wstring& name();
   const std::wstring& name() const;
 
  private:

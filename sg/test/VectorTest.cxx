@@ -86,7 +86,7 @@ struct VectorTest : Test {
     auto s5 = v14.length();
     auto s6 = v15.length();
 
-    a.push_back({L"normalize, length", s3 == 7 && s4 == 1 && s5 != 1});
+    a.push_back({L"normalize(), length()", s3 == 7 && s4 == 1 && s5 != 1});
 
     SG_PRINTVEC(v13);
     SG_PRINTVEC(v14);
@@ -103,13 +103,26 @@ struct VectorTest : Test {
     auto v18 = cross(v16, v17);
     auto s7 = dot(Vec2d{5.0, -2.0}, Vec2d{0.25, 0.1});
 
-    a.push_back({L"cross", v18[0] == 0 && v18[1] == -1 && v18[2] == 0});
-    a.push_back({L"dot", s7 == 1.05});
+    a.push_back({L"cross()", v18[0] == 0 && v18[1] == -1 && v18[2] == 0});
+    a.push_back({L"dot()", s7 == 1.05});
 
     SG_PRINTVEC(v16);
     SG_PRINTVEC(v17);
     SG_PRINTVEC(v18);
     SG_PRINTSCAL(s7);
+
+    a.push_back({L"dataSize()", Vec2i().dataSize() == 8 &&
+                                Vec3i().dataSize() == 12 &&
+                                Vec4i().dataSize() == 16 &&
+                                Vec2u().dataSize() == 8 &&
+                                Vec3u().dataSize() == 12 &&
+                                Vec4u().dataSize() == 16 &&
+                                Vec2f().dataSize() == 8 &&
+                                Vec3f().dataSize() == 12 &&
+                                Vec4f().dataSize() == 16 &&
+                                Vec2d().dataSize() == 16 &&
+                                Vec3d().dataSize() == 24 &&
+                                Vec4d().dataSize() == 32});
 
     return a;
   }

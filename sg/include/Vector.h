@@ -72,6 +72,10 @@ class Vector {
     return data_;
   }
 
+  constexpr size_t dataSize() const {
+    return sizeof data_;
+  }
+
   /// Number of components in the vector.
   ///
   constexpr size_t size() const {

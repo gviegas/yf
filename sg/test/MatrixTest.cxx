@@ -221,22 +221,29 @@ struct MatrixTest : Test {
     a.push_back({L"data()", check});
 
     a.push_back({L"dataSize()", Mat2i().dataSize() == 16 &&
-                                Mat2x3i().dataSize() == 24 &&
+                                Mat2x3i::dataSize() == 24 &&
                                 Mat3x2i().dataSize() == 24 &&
                                 Mat4i().dataSize() == 64 &&
-                                Mat3u().dataSize() == 36 &&
+                                Mat3u::dataSize() == 36 &&
                                 Mat2x4u().dataSize() == 32 &&
                                 Mat4x2u().dataSize() == 32 &&
-                                Mat2f().dataSize() == 16 &&
-                                Mat3f().dataSize() == 36 &&
+                                Mat2f::dataSize() == 16 &&
+                                Mat3f::dataSize() == 36 &&
                                 Mat3x4f().dataSize() == 48 &&
-                                Mat4x3f().dataSize() == 48 &&
+                                Mat4x3f::dataSize() == 48 &&
                                 Mat4f().dataSize() == 64 &&
                                 Mat2d().dataSize() == 32 &&
                                 Mat2x4d().dataSize() == 64 &&
-                                Mat4x2d().dataSize() == 64 &&
+                                Mat4x2d::dataSize() == 64 &&
                                 Mat3d().dataSize() == 72 &&
-                                Mat4d().dataSize() == 128});
+                                Mat4d::dataSize() == 128});
+
+    a.push_back({L"columns(), rows()", Mat2i::columns() == 2 &&
+                                       Mat2i().rows() == 2 &&
+                                       Mat3x2f().columns() == 3 &&
+                                       Mat3x2f::rows() == 2 &&
+                                       Mat4d::columns() == 4 &&
+                                       Mat4d().rows() == 4});
 
     wcout.precision(prec);
     wcout.unsetf(ios_base::fixed);

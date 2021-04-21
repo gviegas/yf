@@ -30,6 +30,14 @@ Camera& Scene::camera() {
   return impl_->camera_;
 }
 
+const Camera& Scene::camera() const {
+  return impl_->camera_;
+}
+
 array<float, 4>& Scene::color() {
+  return impl_->color_;
+}
+
+const array<float, 4>& Scene::color() const {
   return impl_->color_;
 }

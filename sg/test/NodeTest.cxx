@@ -120,6 +120,30 @@ struct NodeTest : Test {
     for (auto& node : nodes)
       printChd(node);
 
+    const auto& xform = nodes[0].transform();
+    auto& xform2 = nodes[0].transform();
+    auto prec = wcout.precision(3);
+
+    wcout << "\ntransform() (default):\n";
+    for (size_t i = 0; i < xform.rows(); ++i) {
+      wcout << "\n ";
+      for (size_t j = 0; j < xform.columns(); ++j)
+        wcout << xform[j][i] << "\t";
+    }
+    wcout << endl;
+
+    xform2 = scale(2.0f, 3.0f, 4.0f) * translate(-1.0f, -2.0f, -3.0f);
+    wcout << "\ntransform() (changed):\n";
+    for (size_t i = 0; i < xform.rows(); ++i) {
+      wcout << "\n ";
+      for (size_t j = 0; j < xform.columns(); ++j)
+        wcout << xform[j][i] << "\t";
+    }
+    wcout << endl;
+
+    wcout.precision(prec);
+    a.push_back({L"transform()", true});
+
     return a;
   }
 };

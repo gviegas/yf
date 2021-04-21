@@ -13,6 +13,8 @@
 #include "yf/cg/Pass.h"
 #include "yf/cg/Image.h"
 
+#include "yf/ws/Event.h"
+
 #include "View.h"
 #include "Scene.h"
 #include "Renderer.h"
@@ -44,6 +46,8 @@ class View::Impl {
         this_thread::sleep_until(now + ipd-(now-before));
         now = chrono::system_clock::now();
       }
+
+      WS_NS::dispatch();
     }
 
     scene_ = nullptr;

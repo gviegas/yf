@@ -196,6 +196,14 @@ class Node::Impl {
     return name_;
   }
 
+  Mat4f& transform() {
+    return transform_;
+  }
+
+  const Mat4f& transform() const {
+    return transform_;
+  }
+
  private:
   Node& node_;
   Impl* parent_ = nullptr;
@@ -204,6 +212,7 @@ class Node::Impl {
   Impl* nextSib_ = nullptr;
   size_t n_ = 1;
   wstring name_{};
+  Mat4f transform_ = Mat4f::identity();
 };
 
 Node::Node() : impl_(make_unique<Impl>(*this)) { }
@@ -269,4 +278,12 @@ wstring& Node::name() {
 
 const wstring& Node::name() const {
   return impl_->name();
+}
+
+Mat4f& Node::transform() {
+  return impl_->transform();
+}
+
+const Mat4f& Node::transform() const {
+  return impl_->transform();
 }

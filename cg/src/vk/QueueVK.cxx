@@ -562,10 +562,10 @@ void CmdBufferVK::encode(const GrEncoder& encoder) {
       throw invalid_argument("clearColor() index out of range");
 
     VkClearValue val;
-    val.color.float32[0] = sub->value.r;
-    val.color.float32[1] = sub->value.g;
-    val.color.float32[2] = sub->value.b;
-    val.color.float32[3] = sub->value.a;
+    val.color.float32[0] = sub->value[0];
+    val.color.float32[1] = sub->value[1];
+    val.color.float32[2] = sub->value[2];
+    val.color.float32[3] = sub->value[3];
     clears.push_back({VK_IMAGE_ASPECT_COLOR_BIT, sub->colorIndex, val});
   };
 

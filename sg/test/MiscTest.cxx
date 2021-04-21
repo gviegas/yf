@@ -14,6 +14,7 @@
 #include "Test.h"
 #include "MeshImpl.h"
 #include "TextureImpl.h"
+#include "Renderer.h"
 #include "SG.h"
 
 using namespace TEST_NS;
@@ -241,8 +242,70 @@ struct MiscTest : public Test {
     return true;
   }
 
+  bool misc3() {
+    auto& dev = CG_NS::device();
+
+    auto win = WS_NS::createWindow(384, 384, name_);
+    const CG_NS::Size2 winSz{win->width(), win->height()};
+    auto wsi = dev.wsi(win.get());
+    auto wsiImgs = wsi->images();
+
+    vector<CG_NS::ColorAttach> passClrs{{wsiImgs[0]->format_,
+                                         wsiImgs[0]->samples_,
+                                         CG_NS::LoadOpLoad,
+                                         CG_NS::StoreOpStore}};
+    CG_NS::DepStenAttach passDs{CG_NS::PxFormatD16Unorm, CG_NS::Samples1,
+                                CG_NS::LoadOpDontCare, CG_NS::StoreOpDontCare,
+                                CG_NS::LoadOpDontCare, CG_NS::StoreOpDontCare};
+    auto pass = dev.pass(&passClrs, nullptr, &passDs);
+
+    auto ds = dev.image(passDs.format, winSz, 1, 1, passDs.samples);
+
+    vector<CG_NS::AttachImg> clrImgs{{nullptr, 0, 0}};
+    CG_NS::AttachImg dsImg{ds.get(), 0, 0};
+    vector<CG_NS::Target::Ptr> tgts;
+    for (const auto& wi : wsiImgs) {
+      clrImgs[0].image = wi;
+      tgts.push_back(pass->target(winSz, 1, &clrImgs, nullptr, &dsImg));
+    }
+
+    Mesh mesh(Mesh::Gltf, L"tmp/cube.gltf");
+    Texture tex(Texture::Png, L"tmp/cube.png");
+    Material matl{{&tex, {}, nullptr, 1.0f, 1.0f}, {}, {}, {}};
+
+    Model mdl;
+    mdl.setMesh(&mesh);
+    mdl.setMaterial(&matl);
+
+    Scene scn;
+    scn.insert(mdl);
+
+    Renderer rend;
+
+    const auto tm = chrono::system_clock::now() + chrono::seconds(5);
+    auto angle = 0.0f;
+    auto scale = 1.0f;
+    while (chrono::system_clock::now() < tm) {
+      CG_NS::Image *img;
+      while (!(img = wsi->nextImage())) { }
+
+      auto tgtIt = find_if(tgts.begin(), tgts.end(), [&](auto& tgt) {
+        return tgt->colors_->front().image == img;
+      });
+
+      mdl.transform() = SG_NS::scale(scale, scale, scale) * rotateZ(angle);
+      angle += 3.14159265359f * 0.01f;
+      scale += 0.025f;
+
+      rend.render(scn, **tgtIt);
+      wsi->present(img);
+    }
+
+    return true;
+  }
+
   Assertions run(const vector<string>&) {
-    return {{L"misc1()", misc1()}};
+    return {{L"misc3()", misc3()}};
   }
 };
 

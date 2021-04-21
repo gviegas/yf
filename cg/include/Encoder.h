@@ -10,6 +10,7 @@
 
 #include <cstdint>
 #include <vector>
+#include <array>
 #include <memory>
 
 #include "yf/cg/Defs.h"
@@ -26,20 +27,7 @@ enum IndexType {
 
 /// Normalized RGBA color.
 ///
-struct Color {
-  float r;
-  float g;
-  float b;
-  float a;
-
-  bool operator==(const Color& other) const {
-    return r == other.r && g == other.g && b == other.b && a == other.a;
-  }
-
-  bool operator!=(const Color& other) const {
-    return !operator==(other);
-  }
-};
+using Color = std::array<float, 4>;
 
 /// Viewport.
 ///

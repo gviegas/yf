@@ -27,7 +27,7 @@ struct NodeTest : Test {
     map<Node*, int> ids;
     for (size_t i = 0; i < nodes.size(); ++i) {
       ids.emplace(&nodes[i], i);
-      nodes[i].setName(L"Node " + to_wstring(i));
+      nodes[i].name() = L"Node #" + to_wstring(i);
       wcout << "\nNode named `" << nodes[i].name() << "` created";
     }
     wcout << endl;

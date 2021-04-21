@@ -85,6 +85,10 @@ class Matrix {
     return data_[0].data();
   }
 
+  constexpr size_t dataSize() const {
+    return sizeof data_;
+  }
+
   /// Number of columns in the matrix.
   ///
   constexpr size_t columns() const {

@@ -114,13 +114,13 @@ struct MaterialTest : Test {
 
     Material::Normal norm{nullptr, 0.01f};
 
-    ml3.setPbrmr(mr);
-    ml3.setNormal(norm);
+    ml3.pbrmr() = mr;
+    ml3.normal() = norm;
     print(ml3);
-    a.push_back({L"set*()", isEqPbrmr(ml3.pbrmr(), mr) &&
-                            isEqNormal(ml3.normal(), norm) &&
-                            isEqOcclusion(ml3.occlusion(), occ) &&
-                            isEqEmissive(ml3.emissive(), emsv)});
+    a.push_back({L"modifiers", isEqPbrmr(ml3.pbrmr(), mr) &&
+                               isEqNormal(ml3.normal(), norm) &&
+                               isEqOcclusion(ml3.occlusion(), occ) &&
+                               isEqEmissive(ml3.emissive(), emsv)});
 
     return a;
   }

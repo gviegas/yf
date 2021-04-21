@@ -61,8 +61,7 @@ void Renderer::render(Scene& scene, CG_NS::Target& target) {
                    static_cast<float>(target.size_.height), 0.0f, 1.0f});
   enc.setScissor({{0}, target.size_});
   enc.setDcTable(GlbTable, 0);
-  const auto color = scene.color();
-  enc.clearColor({color[0], color[1], color[2], color[3]});
+  enc.clearColor(scene.color());
   enc.clearDepth(1.0f);
 
   // Update global uniform buffer

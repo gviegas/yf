@@ -44,6 +44,10 @@ struct EncoderTest : Test {
     enc2.setDcTable(1, 20);
     enc2.dispatch(64);
 
+    TfEncoder enc3;
+    enc3.copy(nullptr, 512, nullptr, 128, 4096);
+    enc3.copy(nullptr, {64, 32}, 4, 2, nullptr, {192, 16}, 1, 2, {64}, 3);
+
     wstring str;
     bool chk;
 
@@ -135,6 +139,31 @@ struct EncoderTest : Test {
         str = L"Cmd::DispatchT";
         chk = static_cast<DispatchCmd*>(cmd.get())->size == Size3(64);
         break;
+      default:
+        str = L"#Invalid Cmd#";
+        chk = false;
+      }
+      a.push_back({str, chk});
+    }
+
+    a.push_back({L"TfEncoder()", enc3.type() == Encoder::Transfer});
+    for (auto& cmd : enc3.encoding()) {
+      switch (cmd->cmd) {
+      case Cmd::CopyBBT: {
+        auto sub = static_cast<CopyBBCmd*>(cmd.get());
+        str = L"Cmd::CopyBBT";
+        chk = !sub->dst && sub->dstOffset == 512 && !sub->src &&
+              sub->srcOffset == 128 && sub->size == 4096;
+        } break;
+      case Cmd::CopyIIT: {
+        auto sub = static_cast<CopyIICmd*>(cmd.get());
+        str = L"Cmd::CopyIIT";
+        chk = !sub->dst && sub->dstOffset == Offset2{64, 32} &&
+              sub->dstLayer == 4 && sub->dstLevel == 2 && !sub->src &&
+              sub->srcOffset == Offset2{192, 16} && sub->srcLayer == 1 &&
+              sub->srcLevel == 2 && sub->size == Size2{64} &&
+              sub->layerCount == 3;
+        } break;
       default:
         str = L"#Invalid Cmd#";
         chk = false;

@@ -22,32 +22,32 @@ class Material::Impl {
   Impl& operator=(const Impl&) = delete;
   ~Impl() = default;
 
-  void set(const Pbrmr& pbrmr) {
-    pbrmr_ = pbrmr;
-  }
-
-  void set(const Normal& normal) {
-    normal_ = normal;
-  }
-
-  void set(const Occlusion& occlusion) {
-    occlusion_ = occlusion;
-  }
-
-  void set(const Emissive& emissive) {
-    emissive_ = emissive;
+  Pbrmr& pbrmr() {
+    return pbrmr_;
   }
 
   const Pbrmr& pbrmr() const {
     return pbrmr_;
   }
 
+  Normal& normal() {
+    return normal_;
+  }
+
   const Normal& normal() const {
     return normal_;
   }
 
+  Occlusion& occlusion() {
+    return occlusion_;
+  }
+
   const Occlusion& occlusion() const {
     return occlusion_;
+  }
+
+  Emissive& emissive() {
+    return emissive_;
   }
 
   const Emissive& emissive() const {
@@ -69,32 +69,32 @@ Material::Material() : impl_(make_unique<Impl>()) { }
 
 Material::~Material() { }
 
-void Material::setPbrmr(const Pbrmr& pbrmr) {
-  impl_->set(pbrmr);
-}
-
-void Material::setNormal(const Normal& normal) {
-  impl_->set(normal);
-}
-
-void Material::setOcclusion(const Occlusion& occlusion) {
-  impl_->set(occlusion);
-}
-
-void Material::setEmissive(const Emissive& emissive) {
-  impl_->set(emissive);
+Material::Pbrmr& Material::pbrmr() {
+  return impl_->pbrmr();
 }
 
 const Material::Pbrmr& Material::pbrmr() const {
   return impl_->pbrmr();
 }
 
+Material::Normal& Material::normal() {
+  return impl_->normal();
+}
+
 const Material::Normal& Material::normal() const {
   return impl_->normal();
 }
 
+Material::Occlusion& Material::occlusion() {
+  return impl_->occlusion();
+}
+
 const Material::Occlusion& Material::occlusion() const {
   return impl_->occlusion();
+}
+
+Material::Emissive& Material::emissive() {
+  return impl_->emissive();
 }
 
 const Material::Emissive& Material::emissive() const {

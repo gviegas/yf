@@ -14,6 +14,7 @@
 #include <memory>
 
 #include "yf/sg/Defs.h"
+#include "yf/sg/Matrix.h"
 
 SG_NS_BEGIN
 
@@ -74,6 +75,11 @@ class Node {
   ///
   std::wstring& name();
   const std::wstring& name() const;
+
+  /// Gets the node transformation matrix.
+  ///
+  Mat4f& transform();
+  const Mat4f& transform() const;
 
  private:
   class Impl;

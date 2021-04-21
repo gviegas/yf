@@ -26,10 +26,12 @@ class Scene : public Node {
   /// The scene's camera.
   ///
   Camera& camera();
+  const Camera& camera() const;
 
   /// The scene's color.
   ///
   std::array<float, 4>& color();
+  const std::array<float, 4>& color() const;
 
  private:
   class Impl;

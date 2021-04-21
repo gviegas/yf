@@ -17,6 +17,7 @@
 
 #include "View.h"
 #include "Scene.h"
+#include "Camera.h"
 #include "Renderer.h"
 
 using namespace SG_NS;
@@ -63,6 +64,10 @@ class View::Impl {
     auto nextTgt = targets_.find(nextImg);
     if (nextTgt == targets_.end())
       throw runtime_error("Invalid render target");
+
+    // TODO: this should only be done on loop() start and window resize
+    scene->camera().adjust(static_cast<float>(nextTgt->second->size_.width) /
+                           static_cast<float>(nextTgt->second->size_.height));
 
     renderer_.render(*scene, *nextTgt->second);
     // TODO: catch broken swapchain errors

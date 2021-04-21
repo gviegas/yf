@@ -24,8 +24,8 @@ using namespace std;
 // TODO: consider allowing custom length values
 constexpr uint64_t UnifLength = 1ULL << 14;
 // TODO
-constexpr uint32_t GlbLength = 128;
-constexpr uint32_t MdlLength = 128;
+constexpr uint32_t GlbLength = Mat4f::dataSize() << 1;
+constexpr uint32_t MdlLength = Mat4f::dataSize() << 1;
 
 Renderer::Renderer() {
   auto& dev = CG_NS::device();
@@ -69,7 +69,7 @@ void Renderer::render(Scene& scene, CG_NS::Target& target) {
   uint64_t off = 0;
   uint64_t len;
 
-  len = 64;
+  len = Mat4f::dataSize();
   unifBuffer_->write(off, len, scene.camera().view().data());
   off += len;
   unifBuffer_->write(off, len, scene.camera().projection().data());
@@ -97,7 +97,7 @@ void Renderer::render(Scene& scene, CG_NS::Target& target) {
       const auto& m = mdl->transform();
       const auto mv = scene.camera().view() * m;
       const auto beg = off;
-      len = 64;
+      len = Mat4f::dataSize();
       unifBuffer_->write(off, len, m.data());
       off += len;
       unifBuffer_->write(off, len, mv.data());

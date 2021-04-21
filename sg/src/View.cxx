@@ -15,6 +15,7 @@
 
 #include "View.h"
 #include "Scene.h"
+#include "Renderer.h"
 
 using namespace SG_NS;
 using namespace std;
@@ -54,10 +55,19 @@ class View::Impl {
   }
 
   void render(Scene* scene) {
-    // TODO
+    auto nextImg = wsi_->nextImage(false);
+    auto nextTgt = targets_.find(nextImg);
+    if (nextTgt == targets_.end())
+      throw runtime_error("Invalid render target");
+
+    renderer_.render(*scene, *nextTgt->second);
+    // TODO: catch broken swapchain errors
+    wsi_->present(nextImg);
   }
 
  private:
+  static Renderer renderer_;
+
   CG_NS::Wsi::Ptr wsi_{};
   CG_NS::Image::Ptr depthStencil_{};
   CG_NS::Pass::Ptr pass_{};
@@ -110,6 +120,8 @@ class View::Impl {
     }
   }
 };
+
+Renderer View::Impl::renderer_{};
 
 View::View(WS_NS::Window* window) : impl_(make_unique<Impl>(window)) { }
 

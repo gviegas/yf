@@ -106,22 +106,18 @@ void Renderer::render(Scene& scene, CG_NS::Target& target) {
       tab.write(inst, Uniform, 0, *unifBuffer_, beg, off);
 
       if (matl) {
+        const pair<Texture*, CG_NS::DcId> texs[]{
+          {matl->pbrmr().colorTex, ColorImgSampler},
+          {matl->pbrmr().metalRoughTex, MetalRoughImgSampler},
+          {matl->normal().texture, NormalImgSampler},
+          {matl->occlusion().texture, OcclusionImgSampler},
+          {matl->emissive().texture, EmissiveImgSampler}};
+
+        for (const auto& tp : texs) {
+          if (tp.first)
+            tp.first->impl().copy(tab, inst, tp.second, 0, 0, nullptr);
+        }
         // TODO: also copy factors to uniform buffer
-        if (matl->pbrmr().colorTex)
-          matl->pbrmr().colorTex->impl()
-            .copy(tab, inst, ColorImgSampler, 0, 0, nullptr);
-        if (matl->pbrmr().metalRoughTex)
-          matl->pbrmr().metalRoughTex->impl()
-            .copy(tab, inst, MetalRoughImgSampler, 0, 0, nullptr);
-        if (matl->normal().texture)
-          matl->normal().texture->impl()
-            .copy(tab, inst, NormalImgSampler, 0, 0, nullptr);
-        if (matl->occlusion().texture)
-          matl->occlusion().texture->impl()
-            .copy(tab, inst, OcclusionImgSampler, 0, 0, nullptr);
-        if (matl->emissive().texture)
-          matl->emissive().texture->impl()
-            .copy(tab, inst, EmissiveImgSampler, 0, 0, nullptr);
       } else {
         // TODO
         throw runtime_error("Cannot render models with no material set");
@@ -214,13 +210,13 @@ void Renderer::prepare() {
       const vector<CG_NS::DcTable*> tab{glbTable_.get(), resource_.table.get()};
 
       const vector<CG_NS::VxInput> inp{vxInputFor(VxTypePosition),
-        vxInputFor(VxTypeTangent),
-        vxInputFor(VxTypeNormal),
-        vxInputFor(VxTypeTexCoord0),
-        vxInputFor(VxTypeTexCoord1),
-        vxInputFor(VxTypeColor0),
-        vxInputFor(VxTypeJoints0),
-        vxInputFor(VxTypeWeights0)};
+                                       vxInputFor(VxTypeTangent),
+                                       vxInputFor(VxTypeNormal),
+                                       vxInputFor(VxTypeTexCoord0),
+                                       vxInputFor(VxTypeTexCoord1),
+                                       vxInputFor(VxTypeColor0),
+                                       vxInputFor(VxTypeJoints0),
+                                       vxInputFor(VxTypeWeights0)};
 
       resource_.state = dev.state({prevPass_, shd, tab, inp,
                                    CG_NS::PrimitiveTriangle,

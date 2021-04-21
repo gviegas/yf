@@ -94,8 +94,7 @@ void Renderer::render(Scene& scene, CG_NS::Target& target) {
       enc.setState(resource_.state.get());
       enc.setDcTable(MdlTable, inst);
 
-      // TODO: node's transform()
-      const auto m = Mat4f::identity();
+      const auto& m = mdl->transform();
       const auto mv = scene.camera().view() * m;
       const auto beg = off;
       len = 64;

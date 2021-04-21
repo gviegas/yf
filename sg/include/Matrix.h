@@ -85,19 +85,21 @@ class Matrix {
     return data_[0].data();
   }
 
-  constexpr size_t dataSize() const {
+  /// Size of matrix data, in bytes.
+  ///
+  static constexpr size_t dataSize() {
     return sizeof data_;
   }
 
   /// Number of columns in the matrix.
   ///
-  constexpr size_t columns() const {
+  static constexpr size_t columns() {
     return colN;
   }
 
   /// Number of rows in the matrix.
   ///
-  constexpr size_t rows() const {
+  static constexpr size_t rows() {
     return rowN;
   }
 

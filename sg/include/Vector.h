@@ -72,13 +72,15 @@ class Vector {
     return data_;
   }
 
-  constexpr size_t dataSize() const {
+  /// Size of vector data, in bytes.
+  ///
+  static constexpr size_t dataSize() {
     return sizeof data_;
   }
 
   /// Number of components in the vector.
   ///
-  constexpr size_t size() const {
+  static constexpr size_t size() {
     return sz;
   }
 

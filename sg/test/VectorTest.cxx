@@ -113,16 +113,19 @@ struct VectorTest : Test {
 
     a.push_back({L"dataSize()", Vec2i().dataSize() == 8 &&
                                 Vec3i().dataSize() == 12 &&
-                                Vec4i().dataSize() == 16 &&
+                                Vec4i::dataSize() == 16 &&
                                 Vec2u().dataSize() == 8 &&
-                                Vec3u().dataSize() == 12 &&
+                                Vec3u::dataSize() == 12 &&
                                 Vec4u().dataSize() == 16 &&
-                                Vec2f().dataSize() == 8 &&
+                                Vec2f::dataSize() == 8 &&
                                 Vec3f().dataSize() == 12 &&
                                 Vec4f().dataSize() == 16 &&
-                                Vec2d().dataSize() == 16 &&
+                                Vec2d::dataSize() == 16 &&
                                 Vec3d().dataSize() == 24 &&
-                                Vec4d().dataSize() == 32});
+                                Vec4d::dataSize() == 32});
+
+    a.push_back({L"size()", Vec2i().size() == 2 && Vec3u::size() == 3 &&
+                            Vec4f().size() == 4 && Vec3d::size() == 3});
 
     return a;
   }

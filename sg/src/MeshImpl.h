@@ -26,14 +26,14 @@ SG_NS_BEGIN
 /// Types of vertex attribute data (non-interleaved storage).
 ///
 enum VxType {
-  VxTypePosition,
-  VxTypeTangent,
-  VxTypeNormal,
-  VxTypeTexCoord0,
-  VxTypeTexCoord1,
-  VxTypeColor0,
-  VxTypeJoints0,
-  VxTypeWeights0
+  VxTypePosition  = 0,
+  VxTypeTangent   = 1,
+  VxTypeNormal    = 2,
+  VxTypeTexCoord0 = 3,
+  VxTypeTexCoord1 = 4,
+  VxTypeColor0    = 5,
+  VxTypeJoints0   = 6,
+  VxTypeWeights0  = 7
 };
 
 /// Produces a vertex input object for a given vertex attribute type.

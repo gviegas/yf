@@ -45,6 +45,8 @@ DcTableVK::DcTableVK(const DcEntries& entries) : DcTable(entries) {
       type = VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER;
       ismplN += e.second.elements;
       break;
+    default:
+      throw invalid_argument("Invalid DcType value");
     }
 
     binds.push_back({e.first, type, e.second.elements,

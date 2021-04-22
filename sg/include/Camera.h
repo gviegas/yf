@@ -21,6 +21,8 @@ SG_NS_BEGIN
 class Camera {
  public:
   Camera(const Vec3f& origin, const Vec3f& target, float aspect);
+  Camera(const Camera& other);
+  Camera& operator=(const Camera& other);
   ~Camera();
 
   /// Places the camera at a given position.

@@ -225,6 +225,14 @@ class Camera::Impl {
 Camera::Camera(const Vec3f& origin, const Vec3f& target, float aspect)
   : impl_(make_unique<Impl>(origin, target, aspect)) { }
 
+Camera::Camera(const Camera& other)
+  : impl_(make_unique<Impl>(*other.impl_)) { }
+
+Camera& Camera::operator=(const Camera& other) {
+  *impl_ = *other.impl_;
+  return *this;
+}
+
 Camera::~Camera() { }
 
 void Camera::place(const Vec3f& position) {

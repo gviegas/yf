@@ -47,8 +47,8 @@ class Renderer {
   ///
   using Shader = std::pair<CG_NS::Stage, const wchar_t*>;
   static constexpr wchar_t ShaderDir[] = L"bin/";
-  static constexpr Shader MdlShaders[]{{CG_NS::StageVertex, L"Mdl.vert"},
-                                       {CG_NS::StageFragment, L"Mdl.frag"}};
+  static constexpr Shader MdlShaders[]{{CG_NS::StageVertex, L"Model.vert"},
+                                       {CG_NS::StageFragment, L"Model.frag"}};
 
   /// Renders a scene on a given target.
   ///

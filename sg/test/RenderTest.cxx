@@ -107,13 +107,18 @@ struct RenderTest : Test {
     Model mdl1{mesh1, matl};
     Model mdl2{mesh2};
     mdl2.setMaterial(&matl);
-    mdl1.transform() = translate(5.0f, 0.0f, 0.0f);
+    mdl1.transform() = translate(2.0f, 2.0f, -2.0f);
     mdl2.transform() = rotateZ(3.14159265359f * 0.25f);
 
     Scene scn1;
     scn1.insert(mdl1);
+    scn1.camera().place({0.0f, 30.0f, 30.0f});
+    scn1.camera().point({});
+    scn1.color() = {0.05f, 0.05f, 0.2f, 1.0f};
     Scene scn2;
     scn2.insert(mdl2);
+    scn2.camera() = scn1.camera();
+    scn2.color()[0] = 0.125f;
 
     WS_NS::KbDelegate deleg;
     deleg.key = onKey;
@@ -166,7 +171,7 @@ struct RenderTest : Test {
       return true;
     });
 
-    return {{L"Scene graph rendered", true}};
+    return {{L"rendering", true}};
   }
 };
 

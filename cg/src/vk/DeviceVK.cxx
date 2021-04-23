@@ -311,6 +311,18 @@ void DeviceVK::initDevice(int32_t queueFamily, int32_t presFamily) {
       vkGetDeviceQueue(device_, presFamily, 0, &queue);
     WsiVK::setQueue(queue, presFamily);
   }
+
+  // Use a single cache for state creation
+  VkPipelineCacheCreateInfo cacheInfo;
+  cacheInfo.sType = VK_STRUCTURE_TYPE_PIPELINE_CACHE_CREATE_INFO;
+  cacheInfo.pNext = nullptr;
+  cacheInfo.flags = 0;
+  cacheInfo.initialDataSize = 0;
+  cacheInfo.pInitialData = nullptr;
+
+  res = vkCreatePipelineCache(device_, &cacheInfo, nullptr, &cache_);
+  if (res != VK_SUCCESS)
+    cache_ = VK_NULL_HANDLE;
 }
 
 VkInstance DeviceVK::instance() const {

@@ -38,6 +38,7 @@ DeviceVK::DeviceVK() {
 DeviceVK::~DeviceVK() {
   if (device_ != nullptr) {
     vkDeviceWaitIdle(device_);
+    vkDestroyPipelineCache(device_, cache_, nullptr);
     // TODO: ensure that all VK objects were disposed of prior to this point
     delete queue_;
     vkDestroyDevice(device_, nullptr);

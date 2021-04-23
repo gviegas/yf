@@ -370,6 +370,10 @@ const VkPhysicalDeviceLimits& DeviceVK::limits() const {
   return physProperties_.limits;
 }
 
+VkPipelineCache DeviceVK::cache() const {
+  return cache_;
+}
+
 Queue& DeviceVK::defaultQueue() {
   return *queue_;
 }

@@ -60,6 +60,7 @@ class DeviceVK final : public Device {
   uint32_t instVersion() const;
   uint32_t devVersion() const;
   const VkPhysicalDeviceLimits& limits() const;
+  VkPipelineCache cache() const;
 
  private:
   QueueVK* queue_ = nullptr;

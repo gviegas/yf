@@ -123,13 +123,13 @@ void inflate(const vector<uint8_t>& src, vector<uint8_t>& dst) {
   struct {
     uint8_t cm:4, cinfo:4;
     uint8_t fcheck:5, fdict:1, flevel:2;
-  } hdr alignas(uint16_t);
+  } hdr;
   static_assert(sizeof hdr == 2, "!sizeof");
 
   memcpy(&hdr, src.data(), sizeof hdr);
 
   if (hdr.cm != 8 || hdr.cinfo > 7 || hdr.fdict != 0 ||
-      betoh(*reinterpret_cast<uint16_t*>(&hdr)) % 31 != 0)
+      ((src.data()[0] << 8) + src.data()[1]) % 31 != 0)
     throw runtime_error("Invalid data for decompression");
 
   // Process blocks

@@ -66,7 +66,7 @@ struct MeshTest : Test {
     if (m1.impl().isIndexed())
       ibufChk = false;
 
-    Mesh m2(data);
+    Mesh* m2 = new Mesh(data);
     print();
     if (buf->size_ == (2*24*12)) {
       if (segs.size() != 0)
@@ -76,7 +76,8 @@ struct MeshTest : Test {
           segs.front().size != buf->size_ - (2*24*12))
         ctorChk = false;
     }
-    if (!m2.impl().canBind(VxTypePosition) || m2.impl().canBind(VxTypeJoints0))
+    if (!m2->impl().canBind(VxTypePosition) ||
+        m2->impl().canBind(VxTypeJoints0))
       bindChk = false;
 
     data.ixAccessor.dataIndex = 0;
@@ -95,7 +96,7 @@ struct MeshTest : Test {
     if (!m3.impl().isIndexed())
       ibufChk = false;
 
-    m2.~Mesh();
+    delete m2;
     print();
     if (segs.size() != 2 || segs.front().offset != (24*12) ||
         segs.front().size != (24*12) ||

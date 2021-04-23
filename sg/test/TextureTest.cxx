@@ -68,18 +68,18 @@ struct TextureTest : Test {
         ctorChk = false;
     }
 
-    Texture t3(data);
+    Texture* t3 = new Texture(data);
     print();
     if (r.size() != 1) {
       ctorChk = false;
     } else {
-      auto& e = r.find(t3.impl().key_)->second;
+      auto& e = r.find(t3->impl().key_)->second;
       if (e.layers.remaining+3 != e.layers.unused.size())
         ctorChk = false;
     }
 
     data.format = CG_NS::PxFormatR8Unorm;
-    Texture t4(data);
+    Texture* t4 = new Texture(data);
     print();
     if (r.size() != 2) {
       ctorChk = false;
@@ -87,12 +87,12 @@ struct TextureTest : Test {
       auto& e = r.find(t1.impl().key_)->second;
       if (e.layers.remaining+3 != e.layers.unused.size())
         ctorChk = false;
-      auto& f = r.find(t4.impl().key_)->second;
+      auto& f = r.find(t4->impl().key_)->second;
       if (f.layers.remaining+1 != f.layers.unused.size())
         ctorChk = false;
     }
 
-    Texture t5(data);
+    Texture* t5 = new Texture(data);
     print();
     if (r.size() != 2) {
       ctorChk = false;
@@ -100,7 +100,7 @@ struct TextureTest : Test {
       auto& e = r.find(t1.impl().key_)->second;
       if (e.layers.remaining+3 != e.layers.unused.size())
         ctorChk = false;
-      auto& f = r.find(t5.impl().key_)->second;
+      auto& f = r.find(t5->impl().key_)->second;
       if (f.layers.remaining+2 != f.layers.unused.size())
         ctorChk = false;
     }
@@ -114,7 +114,7 @@ struct TextureTest : Test {
       auto& e = r.find(t1.impl().key_)->second;
       if (e.layers.remaining+3 != e.layers.unused.size())
         ctorChk = false;
-      auto& f = r.find(t4.impl().key_)->second;
+      auto& f = r.find(t4->impl().key_)->second;
       if (f.layers.remaining+2 != f.layers.unused.size())
         ctorChk = false;
       auto& g = r.find(t6.impl().key_)->second;
@@ -122,7 +122,7 @@ struct TextureTest : Test {
         ctorChk = false;
     }
 
-    t3.~Texture();
+    delete t3;
     print();
     if (r.size() != 3) {
       dtorChk = false;
@@ -130,7 +130,7 @@ struct TextureTest : Test {
       auto& e = r.find(t1.impl().key_)->second;
       if (e.layers.remaining+2 != e.layers.unused.size())
         dtorChk = false;
-      auto& f = r.find(t4.impl().key_)->second;
+      auto& f = r.find(t4->impl().key_)->second;
       if (f.layers.remaining+2 != f.layers.unused.size())
         dtorChk = false;
       auto& g = r.find(t6.impl().key_)->second;
@@ -138,7 +138,7 @@ struct TextureTest : Test {
         dtorChk = false;
     }
 
-    t4.~Texture();
+    delete t4;
     print();
     if (r.size() != 3) {
       dtorChk = false;
@@ -146,7 +146,7 @@ struct TextureTest : Test {
       auto& e = r.find(t1.impl().key_)->second;
       if (e.layers.remaining+2 != e.layers.unused.size())
         dtorChk = false;
-      auto& f = r.find(t5.impl().key_)->second;
+      auto& f = r.find(t5->impl().key_)->second;
       if (f.layers.remaining+1 != f.layers.unused.size())
         dtorChk = false;
       auto& g = r.find(t6.impl().key_)->second;
@@ -154,7 +154,7 @@ struct TextureTest : Test {
         dtorChk = false;
     }
 
-    t5.~Texture();
+    delete t5;
     print();
     if (r.size() != 2) {
       dtorChk = false;

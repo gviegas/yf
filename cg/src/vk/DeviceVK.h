@@ -60,6 +60,7 @@ class DeviceVK final : public Device {
   uint32_t instVersion() const;
   uint32_t devVersion() const;
   const VkPhysicalDeviceLimits& limits() const;
+  VkPipelineCache cache() const;
 
  private:
   QueueVK* queue_ = nullptr;
@@ -75,6 +76,8 @@ class DeviceVK final : public Device {
 
   VkDevice device_ = nullptr;
   std::vector<const char*> devExtensions_{};
+
+  VkPipelineCache cache_ = VK_NULL_HANDLE;
 
   friend DeviceVK& deviceVK();
   DeviceVK();

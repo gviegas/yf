@@ -38,6 +38,7 @@ DeviceVK::DeviceVK() {
 DeviceVK::~DeviceVK() {
   if (device_ != nullptr) {
     vkDeviceWaitIdle(device_);
+    vkDestroyPipelineCache(device_, cache_, nullptr);
     // TODO: ensure that all VK objects were disposed of prior to this point
     delete queue_;
     vkDestroyDevice(device_, nullptr);
@@ -311,6 +312,18 @@ void DeviceVK::initDevice(int32_t queueFamily, int32_t presFamily) {
       vkGetDeviceQueue(device_, presFamily, 0, &queue);
     WsiVK::setQueue(queue, presFamily);
   }
+
+  // Use a single cache for state creation
+  VkPipelineCacheCreateInfo cacheInfo;
+  cacheInfo.sType = VK_STRUCTURE_TYPE_PIPELINE_CACHE_CREATE_INFO;
+  cacheInfo.pNext = nullptr;
+  cacheInfo.flags = 0;
+  cacheInfo.initialDataSize = 0;
+  cacheInfo.pInitialData = nullptr;
+
+  res = vkCreatePipelineCache(device_, &cacheInfo, nullptr, &cache_);
+  if (res != VK_SUCCESS)
+    cache_ = VK_NULL_HANDLE;
 }
 
 VkInstance DeviceVK::instance() const {
@@ -355,6 +368,10 @@ uint32_t DeviceVK::devVersion() const {
 
 const VkPhysicalDeviceLimits& DeviceVK::limits() const {
   return physProperties_.limits;
+}
+
+VkPipelineCache DeviceVK::cache() const {
+  return cache_;
 }
 
 Queue& DeviceVK::defaultQueue() {

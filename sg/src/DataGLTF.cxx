@@ -388,7 +388,7 @@ class GLTF {
 
       unordered_map<string, int32_t> attributes{};
       int32_t indices = -1;
-      Mode mode = Triangles;
+      int32_t mode = Triangles;
       int32_t material = -1;
       vector<unordered_map<string, int32_t>> targets{};
     };
@@ -470,10 +470,10 @@ class GLTF {
       Undefined = -1
     };
 
-    WrapMode wrapS = Repeat;
-    WrapMode wrapT = Repeat;
-    Filter magFilter = Undefined;
-    Filter minFilter = Undefined;
+    int32_t wrapS = Repeat;
+    int32_t wrapT = Repeat;
+    int32_t magFilter = Undefined;
+    int32_t minFilter = Undefined;
     string name{};
   };
 
@@ -536,7 +536,7 @@ class GLTF {
   /// Element of `glTF.accessors` property.
   ///
   struct Accessor {
-    enum ComponentType: int32_t {
+    enum ComponentType : int32_t {
       Byte = 5120,
       UnsignedByte = 5121,
       Short = 5122,
@@ -551,7 +551,7 @@ class GLTF {
       struct Indices {
         int32_t bufferView = -1;
         int64_t byteOffset = 0LL;
-        ComponentType componentType = Undefined;
+        int32_t componentType = Undefined;
       };
 
       struct Values {
@@ -566,7 +566,7 @@ class GLTF {
 
     int32_t bufferView = -1;
     int64_t byteOffset = 0LL;
-    ComponentType componentType = Undefined;
+    int32_t componentType = Undefined;
     bool normalized = false;
     int32_t count = -1;
     string type{};
@@ -629,7 +629,7 @@ class GLTF {
     int64_t byteOffset = 0LL;
     int64_t byteLength = -1LL;
     int32_t byteStride = -1;
-    Target target = Undefined;
+    int32_t target = Undefined;
     string name{};
   };
 
@@ -1027,7 +1027,7 @@ class GLTF {
           else if (symbol.tokens() == "indices")
             parseNum(symbol, prim.indices);
           else if (symbol.tokens() == "mode")
-            parseNum(symbol, reinterpret_cast<int32_t&>(prim.mode));
+            parseNum(symbol, prim.mode);
           else if (symbol.tokens() == "material")
             parseNum(symbol, prim.material);
           else if (symbol.tokens() == "targets")
@@ -1311,17 +1311,13 @@ class GLTF {
         switch (symbol.next()) {
         case Symbol::Str:
           if (symbol.tokens() == "wrapS")
-            parseNum(symbol, reinterpret_cast<int32_t&>
-                             (samplers_.back().wrapS));
+            parseNum(symbol, samplers_.back().wrapS);
           else if (symbol.tokens() == "wrapT")
-            parseNum(symbol, reinterpret_cast<int32_t&>
-                             (samplers_.back().wrapT));
+            parseNum(symbol, samplers_.back().wrapT);
           else if (symbol.tokens() == "magFilter")
-            parseNum(symbol, reinterpret_cast<int32_t&>
-                             (samplers_.back().magFilter));
+            parseNum(symbol, samplers_.back().magFilter);
           else if (symbol.tokens() == "minFilter")
-            parseNum(symbol, reinterpret_cast<int32_t&>
-                             (samplers_.back().minFilter));
+            parseNum(symbol, samplers_.back().minFilter);
           else if (symbol.tokens() == "name")
             parseStr(symbol, samplers_.back().name);
           else
@@ -1595,8 +1591,7 @@ class GLTF {
             else if (symbol.tokens() == "byteOffset")
               parseNum(symbol, sparse.indices.byteOffset);
             else if (symbol.tokens() == "componentType")
-              parseNum(symbol, reinterpret_cast<int32_t&>
-                               (sparse.indices.componentType));
+              parseNum(symbol, sparse.indices.componentType);
             else
               symbol.consumeProperty();
             break;
@@ -1670,8 +1665,7 @@ class GLTF {
           else if (symbol.tokens() == "byteOffset")
             parseNum(symbol, accessors_.back().byteOffset);
           else if (symbol.tokens() == "componentType")
-            parseNum(symbol, reinterpret_cast<int32_t&>
-                             (accessors_.back().componentType));
+            parseNum(symbol, accessors_.back().componentType);
           else if (symbol.tokens() == "normalized")
             parseBool(symbol, accessors_.back().normalized);
           else if (symbol.tokens() == "count")
@@ -1723,8 +1717,7 @@ class GLTF {
           else if (symbol.tokens() == "byteStride")
             parseNum(symbol, bufferViews_.back().byteStride);
           else if (symbol.tokens() == "target")
-            parseNum(symbol, reinterpret_cast<int32_t&>
-                             (bufferViews_.back().target));
+            parseNum(symbol, bufferViews_.back().target);
           else if (symbol.tokens() == "name")
             parseStr(symbol, bufferViews_.back().name);
           else

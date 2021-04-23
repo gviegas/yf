@@ -53,6 +53,7 @@ GrStateVK::GrStateVK(const Config& config)
   : GrState(config), stgFlags_(0), plLayout_(plLayoutVK(config.dcTables)) {
 
   auto dev = deviceVK().device();
+  auto cache = deviceVK().cache();
   auto deinit = [&] { vkDestroyPipelineLayout(dev, plLayout_, nullptr); };
 
   if (!config.pass) {
@@ -269,8 +270,7 @@ GrStateVK::GrStateVK(const Config& config)
   plInfo.basePipelineHandle = VK_NULL_HANDLE;
   plInfo.basePipelineIndex = -1;
 
-  // TODO: pipeline cache
-  auto res = vkCreateGraphicsPipelines(dev, nullptr, 1, &plInfo, nullptr,
+  auto res = vkCreateGraphicsPipelines(dev, cache, 1, &plInfo, nullptr,
                                        &pipeline_);
   if (res != VK_SUCCESS) {
     deinit();
@@ -307,6 +307,9 @@ CpStateVK::CpStateVK(const Config& config)
   if (!config.shader || config.shader->stage_ != StageCompute)
     throw invalid_argument("CpStateVK requires a compute shader");
 
+  auto dev = deviceVK().device();
+  auto cache = deviceVK().cache();
+
   // Define shader stage
   VkPipelineShaderStageCreateInfo stgInfo;
   stgInfo.sType = VK_STRUCTURE_TYPE_PIPELINE_SHADER_STAGE_CREATE_INFO;
@@ -327,9 +330,7 @@ CpStateVK::CpStateVK(const Config& config)
   plInfo.basePipelineHandle = VK_NULL_HANDLE;
   plInfo.basePipelineIndex = -1;
 
-  auto dev = deviceVK().device();
-  // TODO: pipeline cache
-  auto res = vkCreateComputePipelines(dev, nullptr, 1, &plInfo, nullptr,
+  auto res = vkCreateComputePipelines(dev, cache, 1, &plInfo, nullptr,
                                       &pipeline_);
   if (res != VK_SUCCESS) {
     vkDestroyPipelineLayout(dev, plLayout_, nullptr);

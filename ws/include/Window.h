@@ -86,21 +86,15 @@ Window::Ptr createWindow(uint32_t width, uint32_t height,
                          const std::wstring& title,
                          Window::CreationMask mask = Window::Resizable);
 
-/// Window event delegate.
+/// Window close event.
 ///
-struct WdDelegate {
-  /// Close event.
-  ///
-  std::function<void (Window*)> close;
+using WdCloseFn = std::function<void (Window*)>;
+void onWdClose(WdCloseFn fn);
 
-  /// Resize event.
-  ///
-  std::function<void (Window*, uint32_t w, uint32_t h)> resize;
-};
-
-/// Sets the window event delegate.
+/// Window resize event.
 ///
-void setDelegate(const WdDelegate& delegate);
+using WdResizeFn = std::function<void (Window*, uint32_t w, uint32_t h)>;
+void onWdResize(WdResizeFn fn);
 
 WS_NS_END
 

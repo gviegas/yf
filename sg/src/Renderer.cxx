@@ -141,10 +141,10 @@ void Renderer::render(Scene& scene, CG_NS::Target& target) {
 }
 
 void Renderer::processGraph(Scene& scene) {
+  models_.clear();
+
   if (scene.isLeaf())
     return;
-
-  models_.clear();
 
   scene.traverse([&](Node& node) {
     if (typeid(node) == typeid(Model)) {

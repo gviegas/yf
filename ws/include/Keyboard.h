@@ -156,25 +156,20 @@ enum KeyState {
 
 class Window;
 
-/// Keyboard event delegate.
+/// Keyboard enter window event (focus gained).
 ///
-struct KbDelegate {
-  /// Enter window event (focus gained).
-  ///
-  std::function<void (Window*)> enter;
+using KbEnterFn = std::function<void (Window*)>;
+void onKbEnter(KbEnterFn fn);
 
-  /// Leave window event (focus lost).
-  ///
-  std::function<void (Window*)> leave;
-
-  /// Key press/release event.
-  ///
-  std::function<void (KeyCode, KeyState, KeyModMask)> key;
-};
-
-/// Sets the keyboard event delegate.
+/// Keyboard leave window event (focus lost).
 ///
-void setDelegate(const KbDelegate& delegate);
+using KbLeaveFn = std::function<void (Window*)>;
+void onKbLeave(KbLeaveFn fn);
+
+/// Keyboard key press/release event.
+///
+using KbKeyFn = std::function<void (KeyCode, KeyState, KeyModMask)>;
+void onKbKey(KbKeyFn fn);
 
 WS_NS_END
 

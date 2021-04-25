@@ -37,47 +37,22 @@ class Delegate {
     PtButton = 0x100
   };
 
-  /// Sets window event delegate and updates event mask accordingly.
-  ///
-  void set(const WdDelegate& delegate) {
-    wdDeleg_ = delegate;
-
-    mask_ = wdDeleg_.close  ? (mask_ | WdClose)  : (mask_ & ~WdClose);
-    mask_ = wdDeleg_.resize ? (mask_ | WdResize) : (mask_ & ~WdResize);
-  }
-
-  /// Sets keyboard event delegate and updates event mask accordingly.
-  ///
-  void set(const KbDelegate& delegate) {
-    kbDeleg_ = delegate;
-
-    mask_ = kbDeleg_.enter ? (mask_ | KbEnter) : (mask_ & ~KbEnter);
-    mask_ = kbDeleg_.leave ? (mask_ | KbLeave) : (mask_ & ~KbLeave);
-    mask_ = kbDeleg_.key   ? (mask_ | KbKey)   : (mask_ & ~KbKey);
-  }
-
-  /// Sets pointer event delegate and updates event mask accordingly.
-  ///
-  void set(const PtDelegate& delegate) {
-    ptDeleg_ = delegate;
-
-    mask_ = ptDeleg_.enter  ? (mask_ | PtEnter)  : (mask_ & ~PtEnter);
-    mask_ = ptDeleg_.leave  ? (mask_ | PtLeave)  : (mask_ & ~PtLeave);
-    mask_ = ptDeleg_.motion ? (mask_ | PtMotion) : (mask_ & ~PtMotion);
-    mask_ = ptDeleg_.button ? (mask_ | PtButton) : (mask_ & ~PtButton);
-  }
-
   /// Variables for delegation management.
   ///
-  /// The WS `setDelegate()` functions update the state of these variables
-  /// as needed.
+  /// The WS `on*()` functions update the state of these variables as needed.
   /// Implementations read from these variables to identify which events
   /// must be dispatched.
   ///
   Mask mask_ = 0;
-  WdDelegate wdDeleg_{};
-  KbDelegate kbDeleg_{};
-  PtDelegate ptDeleg_{};
+  WdCloseFn wdClose_{};
+  WdResizeFn wdResize_{};
+  KbEnterFn kbEnter_{};
+  KbLeaveFn kbLeave_{};
+  KbKeyFn kbKey_{};
+  PtEnterFn ptEnter_{};
+  PtLeaveFn ptLeave_{};
+  PtMotionFn ptMotion_{};
+  PtButtonFn ptButton_{};
 };
 
 /// Gets the global delegate instance.

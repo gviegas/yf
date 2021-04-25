@@ -36,29 +36,26 @@ enum ButtonState {
 
 class Window;
 
-/// Pointer event delegate.
+/// Pointer enter window event.
 ///
-struct PtDelegate {
-  /// Enter window event.
-  ///
-  std::function<void (Window*, int32_t x, int32_t y)> enter;
+using PtEnterFn = std::function<void (Window*, int32_t x, int32_t y)>;
+void onPtEnter(PtEnterFn fn);
 
-  /// Leave window event.
-  ///
-  std::function<void (Window*)> leave;
-
-  /// Motion event.
-  ///
-  std::function<void (int32_t x, int32_t y)> motion;
-
-  /// Button press/release event.
-  ///
-  std::function<void (Button, ButtonState, int32_t x, int32_t y)> button;
-};
-
-/// Sets the pointer event delegate.
+/// Pointer leave window event.
 ///
-void setDelegate(const PtDelegate& delegate);
+using PtLeaveFn = std::function<void (Window*)>;
+void onPtLeave(PtLeaveFn fn);
+
+/// Pointer motion event.
+///
+using PtMotionFn = std::function<void (int32_t x, int32_t y)>;
+void onPtMotion(PtMotionFn fn);
+
+/// Pointer button press/release event.
+///
+using PtButtonFn = std::function<void (Button, ButtonState,
+                                       int32_t x, int32_t y)>;
+void onPtButton(PtButtonFn fn);
 
 WS_NS_END
 

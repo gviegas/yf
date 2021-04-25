@@ -53,7 +53,7 @@ void WS_NS::dispatchXCB() {
       prevEvState = ev->state;
     }
 
-    delegate().kbDeleg_.key(code, state, modMask);
+    delegate().kbKey_(code, state, modMask);
   };
 
   // Handle BUTTON_PRESS/BUTTON_RELEASE
@@ -84,38 +84,37 @@ void WS_NS::dispatchXCB() {
     else
       state = ButtonStateReleased;
 
-    delegate().ptDeleg_.button(btn, state, ev->event_x, ev->event_y);
+    delegate().ptButton_(btn, state, ev->event_x, ev->event_y);
   };
 
   // Handle MOTION_NOTIFY
   auto motion = [&] {
     auto ev = reinterpret_cast<xcb_motion_notify_event_t*>(event);
-    delegate().ptDeleg_.motion(ev->event_x, ev->event_y);
+    delegate().ptMotion_(ev->event_x, ev->event_y);
   };
 
   // Handle ENTER_NOTIFY
   auto enter = [&] {
     auto ev = reinterpret_cast<xcb_enter_notify_event_t*>(event);
-    delegate().ptDeleg_.enter(WindowXCB::fromId(ev->event),
-                              ev->event_x, ev->event_y);
+    delegate().ptEnter_(WindowXCB::fromId(ev->event), ev->event_x, ev->event_y);
   };
 
   // Handle LEAVE_NOTIFY
   auto leave = [&] {
     auto ev = reinterpret_cast<xcb_leave_notify_event_t*>(event);
-    delegate().ptDeleg_.leave(WindowXCB::fromId(ev->event));
+    delegate().ptLeave_(WindowXCB::fromId(ev->event));
   };
 
   // Handle FOCUS_IN
   auto focusIn = [&] {
     auto ev = reinterpret_cast<xcb_focus_in_event_t*>(event);
-    delegate().kbDeleg_.enter(WindowXCB::fromId(ev->event));
+    delegate().kbEnter_(WindowXCB::fromId(ev->event));
   };
 
   // Handle FOCUS_OUT
   auto focusOut = [&] {
     auto ev = reinterpret_cast<xcb_focus_out_event_t*>(event);
-    delegate().kbDeleg_.leave(WindowXCB::fromId(ev->event));
+    delegate().kbLeave_(WindowXCB::fromId(ev->event));
   };
 
   // Handle EXPOSE
@@ -126,8 +125,7 @@ void WS_NS::dispatchXCB() {
   // Handle CONFIGURE_NOTIFY
   auto config = [&] {
     auto ev = reinterpret_cast<xcb_configure_notify_event_t*>(event);
-    delegate().wdDeleg_.resize(WindowXCB::fromId(ev->event),
-                               ev->width, ev->height);
+    delegate().wdResize_(WindowXCB::fromId(ev->event), ev->width, ev->height);
     // TODO: notify window object
   };
 
@@ -136,7 +134,7 @@ void WS_NS::dispatchXCB() {
     auto ev = reinterpret_cast<xcb_client_message_event_t*>(event);
 
     if (ev->type == vars.protocolAtom && ev->data.data32[0] == vars.deleteAtom)
-      delegate().wdDeleg_.close(WindowXCB::fromId(ev->window));
+      delegate().wdClose_(WindowXCB::fromId(ev->window));
   };
 
   // Poll events

@@ -8,6 +8,7 @@
 #include <algorithm>
 #include <typeinfo>
 #include <stdexcept>
+#include <cassert>
 
 #include "yf/cg/Device.h"
 
@@ -24,8 +25,8 @@ using namespace std;
 // TODO: consider allowing custom length values
 constexpr uint64_t UnifLength = 1ULL << 14;
 // TODO
-constexpr uint32_t GlbLength = Mat4f::dataSize() << 1;
-constexpr uint32_t MdlLength = Mat4f::dataSize() << 1;
+constexpr uint64_t GlbLength = Mat4f::dataSize() << 1;
+constexpr uint64_t MdlLength = Mat4f::dataSize() << 1;
 
 Renderer::Renderer() {
   auto& dev = CG_NS::device();
@@ -42,6 +43,7 @@ Renderer::Renderer() {
 
 void Renderer::render(Scene& scene, CG_NS::Target& target) {
   auto pass = &target.pass();
+
   if (pass != prevPass_) {
     resource_.reset();
   } else if (&scene == prevScene_) {
@@ -165,6 +167,9 @@ void Renderer::prepare() {
 
   // Set model resources and returns required uniform space
   auto setMdl = [&](Resource& resource, uint32_t instN, uint32_t allocN) {
+    assert(instN > 0);
+    assert(allocN > 0);
+
     if (resource.shaders.empty()) {
       // TODO: select shaders based on number of instances
       for (const auto& tp : MdlShaders)

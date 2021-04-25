@@ -171,10 +171,21 @@ void Renderer::prepare() {
     assert(allocN > 0);
 
     if (resource.shaders.empty()) {
-      // TODO: select shaders based on number of instances
-      for (const auto& tp : MdlShaders)
-        resource.shaders.push_back(dev.shader(tp.first,
-                                              wstring(ShaderDir)+tp.second));
+      switch (instN) {
+      case 1:
+        for (const auto& tp : MdlShaders)
+          resource.shaders.push_back(dev.shader(tp.first,
+                                                wstring(ShaderDir)+tp.second));
+        break;
+      case 2:
+        for (const auto& tp : Mdl2Shaders)
+          resource.shaders.push_back(dev.shader(tp.first,
+                                                wstring(ShaderDir)+tp.second));
+        break;
+      default:
+        assert(0);
+        abort();
+      }
     }
 
     if (!resource.table) {
@@ -216,25 +227,36 @@ void Renderer::prepare() {
     return MdlLength * instN * allocN;
   };
 
-  // TODO: instanced rendering
+  // TODO: instanced rendering (> 2)
   if (any_of(models_.begin(), models_.end(),
-             [](const auto& kv) { return kv.second.size() > 1; }))
-    throw runtime_error("Instanced rendering of models unimplemented");
-
-  // TODO: compute this value on `processGraph()`
-  const auto uniqMdlN = count_if(models_.begin(), models_.end(),
-                                 [](const auto& kv)
-                                 { return kv.second.size() == 1; });
+             [](const auto& kv) { return kv.second.size() > 2; }))
+    throw runtime_error("Instanced rendering of models (> 2) unimplemented");
 
   uint64_t unifLen = GlbLength;
 
   // Set models
   if (models_.empty()) {
     resource_.reset();
+    resource2_.reset();
     // TODO: reset other resources when implemented
   } else {
-    unifLen += setMdl(resource_, 1, uniqMdlN);
-    // TODO: instanced draw models
+    uint32_t mdlN = 0;
+    uint32_t mdl2N = 0;
+    for (const auto& kv : models_) {
+      const auto size = kv.second.size();
+      if (size == 1)
+        ++mdlN;
+      else if (size == 2)
+        ++mdl2N;
+      else
+        // TODO
+        assert(0);
+    }
+    if (mdlN > 0)
+      unifLen += setMdl(resource_, 1, mdlN);
+    if (mdl2N > 0)
+      unifLen += setMdl(resource2_, 2, mdl2N);
+    // TODO: other instanced draw models
   }
 
   unifLen = (unifLen & ~255) + 256;

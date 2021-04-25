@@ -79,33 +79,58 @@ void Renderer::render(Scene& scene, CG_NS::Target& target) {
 
   glbTable_->write(0, Uniform, 0, *unifBuffer_, 0, off);
 
-  // Render unique models
+  // Render models
   auto renderMdl = [&] {
-    uint32_t inst = 0;
+    vector<MdlKey> completed{};
+    auto allocN = resource_.table ? resource_.table->allocations() : 0U;
+    auto alloc2N = resource2_.table ? resource2_.table->allocations() : 0U;
 
     for (auto& kv : models_) {
-      if (kv.second.size() > 1)
-        continue;
+      const auto size = kv.second.size();
+      Resource* resource;
+      uint32_t n;
+      uint32_t alloc;
 
-      auto mdl = kv.second[0];
-      auto matl = mdl->material();
-      auto mesh = mdl->mesh();
-      auto& tab = *resource_.table;
+      if (size == 1) {
+        if (allocN == 0)
+          continue;
+        resource = &resource_;
+        n = 1;
+        alloc = --allocN;
+      } else if (size == 2) {
+        if (alloc2N == 0)
+          continue;
+        resource = &resource2_;
+        n = 2;
+        alloc = --alloc2N;
+      } else {
+        // TODO
+        assert(false);
+        abort();
+      }
 
-      enc.setState(resource_.state.get());
-      enc.setDcTable(MdlTable, inst);
+      enc.setState(resource->state.get());
+      enc.setDcTable(MdlTable, alloc);
 
-      const auto& m = mdl->transform();
-      const auto mv = scene.camera().view() * m;
-      const auto beg = off;
-      len = Mat4f::dataSize();
-      unifBuffer_->write(off, len, m.data());
-      off += len;
-      unifBuffer_->write(off, len, mv.data());
-      off += len;
-      // TODO: other instance data
+      auto matl = kv.second[0]->material();
+      auto mesh = kv.second[0]->mesh();
 
-      tab.write(inst, Uniform, 0, *unifBuffer_, beg, off);
+      for (uint32_t i = 0; i < n; ++i) {
+        auto mdl = kv.second.back();
+        kv.second.pop_back();
+
+        const auto& m = mdl->transform();
+        const auto mv = scene.camera().view() * m;
+        const auto beg = off;
+        len = Mat4f::dataSize();
+        unifBuffer_->write(off, len, m.data());
+        off += len;
+        unifBuffer_->write(off, len, mv.data());
+        off += len;
+        // TODO: other instance data
+
+        resource->table->write(alloc, Uniform, i, *unifBuffer_, beg, off);
+      }
 
       if (matl) {
         const pair<Texture*, CG_NS::DcId> texs[]{
@@ -117,7 +142,8 @@ void Renderer::render(Scene& scene, CG_NS::Target& target) {
 
         for (const auto& tp : texs) {
           if (tp.first)
-            tp.first->impl().copy(tab, inst, tp.second, 0, 0, nullptr);
+            tp.first->impl().copy(*resource->table, alloc, tp.second,
+                                  0, 0, nullptr);
         }
         // TODO: also copy factors to uniform buffer
       } else {
@@ -126,20 +152,26 @@ void Renderer::render(Scene& scene, CG_NS::Target& target) {
       }
 
       if (mesh)
-        mesh->impl().encode(enc, 0, 1);
+        mesh->impl().encode(enc, 0, n);
       else
         // TODO
         throw runtime_error("Cannot render models with no mesh set");
 
-      ++inst;
+      if (kv.second.empty())
+        completed.push_back(kv.first);
     }
+
+    for (const auto& k : completed)
+      models_.erase(k);
   };
 
-  renderMdl();
-
-  cmdBuffer_->encode(enc);
-  cmdBuffer_->enqueue();
-  const_cast<CG_NS::Queue&>(cmdBuffer_->queue()).submit();
+  // Render & submit
+  do {
+    renderMdl();
+    cmdBuffer_->encode(enc);
+    cmdBuffer_->enqueue();
+    const_cast<CG_NS::Queue&>(cmdBuffer_->queue()).submit();
+  } while (!models_.empty());
 }
 
 void Renderer::processGraph(Scene& scene) {
@@ -183,7 +215,7 @@ void Renderer::prepare() {
                                                 wstring(ShaderDir)+tp.second));
         break;
       default:
-        assert(0);
+        assert(false);
         abort();
       }
     }
@@ -250,7 +282,7 @@ void Renderer::prepare() {
         ++mdl2N;
       else
         // TODO
-        assert(0);
+        assert(false);
     }
     if (mdlN > 0)
       unifLen += setMdl(resource_, 1, mdlN);

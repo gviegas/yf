@@ -107,13 +107,10 @@ struct CopyTest : Test {
     auto quit = false;
     auto key = WS_NS::KeyCodeUnknown;
 
-    WS_NS::KbDelegate deleg{{}, {},
-      [&](WS_NS::KeyCode k, WS_NS::KeyState s, WS_NS::KeyModMask) {
-        if (s == WS_NS::KeyStatePressed)
-          key = k;
-      }
-    };
-    WS_NS::setDelegate(deleg);
+    WS_NS::onKbKey([&](WS_NS::KeyCode k, WS_NS::KeyState s, auto) {
+      if (s == WS_NS::KeyStatePressed)
+        key = k;
+    });
 
     Viewport vport{0.0f, 0.0f, static_cast<float>(winSz.width),
                    static_cast<float>(winSz.height), 0.0f, 1.0f};

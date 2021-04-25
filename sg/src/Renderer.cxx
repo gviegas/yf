@@ -161,53 +161,37 @@ void Renderer::processGraph(Scene& scene) {
 }
 
 void Renderer::prepare() {
-  uint64_t unifLen = 0;
+  auto& dev = CG_NS::device();
 
   // Set model resources and returns required uniform space
-  auto setMdl = [&]() -> uint64_t {
-    if (models_.empty()) {
-      resource_.reset();
-      return 0;
-    }
-
-    // TODO: instanced rendering
-    if (any_of(models_.begin(), models_.end(),
-               [](const auto& kv) { return kv.second.size() > 1; }))
-      throw runtime_error("Instanced rendering of models unimplemented");
-
-    auto& dev = CG_NS::device();
-
-    if (resource_.shaders.empty()) {
+  auto setMdl = [&](Resource& resource, uint32_t instN, uint32_t allocN) {
+    if (resource.shaders.empty()) {
+      // TODO: select shaders based on number of instances
       for (const auto& tp : MdlShaders)
-        resource_.shaders.push_back(dev.shader(tp.first,
-                                               wstring(ShaderDir)+tp.second));
+        resource.shaders.push_back(dev.shader(tp.first,
+                                              wstring(ShaderDir)+tp.second));
     }
 
-    // TODO: compute this value on `processGraph()`
-    const auto uniqMdlN = count_if(models_.begin(), models_.end(),
-                                   [](const auto& kv)
-                                   { return kv.second.size() == 1; });
-
-    if (!resource_.table) {
+    if (!resource.table) {
       const CG_NS::DcEntries inst{
-        {Uniform,              {CG_NS::DcTypeUniform,    1}},
+        {Uniform,              {CG_NS::DcTypeUniform,    instN}},
         {ColorImgSampler,      {CG_NS::DcTypeImgSampler, 1}},
         {MetalRoughImgSampler, {CG_NS::DcTypeImgSampler, 1}},
         {NormalImgSampler,     {CG_NS::DcTypeImgSampler, 1}},
         {OcclusionImgSampler,  {CG_NS::DcTypeImgSampler, 1}},
         {EmissiveImgSampler,   {CG_NS::DcTypeImgSampler, 1}}};
-      resource_.table = dev.dcTable(inst);
+      resource.table = dev.dcTable(inst);
     }
 
-    if (resource_.table->allocations() != uniqMdlN)
-      resource_.table->allocate(uniqMdlN);
+    if (resource.table->allocations() != allocN)
+      resource.table->allocate(allocN);
 
-    if (!resource_.state) {
+    if (!resource.state) {
       vector<CG_NS::Shader*> shd;
-      for (const auto& s : resource_.shaders)
+      for (const auto& s : resource.shaders)
         shd.push_back(s.get());
 
-      const vector<CG_NS::DcTable*> tab{glbTable_.get(), resource_.table.get()};
+      const vector<CG_NS::DcTable*> tab{glbTable_.get(), resource.table.get()};
 
       const vector<CG_NS::VxInput> inp{vxInputFor(VxTypePosition),
                                        vxInputFor(VxTypeTangent),
@@ -218,20 +202,40 @@ void Renderer::prepare() {
                                        vxInputFor(VxTypeJoints0),
                                        vxInputFor(VxTypeWeights0)};
 
-      resource_.state = dev.state({prevPass_, shd, tab, inp,
-                                   CG_NS::PrimitiveTriangle,
-                                   CG_NS::PolyModeFill, CG_NS::CullModeBack,
-                                   CG_NS::WindingCounterCw});
+      resource.state = dev.state({prevPass_, shd, tab, inp,
+                                  CG_NS::PrimitiveTriangle,
+                                  CG_NS::PolyModeFill, CG_NS::CullModeBack,
+                                  CG_NS::WindingCounterCw});
     }
 
-    return uniqMdlN * MdlLength;
+    return MdlLength * instN * allocN;
   };
 
-  unifLen = GlbLength + setMdl();
+  // TODO: instanced rendering
+  if (any_of(models_.begin(), models_.end(),
+             [](const auto& kv) { return kv.second.size() > 1; }))
+    throw runtime_error("Instanced rendering of models unimplemented");
+
+  // TODO: compute this value on `processGraph()`
+  const auto uniqMdlN = count_if(models_.begin(), models_.end(),
+                                 [](const auto& kv)
+                                 { return kv.second.size() == 1; });
+
+  uint64_t unifLen = GlbLength;
+
+  // Set models
+  if (models_.empty()) {
+    resource_.reset();
+    // TODO: reset other resources when implemented
+  } else {
+    unifLen += setMdl(resource_, 1, uniqMdlN);
+    // TODO: instanced draw models
+  }
+
   unifLen = (unifLen & ~255) + 256;
 
   // TODO: improve resizing
   // TODO: also consider shrinking if buffer grows too much
   if (unifLen > unifBuffer_->size_)
-    unifBuffer_ = CG_NS::device().buffer(unifLen);
+    unifBuffer_ = dev.buffer(unifLen);
 }

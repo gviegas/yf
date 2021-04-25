@@ -49,6 +49,8 @@ class Renderer {
   static constexpr wchar_t ShaderDir[] = L"bin/";
   static constexpr Shader MdlShaders[]{{CG_NS::StageVertex, L"Model.vert"},
                                        {CG_NS::StageFragment, L"Model.frag"}};
+  static constexpr Shader Mdl2Shaders[]{{CG_NS::StageVertex, L"Model2.vert"},
+                                        {CG_NS::StageFragment, L"Model.frag"}};
 
   /// Renders a scene on a given target.
   ///
@@ -103,6 +105,7 @@ class Renderer {
   // TODO: resources for different kinds of models (e.g., points primitives)
   // TODO: resources for instanced draw
   Resource resource_{};
+  Resource resource2_{};
 
   /// Processes a scene graph.
   ///

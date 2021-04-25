@@ -120,9 +120,7 @@ struct RenderTest : Test {
     scn2.camera() = scn1.camera();
     scn2.color()[0] = 0.125f;
 
-    WS_NS::KbDelegate deleg;
-    deleg.key = onKey;
-    WS_NS::setDelegate(deleg);
+    WS_NS::onKbKey(onKey);
 
     auto scn = &scn1;
 

@@ -162,9 +162,7 @@ struct CameraTest : Test {
                                 0.0f, 1.0f};
     const CG_NS::Scissor sciss{{0}, winSz};
 
-    WS_NS::KbDelegate deleg;
-    deleg.key = onKey;
-    WS_NS::setDelegate(deleg);
+    WS_NS::onKbKey(onKey);
 
     while (!input.quit) {
       WS_NS::dispatch();

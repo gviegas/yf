@@ -85,6 +85,7 @@ void Renderer::render(Scene& scene, CG_NS::Target& target) {
     auto allocN = resource_.table ? resource_.table->allocations() : 0U;
     auto alloc2N = resource2_.table ? resource2_.table->allocations() : 0U;
     auto alloc4N = resource4_.table ? resource4_.table->allocations() : 0U;
+    auto alloc8N = resource8_.table ? resource8_.table->allocations() : 0U;
 
     for (auto& kv : models_) {
       const auto size = kv.second.size();
@@ -110,6 +111,12 @@ void Renderer::render(Scene& scene, CG_NS::Target& target) {
         resource = &resource4_;
         n = size;
         alloc = --alloc4N;
+      } else if (size <= 8) {
+        if (alloc8N == 0)
+          continue;
+        resource = &resource8_;
+        n = size;
+        alloc = --alloc8N;
       } else {
         // TODO
         assert(false);

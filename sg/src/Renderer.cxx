@@ -82,59 +82,48 @@ void Renderer::render(Scene& scene, CG_NS::Target& target) {
   // Render models
   auto renderMdl = [&] {
     vector<MdlKey> completed{};
-    auto allocN = resource_.table ? resource_.table->allocations() : 0U;
-    auto alloc2N = resource2_.table ? resource2_.table->allocations() : 0U;
-    auto alloc4N = resource4_.table ? resource4_.table->allocations() : 0U;
-    auto alloc8N = resource8_.table ? resource8_.table->allocations() : 0U;
-    auto alloc16N = resource16_.table ? resource16_.table->allocations() : 0U;
-    auto alloc32N = resource32_.table ? resource32_.table->allocations() : 0U;
+
+    // Resource info
+    struct ResInfo {
+      const Resource* const resource{};
+      const uint32_t instN{};
+      uint32_t allocN{};
+    };
+
+    vector<ResInfo> resources;
+    if (resource_.table)
+      resources.push_back({&resource_, 1, resource_.table->allocations()});
+    if (resource2_.table)
+      resources.push_back({&resource2_, 2, resource2_.table->allocations()});
+    if (resource4_.table)
+      resources.push_back({&resource4_, 4, resource4_.table->allocations()});
+    if (resource8_.table)
+      resources.push_back({&resource8_, 8, resource8_.table->allocations()});
+    if (resource16_.table)
+      resources.push_back({&resource16_, 16, resource16_.table->allocations()});
+    if (resource32_.table)
+      resources.push_back({&resource32_, 32, resource32_.table->allocations()});
 
     for (auto& kv : models_) {
       const auto size = kv.second.size();
-      Resource* resource;
-      uint32_t n;
-      uint32_t alloc;
 
-      if (size == 1) {
-        if (allocN == 0)
+      const Resource* resource{};
+      uint32_t n{};
+      uint32_t alloc{};
+
+      for (auto& r : resources) {
+        if (r.instN < size || r.allocN == 0)
           continue;
-        resource = &resource_;
-        n = 1;
-        alloc = --allocN;
-      } else if (size == 2) {
-        if (alloc2N == 0)
-          continue;
-        resource = &resource2_;
-        n = 2;
-        alloc = --alloc2N;
-      } else if (size <= 4) {
-        if (alloc4N == 0)
-          continue;
-        resource = &resource4_;
+        resource = r.resource;
         n = size;
-        alloc = --alloc4N;
-      } else if (size <= 8) {
-        if (alloc8N == 0)
-          continue;
-        resource = &resource8_;
-        n = size;
-        alloc = --alloc8N;
-      } else if (size <= 16) {
-        if (alloc16N == 0)
-          continue;
-        resource = &resource16_;
-        n = size;
-        alloc = --alloc16N;
-      } else if (size <= 32) {
-        if (alloc32N == 0)
-          continue;
-        resource = &resource32_;
-        n = size;
-        alloc = --alloc32N;
-      } else {
-        // TODO
-        assert(false);
-        abort();
+        alloc = --r.allocN;
+        break;
+      }
+
+      if (!resource) {
+        // TODO: check whether a lesser resource is available to render
+        // a subset of instances
+        continue;
       }
 
       enc.setState(resource->state.get());

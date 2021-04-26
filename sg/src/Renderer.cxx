@@ -46,6 +46,11 @@ void Renderer::render(Scene& scene, CG_NS::Target& target) {
 
   if (pass != prevPass_) {
     resource_.reset();
+    resource2_.reset();
+    resource4_.reset();
+    resource8_.reset();
+    resource16_.reset();
+    resource32_.reset();
   } else if (&scene == prevScene_) {
     // TODO
   }

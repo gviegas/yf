@@ -57,6 +57,8 @@ class Renderer {
                                          MdlShaders[1]};
   static constexpr Shader Mdl16Shaders[]{{CG_NS::StageVertex, L"Model16.vert"},
                                           MdlShaders[1]};
+  static constexpr Shader Mdl32Shaders[]{{CG_NS::StageVertex, L"Model32.vert"},
+                                          MdlShaders[1]};
 
   /// Renders a scene on a given target.
   ///
@@ -109,12 +111,12 @@ class Renderer {
   };
 
   // TODO: resources for different kinds of models (e.g., points primitives)
-  // TODO: resources for instanced draw
   Resource resource_{};
   Resource resource2_{};
   Resource resource4_{};
   Resource resource8_{};
   Resource resource16_{};
+  Resource resource32_{};
 
   /// Processes a scene graph.
   ///

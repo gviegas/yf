@@ -6,6 +6,7 @@
 //
 
 #include <algorithm>
+#include <list>
 #include <typeinfo>
 #include <stdexcept>
 #include <cassert>
@@ -86,8 +87,6 @@ void Renderer::render(Scene& scene, CG_NS::Target& target) {
 
   // Render models
   auto renderMdl = [&] {
-    vector<MdlKey> completed{};
-
     // Resource info
     struct ResInfo {
       const Resource* const resource{};
@@ -95,7 +94,7 @@ void Renderer::render(Scene& scene, CG_NS::Target& target) {
       uint32_t allocN{};
     };
 
-    vector<ResInfo> resources;
+    list<ResInfo> resources;
     if (resource_.table)
       resources.push_back({&resource_, 1, resource_.table->allocations()});
     if (resource2_.table)
@@ -109,82 +108,94 @@ void Renderer::render(Scene& scene, CG_NS::Target& target) {
     if (resource32_.table)
       resources.push_back({&resource32_, 32, resource32_.table->allocations()});
 
-    for (auto& kv : models_) {
-      const auto size = kv.second.size();
+    vector<MdlKey> completed{};
 
-      const Resource* resource{};
-      uint32_t n{};
-      uint32_t alloc{};
+    while (!resources.empty() && !models_.empty()) {
+      for (auto& kv : models_) {
+        const auto size = kv.second.size();
 
-      for (auto& r : resources) {
-        if (r.instN < size || r.allocN == 0)
-          continue;
-        resource = r.resource;
-        n = size;
-        alloc = --r.allocN;
-        break;
-      }
+        const Resource* resource{};
+        uint32_t n{};
+        uint32_t alloc{};
 
-      if (!resource) {
-        // TODO: check whether a lesser resource is available to render
-        // a subset of instances
-        continue;
-      }
-
-      enc.setState(resource->state.get());
-      enc.setDcTable(MdlTable, alloc);
-
-      auto matl = kv.second[0]->material();
-      auto mesh = kv.second[0]->mesh();
-
-      for (uint32_t i = 0; i < n; ++i) {
-        auto mdl = kv.second.back();
-        kv.second.pop_back();
-
-        const auto& m = mdl->transform();
-        const auto mv = scene.camera().view() * m;
-        const auto beg = off;
-        len = Mat4f::dataSize();
-        unifBuffer_->write(off, len, m.data());
-        off += len;
-        unifBuffer_->write(off, len, mv.data());
-        off += len;
-        // TODO: other instance data
-
-        resource->table->write(alloc, Uniform, i, *unifBuffer_, beg, off);
-      }
-
-      if (matl) {
-        const pair<Texture*, CG_NS::DcId> texs[]{
-          {matl->pbrmr().colorTex, ColorImgSampler},
-          {matl->pbrmr().metalRoughTex, MetalRoughImgSampler},
-          {matl->normal().texture, NormalImgSampler},
-          {matl->occlusion().texture, OcclusionImgSampler},
-          {matl->emissive().texture, EmissiveImgSampler}};
-
-        for (const auto& tp : texs) {
-          if (tp.first)
-            tp.first->impl().copy(*resource->table, alloc, tp.second,
-                                  0, 0, nullptr);
+        for (auto it = resources.begin(); it != resources.end(); ++it) {
+          if (it->instN < size)
+            continue;
+          resource = it->resource;
+          n = size;
+          alloc = --it->allocN;
+          if (it->allocN == 0)
+            resources.erase(it);
+          break;
         }
-        // TODO: also copy factors to uniform buffer
-      } else {
-        // TODO
-        throw runtime_error("Cannot render models with no material set");
+
+        if (!resource) {
+          if (resources.empty())
+            break;
+          auto& r = resources.back();
+          resource = r.resource;
+          n = r.instN;
+          alloc = --r.allocN;
+          if (r.allocN == 0)
+            resources.pop_back();
+        }
+
+        enc.setState(resource->state.get());
+        enc.setDcTable(MdlTable, alloc);
+
+        auto matl = kv.second[0]->material();
+        auto mesh = kv.second[0]->mesh();
+
+        for (uint32_t i = 0; i < n; ++i) {
+          auto mdl = kv.second.back();
+          kv.second.pop_back();
+
+          const auto& m = mdl->transform();
+          const auto mv = scene.camera().view() * m;
+          const auto beg = off;
+          len = Mat4f::dataSize();
+          unifBuffer_->write(off, len, m.data());
+          off += len;
+          unifBuffer_->write(off, len, mv.data());
+          off += len;
+          // TODO: other instance data
+
+          resource->table->write(alloc, Uniform, i, *unifBuffer_, beg, off);
+        }
+
+        if (matl) {
+          const pair<Texture*, CG_NS::DcId> texs[]{
+            {matl->pbrmr().colorTex, ColorImgSampler},
+            {matl->pbrmr().metalRoughTex, MetalRoughImgSampler},
+            {matl->normal().texture, NormalImgSampler},
+            {matl->occlusion().texture, OcclusionImgSampler},
+            {matl->emissive().texture, EmissiveImgSampler}};
+
+          for (const auto& tp : texs) {
+            if (tp.first)
+              tp.first->impl().copy(*resource->table, alloc, tp.second,
+                                    0, 0, nullptr);
+          }
+          // TODO: also copy factors to uniform buffer
+        } else {
+          // TODO
+          throw runtime_error("Cannot render models with no material set");
+        }
+
+        if (mesh)
+          mesh->impl().encode(enc, 0, n);
+        else
+          // TODO
+          throw runtime_error("Cannot render models with no mesh set");
+
+        if (kv.second.empty())
+          completed.push_back(kv.first);
       }
 
-      if (mesh)
-        mesh->impl().encode(enc, 0, n);
-      else
-        // TODO
-        throw runtime_error("Cannot render models with no mesh set");
-
-      if (kv.second.empty())
-        completed.push_back(kv.first);
+      for (const auto& k : completed)
+        models_.erase(k);
+      completed.clear();
     }
-
-    for (const auto& k : completed)
-      models_.erase(k);
   };
 
   // Render & submit

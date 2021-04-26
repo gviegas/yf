@@ -84,6 +84,7 @@ void Renderer::render(Scene& scene, CG_NS::Target& target) {
     vector<MdlKey> completed{};
     auto allocN = resource_.table ? resource_.table->allocations() : 0U;
     auto alloc2N = resource2_.table ? resource2_.table->allocations() : 0U;
+    auto alloc4N = resource4_.table ? resource4_.table->allocations() : 0U;
 
     for (auto& kv : models_) {
       const auto size = kv.second.size();
@@ -103,6 +104,12 @@ void Renderer::render(Scene& scene, CG_NS::Target& target) {
         resource = &resource2_;
         n = 2;
         alloc = --alloc2N;
+      } else if (size <= 4) {
+        if (alloc4N == 0)
+          continue;
+        resource = &resource4_;
+        n = size;
+        alloc = --alloc4N;
       } else {
         // TODO
         assert(false);
@@ -275,6 +282,7 @@ void Renderer::prepare() {
   if (models_.empty()) {
     resource_.reset();
     resource2_.reset();
+    resource4_.reset();
     // TODO: reset other resources when implemented
   } else {
     uint32_t mdlN = 0;

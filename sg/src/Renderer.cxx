@@ -87,6 +87,7 @@ void Renderer::render(Scene& scene, CG_NS::Target& target) {
     auto alloc4N = resource4_.table ? resource4_.table->allocations() : 0U;
     auto alloc8N = resource8_.table ? resource8_.table->allocations() : 0U;
     auto alloc16N = resource16_.table ? resource16_.table->allocations() : 0U;
+    auto alloc32N = resource32_.table ? resource32_.table->allocations() : 0U;
 
     for (auto& kv : models_) {
       const auto size = kv.second.size();
@@ -124,6 +125,12 @@ void Renderer::render(Scene& scene, CG_NS::Target& target) {
         resource = &resource16_;
         n = size;
         alloc = --alloc16N;
+      } else if (size <= 32) {
+        if (alloc32N == 0)
+          continue;
+        resource = &resource32_;
+        n = size;
+        alloc = --alloc32N;
       } else {
         // TODO
         assert(false);
@@ -250,6 +257,11 @@ void Renderer::prepare() {
           resource.shaders.push_back(dev.shader(tp.first,
                                                 wstring(ShaderDir)+tp.second));
         break;
+      case 32:
+        for (const auto& tp : Mdl32Shaders)
+          resource.shaders.push_back(dev.shader(tp.first,
+                                                wstring(ShaderDir)+tp.second));
+        break;
       default:
         assert(false);
         abort();
@@ -295,10 +307,10 @@ void Renderer::prepare() {
     return MdlLength * instN * allocN;
   };
 
-  // TODO: instanced rendering (> 4)
+  // TODO: instanced rendering (> 32)
   if (any_of(models_.begin(), models_.end(),
-             [](const auto& kv) { return kv.second.size() > 4; }))
-    throw runtime_error("Instanced rendering of models (> 4) unimplemented");
+             [](const auto& kv) { return kv.second.size() > 32; }))
+    throw runtime_error("Instanced rendering of models (> 32) unimplemented");
 
   uint64_t unifLen = GlbLength;
 
@@ -309,13 +321,14 @@ void Renderer::prepare() {
     resource4_.reset();
     resource8_.reset();
     resource16_.reset();
-    // TODO: reset other resources when implemented
+    resource32_.reset();
   } else {
     uint32_t mdlN = 0;
     uint32_t mdl2N = 0;
     uint32_t mdl4N = 0;
     uint32_t mdl8N = 0;
     uint32_t mdl16N = 0;
+    uint32_t mdl32N = 0;
     for (const auto& kv : models_) {
       const auto size = kv.second.size();
       if (size == 1)
@@ -328,6 +341,8 @@ void Renderer::prepare() {
         ++mdl8N;
       else if (size <= 16)
         ++mdl16N;
+      else if (size <= 32)
+        ++mdl32N;
       else
         // TODO
         assert(false);
@@ -342,7 +357,8 @@ void Renderer::prepare() {
       unifLen += setMdl(resource8_, 8, mdl8N);
     if (mdl16N > 0)
       unifLen += setMdl(resource16_, 16, mdl16N);
-    // TODO: other instanced draw models
+    if (mdl32N > 0)
+      unifLen += setMdl(resource32_, 32, mdl32N);
   }
 
   unifLen = (unifLen & ~255) + 256;

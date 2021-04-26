@@ -214,6 +214,11 @@ void Renderer::prepare() {
           resource.shaders.push_back(dev.shader(tp.first,
                                                 wstring(ShaderDir)+tp.second));
         break;
+      case 4:
+        for (const auto& tp : Mdl4Shaders)
+          resource.shaders.push_back(dev.shader(tp.first,
+                                                wstring(ShaderDir)+tp.second));
+        break;
       default:
         assert(false);
         abort();
@@ -259,10 +264,10 @@ void Renderer::prepare() {
     return MdlLength * instN * allocN;
   };
 
-  // TODO: instanced rendering (> 2)
+  // TODO: instanced rendering (> 4)
   if (any_of(models_.begin(), models_.end(),
-             [](const auto& kv) { return kv.second.size() > 2; }))
-    throw runtime_error("Instanced rendering of models (> 2) unimplemented");
+             [](const auto& kv) { return kv.second.size() > 4; }))
+    throw runtime_error("Instanced rendering of models (> 4) unimplemented");
 
   uint64_t unifLen = GlbLength;
 
@@ -274,12 +279,15 @@ void Renderer::prepare() {
   } else {
     uint32_t mdlN = 0;
     uint32_t mdl2N = 0;
+    uint32_t mdl4N = 0;
     for (const auto& kv : models_) {
       const auto size = kv.second.size();
       if (size == 1)
         ++mdlN;
       else if (size == 2)
         ++mdl2N;
+      else if (size <= 4)
+        ++mdl4N;
       else
         // TODO
         assert(false);
@@ -288,6 +296,8 @@ void Renderer::prepare() {
       unifLen += setMdl(resource_, 1, mdlN);
     if (mdl2N > 0)
       unifLen += setMdl(resource2_, 2, mdl2N);
+    if (mdl4N > 0)
+      unifLen += setMdl(resource4_, 4, mdl4N);
     // TODO: other instanced draw models
   }
 

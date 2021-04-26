@@ -53,6 +53,8 @@ class Renderer {
                                          MdlShaders[1]};
   static constexpr Shader Mdl4Shaders[]{{CG_NS::StageVertex, L"Model4.vert"},
                                          MdlShaders[1]};
+  static constexpr Shader Mdl8Shaders[]{{CG_NS::StageVertex, L"Model8.vert"},
+                                         MdlShaders[1]};
 
   /// Renders a scene on a given target.
   ///
@@ -109,6 +111,7 @@ class Renderer {
   Resource resource_{};
   Resource resource2_{};
   Resource resource4_{};
+  Resource resource8_{};
 
   /// Processes a scene graph.
   ///

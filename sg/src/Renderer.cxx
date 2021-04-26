@@ -296,59 +296,66 @@ void Renderer::prepare() {
     return MdlLength * instN * allocN;
   };
 
-  // TODO: instanced rendering (> 32)
-  if (any_of(models_.begin(), models_.end(),
-             [](const auto& kv) { return kv.second.size() > 32; }))
-    throw runtime_error("Instanced rendering of models (> 32) unimplemented");
-
   uint64_t unifLen = GlbLength;
 
   // Set models
-  if (models_.empty()) {
-    resource_.reset();
-    resource2_.reset();
-    resource4_.reset();
-    resource8_.reset();
-    resource16_.reset();
-    resource32_.reset();
-  } else {
-    uint32_t mdlN = 0;
-    uint32_t mdl2N = 0;
-    uint32_t mdl4N = 0;
-    uint32_t mdl8N = 0;
-    uint32_t mdl16N = 0;
-    uint32_t mdl32N = 0;
-    for (const auto& kv : models_) {
-      const auto size = kv.second.size();
-      if (size == 1)
-        ++mdlN;
-      else if (size == 2)
-        ++mdl2N;
-      else if (size <= 4)
-        ++mdl4N;
-      else if (size <= 8)
-        ++mdl8N;
-      else if (size <= 16)
-        ++mdl16N;
-      else if (size <= 32)
-        ++mdl32N;
-      else
-        // TODO
-        assert(false);
+  uint32_t mdlN = 0;
+  uint32_t mdl2N = 0;
+  uint32_t mdl4N = 0;
+  uint32_t mdl8N = 0;
+  uint32_t mdl16N = 0;
+  uint32_t mdl32N = 0;
+
+  for (const auto& kv : models_) {
+    uint32_t size = kv.second.size();
+    while (size >= 32) {
+      ++mdl32N;
+      size -= 32;
     }
-    if (mdlN > 0)
-      unifLen += setMdl(resource_, 1, mdlN);
-    if (mdl2N > 0)
-      unifLen += setMdl(resource2_, 2, mdl2N);
-    if (mdl4N > 0)
-      unifLen += setMdl(resource4_, 4, mdl4N);
-    if (mdl8N > 0)
-      unifLen += setMdl(resource8_, 8, mdl8N);
-    if (mdl16N > 0)
-      unifLen += setMdl(resource16_, 16, mdl16N);
-    if (mdl32N > 0)
-      unifLen += setMdl(resource32_, 32, mdl32N);
+    if (size >= 16) {
+      ++mdl16N;
+      size -= 16;
+    }
+    if (size >= 8) {
+      ++mdl8N;
+      size -= 8;
+    }
+    if (size >= 4) {
+      ++mdl4N;
+      size -= 4;
+    }
+    if (size >= 2) {
+      ++mdl2N;
+      size -= 2;
+    }
+    if (size == 1)
+      ++mdlN;
   }
+
+  if (mdlN > 0)
+    unifLen += setMdl(resource_, 1, mdlN);
+  else
+    resource_.reset();
+  if (mdl2N > 0)
+    unifLen += setMdl(resource2_, 2, mdl2N);
+  else
+    resource2_.reset();
+  if (mdl4N > 0)
+    unifLen += setMdl(resource4_, 4, mdl4N);
+  else
+    resource4_.reset();
+  if (mdl8N > 0)
+    unifLen += setMdl(resource8_, 8, mdl8N);
+  else
+    resource8_.reset();
+  if (mdl16N > 0)
+    unifLen += setMdl(resource16_, 16, mdl16N);
+  else
+    resource16_.reset();
+  if (mdl32N > 0)
+    unifLen += setMdl(resource32_, 32, mdl32N);
+  else
+    resource32_.reset();
 
   unifLen = (unifLen & ~255) + 256;
 

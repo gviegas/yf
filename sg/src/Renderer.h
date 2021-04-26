@@ -50,7 +50,9 @@ class Renderer {
   static constexpr Shader MdlShaders[]{{CG_NS::StageVertex, L"Model.vert"},
                                        {CG_NS::StageFragment, L"Model.frag"}};
   static constexpr Shader Mdl2Shaders[]{{CG_NS::StageVertex, L"Model2.vert"},
-                                        {CG_NS::StageFragment, L"Model.frag"}};
+                                         MdlShaders[1]};
+  static constexpr Shader Mdl4Shaders[]{{CG_NS::StageVertex, L"Model4.vert"},
+                                         MdlShaders[1]};
 
   /// Renders a scene on a given target.
   ///
@@ -106,6 +108,7 @@ class Renderer {
   // TODO: resources for instanced draw
   Resource resource_{};
   Resource resource2_{};
+  Resource resource4_{};
 
   /// Processes a scene graph.
   ///

@@ -86,6 +86,7 @@ void Renderer::render(Scene& scene, CG_NS::Target& target) {
     auto alloc2N = resource2_.table ? resource2_.table->allocations() : 0U;
     auto alloc4N = resource4_.table ? resource4_.table->allocations() : 0U;
     auto alloc8N = resource8_.table ? resource8_.table->allocations() : 0U;
+    auto alloc16N = resource16_.table ? resource16_.table->allocations() : 0U;
 
     for (auto& kv : models_) {
       const auto size = kv.second.size();
@@ -117,6 +118,12 @@ void Renderer::render(Scene& scene, CG_NS::Target& target) {
         resource = &resource8_;
         n = size;
         alloc = --alloc8N;
+      } else if (size <= 16) {
+        if (alloc16N == 0)
+          continue;
+        resource = &resource16_;
+        n = size;
+        alloc = --alloc16N;
       } else {
         // TODO
         assert(false);
@@ -238,6 +245,11 @@ void Renderer::prepare() {
           resource.shaders.push_back(dev.shader(tp.first,
                                                 wstring(ShaderDir)+tp.second));
         break;
+      case 16:
+        for (const auto& tp : Mdl16Shaders)
+          resource.shaders.push_back(dev.shader(tp.first,
+                                                wstring(ShaderDir)+tp.second));
+        break;
       default:
         assert(false);
         abort();
@@ -296,12 +308,14 @@ void Renderer::prepare() {
     resource2_.reset();
     resource4_.reset();
     resource8_.reset();
+    resource16_.reset();
     // TODO: reset other resources when implemented
   } else {
     uint32_t mdlN = 0;
     uint32_t mdl2N = 0;
     uint32_t mdl4N = 0;
     uint32_t mdl8N = 0;
+    uint32_t mdl16N = 0;
     for (const auto& kv : models_) {
       const auto size = kv.second.size();
       if (size == 1)
@@ -312,6 +326,8 @@ void Renderer::prepare() {
         ++mdl4N;
       else if (size <= 8)
         ++mdl8N;
+      else if (size <= 16)
+        ++mdl16N;
       else
         // TODO
         assert(false);
@@ -324,6 +340,8 @@ void Renderer::prepare() {
       unifLen += setMdl(resource4_, 4, mdl4N);
     if (mdl8N > 0)
       unifLen += setMdl(resource8_, 8, mdl8N);
+    if (mdl16N > 0)
+      unifLen += setMdl(resource16_, 16, mdl16N);
     // TODO: other instanced draw models
   }
 

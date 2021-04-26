@@ -226,6 +226,11 @@ void Renderer::prepare() {
           resource.shaders.push_back(dev.shader(tp.first,
                                                 wstring(ShaderDir)+tp.second));
         break;
+      case 8:
+        for (const auto& tp : Mdl8Shaders)
+          resource.shaders.push_back(dev.shader(tp.first,
+                                                wstring(ShaderDir)+tp.second));
+        break;
       default:
         assert(false);
         abort();
@@ -283,11 +288,13 @@ void Renderer::prepare() {
     resource_.reset();
     resource2_.reset();
     resource4_.reset();
+    resource8_.reset();
     // TODO: reset other resources when implemented
   } else {
     uint32_t mdlN = 0;
     uint32_t mdl2N = 0;
     uint32_t mdl4N = 0;
+    uint32_t mdl8N = 0;
     for (const auto& kv : models_) {
       const auto size = kv.second.size();
       if (size == 1)
@@ -296,6 +303,8 @@ void Renderer::prepare() {
         ++mdl2N;
       else if (size <= 4)
         ++mdl4N;
+      else if (size <= 8)
+        ++mdl8N;
       else
         // TODO
         assert(false);
@@ -306,6 +315,8 @@ void Renderer::prepare() {
       unifLen += setMdl(resource2_, 2, mdl2N);
     if (mdl4N > 0)
       unifLen += setMdl(resource4_, 4, mdl4N);
+    if (mdl8N > 0)
+      unifLen += setMdl(resource8_, 8, mdl8N);
     // TODO: other instanced draw models
   }
 

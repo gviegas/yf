@@ -18,8 +18,33 @@ class Node::Impl {
  public:
   Impl(Node& node) : node_(node) { }
 
+  Impl(Node& node, const Impl& other)
+    : node_(node), name_(other.name_), transform_(other.transform_) {
+
+    if (other.child_)
+      throw runtime_error("Cannot copy non-leaf node");
+
+    if (other.parent_)
+      other.parent_->insert(*this);
+  }
+
   Impl(const Impl&) = delete;
-  Impl& operator=(const Impl&) = delete;
+
+  Impl& operator=(const Impl& other) {
+    if (other.child_)
+      throw runtime_error("Cannot copy non-leaf node");
+
+    drop();
+    prune();
+
+    if (other.parent_)
+      other.parent_->insert(*this);
+
+    name_ = other.name_;
+    transform_ = other.transform_;
+
+    return *this;
+  }
 
   ~Impl() {
     drop();
@@ -28,7 +53,7 @@ class Node::Impl {
 
   void insert(Impl& child) {
     if (&child == this)
-      throw invalid_argument("Attempt to insert a node into itself");
+      throw invalid_argument("Cannot insert a node into itself");
 
     if (child.parent_)
       child.drop();
@@ -216,6 +241,14 @@ class Node::Impl {
 };
 
 Node::Node() : impl_(make_unique<Impl>(*this)) { }
+
+Node::Node(const Node& other)
+  : impl_(make_unique<Impl>(*this, *other.impl_)) { }
+
+Node& Node::operator=(const Node& other) {
+  *impl_ = *other.impl_;
+  return *this;
+}
 
 Node::~Node() { }
 

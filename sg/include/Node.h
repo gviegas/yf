@@ -23,6 +23,8 @@ SG_NS_BEGIN
 class Node {
  public:
   Node();
+  Node(const Node& other);
+  Node& operator=(const Node& other);
   virtual ~Node();
 
   /// Inserts descendant node(s).

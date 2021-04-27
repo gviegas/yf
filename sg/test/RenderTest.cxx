@@ -106,24 +106,22 @@ struct RenderTest : Test {
     Material matl2;
     matl2.pbrmr().colorTex = &tex;
 
-    const size_t instMdlN = 9;
-    vector<unique_ptr<Model>> mdls;
-    for (size_t i = 0; i < instMdlN; ++i)
-      mdls.push_back(make_unique<Model>(mesh1, matl1));
-    mdls.push_back(make_unique<Model>(mesh1, matl2));
-    mdls.push_back(make_unique<Model>(mesh2, matl1));
-    mdls.push_back(make_unique<Model>(mesh1, matl1));
-    mdls.push_back(make_unique<Model>(mesh2, matl2));
+    const size_t instMdlN = 6;
+    vector<Model> mdls{instMdlN, {mesh1, matl1}};
+    mdls.push_back({mesh1, matl2});
+    mdls.push_back({mesh2, matl1});
+    mdls.push_back({mesh1, matl1});
+    mdls.push_back({mesh2, matl2});
 
     auto tf = static_cast<float>(mdls.size()) / -2.0f;
     for (auto& mdl : mdls) {
-      mdl->transform() = scale(0.5f, 0.5f, 0.5f) * translate(tf, tf, -tf);
+      mdl.transform() = scale(0.5f, 0.5f, 0.5f) * translate(tf, tf, -tf);
       tf += 1.0f;
     }
 
     Scene scn1;
     for (auto& mdl : mdls)
-      scn1.insert(*mdl);
+      scn1.insert(mdl);
     scn1.camera().place({0.0f, 0.0f, 20.0f});
     scn1.camera().point({});
     scn1.color() = {0.05f, 0.05f, 0.2f, 1.0f};

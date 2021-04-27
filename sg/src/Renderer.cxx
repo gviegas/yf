@@ -6,8 +6,10 @@
 //
 
 #include <algorithm>
+#include <list>
 #include <typeinfo>
 #include <stdexcept>
+#include <cassert>
 
 #include "yf/cg/Device.h"
 
@@ -24,8 +26,8 @@ using namespace std;
 // TODO: consider allowing custom length values
 constexpr uint64_t UnifLength = 1ULL << 14;
 // TODO
-constexpr uint32_t GlbLength = Mat4f::dataSize() << 1;
-constexpr uint32_t MdlLength = Mat4f::dataSize() << 1;
+constexpr uint64_t GlbLength = Mat4f::dataSize() << 1;
+constexpr uint64_t MdlLength = Mat4f::dataSize() << 1;
 
 Renderer::Renderer() {
   auto& dev = CG_NS::device();
@@ -42,8 +44,14 @@ Renderer::Renderer() {
 
 void Renderer::render(Scene& scene, CG_NS::Target& target) {
   auto pass = &target.pass();
+
   if (pass != prevPass_) {
     resource_.reset();
+    resource2_.reset();
+    resource4_.reset();
+    resource8_.reset();
+    resource16_.reset();
+    resource32_.reset();
   } else if (&scene == prevScene_) {
     // TODO
   }
@@ -77,67 +85,132 @@ void Renderer::render(Scene& scene, CG_NS::Target& target) {
 
   glbTable_->write(0, Uniform, 0, *unifBuffer_, 0, off);
 
-  // Render unique models
+  // Render models
   auto renderMdl = [&] {
-    uint32_t inst = 0;
+    // Resource info
+    struct ResInfo {
+      const Resource* const resource{};
+      const uint32_t instN{};
+      uint32_t allocN{};
+    };
 
-    for (auto& kv : models_) {
-      if (kv.second.size() > 1)
-        continue;
+    list<ResInfo> resources;
+    if (resource_.table)
+      resources.push_back({&resource_, 1, resource_.table->allocations()});
+    if (resource2_.table)
+      resources.push_back({&resource2_, 2, resource2_.table->allocations()});
+    if (resource4_.table)
+      resources.push_back({&resource4_, 4, resource4_.table->allocations()});
+    if (resource8_.table)
+      resources.push_back({&resource8_, 8, resource8_.table->allocations()});
+    if (resource16_.table)
+      resources.push_back({&resource16_, 16, resource16_.table->allocations()});
+    if (resource32_.table)
+      resources.push_back({&resource32_, 32, resource32_.table->allocations()});
 
-      auto mdl = kv.second[0];
-      auto matl = mdl->material();
-      auto mesh = mdl->mesh();
-      auto& tab = *resource_.table;
+    vector<MdlKey> completed{};
 
-      enc.setState(resource_.state.get());
-      enc.setDcTable(MdlTable, inst);
+    // Render until done or resources depleted
+    while (!resources.empty() && !models_.empty()) {
+      for (auto& kv : models_) {
+        const auto size = kv.second.size();
 
-      const auto& m = mdl->transform();
-      const auto mv = scene.camera().view() * m;
-      const auto beg = off;
-      len = Mat4f::dataSize();
-      unifBuffer_->write(off, len, m.data());
-      off += len;
-      unifBuffer_->write(off, len, mv.data());
-      off += len;
-      // TODO: other instance data
+        const Resource* resource{};
+        uint32_t n{};
+        uint32_t alloc{};
 
-      tab.write(inst, Uniform, 0, *unifBuffer_, beg, off);
-
-      if (matl) {
-        const pair<Texture*, CG_NS::DcId> texs[]{
-          {matl->pbrmr().colorTex, ColorImgSampler},
-          {matl->pbrmr().metalRoughTex, MetalRoughImgSampler},
-          {matl->normal().texture, NormalImgSampler},
-          {matl->occlusion().texture, OcclusionImgSampler},
-          {matl->emissive().texture, EmissiveImgSampler}};
-
-        for (const auto& tp : texs) {
-          if (tp.first)
-            tp.first->impl().copy(tab, inst, tp.second, 0, 0, nullptr);
+        // Find a resource that can render this many instances
+        for (auto it = resources.begin(); it != resources.end(); ++it) {
+          if (it->instN < size)
+            continue;
+          resource = it->resource;
+          n = size;
+          alloc = --it->allocN;
+          if (it->allocN == 0)
+            resources.erase(it);
+          break;
         }
-        // TODO: also copy factors to uniform buffer
-      } else {
-        // TODO
-        throw runtime_error("Cannot render models with no material set");
+
+        // If no suitable resource is found, get one to render a subset
+        if (!resource) {
+          if (resources.empty())
+            break;
+          auto& r = resources.back();
+          resource = r.resource;
+          n = r.instN;
+          alloc = --r.allocN;
+          if (r.allocN == 0)
+            resources.pop_back();
+        }
+
+        enc.setState(resource->state.get());
+        enc.setDcTable(MdlTable, alloc);
+
+        auto matl = kv.second[0]->material();
+        auto mesh = kv.second[0]->mesh();
+
+        // Update instance-specific uniform buffer
+        for (uint32_t i = 0; i < n; ++i) {
+          auto mdl = kv.second.back();
+          kv.second.pop_back();
+
+          const auto& m = mdl->transform();
+          const auto mv = scene.camera().view() * m;
+          const auto beg = off;
+          len = Mat4f::dataSize();
+          unifBuffer_->write(off, len, m.data());
+          off += len;
+          unifBuffer_->write(off, len, mv.data());
+          off += len;
+          // TODO: other instance data
+
+          resource->table->write(alloc, Uniform, i, *unifBuffer_, beg, off);
+        }
+
+        // Update material
+        if (matl) {
+          const pair<Texture*, CG_NS::DcId> texs[]{
+            {matl->pbrmr().colorTex, ColorImgSampler},
+            {matl->pbrmr().metalRoughTex, MetalRoughImgSampler},
+            {matl->normal().texture, NormalImgSampler},
+            {matl->occlusion().texture, OcclusionImgSampler},
+            {matl->emissive().texture, EmissiveImgSampler}};
+
+          for (const auto& tp : texs) {
+            if (tp.first)
+              tp.first->impl().copy(*resource->table, alloc, tp.second,
+                                    0, 0, nullptr);
+          }
+          // TODO: also copy factors to uniform buffer
+        } else {
+          // TODO
+          throw runtime_error("Cannot render models with no material set");
+        }
+
+        // Encode commands for this mesh
+        if (mesh)
+          mesh->impl().encode(enc, 0, n);
+        else
+          // TODO
+          throw runtime_error("Cannot render models with no mesh set");
+
+        if (kv.second.empty())
+          completed.push_back(kv.first);
       }
 
-      if (mesh)
-        mesh->impl().encode(enc, 0, 1);
-      else
-        // TODO
-        throw runtime_error("Cannot render models with no mesh set");
-
-      ++inst;
+      for (const auto& k : completed)
+        models_.erase(k);
+      completed.clear();
     }
   };
 
-  renderMdl();
-
-  cmdBuffer_->encode(enc);
-  cmdBuffer_->enqueue();
-  const_cast<CG_NS::Queue&>(cmdBuffer_->queue()).submit();
+  // Render & submit
+  do {
+    renderMdl();
+    cmdBuffer_->encode(enc);
+    cmdBuffer_->enqueue();
+    const_cast<CG_NS::Queue&>(cmdBuffer_->queue()).submit();
+  } while (!models_.empty());
 }
 
 void Renderer::processGraph(Scene& scene) {
@@ -161,53 +234,74 @@ void Renderer::processGraph(Scene& scene) {
 }
 
 void Renderer::prepare() {
-  uint64_t unifLen = 0;
+  auto& dev = CG_NS::device();
 
   // Set model resources and returns required uniform space
-  auto setMdl = [&]() -> uint64_t {
-    if (models_.empty()) {
-      resource_.reset();
-      return 0;
+  auto setMdl = [&](Resource& resource, uint32_t instN, uint32_t allocN) {
+    assert(instN > 0);
+    assert(allocN > 0);
+
+    // Shaders
+    if (resource.shaders.empty()) {
+      switch (instN) {
+      case 1:
+        for (const auto& tp : MdlShaders)
+          resource.shaders.push_back(dev.shader(tp.first,
+                                                wstring(ShaderDir)+tp.second));
+        break;
+      case 2:
+        for (const auto& tp : Mdl2Shaders)
+          resource.shaders.push_back(dev.shader(tp.first,
+                                                wstring(ShaderDir)+tp.second));
+        break;
+      case 4:
+        for (const auto& tp : Mdl4Shaders)
+          resource.shaders.push_back(dev.shader(tp.first,
+                                                wstring(ShaderDir)+tp.second));
+        break;
+      case 8:
+        for (const auto& tp : Mdl8Shaders)
+          resource.shaders.push_back(dev.shader(tp.first,
+                                                wstring(ShaderDir)+tp.second));
+        break;
+      case 16:
+        for (const auto& tp : Mdl16Shaders)
+          resource.shaders.push_back(dev.shader(tp.first,
+                                                wstring(ShaderDir)+tp.second));
+        break;
+      case 32:
+        for (const auto& tp : Mdl32Shaders)
+          resource.shaders.push_back(dev.shader(tp.first,
+                                                wstring(ShaderDir)+tp.second));
+        break;
+      default:
+        assert(false);
+        abort();
+      }
     }
 
-    // TODO: instanced rendering
-    if (any_of(models_.begin(), models_.end(),
-               [](const auto& kv) { return kv.second.size() > 1; }))
-      throw runtime_error("Instanced rendering of models unimplemented");
-
-    auto& dev = CG_NS::device();
-
-    if (resource_.shaders.empty()) {
-      for (const auto& tp : MdlShaders)
-        resource_.shaders.push_back(dev.shader(tp.first,
-                                               wstring(ShaderDir)+tp.second));
-    }
-
-    // TODO: compute this value on `processGraph()`
-    const auto uniqMdlN = count_if(models_.begin(), models_.end(),
-                                   [](const auto& kv)
-                                   { return kv.second.size() == 1; });
-
-    if (!resource_.table) {
+    // Descriptors
+    if (!resource.table) {
       const CG_NS::DcEntries inst{
-        {Uniform,              {CG_NS::DcTypeUniform,    1}},
+        {Uniform,              {CG_NS::DcTypeUniform,    instN}},
         {ColorImgSampler,      {CG_NS::DcTypeImgSampler, 1}},
         {MetalRoughImgSampler, {CG_NS::DcTypeImgSampler, 1}},
         {NormalImgSampler,     {CG_NS::DcTypeImgSampler, 1}},
         {OcclusionImgSampler,  {CG_NS::DcTypeImgSampler, 1}},
         {EmissiveImgSampler,   {CG_NS::DcTypeImgSampler, 1}}};
-      resource_.table = dev.dcTable(inst);
+      resource.table = dev.dcTable(inst);
     }
 
-    if (resource_.table->allocations() != uniqMdlN)
-      resource_.table->allocate(uniqMdlN);
+    if (resource.table->allocations() != allocN)
+      resource.table->allocate(allocN);
 
-    if (!resource_.state) {
+    // State
+    if (!resource.state) {
       vector<CG_NS::Shader*> shd;
-      for (const auto& s : resource_.shaders)
+      for (const auto& s : resource.shaders)
         shd.push_back(s.get());
 
-      const vector<CG_NS::DcTable*> tab{glbTable_.get(), resource_.table.get()};
+      const vector<CG_NS::DcTable*> tab{glbTable_.get(), resource.table.get()};
 
       const vector<CG_NS::VxInput> inp{vxInputFor(VxTypePosition),
                                        vxInputFor(VxTypeTangent),
@@ -218,20 +312,81 @@ void Renderer::prepare() {
                                        vxInputFor(VxTypeJoints0),
                                        vxInputFor(VxTypeWeights0)};
 
-      resource_.state = dev.state({prevPass_, shd, tab, inp,
-                                   CG_NS::PrimitiveTriangle,
-                                   CG_NS::PolyModeFill, CG_NS::CullModeBack,
-                                   CG_NS::WindingCounterCw});
+      resource.state = dev.state({prevPass_, shd, tab, inp,
+                                  CG_NS::PrimitiveTriangle,
+                                  CG_NS::PolyModeFill, CG_NS::CullModeBack,
+                                  CG_NS::WindingCounterCw});
     }
 
-    return uniqMdlN * MdlLength;
+    return MdlLength * instN * allocN;
   };
 
-  unifLen = GlbLength + setMdl();
+  uint64_t unifLen = GlbLength;
+
+  // Set models
+  // TODO: check limits and catch errors
+  uint32_t mdlN = 0;
+  uint32_t mdl2N = 0;
+  uint32_t mdl4N = 0;
+  uint32_t mdl8N = 0;
+  uint32_t mdl16N = 0;
+  uint32_t mdl32N = 0;
+
+  for (const auto& kv : models_) {
+    uint32_t size = kv.second.size();
+    while (size >= 32) {
+      ++mdl32N;
+      size -= 32;
+    }
+    if (size >= 16) {
+      ++mdl16N;
+      size -= 16;
+    }
+    if (size >= 8) {
+      ++mdl8N;
+      size -= 8;
+    }
+    if (size >= 4) {
+      ++mdl4N;
+      size -= 4;
+    }
+    if (size >= 2) {
+      ++mdl2N;
+      size -= 2;
+    }
+    if (size == 1)
+      ++mdlN;
+  }
+
+  if (mdlN > 0)
+    unifLen += setMdl(resource_, 1, mdlN);
+  else
+    resource_.reset();
+  if (mdl2N > 0)
+    unifLen += setMdl(resource2_, 2, mdl2N);
+  else
+    resource2_.reset();
+  if (mdl4N > 0)
+    unifLen += setMdl(resource4_, 4, mdl4N);
+  else
+    resource4_.reset();
+  if (mdl8N > 0)
+    unifLen += setMdl(resource8_, 8, mdl8N);
+  else
+    resource8_.reset();
+  if (mdl16N > 0)
+    unifLen += setMdl(resource16_, 16, mdl16N);
+  else
+    resource16_.reset();
+  if (mdl32N > 0)
+    unifLen += setMdl(resource32_, 32, mdl32N);
+  else
+    resource32_.reset();
+
   unifLen = (unifLen & ~255) + 256;
 
   // TODO: improve resizing
   // TODO: also consider shrinking if buffer grows too much
   if (unifLen > unifBuffer_->size_)
-    unifBuffer_ = CG_NS::device().buffer(unifLen);
+    unifBuffer_ = dev.buffer(unifLen);
 }

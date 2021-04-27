@@ -23,26 +23,24 @@ struct NodeTest : Test {
   Assertions run(const vector<string>&) {
     Assertions a;
 
-    vector<Node> nodes{6};
-    map<Node*, int> ids;
-    for (size_t i = 0; i < nodes.size(); ++i) {
-      ids.emplace(&nodes[i], i);
-      nodes[i].name() = L"Node #" + to_wstring(i);
-      wcout << "\nNode named `" << nodes[i].name() << "` created";
-    }
-    wcout << endl;
-
     auto printChd = [&](Node& root) {
-      wcout << "\n{" << ids[&root] << "}\n";
+      wcout << "\n{" << root.name() << "}\n";
       root.traverse((function<bool(Node&)>)[&](Node& node) -> bool {
         if (node.parent() != &root)
           return false;
         else
-          wcout << " --- (" << ids[&node] << ")";
+          wcout << " --- (" << node.name() << ")";
         return true;
       }, true);
       wcout << endl;
     };
+
+    vector<Node> nodes{6};
+    for (size_t i = 0; i < nodes.size(); ++i) {
+      nodes[i].name() = L"#" + to_wstring(i);
+      wcout << "\nNode named `" << nodes[i].name() << "` created";
+    }
+    wcout << endl;
 
     a.push_back({L"Node() [6]", true});
 
@@ -143,6 +141,40 @@ struct NodeTest : Test {
 
     wcout.precision(prec);
     a.push_back({L"transform()", true});
+
+    Node nodeA;
+    nodeA.name() = L"a";
+    Node nodeB;
+    nodeB.name() = L"b";
+    Node nodeC(nodeB);
+
+    wcout << "\nNode named `" << nodeA.name() << "` created";
+    wcout << "\nNode named `" << nodeB.name() << "` created";
+    wcout << "\nNode `" << nodeB.name() << "` copied\n";
+
+    a.push_back({L"Node(other)", nodeB.name() == L"b" && nodeB.isLeaf() &&
+                                 nodeC.name() == nodeB.name() &&
+                                 nodeC.isLeaf()});
+    printChd(nodeA);
+    printChd(nodeB);
+    printChd(nodeC);
+
+    nodeA.insert(nodeC);
+    nodeC.name() = L"c";
+    const auto b = nodeB.name();
+    nodeB = nodeC;
+
+    wcout << "\nNode copy inserted into `" << nodeA.name() << "`";
+    wcout << "\nNode copy renamed `" << nodeC.name() << "`";
+    wcout << "\nNode copy assigned to `" << b << "`\n";
+
+    a.push_back({L"=", !nodeA.isLeaf() && nodeB.parent() == &nodeA &&
+                       nodeB.name() == nodeC.name() &&
+                       nodeC.parent() == &nodeA && nodeC.name() == L"c"});
+    printChd(nodeA);
+    printChd(nodeB);
+    printChd(nodeC);
+
 
     return a;
   }

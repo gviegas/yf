@@ -27,6 +27,15 @@ Model::Model(Mesh& mesh) : impl_(make_unique<Impl>(&mesh, nullptr)) { }
 
 Model::Model() : impl_(make_unique<Impl>(nullptr, nullptr)) { }
 
+Model::Model(const Model& other)
+  : Node(other), impl_(make_unique<Impl>(*other.impl_)) { }
+
+Model& Model::operator=(const Model& other) {
+  Node::operator=(other);
+  *impl_ = *other.impl_;
+  return *this;
+}
+
 Model::~Model() { }
 
 void Model::setMesh(Mesh* mesh) {

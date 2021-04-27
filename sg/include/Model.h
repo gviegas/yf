@@ -24,6 +24,8 @@ class Model : public Node {
   Model(Mesh& mesh, Material& material);
   Model(Mesh& mesh);
   Model();
+  Model(const Model& other);
+  Model& operator=(const Model& other);
   ~Model();
 
   /// Setters.

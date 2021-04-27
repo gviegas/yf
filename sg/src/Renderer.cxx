@@ -209,9 +209,10 @@ void Renderer::render(Scene& scene, CG_NS::Target& target) {
   do {
     off = GlbLength;
     renderMdl();
+
     cmdBuffer_->encode(enc);
     cmdBuffer_->enqueue();
-    const_cast<CG_NS::Queue&>(cmdBuffer_->queue()).submit();
+    cmdBuffer_->queue().submit();
   } while (!models_.empty());
 
 #ifdef YF_DEVEL

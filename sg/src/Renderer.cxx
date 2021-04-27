@@ -110,6 +110,7 @@ void Renderer::render(Scene& scene, CG_NS::Target& target) {
 
     vector<MdlKey> completed{};
 
+    // Render until done or resources depleted
     while (!resources.empty() && !models_.empty()) {
       for (auto& kv : models_) {
         const auto size = kv.second.size();
@@ -118,6 +119,7 @@ void Renderer::render(Scene& scene, CG_NS::Target& target) {
         uint32_t n{};
         uint32_t alloc{};
 
+        // Find a resource that can render this many instances
         for (auto it = resources.begin(); it != resources.end(); ++it) {
           if (it->instN < size)
             continue;
@@ -129,6 +131,7 @@ void Renderer::render(Scene& scene, CG_NS::Target& target) {
           break;
         }
 
+        // If no suitable resource is found, get one to render a subset
         if (!resource) {
           if (resources.empty())
             break;
@@ -146,6 +149,7 @@ void Renderer::render(Scene& scene, CG_NS::Target& target) {
         auto matl = kv.second[0]->material();
         auto mesh = kv.second[0]->mesh();
 
+        // Update instance-specific uniform buffer
         for (uint32_t i = 0; i < n; ++i) {
           auto mdl = kv.second.back();
           kv.second.pop_back();
@@ -163,6 +167,7 @@ void Renderer::render(Scene& scene, CG_NS::Target& target) {
           resource->table->write(alloc, Uniform, i, *unifBuffer_, beg, off);
         }
 
+        // Update material
         if (matl) {
           const pair<Texture*, CG_NS::DcId> texs[]{
             {matl->pbrmr().colorTex, ColorImgSampler},
@@ -182,6 +187,7 @@ void Renderer::render(Scene& scene, CG_NS::Target& target) {
           throw runtime_error("Cannot render models with no material set");
         }
 
+        // Encode commands for this mesh
         if (mesh)
           mesh->impl().encode(enc, 0, n);
         else
@@ -235,6 +241,7 @@ void Renderer::prepare() {
     assert(instN > 0);
     assert(allocN > 0);
 
+    // Shaders
     if (resource.shaders.empty()) {
       switch (instN) {
       case 1:
@@ -273,6 +280,7 @@ void Renderer::prepare() {
       }
     }
 
+    // Descriptors
     if (!resource.table) {
       const CG_NS::DcEntries inst{
         {Uniform,              {CG_NS::DcTypeUniform,    instN}},
@@ -287,6 +295,7 @@ void Renderer::prepare() {
     if (resource.table->allocations() != allocN)
       resource.table->allocate(allocN);
 
+    // State
     if (!resource.state) {
       vector<CG_NS::Shader*> shd;
       for (const auto& s : resource.shaders)
@@ -315,6 +324,7 @@ void Renderer::prepare() {
   uint64_t unifLen = GlbLength;
 
   // Set models
+  // TODO: check limits and catch errors
   uint32_t mdlN = 0;
   uint32_t mdl2N = 0;
   uint32_t mdl4N = 0;

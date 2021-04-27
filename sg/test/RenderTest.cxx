@@ -95,28 +95,40 @@ struct RenderTest : Test {
   Assertions run(const vector<string>&) {
     Assertions a;
 
-    auto win = WS_NS::createWindow(800, 480, name_);
+    auto win = WS_NS::createWindow(800, 600, name_);
     View view{win.get()};
 
     Mesh mesh1{Mesh::Gltf, L"tmp/cube.gltf"};
     Mesh mesh2{Mesh::Gltf, L"tmp/cube.gltf"};
     Texture tex{Texture::Png, L"tmp/cube.png"};
-    Material matl;
-    matl.pbrmr().colorTex = &tex;
+    Material matl1;
+    matl1.pbrmr().colorTex = &tex;
+    Material matl2;
+    matl2.pbrmr().colorTex = &tex;
 
-    Model mdl1{mesh1, matl};
-    Model mdl2{mesh2};
-    mdl2.setMaterial(&matl);
-    mdl1.transform() = translate(2.0f, 2.0f, -2.0f);
-    mdl2.transform() = rotateZ(3.14159265359f * 0.25f);
+    const size_t instMdlN = 9;
+    vector<unique_ptr<Model>> mdls;
+    for (size_t i = 0; i < instMdlN; ++i)
+      mdls.push_back(make_unique<Model>(mesh1, matl1));
+    mdls.push_back(make_unique<Model>(mesh1, matl2));
+    mdls.push_back(make_unique<Model>(mesh2, matl1));
+    mdls.push_back(make_unique<Model>(mesh1, matl1));
+    mdls.push_back(make_unique<Model>(mesh2, matl2));
+
+    auto tf = static_cast<float>(mdls.size()) / -2.0f;
+    for (auto& mdl : mdls) {
+      mdl->transform() = scale(0.5f, 0.5f, 0.5f) * translate(tf, tf, -tf);
+      tf += 1.0f;
+    }
 
     Scene scn1;
-    scn1.insert(mdl1);
-    scn1.camera().place({0.0f, 30.0f, 30.0f});
+    for (auto& mdl : mdls)
+      scn1.insert(*mdl);
+    scn1.camera().place({0.0f, 0.0f, 20.0f});
     scn1.camera().point({});
     scn1.color() = {0.05f, 0.05f, 0.2f, 1.0f};
+
     Scene scn2;
-    scn2.insert(mdl2);
     scn2.camera() = scn1.camera();
     scn2.color()[0] = 0.125f;
 

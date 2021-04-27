@@ -125,6 +125,10 @@ class Renderer {
   /// Prepares for rendering.
   ///
   void prepare();
+
+#ifdef YF_DEVEL
+  void print() const;
+#endif
 };
 
 SG_NS_END

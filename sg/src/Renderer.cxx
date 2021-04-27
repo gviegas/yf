@@ -213,6 +213,10 @@ void Renderer::render(Scene& scene, CG_NS::Target& target) {
     cmdBuffer_->enqueue();
     const_cast<CG_NS::Queue&>(cmdBuffer_->queue()).submit();
   } while (!models_.empty());
+
+#ifdef YF_DEVEL
+  print();
+#endif
 }
 
 void Renderer::processGraph(Scene& scene) {
@@ -392,3 +396,29 @@ void Renderer::prepare() {
   if (unifLen > unifBuffer_->size_)
     unifBuffer_ = dev.buffer(unifLen);
 }
+
+//
+// DEVEL
+//
+
+#ifdef YF_DEVEL
+
+void Renderer::print() const {
+  wprintf(L"\nRenderer");
+  const vector<pair<string, const Resource*>> resources{{"1", &resource_},
+                                                        {"2", &resource2_},
+                                                        {"4", &resource4_},
+                                                        {"8", &resource8_},
+                                                        {"16", &resource16_},
+                                                        {"32", &resource32_}};
+  for (const auto& r : resources) {
+    wprintf(L"\n resource <%s>:\t", r.first.data());
+    if (r.second->table)
+      wprintf(L" %u allocation(s)", r.second->table->allocations());
+    else
+      wprintf(L" unused");
+  }
+  wprintf(L"\n");
+}
+
+#endif

@@ -19,15 +19,15 @@ struct QueueTest : Test {
 
   Assertions run(const vector<string>&) {
     struct CmdBuffer_ : CmdBuffer {
-      CmdBuffer_(const Queue& owner) : _queue(owner) { }
+      CmdBuffer_(Queue& owner) : _queue(owner) { }
       void encode(const Encoder&) { }
       void enqueue() { }
       void reset() { }
       bool isPending() { return true; }
-      const Queue& queue() const { return _queue; }
+      Queue& queue() const { return _queue; }
 
      private:
-      const Queue& _queue;
+      Queue& _queue;
     };
 
     struct Queue_ : Queue {

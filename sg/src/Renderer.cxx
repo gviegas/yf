@@ -83,7 +83,7 @@ void Renderer::render(Scene& scene, CG_NS::Target& target) {
   off += len;
   // TODO: other global data (light, viewport, ortho matrix, ...)
 
-  glbTable_->write(0, Uniform, 0, *unifBuffer_, 0, off);
+  glbTable_->write(0, Uniform, 0, *unifBuffer_, 0, GlbLength);
 
   // Render models
   auto renderMdl = [&] {
@@ -164,7 +164,8 @@ void Renderer::render(Scene& scene, CG_NS::Target& target) {
           off += len;
           // TODO: other instance data
 
-          resource->table->write(alloc, Uniform, i, *unifBuffer_, beg, off);
+          resource->table->write(alloc, Uniform, i, *unifBuffer_, beg,
+                                 MdlLength);
         }
 
         // Update material
@@ -206,6 +207,7 @@ void Renderer::render(Scene& scene, CG_NS::Target& target) {
 
   // Render & submit
   do {
+    off = GlbLength;
     renderMdl();
     cmdBuffer_->encode(enc);
     cmdBuffer_->enqueue();

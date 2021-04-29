@@ -65,6 +65,8 @@ Material::Material(const Pbrmr& pbrmr, const Normal& normal,
                    const Occlusion& occlusion, const Emissive& emissive)
   : impl_(make_unique<Impl>(pbrmr, normal, occlusion, emissive)) { }
 
+Material::Material(const Pbrmr& pbrmr) : Material(pbrmr, {}, {}, {}) { }
+
 Material::Material() : impl_(make_unique<Impl>()) { }
 
 Material::~Material() { }

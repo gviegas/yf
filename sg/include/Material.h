@@ -53,6 +53,7 @@ class Material {
   };
 
   Material(const Pbrmr&, const Normal&, const Occlusion&, const Emissive&);
+  Material(const Pbrmr&);
   Material();
   ~Material();
 
@@ -69,7 +70,6 @@ class Material {
 
   Emissive& emissive();
   const Emissive& emissive() const;
-
 
  private:
   class Impl;

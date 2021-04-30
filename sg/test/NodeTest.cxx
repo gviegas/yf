@@ -175,6 +175,10 @@ struct NodeTest : Test {
     printChd(nodeB);
     printChd(nodeC);
 
+    const Node cNode;
+    cNode.parent();
+    cNode.name();
+    cNode.transform();
 
     return a;
   }

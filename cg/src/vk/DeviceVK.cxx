@@ -326,16 +326,20 @@ void DeviceVK::initDevice(int32_t queueFamily, int32_t presFamily) {
     cache_ = VK_NULL_HANDLE;
 }
 
-VkInstance DeviceVK::instance() const {
+VkInstance DeviceVK::instance() {
   return instance_;
 }
 
-VkPhysicalDevice DeviceVK::physicalDev() const {
+VkPhysicalDevice DeviceVK::physicalDev() {
   return physicalDev_;
 }
 
-VkDevice DeviceVK::device() const {
+VkDevice DeviceVK::device() {
   return device_;
+}
+
+VkPipelineCache DeviceVK::cache() {
+  return cache_;
 }
 
 const VkPhysicalDeviceProperties& DeviceVK::physProperties() const {
@@ -368,10 +372,6 @@ uint32_t DeviceVK::devVersion() const {
 
 const VkPhysicalDeviceLimits& DeviceVK::limits() const {
   return physProperties_.limits;
-}
-
-VkPipelineCache DeviceVK::cache() const {
-  return cache_;
 }
 
 Queue& DeviceVK::defaultQueue() {

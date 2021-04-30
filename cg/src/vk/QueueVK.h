@@ -48,7 +48,7 @@ class QueueVK final : public Queue {
 
   /// Getters.
   ///
-  VkQueue handle() const;
+  VkQueue handle();
   int32_t family() const;
 
  private:
@@ -83,11 +83,11 @@ class CmdBufferVK final : public CmdBuffer {
   void enqueue();
   void reset();
   bool isPending();
-  Queue& queue() const;
+  Queue& queue();
 
   /// Getter.
   ///
-  VkCommandBuffer handle() const;
+  VkCommandBuffer handle();
 
   /// Called by `QueueVK` when execution of this command buffer completes.
   ///

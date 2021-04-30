@@ -49,9 +49,10 @@ class DeviceVK final : public Device {
 
   /// Getters.
   ///
-  VkInstance instance() const;
-  VkPhysicalDevice physicalDev() const;
-  VkDevice device() const;
+  VkInstance instance();
+  VkPhysicalDevice physicalDev();
+  VkDevice device();
+  VkPipelineCache cache();
   const VkPhysicalDeviceProperties& physProperties() const;
   const VkPhysicalDeviceMemoryProperties& memProperties() const;
   const std::vector<const char*>& instExtensions() const;
@@ -60,7 +61,6 @@ class DeviceVK final : public Device {
   uint32_t instVersion() const;
   uint32_t devVersion() const;
   const VkPhysicalDeviceLimits& limits() const;
-  VkPipelineCache cache() const;
 
  private:
   QueueVK* queue_ = nullptr;

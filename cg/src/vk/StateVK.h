@@ -2,7 +2,7 @@
 // CG
 // StateVK.h
 //
-// Copyright © 2020 Gustavo C. Viegas.
+// Copyright © 2020-2021 Gustavo C. Viegas.
 //
 
 #ifndef YF_CG_STATEVK_H
@@ -23,8 +23,8 @@ class GrStateVK final : public GrState {
   /// Getters.
   ///
   VkShaderStageFlags stgFlags() const;
-  VkPipelineLayout plLayout() const;
-  VkPipeline pipeline() const;
+  VkPipelineLayout plLayout();
+  VkPipeline pipeline();
 
  private:
   VkShaderStageFlags stgFlags_ = 0;
@@ -39,8 +39,8 @@ class CpStateVK final : public CpState {
 
   /// Getters.
   ///
-  VkPipelineLayout plLayout() const;
-  VkPipeline pipeline() const;
+  VkPipelineLayout plLayout();
+  VkPipeline pipeline();
 
  private:
   VkPipelineLayout plLayout_ = VK_NULL_HANDLE;

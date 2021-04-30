@@ -36,8 +36,8 @@ class DcTableVK final : public DcTable {
 
   /// Getters.
   ///
-  VkDescriptorSetLayout dsLayout() const;
-  VkDescriptorSet ds(uint32_t index) const;
+  VkDescriptorSetLayout dsLayout();
+  VkDescriptorSet ds(uint32_t index);
 
  private:
   VkDescriptorSetLayout dsLayout_ = VK_NULL_HANDLE;

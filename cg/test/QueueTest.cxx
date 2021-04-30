@@ -24,7 +24,7 @@ struct QueueTest : Test {
       void enqueue() { }
       void reset() { }
       bool isPending() { return true; }
-      Queue& queue() const { return _queue; }
+      Queue& queue() { return _queue; }
 
      private:
       Queue& _queue;

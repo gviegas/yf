@@ -34,7 +34,7 @@ class PassVK final : public Pass {
 
   /// Getter.
   ///
-  VkRenderPass renderPass() const;
+  VkRenderPass renderPass();
 
  private:
   VkRenderPass renderPass_ = VK_NULL_HANDLE;
@@ -49,11 +49,11 @@ class TargetVK final : public Target {
 
   ~TargetVK();
 
-  Pass& pass() const;
+  Pass& pass();
 
   /// Getter.
   ///
-  VkFramebuffer framebuffer() const;
+  VkFramebuffer framebuffer();
 
  private:
   PassVK& pass_;

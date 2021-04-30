@@ -45,7 +45,7 @@ class ImageVK final : public Image {
 
   /// Getters.
   ///
-  VkImage handle() const;
+  VkImage handle();
   std::pair<VkImageLayout, VkImageLayout> layout() const;
 
   /// Image view.
@@ -61,8 +61,8 @@ class ImageVK final : public Image {
 
     /// Getters.
     ///
-    ImageVK& image() const;
-    VkImageView handle() const;
+    ImageVK& image();
+    VkImageView handle();
     uint32_t firstLayer() const;
     uint32_t layerCount() const;
     uint32_t firstLevel() const;
@@ -115,7 +115,7 @@ class SamplerVK final {
   /// Getters.
   ///
   const Sampler& sampler() const;
-  VkSampler handle() const;
+  VkSampler handle();
 
  private:
   Sampler sampler_{};

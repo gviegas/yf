@@ -83,7 +83,7 @@ ShaderVK::~ShaderVK() {
   vkDestroyShaderModule(dev, module_, nullptr);
 }
 
-VkShaderModule ShaderVK::module() const {
+VkShaderModule ShaderVK::module() {
   return module_;
 }
 

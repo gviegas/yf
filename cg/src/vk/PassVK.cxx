@@ -146,7 +146,7 @@ Target::Ptr PassVK::target(Size2 size, uint32_t layers,
                                depthStencil);
 }
 
-VkRenderPass PassVK::renderPass() const {
+VkRenderPass PassVK::renderPass() {
   return renderPass_;
 }
 
@@ -230,10 +230,10 @@ TargetVK::~TargetVK() {
   vkDestroyFramebuffer(dev, framebuffer_, nullptr);
 }
 
-Pass& TargetVK::pass() const {
+Pass& TargetVK::pass() {
   return pass_;
 }
 
-VkFramebuffer TargetVK::framebuffer() const {
+VkFramebuffer TargetVK::framebuffer() {
   return framebuffer_;
 }

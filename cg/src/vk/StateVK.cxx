@@ -289,11 +289,11 @@ VkShaderStageFlags GrStateVK::stgFlags() const {
   return stgFlags_;
 }
 
-VkPipelineLayout GrStateVK::plLayout() const {
+VkPipelineLayout GrStateVK::plLayout() {
   return plLayout_;
 }
 
-VkPipeline GrStateVK::pipeline() const {
+VkPipeline GrStateVK::pipeline() {
   return pipeline_;
 }
 
@@ -345,10 +345,10 @@ CpStateVK::~CpStateVK() {
   vkDestroyPipelineLayout(dev, plLayout_, nullptr);
 }
 
-VkPipelineLayout CpStateVK::plLayout() const {
+VkPipelineLayout CpStateVK::plLayout() {
   return plLayout_;
 }
 
-VkPipeline CpStateVK::pipeline() const {
+VkPipeline CpStateVK::pipeline() {
   return pipeline_;
 }

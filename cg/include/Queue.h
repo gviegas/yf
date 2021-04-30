@@ -46,7 +46,7 @@ class CmdBuffer {
 
   /// The queue that owns the command buffer.
   ///
-  virtual Queue& queue() const = 0;
+  virtual Queue& queue() = 0;
 };
 
 /// Queue.

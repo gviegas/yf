@@ -67,6 +67,7 @@ class Node {
   /// Gets the immediate ancestor.
   ///
   Node* parent();
+  const Node* parent() const;
 
   /// Gets all immediate descendants.
   ///

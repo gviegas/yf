@@ -35,8 +35,8 @@ class Model : public Node {
 
   /// Getters.
   ///
-  Mesh* mesh() const;
-  Material* material() const;
+  Mesh* mesh();
+  Material* material();
 
  private:
   class Impl;

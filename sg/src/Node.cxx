@@ -179,7 +179,7 @@ class Node::Impl {
     return !parent_;
   }
 
-  Node* parent() const {
+  Node* parent() {
     if (!parent_)
       return nullptr;
 
@@ -293,7 +293,7 @@ bool Node::isRoot() const {
   return impl_->isRoot();
 }
 
-Node* Node::parent() const {
+Node* Node::parent() {
   return impl_->parent();
 }
 

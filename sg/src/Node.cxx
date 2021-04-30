@@ -186,6 +186,13 @@ class Node::Impl {
     return &parent_->node_;
   }
 
+  const Node* parent() const {
+    if (!parent_)
+      return nullptr;
+
+    return &parent_->node_;
+  }
+
   vector<Node*> children() const {
     if (!child_)
       return {};
@@ -294,6 +301,10 @@ bool Node::isRoot() const {
 }
 
 Node* Node::parent() {
+  return impl_->parent();
+}
+
+const Node* Node::parent() const {
   return impl_->parent();
 }
 

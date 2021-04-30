@@ -2,7 +2,7 @@
 // CG
 // BufferVK.h
 //
-// Copyright © 2020 Gustavo C. Viegas.
+// Copyright © 2020-2021 Gustavo C. Viegas.
 //
 
 #ifndef YF_CG_BUFFERVK_H
@@ -22,7 +22,7 @@ class BufferVK final : public Buffer {
 
   /// Getter.
   ///
-  VkBuffer handle() const;
+  VkBuffer handle();
 
  private:
   VkDeviceMemory memory_ = VK_NULL_HANDLE;

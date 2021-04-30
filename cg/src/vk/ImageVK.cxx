@@ -383,7 +383,7 @@ void ImageVK::layoutChanged(VkImageLayout newLayout) {
   layout_ = nextLayout_ = newLayout;
 }
 
-VkImage ImageVK::handle() const {
+VkImage ImageVK::handle() {
   return handle_;
 }
 
@@ -458,11 +458,11 @@ ImageVK::View::~View() {
   vkDestroyImageView(deviceVK().device(), handle_, nullptr);
 }
 
-ImageVK& ImageVK::View::image() const {
+ImageVK& ImageVK::View::image() {
   return image_;
 }
 
-VkImageView ImageVK::View::handle() const {
+VkImageView ImageVK::View::handle() {
   return handle_;
 }
 
@@ -522,6 +522,6 @@ const Sampler& SamplerVK::sampler() const {
   return sampler_;
 }
 
-VkSampler SamplerVK::handle() const {
+VkSampler SamplerVK::handle() {
   return handle_;
 }

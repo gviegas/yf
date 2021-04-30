@@ -89,6 +89,6 @@ void BufferVK::write(uint64_t offset, uint64_t size, const void* data) {
   memcpy(reinterpret_cast<uint8_t*>(data_)+offset, data, size);
 }
 
-VkBuffer BufferVK::handle() const {
+VkBuffer BufferVK::handle() {
   return handle_;
 }

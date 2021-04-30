@@ -270,7 +270,7 @@ void QueueVK::waitFor(VkSemaphore semaphore, VkPipelineStageFlags stageMask) {
   stageMasks_.push_back(stageMask);
 }
 
-VkQueue QueueVK::handle() const {
+VkQueue QueueVK::handle() {
   return handle_;
 }
 
@@ -357,11 +357,11 @@ bool CmdBufferVK::isPending() {
   return pending_;
 }
 
-Queue& CmdBufferVK::queue() const {
+Queue& CmdBufferVK::queue() {
   return queue_;
 }
 
-VkCommandBuffer CmdBufferVK::handle() const {
+VkCommandBuffer CmdBufferVK::handle() {
   return handle_;
 }
 

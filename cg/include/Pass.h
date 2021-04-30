@@ -78,7 +78,7 @@ class Target {
 
   /// Gets the `Pass` object that created the target.
   ///
-  virtual Pass& pass() const = 0;
+  virtual Pass& pass() = 0;
 
   /// Instance constants.
   ///

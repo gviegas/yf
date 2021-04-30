@@ -23,7 +23,7 @@ class ShaderVK final : public Shader {
 
   /// Getters.
   ///
-  VkShaderModule module() const;
+  VkShaderModule module();
   const std::string& name() const;
 
  private:

@@ -46,10 +46,10 @@ void Model::setMaterial(Material* material) {
   impl_->material_ = material;
 }
 
-Mesh* Model::mesh() const {
+Mesh* Model::mesh() {
   return impl_->mesh_;
 }
 
-Material* Model::material() const {
+Material* Model::material() {
   return impl_->material_;
 }

@@ -154,7 +154,9 @@ void Renderer::render(Scene& scene, CG_NS::Target& target) {
           auto mdl = kv.second.back();
           kv.second.pop_back();
 
-          const auto& m = mdl->transform();
+          const auto m = mdl->isLeaf() ?
+                         transforms_[mdl->parent()] * mdl->transform() :
+                         transforms_[mdl];
           const auto mv = scene.camera().view() * m;
           const auto beg = off;
           len = Mat4f::dataSize();

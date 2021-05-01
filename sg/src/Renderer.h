@@ -70,6 +70,7 @@ class Renderer {
   CG_NS::DcTable::Ptr glbTable_{};
   CG_NS::CmdBuffer::Ptr cmdBuffer_{};
   CG_NS::Buffer::Ptr unifBuffer_{};
+  std::unordered_map<Node*, Mat4f> transforms_{};
 
   /// Key for the model map.
   ///

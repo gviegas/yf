@@ -154,7 +154,9 @@ void Renderer::render(Scene& scene, CG_NS::Target& target) {
           auto mdl = kv.second.back();
           kv.second.pop_back();
 
-          const auto& m = mdl->transform();
+          const auto m = mdl->isLeaf() ?
+                         transforms_[mdl->parent()] * mdl->transform() :
+                         transforms_[mdl];
           const auto mv = scene.camera().view() * m;
           const auto beg = off;
           len = Mat4f::dataSize();
@@ -221,12 +223,23 @@ void Renderer::render(Scene& scene, CG_NS::Target& target) {
 }
 
 void Renderer::processGraph(Scene& scene) {
+  transforms_.clear();
   models_.clear();
 
   if (scene.isLeaf())
     return;
 
+  transforms_.emplace(&scene, scene.transform());
+
   scene.traverse([&](Node& node) {
+    // Transform
+    if (!node.isLeaf()) {
+      auto it = transforms_.find(node.parent());
+      assert(it != transforms_.end());
+      transforms_.emplace(&node, it->second * node.transform());
+    }
+
+    // Model
     if (typeid(node) == typeid(Model)) {
       auto& mdl = static_cast<Model&>(node);
       const MdlKey key{mdl.mesh(), mdl.material()};

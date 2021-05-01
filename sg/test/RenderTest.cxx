@@ -95,9 +95,11 @@ struct RenderTest : Test {
   Assertions run(const vector<string>&) {
     Assertions a;
 
+    // View
     auto win = WS_NS::createWindow(800, 600, name_);
     View view{win.get()};
 
+    // Resources
     Mesh mesh1{Mesh::Gltf, L"tmp/cube.gltf"};
     Mesh mesh2{Mesh::Gltf, L"tmp/cube.gltf"};
     Texture tex{Texture::Png, L"tmp/cube.png"};
@@ -106,7 +108,8 @@ struct RenderTest : Test {
     Material matl2;
     matl2.pbrmr().colorTex = &tex;
 
-    const size_t instMdlN = 6;
+    // Scene #1 contents
+    const size_t instMdlN = 11;
     vector<Model> mdls{instMdlN, {mesh1, matl1}};
     mdls.push_back({mesh1, matl2});
     mdls.push_back({mesh2, matl1});
@@ -126,14 +129,38 @@ struct RenderTest : Test {
     scn1.camera().point({});
     scn1.color() = {0.05f, 0.05f, 0.2f, 1.0f};
 
+    // Scene #2 contents
+    Model mdl1{mesh1, matl1};
+    Model mdl2{mesh2, matl2};
+    Model mdl3{mdl1};
+    Model mdl4{mdl2};
+    mdl1.transform() = translate(-3.0f, 0.0f, 0.0f);
+    mdl2.transform() = translate(3.0f, 0.0f, 0.0f);
+    mdl3.transform() = translate(0.0f, -3.0f, 0.0f);
+    mdl4.transform() = translate(0.0f, 3.0f, 0.0f);
+
+    Node grp1{};
+    Node grp2{};
+    Node grp3{};
+    grp1.insert({&mdl1, &mdl2});
+    grp2.insert({&mdl3, &grp3});
+    grp3.insert(mdl4);
+    grp2.transform() = scale(0.5f, 0.5f, 0.5f);
+    grp3.transform() = scale(0.5f, 0.5f, 0.5f);
+
     Scene scn2;
+    scn2.insert(grp1);
+    scn2.insert(grp2);
+    scn2.transform() = rotateZ(3.14159265358979f / 4.0f);
     scn2.camera() = scn1.camera();
     scn2.color()[0] = 0.125f;
 
+    // Input
     WS_NS::onKbKey(onKey);
 
     auto scn = &scn1;
 
+    // Render
     view.loop(*scn, 60, [&](auto) {
       if (input.quit)
         return false;

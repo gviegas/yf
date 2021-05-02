@@ -55,6 +55,8 @@ class Material {
   Material(const Pbrmr&, const Normal&, const Occlusion&, const Emissive&);
   Material(const Pbrmr&);
   Material();
+  Material(const Material& other);
+  Material& operator=(const Material& other);
   ~Material();
 
   /// Getters.

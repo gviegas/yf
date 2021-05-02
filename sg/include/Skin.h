@@ -40,11 +40,11 @@ class Skin {
 
   /// The joints.
   ///
-  const std::vector<Joint> joints() const;
+  const std::vector<Joint>& joints() const;
 
   /// The inverse-bind matrix of each joint.
   ///
-  const std::vector<Mat4f> inverseBind() const;
+  const std::vector<Mat4f>& inverseBind() const;
 
  private:
   class Impl;

@@ -48,3 +48,16 @@ class Skin::Impl {
   vector<Joint> joints_{};
   vector<Mat4f> inverseBind_{};
 };
+
+Skin::Skin(const vector<Mat4f>& bindPose, const vector<Mat4f>& inverseBind)
+  : impl_(make_unique<Impl>(*this, bindPose, inverseBind)) { }
+
+Skin::~Skin() { }
+
+const vector<Joint>& Skin::joints() const {
+  return impl_->joints_;
+}
+
+const vector<Mat4f>& Skin::inverseBind() const {
+  return impl_->inverseBind_;
+}

@@ -21,6 +21,8 @@ class Camera;
 class Scene : public Node {
  public:
   Scene();
+  Scene(const Scene& other);
+  Scene& operator=(const Scene& other);
   ~Scene();
 
   /// The scene's camera.

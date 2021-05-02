@@ -14,8 +14,8 @@ using namespace std;
 class Scene::Impl {
  public:
   Impl() = default;
-  Impl(const Impl&) = delete;
-  Impl& operator=(const Impl&) = delete;
+  Impl(const Impl& other) = default;
+  Impl& operator=(const Impl&) = default;
   ~Impl() = default;
 
   Camera camera_{{20.0f, 20.0f, 20.0f}, {}, 1.0f};
@@ -23,6 +23,15 @@ class Scene::Impl {
 };
 
 Scene::Scene() : impl_(make_unique<Impl>()) { }
+
+Scene::Scene(const Scene& other)
+  : Node(other), impl_(make_unique<Impl>(*other.impl_)) { }
+
+Scene& Scene::operator=(const Scene& other) {
+  Node::operator=(other);
+  *impl_ = *other.impl_;
+  return *this;
+}
 
 Scene::~Scene() { }
 

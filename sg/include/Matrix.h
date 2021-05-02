@@ -8,6 +8,7 @@
 #ifndef YF_SG_MATRIX_H
 #define YF_SG_MATRIX_H
 
+#include <cstddef>
 #include <cstdint>
 #include <cmath>
 #include <algorithm>

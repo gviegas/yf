@@ -8,6 +8,7 @@
 #ifndef YF_SG_VECTOR_H
 #define YF_SG_VECTOR_H
 
+#include <cstddef>
 #include <cstdint>
 #include <cmath>
 #include <algorithm>

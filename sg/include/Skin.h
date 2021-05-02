@@ -8,6 +8,7 @@
 #ifndef YF_SG_SKIN_H
 #define YF_SG_SKIN_H
 
+#include <cstddef>
 #include <vector>
 #include <memory>
 

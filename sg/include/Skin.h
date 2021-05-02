@@ -8,12 +8,11 @@
 #ifndef YF_SG_SKIN_H
 #define YF_SG_SKIN_H
 
-#include <cstdint>
 #include <vector>
 #include <memory>
 
 #include "yf/sg/Defs.h"
-#include "yf/sg/Matrix.h"
+#include "yf/sg/Node.h"
 
 SG_NS_BEGIN
 
@@ -23,11 +22,11 @@ class Skin;
 ///
 class Joint : public Node {
  public:
-  Joint(const Skin& skin, uint32_t index);
+  Joint(const Skin& skin, size_t index);
   ~Joint();
 
   const Skin& skin_;
-  const uint32_t index_;
+  const size_t index_;
 };
 
 /// Skin.

@@ -29,8 +29,8 @@ class Mesh {
   };
 
   Mesh(FileType fileType, const std::wstring& meshFile, uint32_t index = 0);
-  Mesh(const Mesh&) = delete;
-  Mesh& operator=(const Mesh&) = delete;
+  Mesh(const Mesh& other);
+  Mesh& operator=(const Mesh& other);
   ~Mesh();
 
   struct Data;
@@ -40,7 +40,7 @@ class Mesh {
   Impl& impl();
 
  private:
-  std::unique_ptr<Impl> impl_;
+  std::shared_ptr<Impl> impl_;
 };
 
 SG_NS_END

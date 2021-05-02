@@ -40,7 +40,14 @@ Mesh::Mesh(FileType fileType, const wstring& meshFile, uint32_t index) {
 
 Mesh::~Mesh() { }
 
-Mesh::Mesh(const Data& data) : impl_(make_unique<Impl>(data)) { }
+Mesh::Mesh(const Data& data) : impl_(make_shared<Impl>(data)) { }
+
+Mesh::Mesh(const Mesh& other) : impl_(other.impl_) { }
+
+Mesh& Mesh::operator=(const Mesh& other) {
+  impl_ = other.impl_;
+  return *this;
+}
 
 Mesh::Impl& Mesh::impl() {
   return *impl_;

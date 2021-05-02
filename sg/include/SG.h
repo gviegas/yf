@@ -19,6 +19,7 @@
 #include "yf/sg/Node.h"
 #include "yf/sg/Quaternion.h"
 #include "yf/sg/Scene.h"
+#include "yf/sg/Skin.h"
 #include "yf/sg/Texture.h"
 #include "yf/sg/Vector.h"
 #include "yf/sg/View.h"

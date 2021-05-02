@@ -8,6 +8,7 @@
 #ifndef YF_SG_NODE_H
 #define YF_SG_NODE_H
 
+#include <cstddef>
 #include <vector>
 #include <string>
 #include <functional>

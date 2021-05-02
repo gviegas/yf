@@ -5,6 +5,7 @@
 // Copyright © 2021 Gustavo C. Viegas.
 //
 
+#include <typeinfo>
 #include <stdexcept>
 
 #include "Skin.h"
@@ -42,6 +43,30 @@ class Skin::Impl {
     }
   }
 
+  Impl(Skin& skin, const Skin& other)
+    : skin_(skin), joints_(), inverseBind_(other.inverseBind()) {
+
+    for (const auto& ojt : other.joints()) {
+      joints_.push_back({skin, ojt.index_});
+      auto& jt = joints_.back();
+      jt.transform() = ojt.transform();
+      jt.name() = ojt.name();
+    }
+
+    // XXX: copying only the relationships between the joints themselves
+    for (size_t i = 0; i < joints_.size(); ++i) {
+      auto& jt = joints_[i];
+      const auto& ojt = other.joints()[i];
+
+      const auto opn = ojt.parent();
+      if (opn && typeid(*opn) == typeid(Joint)) {
+        const auto& opj = *static_cast<const Joint*>(opn);
+        if (&opj.skin_ == &ojt.skin_)
+          joints_[opj.index_].insert(jt);
+      }
+    }
+  }
+
   ~Impl() { }
 
   Skin& skin_;
@@ -51,6 +76,13 @@ class Skin::Impl {
 
 Skin::Skin(const vector<Mat4f>& bindPose, const vector<Mat4f>& inverseBind)
   : impl_(make_unique<Impl>(*this, bindPose, inverseBind)) { }
+
+Skin::Skin(const Skin& other) : impl_(make_unique<Impl>(*this, other)) { }
+
+Skin& Skin::operator=(const Skin& other) {
+  impl_ = make_unique<Impl>(*this, other);
+  return *this;
+}
 
 Skin::~Skin() { }
 

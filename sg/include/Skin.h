@@ -35,7 +35,8 @@ class Skin {
  public:
   Skin(const std::vector<Mat4f>& bindPose,
        const std::vector<Mat4f>& inverseBind);
-
+  Skin(const Skin& other);
+  Skin& operator=(const Skin& other);
   ~Skin();
 
   /// The joints.

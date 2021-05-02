@@ -39,7 +39,14 @@ Texture::Texture(FileType fileType, const wstring& textureFile) {
 
 Texture::~Texture() { }
 
-Texture::Texture(const Data& data) : impl_(make_unique<Impl>(data)) { }
+Texture::Texture(const Data& data) : impl_(make_shared<Impl>(data)) { }
+
+Texture::Texture(const Texture& other) : impl_(other.impl_) { }
+
+Texture& Texture::operator=(const Texture& other) {
+  impl_ = other.impl_;
+  return *this;
+}
 
 Texture::Impl& Texture::impl() {
   return *impl_;

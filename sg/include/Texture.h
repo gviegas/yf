@@ -2,7 +2,7 @@
 // SG
 // Texture.h
 //
-// Copyright © 2020 Gustavo C. Viegas.
+// Copyright © 2020-2021 Gustavo C. Viegas.
 //
 
 #ifndef YF_SG_TEXTURE_H
@@ -28,8 +28,8 @@ class Texture {
   };
 
   Texture(FileType fileType, const std::wstring& textureFile);
-  Texture(const Texture&) = delete;
-  Texture& operator=(const Texture&) = delete;
+  Texture(const Texture& other);
+  Texture& operator=(const Texture& other);
   ~Texture();
 
   struct Data;
@@ -39,7 +39,7 @@ class Texture {
   Impl& impl();
 
  private:
-  std::unique_ptr<Impl> impl_;
+  std::shared_ptr<Impl> impl_;
 };
 
 SG_NS_END

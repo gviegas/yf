@@ -1809,7 +1809,7 @@ class GLTF {
 
 /// Loads a single mesh from a GLTF object.
 ///
-void loadMesh(Mesh::Data& dst, const GLTF& gltf, uint32_t index) {
+void loadMesh(Mesh::Data& dst, const GLTF& gltf, size_t index) {
   assert(index <= gltf.meshes().size());
 
   const auto& mesh = gltf.meshes()[index];
@@ -1928,7 +1928,20 @@ void loadMesh(Mesh::Data& dst, const GLTF& gltf, uint32_t index) {
 
 INTERNAL_NS_END
 
-void SG_NS::loadGLTF(Node& dst, const wstring& pathname, uint32_t index) {
+void SG_NS::loadGLTF(Scene& dst, const wstring& pathname, size_t index) {
+  GLTF gltf(pathname);
+
+#ifdef YF_DEVEL
+  printGLTF(gltf);
+#endif
+
+  if (index >= gltf.scenes().size())
+    throw invalid_argument("loadGLTF() index out of bounds");
+
+  // TODO
+}
+
+void SG_NS::loadGLTF(Node& dst, const wstring& pathname, size_t index) {
   GLTF gltf(pathname);
 
 #ifdef YF_DEVEL
@@ -1941,20 +1954,7 @@ void SG_NS::loadGLTF(Node& dst, const wstring& pathname, uint32_t index) {
   // TODO
 }
 
-void SG_NS::loadGLTF(Model& dst, const wstring& pathname, uint32_t index) {
-  GLTF gltf(pathname);
-
-#ifdef YF_DEVEL
-  printGLTF(gltf);
-#endif
-
-  if (index >= gltf.nodes().size())
-    throw invalid_argument("loadGLTF() index out of bounds");
-
-  // TODO
-}
-
-void SG_NS::loadGLTF(Mesh::Data& dst, const wstring& pathname, uint32_t index) {
+void SG_NS::loadGLTF(Mesh::Data& dst, const wstring& pathname, size_t index) {
   GLTF gltf(pathname);
 
 #ifdef YF_DEVEL

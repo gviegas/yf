@@ -9,25 +9,24 @@
 #define YF_SG_DATAGLTF_H
 
 #include <string>
-#include <cstdint>
+#include <cstddef>
 
-#include "Node.h"
-#include "Model.h"
+#include "Scene.h"
 #include "MeshImpl.h"
 
 SG_NS_BEGIN
 
-/// Loads node graph from a glTF file.
+/// Loads scene graph from a glTF file.
 ///
-void loadGLTF(Node& dst, const std::wstring& pathname, uint32_t index);
+void loadGLTF(Scene& dst, const std::wstring& pathname, size_t index);
 
-/// Loads model object from a glTF file.
+/// Loads node subgraph from a glTF file.
 ///
-void loadGLTF(Model& dst, const std::wstring& pathname, uint32_t index);
+void loadGLTF(Node& dst, const std::wstring& pathname, size_t index);
 
 /// Loads mesh data from a glTF file.
 ///
-void loadGLTF(Mesh::Data& dst, const std::wstring& pathname, uint32_t index);
+void loadGLTF(Mesh::Data& dst, const std::wstring& pathname, size_t index);
 
 SG_NS_END
 

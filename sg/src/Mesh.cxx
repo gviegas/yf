@@ -18,7 +18,7 @@
 using namespace SG_NS;
 using namespace std;
 
-Mesh::Mesh(FileType fileType, const wstring& meshFile, uint32_t index) {
+Mesh::Mesh(FileType fileType, const wstring& meshFile, size_t index) {
   Data data;
 
   switch (fileType) {

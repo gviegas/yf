@@ -8,24 +8,25 @@
 #include "Model.h"
 #include "Mesh.h"
 #include "Material.h"
+#include "Skin.h"
 
 using namespace SG_NS;
 using namespace std;
 
 class Model::Impl {
  public:
-  Impl(Mesh* mesh, Material* material) : mesh_(mesh), material_(material) { }
+  Impl(Mesh* mesh, Material* material, Skin* skin)
+    : mesh_(mesh), material_(material), skin_(skin) { }
 
   Mesh* mesh_;
   Material* material_;
+  Skin* skin_;
 };
 
-Model::Model(Mesh& mesh, Material& material)
-  : impl_(make_unique<Impl>(&mesh, &material)) { }
+Model::Model(Mesh& mesh, Material& material, Skin& skin)
+  : impl_(make_unique<Impl>(&mesh, &material, &skin)) { }
 
-Model::Model(Mesh& mesh) : impl_(make_unique<Impl>(&mesh, nullptr)) { }
-
-Model::Model() : impl_(make_unique<Impl>(nullptr, nullptr)) { }
+Model::Model() : impl_(make_unique<Impl>(nullptr, nullptr, nullptr)) { }
 
 Model::Model(const Model& other)
   : Node(other), impl_(make_unique<Impl>(*other.impl_)) { }
@@ -46,10 +47,18 @@ void Model::setMaterial(Material* material) {
   impl_->material_ = material;
 }
 
+void Model::setSkin(Skin* skin) {
+  impl_->skin_ = skin;
+}
+
 Mesh* Model::mesh() {
   return impl_->mesh_;
 }
 
 Material* Model::material() {
   return impl_->material_;
+}
+
+Skin* Model::skin() {
+  return impl_->skin_;
 }

@@ -16,13 +16,13 @@ SG_NS_BEGIN
 
 class Mesh;
 class Material;
+class Skin;
 
 /// Model.
 ///
 class Model : public Node {
  public:
-  Model(Mesh& mesh, Material& material);
-  Model(Mesh& mesh);
+  Model(Mesh& mesh, Material& material, Skin& skin);
   Model();
   Model(const Model& other);
   Model& operator=(const Model& other);
@@ -32,11 +32,13 @@ class Model : public Node {
   ///
   void setMesh(Mesh* mesh);
   void setMaterial(Material* material);
+  void setSkin(Skin* skin);
 
   /// Getters.
   ///
   Mesh* mesh();
   Material* material();
+  Skin* skin();
 
  private:
   class Impl;

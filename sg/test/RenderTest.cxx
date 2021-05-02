@@ -107,14 +107,15 @@ struct RenderTest : Test {
     matl1.pbrmr().colorTex = &tex;
     Material matl2;
     matl2.pbrmr().colorTex = &tex;
+    Skin skin1({{}}, {});
 
     // Scene #1 contents
     const size_t instMdlN = 11;
-    vector<Model> mdls{instMdlN, {mesh1, matl1}};
-    mdls.push_back({mesh1, matl2});
-    mdls.push_back({mesh2, matl1});
-    mdls.push_back({mesh1, matl1});
-    mdls.push_back({mesh2, matl2});
+    vector<Model> mdls{instMdlN, {mesh1, matl1, skin1}};
+    mdls.push_back({mesh1, matl2, skin1});
+    mdls.push_back({mesh2, matl1, skin1});
+    mdls.push_back({mesh1, matl1, skin1});
+    mdls.push_back({mesh2, matl2, skin1});
 
     auto tf = static_cast<float>(mdls.size()) / -2.0f;
     for (auto& mdl : mdls) {
@@ -130,8 +131,8 @@ struct RenderTest : Test {
     scn1.color() = {0.05f, 0.05f, 0.2f, 1.0f};
 
     // Scene #2 contents
-    Model mdl1{mesh1, matl1};
-    Model mdl2{mesh2, matl2};
+    Model mdl1{mesh1, matl1, skin1};
+    Model mdl2{mesh2, matl2, skin1};
     Model mdl3{mdl1};
     Model mdl4{mdl2};
     mdl1.transform() = translate(-3.0f, 0.0f, 0.0f);

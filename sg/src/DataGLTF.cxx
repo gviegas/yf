@@ -1926,6 +1926,83 @@ void loadMesh(Mesh::Data& dst, const GLTF& gltf, size_t index) {
   }
 }
 
+/// Loads contents from a GLTF object.
+///
+void loadContents(Collection& collection, const GLTF& gltf,
+                  int32_t sceneIndex, int32_t nodeIndex) {
+
+  // Check which nodes are joints
+  vector<bool> isJoint(gltf.nodes().size(), false);
+  for (const auto& sk : gltf.skins()) {
+    for (const auto& jt : sk.joints)
+      isJoint[jt] = true;
+  }
+
+  // Select nodes
+  vector<int32_t> nodes;
+
+  auto setDescendants = [&] {
+    for (size_t i = 0; i < nodes.size(); ++i) {
+      for (const auto& nd : gltf.nodes()[nodes[i]].children) {
+        if (!isJoint[nd])
+          nodes.push_back(nd);
+      }
+    }
+  };
+
+  if (sceneIndex > -1) {
+    // Nodes from a specific scene
+    for (const auto& nd : gltf.scenes()[sceneIndex].nodes)
+      nodes.push_back(nd);
+    setDescendants();
+  } else if (nodeIndex > -1) {
+    // Nodes from a specific subgraph
+    nodes.push_back(nodeIndex);
+    setDescendants();
+  } else {
+    // Everything
+    for (const auto& scn : gltf.scenes()) {
+      for (const auto& nd : scn.nodes) {
+        if (!isJoint[nd])
+          nodes.push_back(nd);
+      }
+    }
+    if (nodes.empty()) {
+      for (size_t nd = 0; nd < gltf.nodes().size(); ++nd) {
+        if (!isJoint[nd])
+          nodes.push_back(nd);
+      }
+    } else {
+      setDescendants();
+    }
+  }
+
+  // Select resources
+  vector<int32_t> meshes;
+  vector<int32_t> skins;
+  vector<int32_t> textures;
+  vector<int32_t> materials;
+
+  if (sceneIndex < 0 && nodeIndex < 0) {
+    // Everything
+    for (size_t i = 0; i < gltf.meshes().size(); ++i)
+      meshes.push_back(i);
+    // TODO...
+  } else {
+    // Only referenced resources
+    // TODO...
+  }
+
+  // Create meshes
+  for (const auto& mesh : meshes) {
+    Mesh::Data data;
+    loadMesh(data, gltf, mesh);
+    collection.meshes().push_back({data});
+  }
+
+  // TODO...
+}
+
 INTERNAL_NS_END
 
 void SG_NS::loadGLTF(Collection& collection, const wstring& pathname) {
@@ -1935,8 +2012,7 @@ void SG_NS::loadGLTF(Collection& collection, const wstring& pathname) {
   printGLTF(gltf);
 #endif
 
-  // TODO
-  throw runtime_error("loadGLTF(Collection) unimplemented");
+  loadContents(collection, gltf, -1, -1);
 }
 
 void SG_NS::loadGLTF(Scene& dst, Collection& collection,

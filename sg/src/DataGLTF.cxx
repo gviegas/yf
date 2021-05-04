@@ -1928,7 +1928,19 @@ void loadMesh(Mesh::Data& dst, const GLTF& gltf, size_t index) {
 
 INTERNAL_NS_END
 
-void SG_NS::loadGLTF(Scene& dst, const wstring& pathname, size_t index) {
+void SG_NS::loadGLTF(Collection& collection, const wstring& pathname) {
+  GLTF gltf(pathname);
+
+#ifdef YF_DEVEL
+  printGLTF(gltf);
+#endif
+
+  // TODO
+  throw runtime_error("loadGLTF(Collection) unimplemented");
+}
+
+void SG_NS::loadGLTF(Scene& dst, Collection& collection,
+                     const wstring& pathname, size_t index) {
   GLTF gltf(pathname);
 
 #ifdef YF_DEVEL
@@ -1939,9 +1951,11 @@ void SG_NS::loadGLTF(Scene& dst, const wstring& pathname, size_t index) {
     throw invalid_argument("loadGLTF() index out of bounds");
 
   // TODO
+  throw runtime_error("loadGLTF(Scene) unimplemented");
 }
 
-void SG_NS::loadGLTF(Node& dst, const wstring& pathname, size_t index) {
+void SG_NS::loadGLTF(Node& dst, Collection& collection,
+                     const wstring& pathname, size_t index) {
   GLTF gltf(pathname);
 
 #ifdef YF_DEVEL
@@ -1952,6 +1966,7 @@ void SG_NS::loadGLTF(Node& dst, const wstring& pathname, size_t index) {
     throw invalid_argument("loadGLTF() index out of bounds");
 
   // TODO
+  throw runtime_error("loadGLTF(Node) unimplemented");
 }
 
 void SG_NS::loadGLTF(Mesh::Data& dst, const wstring& pathname, size_t index) {

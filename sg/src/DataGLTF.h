@@ -11,18 +11,24 @@
 #include <string>
 #include <cstddef>
 
-#include "Scene.h"
+#include "Collection.h"
 #include "MeshImpl.h"
 
 SG_NS_BEGIN
 
+/// Loads contents from a glTF file.
+///
+void loadGLTF(Collection& collection, const std::wstring& pathname);
+
 /// Loads scene graph from a glTF file.
 ///
-void loadGLTF(Scene& dst, const std::wstring& pathname, size_t index);
+void loadGLTF(Scene& dst, Collection& collection,
+              const std::wstring& pathname, size_t index);
 
 /// Loads node subgraph from a glTF file.
 ///
-void loadGLTF(Node& dst, const std::wstring& pathname, size_t index);
+void loadGLTF(Node& dst, Collection& collection,
+              const std::wstring& pathname, size_t index);
 
 /// Loads mesh data from a glTF file.
 ///

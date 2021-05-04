@@ -1810,7 +1810,7 @@ class GLTF {
 /// Loads a single mesh from a GLTF object.
 ///
 void loadMesh(Mesh::Data& dst, const GLTF& gltf, size_t index) {
-  assert(index <= gltf.meshes().size());
+  assert(index < gltf.meshes().size());
 
   const auto& mesh = gltf.meshes()[index];
 
@@ -1926,6 +1926,60 @@ void loadMesh(Mesh::Data& dst, const GLTF& gltf, size_t index) {
   }
 }
 
+/// Loads a single skin from a GLTF object.
+///
+void loadSkin(Collection& collection, const GLTF& gltf, size_t index) {
+  assert(index < gltf.skins().size());
+
+  const auto& skin = gltf.skins()[index];
+
+  // Bind-pose
+  vector<Mat4f> bindPose;
+
+  for (const auto& jt : skin.joints) {
+    const auto& xform = gltf.nodes()[jt].transform;
+    if (xform.size() == 16) {
+      bindPose.push_back({{xform[0], xform[1], xform[2], xform[3]},
+                          {xform[4], xform[5], xform[6], xform[7]},
+                          {xform[8], xform[9], xform[10], xform[11]},
+                          {xform[12], xform[13], xform[14], xform[15]}});
+    } else {
+      auto t = translate(xform[0], xform[1], xform[2]);
+      auto r = rotate(Qnionf({xform[3], xform[4], xform[5], xform[6]}));
+      auto s = scale(xform[7], xform[8], xform[9]);
+      bindPose.push_back(t * r * s);
+    }
+  }
+
+  // Inverse-bind
+  vector<Mat4f> inverseBind;
+
+  if (skin.inverseBindMatrices > 0) {
+    const auto& acc = gltf.accessors()[skin.inverseBindMatrices];
+    const auto& view = gltf.bufferViews()[acc.bufferView];
+    const auto& buffer = gltf.buffers()[view.buffer];
+
+    // TODO: pass list of open streams to this function instead
+
+    ifstream ifs(gltf.directory() + '/' + buffer.uri);
+    if (!ifs)
+      throw FileExcept("Could not open glTF .bin file");
+
+    if (!ifs.seekg(acc.byteOffset + view.byteOffset))
+      throw FileExcept("Could not seek glTF .bin file");
+
+    inverseBind.resize(acc.count);
+    for (auto& m : inverseBind) {
+      auto dt = reinterpret_cast<char*>(m.data());
+      if (!ifs.read(dt, Mat4f::dataSize()))
+        throw FileExcept("Could not read from glTF .bin file");
+    }
+  }
+
+  // Create skin
+  collection.skins().push_back({bindPose, inverseBind});
+}
+
 /// Loads contents from a GLTF object.
 ///
 void loadContents(Collection& collection, const GLTF& gltf,
@@ -1987,6 +2041,8 @@ void loadContents(Collection& collection, const GLTF& gltf,
     // Everything
     for (size_t i = 0; i < gltf.meshes().size(); ++i)
       meshes.push_back(i);
+    for (size_t i = 0; i < gltf.skins().size(); ++i)
+      skins.push_back(i);
     // TODO...
   } else {
     // Only referenced resources
@@ -1999,6 +2055,10 @@ void loadContents(Collection& collection, const GLTF& gltf,
     loadMesh(data, gltf, mesh);
     collection.meshes().push_back({data});
   }
+
+  // Create skins
+  for (const auto& sk : skins)
+    loadSkin(collection, gltf, sk);
 
   // TODO...
 }

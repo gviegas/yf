@@ -15,18 +15,20 @@ using namespace std;
 
 class Model::Impl {
  public:
-  Impl(Mesh* mesh, Material* material, Skin* skin)
+  Impl(Mesh& mesh, Material& material, Skin& skin)
     : mesh_(mesh), material_(material), skin_(skin) { }
 
-  Mesh* mesh_;
-  Material* material_;
-  Skin* skin_;
+  Impl() = default;
+
+  Mesh mesh_;
+  Material material_;
+  Skin skin_;
 };
 
 Model::Model(Mesh& mesh, Material& material, Skin& skin)
-  : impl_(make_unique<Impl>(&mesh, &material, &skin)) { }
+  : impl_(make_unique<Impl>(mesh, material, skin)) { }
 
-Model::Model() : impl_(make_unique<Impl>(nullptr, nullptr, nullptr)) { }
+Model::Model() : impl_(make_unique<Impl>()) { }
 
 Model::Model(const Model& other)
   : Node(other), impl_(make_unique<Impl>(*other.impl_)) { }
@@ -39,26 +41,26 @@ Model& Model::operator=(const Model& other) {
 
 Model::~Model() { }
 
-void Model::setMesh(Mesh* mesh) {
+void Model::setMesh(Mesh& mesh) {
   impl_->mesh_ = mesh;
 }
 
-void Model::setMaterial(Material* material) {
+void Model::setMaterial(Material& material) {
   impl_->material_ = material;
 }
 
-void Model::setSkin(Skin* skin) {
+void Model::setSkin(Skin& skin) {
   impl_->skin_ = skin;
 }
 
-Mesh* Model::mesh() {
+Mesh& Model::mesh() {
   return impl_->mesh_;
 }
 
-Material* Model::material() {
+Material& Model::material() {
   return impl_->material_;
 }
 
-Skin* Model::skin() {
+Skin& Model::skin() {
   return impl_->skin_;
 }

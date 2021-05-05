@@ -29,22 +29,22 @@ struct MaterialTest : Test {
       const auto& emissive = ml.emissive();
       wcout << "\nMaterial:"
             << "\n Pbrmr:"
-            << "\n  colorTex: " << pbrmr.colorTex
+            << "\n  colorTex: " << (pbrmr.colorTex ? "some" : "none")
             << "\n  colorFac: [" << pbrmr.colorFac[0] << ", "
                                  << pbrmr.colorFac[1] << ", "
                                  << pbrmr.colorFac[2] << ", "
                                  << pbrmr.colorFac[3] << "]"
-            << "\n  metalRoughTex: " << pbrmr.metalRoughTex
-            << "\n  metalness: " << pbrmr.metalness
+            << "\n  metalRoughTex: " << (pbrmr.metalRoughTex ? "some" : "none")
+            << "\n  metallic: " << pbrmr.metallic
             << "\n  roughness: " << pbrmr.roughness
             << "\n Normal:"
-            << "\n  texture: " << normal.texture
+            << "\n  texture: " << (normal.texture ? "some" : "none")
             << "\n  scale: " << normal.scale
             << "\n Occlusion:"
-            << "\n  texture: " << occlusion.texture
+            << "\n  texture: " << (occlusion.texture ? "some" : "none")
             << "\n  strength: " << occlusion.strength
             << "\n Emissive:"
-            << "\n  texture: " << emissive.texture
+            << "\n  texture: " << (emissive.texture ? " some" : "none")
             << "\n  factor: [" << emissive.factor[0] << ", "
                                << emissive.factor[1] << ", "
                                << emissive.factor[2] << "]"
@@ -56,7 +56,7 @@ struct MaterialTest : Test {
           a.colorFac[0] != b.colorFac[0] || a.colorFac[1] != b.colorFac[1] ||
           a.colorFac[2] != b.colorFac[2] || a.colorFac[3] != b.colorFac[3] ||
           a.metalRoughTex != b.metalRoughTex ||
-          a.metalness != b.metalness || a.roughness != b.roughness)
+          a.metallic != b.metallic || a.roughness != b.roughness)
         return false;
       return true;
     };
@@ -91,7 +91,7 @@ struct MaterialTest : Test {
                                 isEqOcclusion(ml1.occlusion(), {}) &&
                                 isEqEmissive(ml1.emissive(), {})});
 
-    Material::Pbrmr mr{nullptr, {0.5f}, nullptr, 0.2f, 0.4f};
+    Material::Pbrmr mr{{}, {0.5f}, {}, 0.2f, 0.4f};
 
     Material ml2{mr, {}, {}, {}};
     print(ml2);
@@ -101,8 +101,8 @@ struct MaterialTest : Test {
                                  isEqOcclusion(ml2.occlusion(), {}) &&
                                  isEqEmissive(ml2.emissive(), {})});
 
-    Material::Occlusion occ{nullptr, 0.5f};
-    Material::Emissive emsv{nullptr, {0.1f, 0.2f, 0.3f}};
+    Material::Occlusion occ{{}, 0.5f};
+    Material::Emissive emsv{{}, {0.1f, 0.2f, 0.3f}};
 
     Material ml3{{}, {}, occ, emsv};
     print(ml3);
@@ -112,7 +112,7 @@ struct MaterialTest : Test {
                                    isEqOcclusion(ml3.occlusion(), occ) &&
                                    isEqEmissive(ml3.emissive(), emsv)});
 
-    Material::Normal norm{nullptr, 0.01f};
+    Material::Normal norm{{}, 0.01f};
 
     ml3.pbrmr() = mr;
     ml3.normal() = norm;
@@ -121,6 +121,16 @@ struct MaterialTest : Test {
                                isEqNormal(ml3.normal(), norm) &&
                                isEqOcclusion(ml3.occlusion(), occ) &&
                                isEqEmissive(ml3.emissive(), emsv)});
+
+    Material ml4 = ml3;
+    Material ml5;
+    Material ml6;
+    print(ml4);
+    print(ml5);
+    print(ml6);
+
+    a.push_back({L"==, !=",
+                 ml1 != ml2 && ml3 != ml1 && ml4 == ml3 && ml5 != ml6});
 
     return a;
   }

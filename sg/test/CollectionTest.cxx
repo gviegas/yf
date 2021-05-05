@@ -88,17 +88,17 @@ struct CollectionTest : Test {
                                 &coll.textures()[2].impl() == &tex.impl()});
 
     coll.materials().push_back({});
-    coll.materials().front().normal() = {&coll.textures()[0], 0.25f};
+    coll.materials().front().normal() = {coll.textures()[0], 0.25f};
     coll.materials().push_back({{}, {}, {}, {}});
-    Material matl{{}, {}, {&tex, 0.5f}, {}};
+    Material matl{{}, {}, {tex, 0.5f}, {}};
     coll.materials().push_back(matl);
     coll.materials().push_back(matl);
 
     a.push_back({L"materials()",
                  coll.materials().size() == 4 &&
-                 coll.materials()[0].normal().texture == &coll.textures()[0] &&
+                 coll.materials()[0].normal().texture == coll.textures()[0] &&
                  coll.materials()[0].normal().scale == 0.25f &&
-                 coll.materials()[2].occlusion().texture == &tex &&
+                 coll.materials()[2].occlusion().texture == tex &&
                  coll.materials()[3].occlusion().strength == 0.5f &&
                  !coll.materials()[3].normal().texture});
 

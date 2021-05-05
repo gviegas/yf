@@ -128,6 +128,12 @@ struct MeshTest : Test {
         m5.impl().canBind(VxTypeTexCoord1))
       bindChk = false;
 
+    Mesh m6;
+    Mesh m7;
+
+    a.push_back({L"Mesh()", !m6});
+    a.push_back({L"bool, !", m1 && m3 && m4 && m5 && !m6 && !m7});
+    a.push_back({L"==, !=", m5 != m6 && m7 != m5 && m6 == m7 && m7 == m6});
     a.push_back({L"Mesh(Data)", ctorChk});
     a.push_back({L"~Mesh()", dtorChk});
     a.push_back({L"Mesh::Impl::canBind()", bindChk});

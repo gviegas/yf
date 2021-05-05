@@ -38,7 +38,7 @@ Mesh::Mesh(FileType fileType, const wstring& meshFile, size_t index) {
   impl_ = make_unique<Impl>(data);
 }
 
-Mesh::~Mesh() { }
+Mesh::Mesh() : impl_(nullptr) { }
 
 Mesh::Mesh(const Data& data) : impl_(make_shared<Impl>(data)) { }
 
@@ -49,7 +49,26 @@ Mesh& Mesh::operator=(const Mesh& other) {
   return *this;
 }
 
+Mesh::~Mesh() { }
+
+Mesh::operator bool() const {
+  return impl_ != nullptr;
+}
+
+bool Mesh::operator!() const {
+  return impl_ == nullptr;
+}
+
+bool Mesh::operator==(const Mesh& other) const {
+  return impl_ == other.impl_;
+}
+
+bool Mesh::operator!=(const Mesh& other) const {
+  return impl_ != other.impl_;
+}
+
 Mesh::Impl& Mesh::impl() {
+  assert(*this);
   return *impl_;
 }
 

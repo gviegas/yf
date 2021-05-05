@@ -39,6 +39,8 @@ class Mesh {
   bool operator==(const Mesh& other) const;
   bool operator!=(const Mesh& other) const;
 
+  size_t hash() const;
+
   struct Data;
   Mesh(const Data& data);
 

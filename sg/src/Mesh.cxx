@@ -67,6 +67,10 @@ bool Mesh::operator!=(const Mesh& other) const {
   return impl_ != other.impl_;
 }
 
+size_t Mesh::hash() const {
+  return std::hash<decltype(impl_)>()(impl_);
+}
+
 Mesh::Impl& Mesh::impl() {
   assert(*this);
   return *impl_;

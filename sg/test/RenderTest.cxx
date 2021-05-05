@@ -104,9 +104,9 @@ struct RenderTest : Test {
     Mesh mesh2{Mesh::Gltf, L"tmp/cube.gltf"};
     Texture tex{Texture::Png, L"tmp/cube.png"};
     Material matl1;
-    matl1.pbrmr().colorTex = &tex;
+    matl1.pbrmr().colorTex = tex;
     Material matl2;
-    matl2.pbrmr().colorTex = &tex;
+    matl2.pbrmr().colorTex = tex;
     Skin skin1({{}}, {});
 
     // Scene #1 contents

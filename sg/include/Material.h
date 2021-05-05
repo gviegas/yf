@@ -58,6 +58,9 @@ class Material {
   Material& operator=(const Material& other);
   ~Material();
 
+  bool operator==(const Material& other) const;
+  bool operator!=(const Material& other) const;
+
   /// Getters.
   ///
   Pbrmr& pbrmr();

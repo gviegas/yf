@@ -45,6 +45,14 @@ Material& Material::operator=(const Material& other) {
 
 Material::~Material() { }
 
+bool Material::operator==(const Material& other) const {
+  return impl_ == other.impl_;
+}
+
+bool Material::operator!=(const Material& other) const {
+  return impl_ != other.impl_;
+}
+
 Material::Pbrmr& Material::pbrmr() {
   return impl_->pbrmr_;
 }

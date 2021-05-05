@@ -30,17 +30,16 @@ class Material::Impl {
 
 Material::Material(const Pbrmr& pbrmr, const Normal& normal,
                    const Occlusion& occlusion, const Emissive& emissive)
-  : impl_(make_unique<Impl>(pbrmr, normal, occlusion, emissive)) { }
+  : impl_(make_shared<Impl>(pbrmr, normal, occlusion, emissive)) { }
 
 Material::Material(const Pbrmr& pbrmr) : Material(pbrmr, {}, {}, {}) { }
 
-Material::Material() : impl_(make_unique<Impl>()) { }
+Material::Material() : impl_(make_shared<Impl>()) { }
 
-Material::Material(const Material& other)
-  : impl_(make_unique<Impl>(*other.impl_)) { }
+Material::Material(const Material& other) : impl_(other.impl_) { }
 
 Material& Material::operator=(const Material& other) {
-  *impl_ = *other.impl_;
+  impl_ = other.impl_;
   return *this;
 }
 

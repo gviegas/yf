@@ -12,10 +12,9 @@
 
 #include "yf/sg/Defs.h"
 #include "yf/sg/Vector.h"
+#include "yf/sg/Texture.h"
 
 SG_NS_BEGIN
-
-class Texture;
 
 /// Material.
 ///
@@ -24,31 +23,31 @@ class Material {
   /// PBR metallic-roughness.
   ///
   struct Pbrmr {
-    Texture* colorTex = nullptr;
+    Texture colorTex{};
     Vec4f colorFac{1.0f, 1.0f, 1.0f, 1.0f};
     Texture* metalRoughTex = nullptr;
-    float metalness = 1.0f;
+    float metallic = 1.0f;
     float roughness = 1.0f;
   };
 
   /// Normal map.
   ///
   struct Normal {
-    Texture* texture = nullptr;
+    Texture texture{};
     float scale = 1.0f;
   };
 
   /// Occlusion map.
   ///
   struct Occlusion {
-    Texture* texture = nullptr;
+    Texture texture{};
     float strength = 1.0f;
   };
 
   /// Emissive map.
   ///
   struct Emissive {
-    Texture* texture = nullptr;
+    Texture texture{};
     Vec3f factor{};
   };
 
@@ -75,7 +74,7 @@ class Material {
 
  private:
   class Impl;
-  std::unique_ptr<Impl> impl_;
+  std::shared_ptr<Impl> impl_;
 };
 
 SG_NS_END

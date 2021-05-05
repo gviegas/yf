@@ -93,9 +93,13 @@ bool Skin::operator!=(const Skin& other) const {
 }
 
 const vector<Joint>& Skin::joints() const {
+  if (!impl_)
+    throw runtime_error("Call to joints() of invalid Skin");
   return impl_->joints_;
 }
 
 const vector<Mat4f>& Skin::inverseBind() const {
+  if (!impl_)
+    throw runtime_error("Call to inverseBind() of invalid Skin");
   return impl_->inverseBind_;
 }

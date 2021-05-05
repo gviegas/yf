@@ -21,7 +21,6 @@ struct SkinTest : Test {
     Assertions a;
 
     const auto m = Mat4f::identity();
-    size_t index = 0;
     bool check = true;
 
     Skin skin1({m}, {m});
@@ -39,14 +38,6 @@ struct SkinTest : Test {
       check = false;
     } catch (...) { }
 
-    for (const auto& sk : {&skin1, &skin2, &skin3, &skin4}) {
-      for (const auto& jt : sk->joints()) {
-        if (&jt.skin_ != sk || jt.index_ != index++)
-          check = false;
-      }
-      index = 0;
-    }
-
     a.push_back({L"Skin(...)", skin1.joints().size() == 1 &&
                                skin1.inverseBind().size() == 1 &&
                                skin2.joints().size() == 1 &&
@@ -55,32 +46,30 @@ struct SkinTest : Test {
                                skin3.inverseBind().size() == 3 &&
                                skin4.joints().size() == 3 &&
                                skin4.inverseBind().empty() && check});
+    Skin skin5;
 
-    Skin skin5(skin4);
+    a.push_back({L"Skin()", !skin5});
 
-    for (const auto& jt : skin5.joints()) {
-      if (&jt.skin_ != &skin5 || jt.index_ != index++)
-        check = false;
-    }
-    index = 0;
+    Skin skin6(skin4);
 
     a.push_back({L"Skin(skin)",
-                 skin5.joints().size() == skin4.joints().size() &&
-                 skin5.inverseBind().size() == skin4.inverseBind().size() &&
-                 check});
+                 skin6.joints().size() == skin4.joints().size() &&
+                 skin6.inverseBind().size() == skin4.inverseBind().size()});
 
-    Skin skin6 = skin3;
-
-    for (const auto& jt : skin6.joints()) {
-      if (&jt.skin_ != &skin6 || jt.index_ != index++)
-        check = false;
-    }
-    index = 0;
+    Skin skin7 = skin3;
 
     a.push_back({L"=",
-                 skin6.joints().size() == skin3.joints().size() &&
-                 skin6.inverseBind().size() == skin3.inverseBind().size() &&
-                 check});
+                 skin7.joints().size() == skin3.joints().size() &&
+                 skin7.inverseBind().size() == skin3.inverseBind().size()});
+
+    Skin skin8;
+
+    a.push_back({L"bool, !", skin1 && skin2 && skin3 && skin4 && !skin5 &&
+                             skin6 && skin7 && !skin8});
+
+    a.push_back({L"==, !=", skin1 != skin5 && skin5 != skin2 &&
+                            skin2 != skin1 && skin3 == skin7 &&
+                            skin6 == skin4 && skin5 == skin8});
 
     return a;
   }

@@ -17,18 +17,9 @@
 
 SG_NS_BEGIN
 
-class Skin;
-
 /// Joint.
 ///
-class Joint : public Node {
- public:
-  Joint(const Skin& skin, size_t index);
-  ~Joint();
-
-  const Skin& skin_;
-  const size_t index_;
-};
+class Joint : public Node {};
 
 /// Skin.
 ///
@@ -36,9 +27,15 @@ class Skin {
  public:
   Skin(const std::vector<Mat4f>& bindPose,
        const std::vector<Mat4f>& inverseBind);
+  Skin();
   Skin(const Skin& other);
   Skin& operator=(const Skin& other);
   ~Skin();
+
+  explicit operator bool() const;
+  bool operator!() const;
+  bool operator==(const Skin& other) const;
+  bool operator!=(const Skin& other) const;
 
   /// The joints.
   ///
@@ -50,7 +47,7 @@ class Skin {
 
  private:
   class Impl;
-  std::unique_ptr<Impl> impl_;
+  std::shared_ptr<Impl> impl_;
 };
 
 SG_NS_END

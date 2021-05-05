@@ -108,10 +108,7 @@ struct CollectionTest : Test {
 
     a.push_back({L"skins()", coll.skins().size() == 2 &&
                              coll.skins().front().joints().size() == 1 &&
-                             coll.skins().back().joints().size() == 2 &&
-                             &coll.skins().back().joints()[1].skin_ != &skin &&
-                             coll.skins().back().joints()[1].index_ ==
-                               skin.joints()[1].index_});
+                             coll.skins().back().joints().size() == 2});
 
     return a;
   }

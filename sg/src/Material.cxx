@@ -53,6 +53,10 @@ bool Material::operator!=(const Material& other) const {
   return impl_ != other.impl_;
 }
 
+size_t Material::hash() const {
+  return std::hash<decltype(impl_)>()(impl_);
+}
+
 Material::Pbrmr& Material::pbrmr() {
   return impl_->pbrmr_;
 }

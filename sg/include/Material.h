@@ -8,6 +8,7 @@
 #ifndef YF_SG_MATERIAL_H
 #define YF_SG_MATERIAL_H
 
+#include <cstddef>
 #include <memory>
 
 #include "yf/sg/Defs.h"
@@ -60,6 +61,8 @@ class Material {
 
   bool operator==(const Material& other) const;
   bool operator!=(const Material& other) const;
+
+  size_t hash() const;
 
   /// Getters.
   ///

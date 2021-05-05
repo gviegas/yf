@@ -25,7 +25,7 @@ class Material {
   struct Pbrmr {
     Texture colorTex{};
     Vec4f colorFac{1.0f, 1.0f, 1.0f, 1.0f};
-    Texture* metalRoughTex = nullptr;
+    Texture metalRoughTex{};
     float metallic = 1.0f;
     float roughness = 1.0f;
   };

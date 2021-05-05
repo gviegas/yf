@@ -172,17 +172,17 @@ void Renderer::render(Scene& scene, CG_NS::Target& target) {
 
         // Update material
         if (matl) {
-          const pair<Texture*, CG_NS::DcId> texs[]{
+          pair<Texture, CG_NS::DcId> texs[]{
             {matl->pbrmr().colorTex, ColorImgSampler},
             {matl->pbrmr().metalRoughTex, MetalRoughImgSampler},
             {matl->normal().texture, NormalImgSampler},
             {matl->occlusion().texture, OcclusionImgSampler},
             {matl->emissive().texture, EmissiveImgSampler}};
 
-          for (const auto& tp : texs) {
+          for (auto& tp : texs) {
             if (tp.first)
-              tp.first->impl().copy(*resource->table, alloc, tp.second,
-                                    0, 0, nullptr);
+              tp.first.impl().copy(*resource->table, alloc, tp.second,
+                                   0, 0, nullptr);
           }
           // TODO: also copy factors to uniform buffer
         } else {

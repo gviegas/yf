@@ -92,6 +92,10 @@ bool Skin::operator!=(const Skin& other) const {
   return impl_ != other.impl_;
 }
 
+size_t Skin::hash() const {
+  return std::hash<decltype(impl_)>()(impl_);
+}
+
 const vector<Joint>& Skin::joints() const {
   if (!impl_)
     throw runtime_error("Call to joints() of invalid Skin");

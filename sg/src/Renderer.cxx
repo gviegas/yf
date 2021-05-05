@@ -146,8 +146,8 @@ void Renderer::render(Scene& scene, CG_NS::Target& target) {
         enc.setState(resource->state.get());
         enc.setDcTable(MdlTable, alloc);
 
-        auto matl = kv.second[0]->material();
-        auto mesh = kv.second[0]->mesh();
+        auto& matl = kv.second[0]->material();
+        auto& mesh = kv.second[0]->mesh();
 
         // Update instance-specific uniform buffer
         for (uint32_t i = 0; i < n; ++i) {
@@ -171,28 +171,23 @@ void Renderer::render(Scene& scene, CG_NS::Target& target) {
         }
 
         // Update material
-        if (matl) {
-          pair<Texture, CG_NS::DcId> texs[]{
-            {matl->pbrmr().colorTex, ColorImgSampler},
-            {matl->pbrmr().metalRoughTex, MetalRoughImgSampler},
-            {matl->normal().texture, NormalImgSampler},
-            {matl->occlusion().texture, OcclusionImgSampler},
-            {matl->emissive().texture, EmissiveImgSampler}};
+        pair<Texture, CG_NS::DcId> texs[]{
+          {matl.pbrmr().colorTex, ColorImgSampler},
+          {matl.pbrmr().metalRoughTex, MetalRoughImgSampler},
+          {matl.normal().texture, NormalImgSampler},
+          {matl.occlusion().texture, OcclusionImgSampler},
+          {matl.emissive().texture, EmissiveImgSampler}};
 
-          for (auto& tp : texs) {
-            if (tp.first)
-              tp.first.impl().copy(*resource->table, alloc, tp.second,
-                                   0, 0, nullptr);
-          }
-          // TODO: also copy factors to uniform buffer
-        } else {
-          // TODO
-          throw runtime_error("Cannot render models with no material set");
+        for (auto& tp : texs) {
+          if (tp.first)
+            tp.first.impl().copy(*resource->table, alloc, tp.second,
+                                 0, 0, nullptr);
         }
+        // TODO: also copy factors to uniform buffer
 
         // Encode commands for this mesh
         if (mesh)
-          mesh->impl().encode(enc, 0, n);
+          mesh.impl().encode(enc, 0, n);
         else
           // TODO
           throw runtime_error("Cannot render models with no mesh set");

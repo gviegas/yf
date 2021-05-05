@@ -37,6 +37,8 @@ class Skin {
   bool operator==(const Skin& other) const;
   bool operator!=(const Skin& other) const;
 
+  size_t hash() const;
+
   /// The joints.
   ///
   const std::vector<Joint>& joints() const;

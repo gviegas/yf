@@ -30,15 +30,15 @@ class Model : public Node {
 
   /// Setters.
   ///
-  void setMesh(Mesh* mesh);
-  void setMaterial(Material* material);
-  void setSkin(Skin* skin);
+  void setMesh(Mesh& mesh);
+  void setMaterial(Material& material);
+  void setSkin(Skin& skin);
 
   /// Getters.
   ///
-  Mesh* mesh();
-  Material* material();
-  Skin* skin();
+  Mesh& mesh();
+  Material& material();
+  Skin& skin();
 
  private:
   class Impl;

@@ -1926,6 +1926,69 @@ void loadMesh(Mesh::Data& dst, const GLTF& gltf, size_t index) {
   }
 }
 
+/// Loads a single material from a GLTF object.
+///
+void loadMaterial(Material& dst, unordered_map<int32_t, Texture>& textureMap,
+                  const GLTF& gltf, size_t index) {
+
+  assert(index < gltf.materials().size());
+
+  const auto& material = gltf.materials()[index];
+
+  // Gets texture
+  auto getTexture = [&](const GLTF::Material::TextureInfo& info) -> Texture* {
+    if (info.index < 0)
+      return nullptr;
+
+    auto it = textureMap.find(info.index);
+    if (it != textureMap.end())
+      return &it->second;
+
+    const auto& texture = gltf.textures()[info.index];
+    const auto& image = gltf.images()[texture.source];
+
+    // TODO: image type check & support for buffer view
+    if (image.uri == "")
+      throw runtime_error("glTF image load from buffer view unimplemented");
+
+    wstring pathname;
+    for (const auto& c : gltf.directory())
+      pathname.push_back(c);
+    pathname.push_back('/');
+    for (const auto& c : image.uri)
+      pathname.push_back(c);
+
+    Texture tex(Texture::Png, pathname);
+    return &textureMap.emplace(info.index, tex).first->second;
+  };
+
+  // PBRMR
+  const auto& pbrmr = material.pbrMetallicRoughness;
+  dst.pbrmr().colorTex = getTexture(pbrmr.baseColorTexture);
+  dst.pbrmr().colorFac = {pbrmr.baseColorFactor[0], pbrmr.baseColorFactor[1],
+                          pbrmr.baseColorFactor[2]};
+  dst.pbrmr().metalRoughTex = getTexture(pbrmr.metallicRoughnessTexture);
+  dst.pbrmr().metalness = pbrmr.metallicFactor;
+  dst.pbrmr().roughness = pbrmr.roughnessFactor;
+
+  // Normal
+  const auto& normal = material.normalTexture;
+  dst.normal().texture = getTexture(normal);
+  dst.normal().scale = normal.scale;
+
+  // Occlusion
+  const auto& occlusion = material.occlusionTexture;
+  dst.occlusion().texture = getTexture(occlusion);
+  dst.occlusion().strength = occlusion.strength;
+
+  // Emissive
+  const auto& emissive = material.emissiveTexture;
+  dst.emissive().texture = getTexture(emissive);
+  dst.emissive().factor = {material.emissiveFactor[0],
+                           material.emissiveFactor[1],
+                           material.emissiveFactor[2]};
+}
+
 /// Loads a single skin from a GLTF object.
 ///
 void loadSkin(Collection& collection, const GLTF& gltf, size_t index) {
@@ -2033,14 +2096,17 @@ void loadContents(Collection& collection, const GLTF& gltf,
 
   // Select resources
   vector<int32_t> meshes;
-  vector<int32_t> skins;
-  vector<int32_t> textures;
   vector<int32_t> materials;
+  vector<int32_t> skins;
+
+  unordered_map<int32_t, Texture> textureMap;
 
   if (sceneIndex < 0 && nodeIndex < 0) {
     // Everything
     for (size_t i = 0; i < gltf.meshes().size(); ++i)
       meshes.push_back(i);
+    for (size_t i = 0; i < gltf.materials().size(); ++i)
+      materials.push_back(i);
     for (size_t i = 0; i < gltf.skins().size(); ++i)
       skins.push_back(i);
     // TODO...
@@ -2056,9 +2122,19 @@ void loadContents(Collection& collection, const GLTF& gltf,
     collection.meshes().push_back({data});
   }
 
+  // Create materials
+  for (const auto& matl : materials) {
+    collection.materials().push_back({});
+    loadMaterial(collection.materials().back(), textureMap, gltf, matl);
+  }
+
   // Create skins
   for (const auto& sk : skins)
     loadSkin(collection, gltf, sk);
+
+  // Store textures
+  for (const auto& kv : textureMap)
+    collection.textures().push_back(kv.second);
 
   // TODO...
 }

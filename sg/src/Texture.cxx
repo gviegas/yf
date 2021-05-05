@@ -68,6 +68,10 @@ bool Texture::operator!=(const Texture& other) const {
   return impl_ != other.impl_;
 }
 
+size_t Texture::hash() const {
+  return std::hash<decltype(impl_)>()(impl_);
+}
+
 Texture::Impl& Texture::impl() {
   assert(*this);
   return *impl_;

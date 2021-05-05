@@ -8,6 +8,7 @@
 #ifndef YF_SG_TEXTURE_H
 #define YF_SG_TEXTURE_H
 
+#include <cstddef>
 #include <string>
 #include <memory>
 
@@ -37,6 +38,8 @@ class Texture {
   bool operator!() const;
   bool operator==(const Texture& other) const;
   bool operator!=(const Texture& other) const;
+
+  size_t hash() const;
 
   struct Data;
   Texture(const Data& data);

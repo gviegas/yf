@@ -5,6 +5,8 @@
 // Copyright © 2020-2021 Gustavo C. Viegas.
 //
 
+#include <cassert>
+
 #include "yf/Except.h"
 
 #include "yf/cg/Device.h"
@@ -37,7 +39,7 @@ Texture::Texture(FileType fileType, const wstring& textureFile) {
   impl_ = make_unique<Impl>(data);
 }
 
-Texture::~Texture() { }
+Texture::Texture() : impl_(nullptr) { }
 
 Texture::Texture(const Data& data) : impl_(make_shared<Impl>(data)) { }
 
@@ -48,7 +50,26 @@ Texture& Texture::operator=(const Texture& other) {
   return *this;
 }
 
+Texture::~Texture() { }
+
+Texture::operator bool() const {
+  return impl_ != nullptr;
+}
+
+bool Texture::operator!() const {
+  return impl_ == nullptr;
+}
+
+bool Texture::operator==(const Texture& other) const {
+  return impl_ == other.impl_;
+}
+
+bool Texture::operator!=(const Texture& other) const {
+  return impl_ != other.impl_;
+}
+
 Texture::Impl& Texture::impl() {
+  assert(*this);
   return *impl_;
 }
 

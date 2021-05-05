@@ -28,9 +28,15 @@ class Texture {
   };
 
   Texture(FileType fileType, const std::wstring& textureFile);
+  Texture();
   Texture(const Texture& other);
   Texture& operator=(const Texture& other);
   ~Texture();
+
+  explicit operator bool() const;
+  bool operator!() const;
+  bool operator==(const Texture& other) const;
+  bool operator!=(const Texture& other) const;
 
   struct Data;
   Texture(const Data& data);

@@ -182,8 +182,15 @@ struct TextureTest : Test {
         dtorChk = false;
     }
 
+    Texture t8;
+    Texture t9;
+
+    a.push_back({L"Texture()", !t8});
+    a.push_back({L"bool, !", t1 && t2 && t6 && t7 && !t8 && !t9});
+    a.push_back({L"==, !=", t1 != t2 && t1 != t9 && t8 != t2 && t8 == t9});
     a.push_back({L"Texture(Data)", ctorChk});
     a.push_back({L"~Texture()", dtorChk});
+
     return a;
   }
 };

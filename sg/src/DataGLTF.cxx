@@ -15,6 +15,7 @@
 #include <type_traits>
 
 #include "DataGLTF.h"
+#include "Model.h"
 #include "yf/Except.h"
 
 using namespace YF_NS;
@@ -2066,13 +2067,15 @@ void loadContents(Collection& collection, const GLTF& gltf,
 
   // Check which nodes are joints
   vector<bool> isJoint(gltf.nodes().size(), false);
+
   for (const auto& sk : gltf.skins()) {
     for (const auto& jt : sk.joints)
       isJoint[jt] = true;
   }
 
-  // Select nodes
+  // Select nodes & scenes
   vector<int32_t> nodes;
+  vector<int32_t> scenes;
 
   auto setDescendants = [&] {
     for (size_t i = 0; i < nodes.size(); ++i) {
@@ -2088,6 +2091,7 @@ void loadContents(Collection& collection, const GLTF& gltf,
     for (const auto& nd : gltf.scenes()[sceneIndex].nodes)
       nodes.push_back(nd);
     setDescendants();
+    scenes.push_back(sceneIndex);
   } else if (nodeIndex > -1) {
     // Nodes from a specific subgraph
     nodes.push_back(nodeIndex);
@@ -2099,6 +2103,7 @@ void loadContents(Collection& collection, const GLTF& gltf,
         if (!isJoint[nd])
           nodes.push_back(nd);
       }
+      scenes.push_back(scenes.size());
     }
     if (nodes.empty()) {
       for (size_t nd = 0; nd < gltf.nodes().size(); ++nd) {
@@ -2126,7 +2131,6 @@ void loadContents(Collection& collection, const GLTF& gltf,
       materials.push_back(i);
     for (size_t i = 0; i < gltf.skins().size(); ++i)
       skins.push_back(i);
-    // TODO...
   } else {
     // Only referenced resources
     // TODO...
@@ -2158,11 +2162,29 @@ void loadContents(Collection& collection, const GLTF& gltf,
 
   // Create nodes
   // TODO: joint nodes
+  unordered_map<int32_t, Node*> nodeMap;
+
   for (const auto& nd : nodes) {
     const auto& node = gltf.nodes()[nd];
 
-    // Transform
-    Mat4f xform;
+    if (node.mesh > -1) {
+      // Model
+      collection.nodes().push_back(make_unique<Model>());
+      auto mdl = static_cast<Model*>(collection.nodes().back().get());
+
+      mdl->setMesh(collection.meshes()[meshes[node.mesh]]);
+      const auto matl = gltf.meshes()[node.mesh].primitives[0].material;
+      if (matl > -1)
+        mdl->setMaterial(collection.materials()[materials[matl]]);
+      if (node.skin > -1)
+        mdl->setSkin(collection.skins()[skins[node.skin]]);
+
+    } else {
+      // Node
+      collection.nodes().push_back(make_unique<Node>());
+    }
+
+    auto& xform = collection.nodes().back()->transform();
 
     if (node.transform.size() == 16) {
       xform[0] = {node.transform[0], node.transform[1],
@@ -2182,26 +2204,33 @@ void loadContents(Collection& collection, const GLTF& gltf,
       xform = t * r * s;
     }
 
-    // Node
-    if (node.mesh > -1) {
-      collection.models().push_back({});
-      auto& mdl = collection.models().back();
+    // XXX
+    auto& name = collection.nodes().back()->name();
+    for (const auto& c : node.name)
+      name.push_back(c);
 
-      mdl.setMesh(collection.meshes()[meshes[node.mesh]]);
-      const auto matl = gltf.meshes()[node.mesh].primitives[0].material;
-      if (matl > -1)
-        mdl.setMaterial(collection.materials()[materials[matl]]);
-      if (node.skin > -1)
-        mdl.setSkin(collection.skins()[skins[node.skin]]);
-      mdl.transform() = xform;
+    nodeMap.emplace(nd, collection.nodes().back().get());
+  }
 
-    } else {
-      collection.nodes().push_back({});
-      collection.nodes().back().transform() = xform;
+  // Create node hierarchy
+  for (const auto& kv : nodeMap) {
+    for (const auto& chd : gltf.nodes()[kv.first].children) {
+      if (isJoint[chd])
+        continue;
+      kv.second->insert(*nodeMap[chd]);
     }
   }
 
-  // TODO...
+  // Create scenes
+  for (const auto& scn : scenes) {
+    collection.scenes().push_back(make_unique<Scene>());
+    for (const auto& nd : gltf.scenes()[scn].nodes)
+      collection.scenes().back()->insert(*nodeMap[nd]);
+    // XXX
+    auto& name = collection.scenes().back()->name();
+    for (const auto& c : gltf.scenes()[scn].name)
+      name.push_back(c);
+  }
 }
 
 INTERNAL_NS_END

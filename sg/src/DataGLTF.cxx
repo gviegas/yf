@@ -15,6 +15,7 @@
 #include <type_traits>
 
 #include "DataGLTF.h"
+#include "Model.h"
 #include "yf/Except.h"
 
 using namespace YF_NS;
@@ -1809,8 +1810,10 @@ class GLTF {
 
 /// Loads a single mesh from a GLTF object.
 ///
-void loadMesh(Mesh::Data& dst, const GLTF& gltf, size_t index) {
-  assert(index <= gltf.meshes().size());
+void loadMesh(Mesh::Data& dst, unordered_map<int32_t, ifstream>& bufferMap,
+              const GLTF& gltf, size_t index) {
+
+  assert(index < gltf.meshes().size());
 
   const auto& mesh = gltf.meshes()[index];
 
@@ -1850,7 +1853,7 @@ void loadMesh(Mesh::Data& dst, const GLTF& gltf, size_t index) {
     const GLTF::BufferView& bufferView;
   };
 
-  unordered_map<int32_t, vector<Desc>> bufferMap{};
+  unordered_map<int32_t, vector<Desc>> descMap{};
 
   // TODO: validate glTF data
   for (const auto& prim : mesh.primitives) {
@@ -1860,9 +1863,9 @@ void loadMesh(Mesh::Data& dst, const GLTF& gltf, size_t index) {
       const auto& acc = gltf.accessors()[att.second];
       const auto& view = gltf.bufferViews()[acc.bufferView];
 
-      auto it = bufferMap.find(view.buffer);
-      if (it == bufferMap.end())
-        bufferMap.emplace(view.buffer, vector<Desc>{{type, acc, view}});
+      auto it = descMap.find(view.buffer);
+      if (it == descMap.end())
+        descMap.emplace(view.buffer, vector<Desc>{{type, acc, view}});
       else
         it->second.push_back({type, acc, view});
     }
@@ -1871,24 +1874,31 @@ void loadMesh(Mesh::Data& dst, const GLTF& gltf, size_t index) {
       const auto& acc = gltf.accessors()[prim.indices];
       const auto& view = gltf.bufferViews()[acc.bufferView];
 
-      auto it = bufferMap.find(view.buffer);
-      assert(it != bufferMap.end());
+      auto it = descMap.find(view.buffer);
+      assert(it != descMap.end());
       it->second.push_back({-1, acc, view});
     }
   }
 
-  for (const auto& bm : bufferMap) {
-    const auto& buffer = gltf.buffers()[bm.first];
+  for (const auto& dm : descMap) {
+    const auto& buffer = gltf.buffers()[dm.first];
 
     // TODO: .glb
     if (buffer.uri.empty())
       throw UnsupportedExcept("Unsupported glTF buffer");
 
-    ifstream ifs(gltf.directory() + '/' + buffer.uri);
-    if (!ifs)
-      throw FileExcept("Could not open glTF .bin file");
+    auto it = bufferMap.find(dm.first);
 
-    for (const auto& dc : bm.second) {
+    if (it == bufferMap.end()) {
+      const auto pathname = gltf.directory() + '/' + buffer.uri;
+      it = bufferMap.emplace(dm.first, ifstream(pathname)).first;
+      if (!it->second)
+        throw FileExcept("Could not open glTF .bin file");
+    }
+
+    auto& ifs = it->second;
+
+    for (const auto& dc : dm.second) {
       size_t size = dc.accessor.sizeOfComponentType() *
                     dc.accessor.sizeOfType();
 
@@ -1926,6 +1936,305 @@ void loadMesh(Mesh::Data& dst, const GLTF& gltf, size_t index) {
   }
 }
 
+/// Loads a single material from a GLTF object.
+///
+void loadMaterial(Material& dst, unordered_map<int32_t, Texture>& textureMap,
+                  const GLTF& gltf, size_t index) {
+
+  assert(index < gltf.materials().size());
+
+  const auto& material = gltf.materials()[index];
+
+  // Get texture
+  auto getTexture = [&](const GLTF::Material::TextureInfo& info) -> Texture {
+    if (info.index < 0)
+      return {};
+
+    auto it = textureMap.find(info.index);
+    if (it != textureMap.end())
+      return it->second;
+
+    const auto& texture = gltf.textures()[info.index];
+    const auto& image = gltf.images()[texture.source];
+
+    // TODO: image type check & support for buffer view
+    if (image.uri.empty())
+      throw runtime_error("glTF image load from buffer view unimplemented");
+
+    wstring pathname;
+    for (const auto& c : gltf.directory())
+      pathname.push_back(c);
+    pathname.push_back('/');
+    for (const auto& c : image.uri)
+      pathname.push_back(c);
+
+    Texture tex(Texture::Png, pathname);
+    return textureMap.emplace(info.index, tex).first->second;
+  };
+
+  // PBRMR
+  const auto& pbrmr = material.pbrMetallicRoughness;
+  dst.pbrmr().colorTex = getTexture(pbrmr.baseColorTexture);
+  dst.pbrmr().colorFac = {pbrmr.baseColorFactor[0], pbrmr.baseColorFactor[1],
+                          pbrmr.baseColorFactor[2], pbrmr.baseColorFactor[3]};
+  dst.pbrmr().metalRoughTex = getTexture(pbrmr.metallicRoughnessTexture);
+  dst.pbrmr().metallic = pbrmr.metallicFactor;
+  dst.pbrmr().roughness = pbrmr.roughnessFactor;
+
+  // Normal
+  const auto& normal = material.normalTexture;
+  dst.normal().texture = getTexture(normal);
+  dst.normal().scale = normal.scale;
+
+  // Occlusion
+  const auto& occlusion = material.occlusionTexture;
+  dst.occlusion().texture = getTexture(occlusion);
+  dst.occlusion().strength = occlusion.strength;
+
+  // Emissive
+  const auto& emissive = material.emissiveTexture;
+  dst.emissive().texture = getTexture(emissive);
+  dst.emissive().factor = {material.emissiveFactor[0],
+                           material.emissiveFactor[1],
+                           material.emissiveFactor[2]};
+}
+
+/// Loads a single skin from a GLTF object.
+///
+void loadSkin(Skin& dst, unordered_map<int32_t, ifstream>& bufferMap,
+              const GLTF& gltf, size_t index) {
+
+  assert(index < gltf.skins().size());
+
+  const auto& skin = gltf.skins()[index];
+
+  // Bind-pose
+  vector<Mat4f> bindPose;
+
+  for (const auto& jt : skin.joints) {
+    const auto& xform = gltf.nodes()[jt].transform;
+    if (xform.size() == 16) {
+      bindPose.push_back({{xform[0], xform[1], xform[2], xform[3]},
+                          {xform[4], xform[5], xform[6], xform[7]},
+                          {xform[8], xform[9], xform[10], xform[11]},
+                          {xform[12], xform[13], xform[14], xform[15]}});
+    } else {
+      auto t = translate(xform[0], xform[1], xform[2]);
+      auto r = rotate(Qnionf({xform[3], xform[4], xform[5], xform[6]}));
+      auto s = scale(xform[7], xform[8], xform[9]);
+      bindPose.push_back(t * r * s);
+    }
+  }
+
+  // Inverse-bind
+  vector<Mat4f> inverseBind;
+
+  if (skin.inverseBindMatrices > 0) {
+    const auto& acc = gltf.accessors()[skin.inverseBindMatrices];
+    const auto& view = gltf.bufferViews()[acc.bufferView];
+    const auto& buffer = gltf.buffers()[view.buffer];
+
+    auto it = bufferMap.find(view.buffer);
+
+    if (it == bufferMap.end()) {
+      const auto pathname = gltf.directory() + '/' + buffer.uri;
+      it = bufferMap.emplace(view.buffer, ifstream(pathname)).first;
+      if (!it->second)
+        throw FileExcept("Could not open glTF .bin file");
+    }
+
+    auto& ifs = it->second;
+
+    if (!ifs.seekg(acc.byteOffset + view.byteOffset))
+      throw FileExcept("Could not seek glTF .bin file");
+
+    inverseBind.resize(acc.count);
+    for (auto& m : inverseBind) {
+      auto dt = reinterpret_cast<char*>(m.data());
+      if (!ifs.read(dt, Mat4f::dataSize()))
+        throw FileExcept("Could not read from glTF .bin file");
+    }
+  }
+
+  // Create skin
+  dst = {bindPose, inverseBind};
+}
+
+/// Loads contents from a GLTF object.
+///
+void loadContents(Collection& collection, const GLTF& gltf,
+                  int32_t sceneIndex, int32_t nodeIndex) {
+
+  // Check which nodes are joints
+  vector<bool> isJoint(gltf.nodes().size(), false);
+
+  for (const auto& sk : gltf.skins()) {
+    for (const auto& jt : sk.joints)
+      isJoint[jt] = true;
+  }
+
+  // Select nodes & scenes
+  vector<int32_t> nodes;
+  vector<int32_t> scenes;
+
+  auto setDescendants = [&] {
+    for (size_t i = 0; i < nodes.size(); ++i) {
+      for (const auto& nd : gltf.nodes()[nodes[i]].children) {
+        if (!isJoint[nd])
+          nodes.push_back(nd);
+      }
+    }
+  };
+
+  if (sceneIndex > -1) {
+    // Nodes from a specific scene
+    for (const auto& nd : gltf.scenes()[sceneIndex].nodes)
+      nodes.push_back(nd);
+    setDescendants();
+    scenes.push_back(sceneIndex);
+  } else if (nodeIndex > -1) {
+    // Nodes from a specific subgraph
+    nodes.push_back(nodeIndex);
+    setDescendants();
+  } else {
+    // Everything
+    for (const auto& scn : gltf.scenes()) {
+      for (const auto& nd : scn.nodes) {
+        if (!isJoint[nd])
+          nodes.push_back(nd);
+      }
+      scenes.push_back(scenes.size());
+    }
+    if (nodes.empty()) {
+      for (size_t nd = 0; nd < gltf.nodes().size(); ++nd) {
+        if (!isJoint[nd])
+          nodes.push_back(nd);
+      }
+    } else {
+      setDescendants();
+    }
+  }
+
+  // Select resources
+  vector<int32_t> meshes;
+  vector<int32_t> materials;
+  vector<int32_t> skins;
+
+  unordered_map<int32_t, ifstream> bufferMap;
+  unordered_map<int32_t, Texture> textureMap;
+
+  if (sceneIndex < 0 && nodeIndex < 0) {
+    // Everything
+    for (size_t i = 0; i < gltf.meshes().size(); ++i)
+      meshes.push_back(i);
+    for (size_t i = 0; i < gltf.materials().size(); ++i)
+      materials.push_back(i);
+    for (size_t i = 0; i < gltf.skins().size(); ++i)
+      skins.push_back(i);
+  } else {
+    // Only referenced resources
+    // TODO...
+    assert(false);
+  }
+
+  // Create meshes
+  for (const auto& mesh : meshes) {
+    Mesh::Data data;
+    loadMesh(data, bufferMap, gltf, mesh);
+    collection.meshes().push_back({data});
+  }
+
+  // Create materials
+  for (const auto& matl : materials) {
+    collection.materials().push_back({});
+    loadMaterial(collection.materials().back(), textureMap, gltf, matl);
+  }
+
+  // Create skins
+  for (const auto& sk : skins) {
+    collection.skins().push_back({});
+    loadSkin(collection.skins().back(), bufferMap, gltf, sk);
+  }
+
+  // Store textures
+  // XXX: redundant for textures used by materials
+  for (const auto& kv : textureMap)
+    collection.textures().push_back(kv.second);
+
+  // Create nodes
+  // TODO: joint nodes
+  unordered_map<int32_t, Node*> nodeMap;
+
+  for (const auto& nd : nodes) {
+    const auto& node = gltf.nodes()[nd];
+
+    if (node.mesh > -1) {
+      // Model
+      collection.nodes().push_back(make_unique<Model>());
+      auto mdl = static_cast<Model*>(collection.nodes().back().get());
+
+      mdl->setMesh(collection.meshes()[meshes[node.mesh]]);
+      // TODO: support for multiple primitives
+      const auto matl = gltf.meshes()[node.mesh].primitives[0].material;
+      if (matl > -1)
+        mdl->setMaterial(collection.materials()[materials[matl]]);
+      if (node.skin > -1)
+        mdl->setSkin(collection.skins()[skins[node.skin]]);
+
+    } else {
+      // Node
+      collection.nodes().push_back(make_unique<Node>());
+    }
+
+    auto& xform = collection.nodes().back()->transform();
+
+    if (node.transform.size() == 16) {
+      xform[0] = {node.transform[0], node.transform[1],
+                  node.transform[2], node.transform[3]};
+      xform[1] = {node.transform[4], node.transform[5],
+                  node.transform[6], node.transform[7]};
+      xform[2] = {node.transform[8], node.transform[9],
+                  node.transform[10], node.transform[11]};
+      xform[3] = {node.transform[12], node.transform[13],
+                  node.transform[14], node.transform[15]};
+    } else {
+      auto t = translate(node.transform[0], node.transform[1],
+                         node.transform[2]);
+      auto r = rotate(Qnionf({node.transform[3], node.transform[4],
+                              node.transform[5], node.transform[6]}));
+      auto s = scale(node.transform[7], node.transform[8], node.transform[9]);
+      xform = t * r * s;
+    }
+
+    // XXX
+    auto& name = collection.nodes().back()->name();
+    for (const auto& c : node.name)
+      name.push_back(c);
+
+    nodeMap.emplace(nd, collection.nodes().back().get());
+  }
+
+  // Create node hierarchy
+  for (const auto& kv : nodeMap) {
+    for (const auto& chd : gltf.nodes()[kv.first].children) {
+      if (isJoint[chd])
+        continue;
+      kv.second->insert(*nodeMap[chd]);
+    }
+  }
+
+  // Create scenes
+  for (const auto& scn : scenes) {
+    collection.scenes().push_back(make_unique<Scene>());
+    for (const auto& nd : gltf.scenes()[scn].nodes)
+      collection.scenes().back()->insert(*nodeMap[nd]);
+    // XXX
+    auto& name = collection.scenes().back()->name();
+    for (const auto& c : gltf.scenes()[scn].name)
+      name.push_back(c);
+  }
+}
+
 INTERNAL_NS_END
 
 void SG_NS::loadGLTF(Collection& collection, const wstring& pathname) {
@@ -1935,8 +2244,7 @@ void SG_NS::loadGLTF(Collection& collection, const wstring& pathname) {
   printGLTF(gltf);
 #endif
 
-  // TODO
-  throw runtime_error("loadGLTF(Collection) unimplemented");
+  loadContents(collection, gltf, -1, -1);
 }
 
 void SG_NS::loadGLTF(Scene& dst, Collection& collection,
@@ -1979,7 +2287,8 @@ void SG_NS::loadGLTF(Mesh::Data& dst, const wstring& pathname, size_t index) {
   if (index >= gltf.meshes().size())
     throw invalid_argument("loadGLTF() index out of bounds");
 
-  loadMesh(dst, gltf, index);
+  unordered_map<int32_t, ifstream> bufferMap;
+  loadMesh(dst, bufferMap, gltf, index);
 }
 
 //

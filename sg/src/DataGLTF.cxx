@@ -2156,6 +2156,51 @@ void loadContents(Collection& collection, const GLTF& gltf,
   for (const auto& kv : textureMap)
     collection.textures().push_back(kv.second);
 
+  // Create nodes
+  // TODO: joint nodes
+  for (const auto& nd : nodes) {
+    const auto& node = gltf.nodes()[nd];
+
+    // Transform
+    Mat4f xform;
+
+    if (node.transform.size() == 16) {
+      xform[0] = {node.transform[0], node.transform[1],
+                  node.transform[2], node.transform[3]};
+      xform[1] = {node.transform[4], node.transform[5],
+                  node.transform[6], node.transform[7]};
+      xform[2] = {node.transform[8], node.transform[9],
+                  node.transform[10], node.transform[11]};
+      xform[3] = {node.transform[12], node.transform[13],
+                  node.transform[14], node.transform[15]};
+    } else {
+      auto t = translate(node.transform[0], node.transform[1],
+                         node.transform[2]);
+      auto r = rotate(Qnionf({node.transform[3], node.transform[4],
+                              node.transform[5], node.transform[6]}));
+      auto s = scale(node.transform[7], node.transform[8], node.transform[9]);
+      xform = t * r * s;
+    }
+
+    // Node
+    if (node.mesh > -1) {
+      collection.models().push_back({});
+      auto& mdl = collection.models().back();
+
+      mdl.setMesh(collection.meshes()[meshes[node.mesh]]);
+      const auto matl = gltf.meshes()[node.mesh].primitives[0].material;
+      if (matl > -1)
+        mdl.setMaterial(collection.materials()[materials[matl]]);
+      if (node.skin > -1)
+        mdl.setSkin(collection.skins()[skins[node.skin]]);
+      mdl.transform() = xform;
+
+    } else {
+      collection.nodes().push_back({});
+      collection.nodes().back().transform() = xform;
+    }
+  }
+
   // TODO...
 }
 

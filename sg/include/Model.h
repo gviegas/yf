@@ -22,6 +22,8 @@ class Skin;
 ///
 class Model : public Node {
  public:
+  using Ptr = std::unique_ptr<Model>;
+
   Model(Mesh& mesh, Material& material, Skin& skin);
   Model();
   Model(const Model& other);

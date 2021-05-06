@@ -23,6 +23,8 @@ SG_NS_BEGIN
 ///
 class Node {
  public:
+  using Ptr = std::unique_ptr<Node>;
+
   Node();
   Node(const Node& other);
   Node& operator=(const Node& other);

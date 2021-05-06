@@ -20,6 +20,8 @@ class Camera;
 ///
 class Scene : public Node {
  public:
+  using Ptr = std::unique_ptr<Scene>;
+
   Scene();
   Scene(const Scene& other);
   Scene& operator=(const Scene& other);

@@ -12,7 +12,7 @@
 
 #include "yf/sg/Defs.h"
 #include "yf/sg/Scene.h"
-#include "yf/sg/Model.h"
+#include "yf/sg/Node.h"
 #include "yf/sg/Mesh.h"
 #include "yf/sg/Texture.h"
 #include "yf/sg/Material.h"
@@ -29,20 +29,15 @@ class Collection {
   Collection& operator=(const Collection&) = delete;
   ~Collection();
 
-  /// Scene nodes.
+  /// Scenes.
   ///
-  std::vector<Scene>& scenes();
-  const std::vector<Scene>& scenes() const;
-
-  /// Model nodes.
-  ///
-  std::vector<Model>& models();
-  const std::vector<Model>& models() const;
+  std::vector<Scene::Ptr>& scenes();
+  const std::vector<Scene::Ptr>& scenes() const;
 
   /// Nodes.
   ///
-  std::vector<Node>& nodes();
-  const std::vector<Node>& nodes() const;
+  std::vector<Node::Ptr>& nodes();
+  const std::vector<Node::Ptr>& nodes() const;
 
   /// Meshes.
   ///

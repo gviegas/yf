@@ -23,47 +23,31 @@ struct CollectionTest : Test {
     Collection coll;
 
     a.push_back({L"Collection()", coll.scenes().empty() &&
-                                  coll.models().empty() &&
                                   coll.nodes().empty() &&
                                   coll.meshes().empty() &&
                                   coll.textures().empty() &&
                                   coll.materials().empty() &&
                                   coll.skins().empty()});
 
-    coll.scenes().push_back({});
-    coll.scenes().back().name() = L"scn1";
+    coll.scenes().push_back(make_unique<Scene>());
+    coll.scenes().back()->name() = L"scn1";
     Scene scn;
     scn.name() = L"scn2";
-    coll.scenes().push_back(scn);
+    coll.scenes().push_back(make_unique<Scene>(scn));
 
     a.push_back({L"scenes()", coll.scenes().size() == 2 &&
-                              coll.scenes().front().name() == L"scn1" &&
-                              coll.scenes().back().name() == L"scn2"});
-
-    coll.models().push_back({});
-    coll.models().push_back({});
-    coll.models()[0].name() = L"mdl1";
-    coll.models()[1].name() = L"mdl2";
-    Model mdl;
-    mdl.name() = L"mdl3";
-    coll.models().push_back(mdl);
-    coll.models().push_back({});
-
-    a.push_back({L"models()", coll.models().size() == 4 &&
-                              coll.models()[0].name() == L"mdl1" &&
-                              coll.models()[1].name() == L"mdl2" &&
-                              coll.models()[2].name() == L"mdl3" &&
-                              coll.models()[3].name() == L""});
+                              coll.scenes().front()->name() == L"scn1" &&
+                              coll.scenes().back()->name() == L"scn2"});
 
     auto count = 100;
     Node nd;
     nd.name() = L"node";
     while (count--)
-      coll.nodes().push_back(nd);
+      coll.nodes().push_back(make_unique<Node>(nd));
 
     a.push_back({L"nodes()", coll.nodes().size() == 100 &&
-                             coll.nodes().front().name() == nd.name() &&
-                             coll.nodes().back().name() == nd.name()});
+                             coll.nodes().front()->name() == nd.name() &&
+                             coll.nodes().back()->name() == nd.name()});
 
     Mesh mesh{Mesh::Gltf, L"tmp/cube.gltf"};
     coll.meshes().push_back(mesh);

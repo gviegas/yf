@@ -1945,7 +1945,7 @@ void loadMaterial(Material& dst, unordered_map<int32_t, Texture>& textureMap,
 
   const auto& material = gltf.materials()[index];
 
-  // Gets texture
+  // Get texture
   auto getTexture = [&](const GLTF::Material::TextureInfo& info) -> Texture {
     if (info.index < 0)
       return {};
@@ -1958,7 +1958,7 @@ void loadMaterial(Material& dst, unordered_map<int32_t, Texture>& textureMap,
     const auto& image = gltf.images()[texture.source];
 
     // TODO: image type check & support for buffer view
-    if (image.uri == "")
+    if (image.uri.empty())
       throw runtime_error("glTF image load from buffer view unimplemented");
 
     wstring pathname;
@@ -2134,6 +2134,7 @@ void loadContents(Collection& collection, const GLTF& gltf,
   } else {
     // Only referenced resources
     // TODO...
+    assert(false);
   }
 
   // Create meshes
@@ -2173,6 +2174,7 @@ void loadContents(Collection& collection, const GLTF& gltf,
       auto mdl = static_cast<Model*>(collection.nodes().back().get());
 
       mdl->setMesh(collection.meshes()[meshes[node.mesh]]);
+      // TODO: support for multiple primitives
       const auto matl = gltf.meshes()[node.mesh].primitives[0].material;
       if (matl > -1)
         mdl->setMaterial(collection.materials()[materials[matl]]);

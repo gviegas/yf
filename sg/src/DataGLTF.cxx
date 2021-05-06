@@ -1809,7 +1809,9 @@ class GLTF {
 
 /// Loads a single mesh from a GLTF object.
 ///
-void loadMesh(Mesh::Data& dst, const GLTF& gltf, size_t index) {
+void loadMesh(Mesh::Data& dst, unordered_map<int32_t, ifstream>& bufferMap,
+              const GLTF& gltf, size_t index) {
+
   assert(index < gltf.meshes().size());
 
   const auto& mesh = gltf.meshes()[index];
@@ -1850,7 +1852,7 @@ void loadMesh(Mesh::Data& dst, const GLTF& gltf, size_t index) {
     const GLTF::BufferView& bufferView;
   };
 
-  unordered_map<int32_t, vector<Desc>> bufferMap{};
+  unordered_map<int32_t, vector<Desc>> descMap{};
 
   // TODO: validate glTF data
   for (const auto& prim : mesh.primitives) {
@@ -1860,9 +1862,9 @@ void loadMesh(Mesh::Data& dst, const GLTF& gltf, size_t index) {
       const auto& acc = gltf.accessors()[att.second];
       const auto& view = gltf.bufferViews()[acc.bufferView];
 
-      auto it = bufferMap.find(view.buffer);
-      if (it == bufferMap.end())
-        bufferMap.emplace(view.buffer, vector<Desc>{{type, acc, view}});
+      auto it = descMap.find(view.buffer);
+      if (it == descMap.end())
+        descMap.emplace(view.buffer, vector<Desc>{{type, acc, view}});
       else
         it->second.push_back({type, acc, view});
     }
@@ -1871,24 +1873,31 @@ void loadMesh(Mesh::Data& dst, const GLTF& gltf, size_t index) {
       const auto& acc = gltf.accessors()[prim.indices];
       const auto& view = gltf.bufferViews()[acc.bufferView];
 
-      auto it = bufferMap.find(view.buffer);
-      assert(it != bufferMap.end());
+      auto it = descMap.find(view.buffer);
+      assert(it != descMap.end());
       it->second.push_back({-1, acc, view});
     }
   }
 
-  for (const auto& bm : bufferMap) {
-    const auto& buffer = gltf.buffers()[bm.first];
+  for (const auto& dm : descMap) {
+    const auto& buffer = gltf.buffers()[dm.first];
 
     // TODO: .glb
     if (buffer.uri.empty())
       throw UnsupportedExcept("Unsupported glTF buffer");
 
-    ifstream ifs(gltf.directory() + '/' + buffer.uri);
-    if (!ifs)
-      throw FileExcept("Could not open glTF .bin file");
+    auto it = bufferMap.find(dm.first);
 
-    for (const auto& dc : bm.second) {
+    if (it == bufferMap.end()) {
+      const auto pathname = gltf.directory() + '/' + buffer.uri;
+      it = bufferMap.emplace(dm.first, ifstream(pathname)).first;
+      if (!it->second)
+        throw FileExcept("Could not open glTF .bin file");
+    }
+
+    auto& ifs = it->second;
+
+    for (const auto& dc : dm.second) {
       size_t size = dc.accessor.sizeOfComponentType() *
                     dc.accessor.sizeOfType();
 
@@ -1936,13 +1945,13 @@ void loadMaterial(Material& dst, unordered_map<int32_t, Texture>& textureMap,
   const auto& material = gltf.materials()[index];
 
   // Gets texture
-  auto getTexture = [&](const GLTF::Material::TextureInfo& info) -> Texture* {
+  auto getTexture = [&](const GLTF::Material::TextureInfo& info) -> Texture {
     if (info.index < 0)
-      return nullptr;
+      return {};
 
     auto it = textureMap.find(info.index);
     if (it != textureMap.end())
-      return &it->second;
+      return it->second;
 
     const auto& texture = gltf.textures()[info.index];
     const auto& image = gltf.images()[texture.source];
@@ -1959,16 +1968,16 @@ void loadMaterial(Material& dst, unordered_map<int32_t, Texture>& textureMap,
       pathname.push_back(c);
 
     Texture tex(Texture::Png, pathname);
-    return &textureMap.emplace(info.index, tex).first->second;
+    return textureMap.emplace(info.index, tex).first->second;
   };
 
   // PBRMR
   const auto& pbrmr = material.pbrMetallicRoughness;
   dst.pbrmr().colorTex = getTexture(pbrmr.baseColorTexture);
   dst.pbrmr().colorFac = {pbrmr.baseColorFactor[0], pbrmr.baseColorFactor[1],
-                          pbrmr.baseColorFactor[2]};
+                          pbrmr.baseColorFactor[2], pbrmr.baseColorFactor[3]};
   dst.pbrmr().metalRoughTex = getTexture(pbrmr.metallicRoughnessTexture);
-  dst.pbrmr().metalness = pbrmr.metallicFactor;
+  dst.pbrmr().metallic = pbrmr.metallicFactor;
   dst.pbrmr().roughness = pbrmr.roughnessFactor;
 
   // Normal
@@ -1991,7 +2000,9 @@ void loadMaterial(Material& dst, unordered_map<int32_t, Texture>& textureMap,
 
 /// Loads a single skin from a GLTF object.
 ///
-void loadSkin(Collection& collection, const GLTF& gltf, size_t index) {
+void loadSkin(Skin& dst, unordered_map<int32_t, ifstream>& bufferMap,
+              const GLTF& gltf, size_t index) {
+
   assert(index < gltf.skins().size());
 
   const auto& skin = gltf.skins()[index];
@@ -2022,11 +2033,16 @@ void loadSkin(Collection& collection, const GLTF& gltf, size_t index) {
     const auto& view = gltf.bufferViews()[acc.bufferView];
     const auto& buffer = gltf.buffers()[view.buffer];
 
-    // TODO: pass list of open streams to this function instead
+    auto it = bufferMap.find(view.buffer);
 
-    ifstream ifs(gltf.directory() + '/' + buffer.uri);
-    if (!ifs)
-      throw FileExcept("Could not open glTF .bin file");
+    if (it == bufferMap.end()) {
+      const auto pathname = gltf.directory() + '/' + buffer.uri;
+      it = bufferMap.emplace(view.buffer, ifstream(pathname)).first;
+      if (!it->second)
+        throw FileExcept("Could not open glTF .bin file");
+    }
+
+    auto& ifs = it->second;
 
     if (!ifs.seekg(acc.byteOffset + view.byteOffset))
       throw FileExcept("Could not seek glTF .bin file");
@@ -2040,7 +2056,7 @@ void loadSkin(Collection& collection, const GLTF& gltf, size_t index) {
   }
 
   // Create skin
-  collection.skins().push_back({bindPose, inverseBind});
+  dst = {bindPose, inverseBind};
 }
 
 /// Loads contents from a GLTF object.
@@ -2099,6 +2115,7 @@ void loadContents(Collection& collection, const GLTF& gltf,
   vector<int32_t> materials;
   vector<int32_t> skins;
 
+  unordered_map<int32_t, ifstream> bufferMap;
   unordered_map<int32_t, Texture> textureMap;
 
   if (sceneIndex < 0 && nodeIndex < 0) {
@@ -2118,7 +2135,7 @@ void loadContents(Collection& collection, const GLTF& gltf,
   // Create meshes
   for (const auto& mesh : meshes) {
     Mesh::Data data;
-    loadMesh(data, gltf, mesh);
+    loadMesh(data, bufferMap, gltf, mesh);
     collection.meshes().push_back({data});
   }
 
@@ -2129,10 +2146,13 @@ void loadContents(Collection& collection, const GLTF& gltf,
   }
 
   // Create skins
-  for (const auto& sk : skins)
-    loadSkin(collection, gltf, sk);
+  for (const auto& sk : skins) {
+    collection.skins().push_back({});
+    loadSkin(collection.skins().back(), bufferMap, gltf, sk);
+  }
 
   // Store textures
+  // XXX: redundant for textures used by materials
   for (const auto& kv : textureMap)
     collection.textures().push_back(kv.second);
 
@@ -2191,7 +2211,8 @@ void SG_NS::loadGLTF(Mesh::Data& dst, const wstring& pathname, size_t index) {
   if (index >= gltf.meshes().size())
     throw invalid_argument("loadGLTF() index out of bounds");
 
-  loadMesh(dst, gltf, index);
+  unordered_map<int32_t, ifstream> bufferMap;
+  loadMesh(dst, bufferMap, gltf, index);
 }
 
 //

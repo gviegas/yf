@@ -25,8 +25,7 @@ class Joint : public Node {};
 ///
 class Skin {
  public:
-  Skin(const std::vector<Mat4f>& bindPose,
-       const std::vector<Mat4f>& inverseBind);
+  Skin(size_t jointN, const std::vector<Mat4f>& inverseBind);
   Skin();
   Skin(const Skin& other);
   Skin& operator=(const Skin& other);
@@ -39,9 +38,13 @@ class Skin {
 
   size_t hash() const;
 
+  /// Sets a skin joint.
+  ///
+  void setJoint(Joint& joint, size_t index);
+
   /// The joints.
   ///
-  const std::vector<Joint>& joints() const;
+  const std::vector<Joint*>& joints() const;
 
   /// The inverse-bind matrix of each joint.
   ///

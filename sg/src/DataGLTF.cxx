@@ -2069,17 +2069,10 @@ void loadContents(Collection& collection, const GLTF& gltf,
     setDescendants();
   } else {
     // Everything
-    for (const auto& scn : gltf.scenes()) {
-      for (const auto& nd : scn.nodes)
-        nodes.push_back(nd);
-      scenes.push_back(scenes.size());
-    }
-    if (nodes.empty()) {
-      for (size_t nd = 0; nd < gltf.nodes().size(); ++nd)
-        nodes.push_back(nd);
-    } else {
-      setDescendants();
-    }
+    for (size_t i = 0; i < gltf.nodes().size(); ++i)
+      nodes.push_back(i);
+    for (size_t i = 0; i < gltf.scenes().size(); ++i)
+      scenes.push_back(i);
   }
 
   // Select resources

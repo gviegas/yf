@@ -38,6 +38,15 @@ void Collection::load(const wstring& pathname) {
   loadGLTF(*this, pathname);
 }
 
+void Collection::clear() {
+  impl_->scenes_.clear();
+  impl_->nodes_.clear();
+  impl_->meshes_.clear();
+  impl_->textures_.clear();
+  impl_->materials_.clear();
+  impl_->skins_.clear();
+}
+
 vector<Scene::Ptr>& Collection::scenes() {
   return impl_->scenes_;
 }

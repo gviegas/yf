@@ -8,6 +8,7 @@
 #ifndef YF_SG_COLLECTION_H
 #define YF_SG_COLLECTION_H
 
+#include <string>
 #include <memory>
 
 #include "yf/sg/Defs.h"
@@ -24,10 +25,15 @@ SG_NS_BEGIN
 ///
 class Collection {
  public:
+  Collection(const std::wstring& pathname);
   Collection();
   Collection(const Collection&) = delete;
   Collection& operator=(const Collection&) = delete;
   ~Collection();
+
+  /// Loads collection from file.
+  ///
+  void load(const std::wstring& pathname);
 
   /// Scenes.
   ///

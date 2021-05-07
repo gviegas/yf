@@ -86,13 +86,15 @@ struct CollectionTest : Test {
                  coll.materials()[3].occlusion().strength == 0.5f &&
                  !coll.materials()[3].normal().texture});
 
-    coll.skins().push_back({{Mat4f()}, {}});
-    Skin skin({Mat4f::identity(), Mat4f()}, {});
+    coll.skins().push_back({1, {}});
+    Skin skin(2, {});
     coll.skins().push_back(skin);
 
     a.push_back({L"skins()", coll.skins().size() == 2 &&
                              coll.skins().front().joints().size() == 1 &&
-                             coll.skins().back().joints().size() == 2});
+                             coll.skins().front().inverseBind().empty() &&
+                             coll.skins().back().joints().size() == 2 &&
+                             coll.skins().back().inverseBind().empty()});
 
     return a;
   }

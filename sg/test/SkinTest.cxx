@@ -23,18 +23,18 @@ struct SkinTest : Test {
     const auto m = Mat4f::identity();
     bool check = true;
 
-    Skin skin1({m}, {m});
-    Skin skin2({m}, {});
-    Skin skin3({m, m, m}, {m, m, m});
-    Skin skin4({m, m, m}, {});
+    Skin skin1(1, {m});
+    Skin skin2(1, {});
+    Skin skin3(3, {m, m, m});
+    Skin skin4(3, {});
 
     try {
-      Skin skin({}, {});
+      Skin skin(1, {m, m});
       check = false;
     } catch (...) { }
 
     try {
-      Skin skin({m, m}, {m});
+      Skin skin(2, {m});
       check = false;
     } catch (...) { }
 

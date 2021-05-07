@@ -379,7 +379,7 @@ struct MiscTest : public Test {
       wcout << "\n  Skin:"
             << "\n   joints: #" <<  sk.joints().size();
       for (const auto& jt : sk.joints())
-        SG_PRINTMAT(jt.transform());
+        SG_PRINTMAT(jt->transform());
       wcout << "\n   inverseBind: #" << sk.inverseBind().size();
       for (const auto& ib : sk.inverseBind())
         SG_PRINTMAT(ib);

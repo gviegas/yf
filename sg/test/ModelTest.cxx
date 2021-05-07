@@ -35,7 +35,7 @@ struct ModelTest : Test {
                              mdl2.mesh() == mesh && !mdl2.skin()});
 
     Material material;
-    Skin skin({Mat4f::identity()}, {});
+    Skin skin(1, {});
     Model mdl3{mesh, material, skin};
 
     a.push_back({L"Model(mesh, material, skin)",

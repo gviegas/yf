@@ -2008,25 +2008,6 @@ void loadSkin(Skin& dst, unordered_map<int32_t, ifstream>& bufferMap,
 
   const auto& skin = gltf.skins()[index];
 
-  // Bind-pose
-  vector<Mat4f> bindPose;
-
-  for (const auto& jt : skin.joints) {
-    const auto& xform = gltf.nodes()[jt].transform;
-    if (xform.size() == 16) {
-      bindPose.push_back({{xform[0], xform[1], xform[2], xform[3]},
-                          {xform[4], xform[5], xform[6], xform[7]},
-                          {xform[8], xform[9], xform[10], xform[11]},
-                          {xform[12], xform[13], xform[14], xform[15]}});
-    } else {
-      auto t = translate(xform[0], xform[1], xform[2]);
-      auto r = rotate(Qnionf({xform[3], xform[4], xform[5], xform[6]}));
-      auto s = scale(xform[7], xform[8], xform[9]);
-      bindPose.push_back(t * r * s);
-    }
-  }
-
-  // Inverse-bind
   vector<Mat4f> inverseBind;
 
   if (skin.inverseBindMatrices > 0) {
@@ -2056,8 +2037,7 @@ void loadSkin(Skin& dst, unordered_map<int32_t, ifstream>& bufferMap,
     }
   }
 
-  // Create skin
-  dst = {bindPose, inverseBind};
+  dst = {skin.joints.size(), inverseBind};
 }
 
 /// Loads contents from a GLTF object.

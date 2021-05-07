@@ -6,6 +6,7 @@
 //
 
 #include "Collection.h"
+#include "DataGLTF.h"
 
 using namespace SG_NS;
 using namespace std;
@@ -25,9 +26,17 @@ class Collection::Impl {
   vector<Skin> skins_{};
 };
 
+Collection::Collection(const wstring& pathname) : Collection() {
+  load(pathname);
+}
+
 Collection::Collection() : impl_(make_unique<Impl>()) { }
 
 Collection::~Collection() { }
+
+void Collection::load(const wstring& pathname) {
+  loadGLTF(*this, pathname);
+}
 
 vector<Scene::Ptr>& Collection::scenes() {
   return impl_->scenes_;

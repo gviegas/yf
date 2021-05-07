@@ -35,6 +35,10 @@ class Collection {
   ///
   void load(const std::wstring& pathname);
 
+  /// Clears collection contents.
+  ///
+  void clear();
+
   /// Scenes.
   ///
   std::vector<Scene::Ptr>& scenes();

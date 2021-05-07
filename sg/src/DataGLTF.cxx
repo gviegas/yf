@@ -2037,6 +2037,7 @@ void loadSkin(Skin& dst, unordered_map<int32_t, ifstream>& bufferMap,
     }
   }
 
+  // XXX: joints NOT set
   dst = {skin.joints.size(), inverseBind};
 }
 
@@ -2045,24 +2046,14 @@ void loadSkin(Skin& dst, unordered_map<int32_t, ifstream>& bufferMap,
 void loadContents(Collection& collection, const GLTF& gltf,
                   int32_t sceneIndex, int32_t nodeIndex) {
 
-  // Check which nodes are joints
-  vector<bool> isJoint(gltf.nodes().size(), false);
-
-  for (const auto& sk : gltf.skins()) {
-    for (const auto& jt : sk.joints)
-      isJoint[jt] = true;
-  }
-
   // Select nodes & scenes
   vector<int32_t> nodes;
   vector<int32_t> scenes;
 
   auto setDescendants = [&] {
     for (size_t i = 0; i < nodes.size(); ++i) {
-      for (const auto& nd : gltf.nodes()[nodes[i]].children) {
-        if (!isJoint[nd])
-          nodes.push_back(nd);
-      }
+      for (const auto& nd : gltf.nodes()[nodes[i]].children)
+        nodes.push_back(nd);
     }
   };
 
@@ -2079,17 +2070,13 @@ void loadContents(Collection& collection, const GLTF& gltf,
   } else {
     // Everything
     for (const auto& scn : gltf.scenes()) {
-      for (const auto& nd : scn.nodes) {
-        if (!isJoint[nd])
-          nodes.push_back(nd);
-      }
+      for (const auto& nd : scn.nodes)
+        nodes.push_back(nd);
       scenes.push_back(scenes.size());
     }
     if (nodes.empty()) {
-      for (size_t nd = 0; nd < gltf.nodes().size(); ++nd) {
-        if (!isJoint[nd])
-          nodes.push_back(nd);
-      }
+      for (size_t nd = 0; nd < gltf.nodes().size(); ++nd)
+        nodes.push_back(nd);
     } else {
       setDescendants();
     }
@@ -2136,13 +2123,15 @@ void loadContents(Collection& collection, const GLTF& gltf,
     loadSkin(collection.skins().back(), bufferMap, gltf, sk);
   }
 
-  // Store textures
-  // XXX: redundant for textures used by materials
-  for (const auto& kv : textureMap)
-    collection.textures().push_back(kv.second);
+  // Check which nodes are joints
+  vector<bool> isJoint(gltf.nodes().size(), false);
+
+  for (const auto& sk : gltf.skins()) {
+    for (const auto& jt : sk.joints)
+      isJoint[jt] = true;
+  }
 
   // Create nodes
-  // TODO: joint nodes
   unordered_map<int32_t, Node*> nodeMap;
 
   for (const auto& nd : nodes) {
@@ -2160,6 +2149,12 @@ void loadContents(Collection& collection, const GLTF& gltf,
         mdl->setMaterial(collection.materials()[materials[matl]]);
       if (node.skin > -1)
         mdl->setSkin(collection.skins()[skins[node.skin]]);
+
+      assert(!isJoint[nd]);
+
+    } else if (isJoint[nd]) {
+      // Joint
+      collection.nodes().push_back(make_unique<Joint>());
 
     } else {
       // Node
@@ -2197,9 +2192,18 @@ void loadContents(Collection& collection, const GLTF& gltf,
   // Create node hierarchy
   for (const auto& kv : nodeMap) {
     for (const auto& chd : gltf.nodes()[kv.first].children) {
-      if (isJoint[chd])
-        continue;
       kv.second->insert(*nodeMap[chd]);
+    }
+  }
+
+  // Set skin joints
+  const auto skinOff = collection.skins().size() - skins.size();
+  for (size_t i = 0; i < skins.size(); ++i) {
+    auto& skin = collection.skins()[skinOff+i];
+    size_t index = 0;
+    for (const auto& jt : gltf.skins()[skins[i]].joints) {
+      auto joint = static_cast<Joint*>(nodeMap[jt]);
+      skin.setJoint(*joint, index++);
     }
   }
 

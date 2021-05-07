@@ -107,7 +107,7 @@ struct RenderTest : Test {
     matl1.pbrmr().colorTex = tex;
     Material matl2;
     matl2.pbrmr().colorTex = tex;
-    Skin skin1({{}}, {});
+    Skin skin1(1, {});
 
     // Scene #1 contents
     const size_t instMdlN = 11;

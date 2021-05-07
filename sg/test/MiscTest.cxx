@@ -271,11 +271,11 @@ struct MiscTest : public Test {
 
     Mesh mesh(Mesh::Gltf, L"tmp/cube.gltf");
     Texture tex(Texture::Png, L"tmp/cube.png");
-    Material matl{{&tex, {}, nullptr, 1.0f, 1.0f}, {}, {}, {}};
+    Material matl{{tex, {}, {}, 1.0f, 1.0f}, {}, {}, {}};
 
     Model mdl;
-    mdl.setMesh(&mesh);
-    mdl.setMaterial(&matl);
+    mdl.setMesh(mesh);
+    mdl.setMaterial(matl);
 
     Scene scn;
     scn.insert(mdl);
@@ -304,8 +304,102 @@ struct MiscTest : public Test {
     return true;
   }
 
+#define SG_PRINTMAT(mat) do { \
+  for (size_t i = 0; i < mat.rows(); ++i) { \
+    wcout << "\n   "; \
+    for (size_t j = 0; j < mat.columns(); ++j) \
+      wcout << mat[j][i] << "\t\t"; \
+  } \
+  wcout << endl; \
+} while (false)
+
+  bool misc4() {
+    Collection coll(L"tmp/fullscene.gltf");
+    //coll.load(L"tmp/cube.gltf");
+    //coll.load(L"tmp/material.gltf");
+    //coll.load(L"tmp/skin.gltf");
+    //coll.load(L"tmp/fullscene.gltf");
+
+    // Print
+    wcout << "\nCollection:";
+    wcout << "\n Scenes: #" << coll.scenes().size();
+    for (const auto& scn: coll.scenes()) {
+      wcout << "\n  Scene `" << scn->name() << "`:";
+      wcout << "\n   children: ";
+      for (const auto& chd : scn->children())
+        wcout << "\n    `" << chd->name() << "`";
+    }
+
+    wcout << "\n Nodes: #" << coll.nodes().size();
+    for (const auto& nd: coll.nodes()) {
+      wcout << "\n  Node `" << nd->name() << "`:";
+      if (nd->parent())
+        wcout << "\n   parent: `" << nd->parent()->name() << "`";
+      else
+        wcout << "\n   (no parent)";
+      if (nd->isLeaf()) {
+        wcout << "\n   (no children)";
+      } else {
+        wcout << "\n   children: ";
+        for (const auto& chd : nd->children())
+          wcout << "\n    `" << chd->name() << "`";
+      }
+    }
+
+    wcout << "\n Meshes: #" << coll.meshes().size();
+    wcout << "\n Textures: #" << coll.textures().size();
+
+    wcout << "\n Materials: #" << coll.materials().size();
+    for (const auto& matl : coll.materials()) {
+      wcout << "\n  Material:"
+            << "\n   pbrmr:"
+            << "\n    colorTex: " << (matl.pbrmr().colorTex ? 'y':'n')
+            << "\n    colorFac: [" << matl.pbrmr().colorFac[0] << ", "
+                                   << matl.pbrmr().colorFac[1] << ", "
+                                   << matl.pbrmr().colorFac[2] << ", "
+                                   << matl.pbrmr().colorFac[3] << "]"
+            << "\n    metalRoughTex: " << (matl.pbrmr().metalRoughTex ? 'y':'n')
+            << "\n    metallic: " << matl.pbrmr().metallic
+            << "\n    roughness: " << matl.pbrmr().roughness
+            << "\n   normal:"
+            << "\n    texture: " << (matl.normal().texture ? 'y':'n')
+            << "\n    scale: " << matl.normal().scale
+            << "\n   occlusion:"
+            << "\n    texture: " << (matl.occlusion().texture ? 'y':'n')
+            << "\n    strength: " << matl.occlusion().strength
+            << "\n   emissive:"
+            << "\n    texture: " << (matl.emissive().texture ? 'y' : 'n')
+            << "\n    factor: [" << matl.emissive().factor[0] << ", "
+                                 << matl.emissive().factor[1] << ", "
+                                 << matl.emissive().factor[2] << "]";
+    }
+
+    wcout << "\n Skins: #" << coll.skins().size();
+    for (const auto& sk : coll.skins()) {
+      wcout << "\n  Skin:"
+            << "\n   joints: #" <<  sk.joints().size();
+      for (const auto& jt : sk.joints())
+        SG_PRINTMAT(jt.transform());
+      wcout << "\n   inverseBind: #" << sk.inverseBind().size();
+      for (const auto& ib : sk.inverseBind())
+        SG_PRINTMAT(ib);
+    }
+
+    wcout << endl;
+
+    // Render
+    auto win = WS_NS::createWindow(800, 600, L"MISC 4");
+    bool quit = false;
+    WS_NS::onWdClose([&](auto) { quit = true; });
+
+    View view(win.get());
+    view.loop(*coll.scenes().front(), 60, [&](auto) { return !quit; });
+
+    return true;
+  }
+
   Assertions run(const vector<string>&) {
-    return {{L"misc3()", misc3()}};
+    return {{L"misc4()", misc4()}};
   }
 };
 

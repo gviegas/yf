@@ -306,19 +306,17 @@ struct MiscTest : public Test {
 
 #define SG_PRINTMAT(mat) do { \
   for (size_t i = 0; i < mat.rows(); ++i) { \
-    wcout << "\n   "; \
+    wcout << "\n    "; \
     for (size_t j = 0; j < mat.columns(); ++j) \
-      wcout << mat[j][i] << "\t\t"; \
+      wcout << mat[j][i] << "\t"; \
   } \
   wcout << endl; \
 } while (false)
 
   bool misc4() {
-    Collection coll(L"tmp/fullscene.gltf");
-    //coll.load(L"tmp/cube.gltf");
-    //coll.load(L"tmp/material.gltf");
-    //coll.load(L"tmp/skin.gltf");
+    Collection coll;//(L"tmp/fullscene2.gltf");
     //coll.load(L"tmp/fullscene.gltf");
+    coll.load(L"tmp/skin.gltf");
 
     // Print
     wcout << "\nCollection:";
@@ -378,14 +376,21 @@ struct MiscTest : public Test {
     for (const auto& sk : coll.skins()) {
       wcout << "\n  Skin:"
             << "\n   joints: #" <<  sk.joints().size();
-      for (const auto& jt : sk.joints())
+      for (const auto& jt : sk.joints()) {
+        wcout << "\n\n   `" << jt->name() << "`";
         SG_PRINTMAT(jt->transform());
-      wcout << "\n   inverseBind: #" << sk.inverseBind().size();
+      }
+      wcout << "\n\n   inverseBind: #" << sk.inverseBind().size();
+      wcout << "\n";
       for (const auto& ib : sk.inverseBind())
         SG_PRINTMAT(ib);
     }
 
     wcout << endl;
+
+#if 1
+    return true;
+#endif
 
     // Render
     auto win = WS_NS::createWindow(800, 600, L"MISC 4");

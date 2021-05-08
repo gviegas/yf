@@ -5,13 +5,12 @@
 // Copyright © 2021 Gustavo C. Viegas.
 //
 
-#include <cmath>
 #include <cstdint>
+#include <cmath>
 #include <algorithm>
 
-#include "yf/Except.h"
-
 #include "Camera.h"
+#include "yf/Except.h"
 
 using namespace SG_NS;
 using namespace std;

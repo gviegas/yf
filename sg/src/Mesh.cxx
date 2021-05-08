@@ -7,13 +7,12 @@
 
 #include <cassert>
 
-#include "yf/Except.h"
-
 #include "yf/cg/Device.h"
 
 #include "MeshImpl.h"
 #include "DataGLTF.h"
 #include "DataOBJ.h"
+#include "yf/Except.h"
 
 using namespace SG_NS;
 using namespace std;

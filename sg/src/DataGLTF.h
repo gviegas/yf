@@ -8,8 +8,8 @@
 #ifndef YF_SG_DATAGLTF_H
 #define YF_SG_DATAGLTF_H
 
-#include <string>
 #include <cstddef>
+#include <string>
 
 #include "Collection.h"
 #include "MeshImpl.h"

@@ -5,11 +5,11 @@
 // Copyright © 2021 Gustavo C. Viegas.
 //
 
+#include <cassert>
 #include <algorithm>
 #include <list>
 #include <typeinfo>
 #include <stdexcept>
-#include <cassert>
 
 #include "yf/cg/Device.h"
 

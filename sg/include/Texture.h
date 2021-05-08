@@ -9,8 +9,8 @@
 #define YF_SG_TEXTURE_H
 
 #include <cstddef>
-#include <string>
 #include <memory>
+#include <string>
 
 #include "yf/sg/Defs.h"
 

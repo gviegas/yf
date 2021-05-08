@@ -7,14 +7,13 @@
 
 #include <cassert>
 
-#include "yf/Except.h"
-
 #include "yf/cg/Device.h"
 #include "yf/cg/Encoder.h"
 
 #include "TextureImpl.h"
 #include "DataPNG.h"
 #include "DataBMP.h"
+#include "yf/Except.h"
 
 using namespace SG_NS;
 using namespace std;

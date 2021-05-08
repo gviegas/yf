@@ -9,8 +9,8 @@
 #define YF_SG_SKIN_H
 
 #include <cstddef>
-#include <vector>
 #include <memory>
+#include <vector>
 
 #include "yf/sg/Defs.h"
 #include "yf/sg/Node.h"

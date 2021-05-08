@@ -7,14 +7,13 @@
 
 #include <cwchar>
 #include <cstring>
+#include <memory>
 #include <sstream>
 #include <fstream>
-#include <memory>
-
-#include "yf/Except.h"
 
 #include "DataOBJ.h"
 #include "Vector.h"
+#include "yf/Except.h"
 
 using namespace SG_NS;
 using namespace std;

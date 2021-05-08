@@ -9,10 +9,10 @@
 #define YF_SG_NODE_H
 
 #include <cstddef>
+#include <memory>
 #include <vector>
 #include <string>
 #include <functional>
-#include <memory>
 
 #include "yf/sg/Defs.h"
 #include "yf/sg/Matrix.h"

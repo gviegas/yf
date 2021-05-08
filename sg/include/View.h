@@ -9,9 +9,9 @@
 #define YF_SG_VIEW_H
 
 #include <cstdint>
+#include <memory>
 #include <functional>
 #include <chrono>
-#include <memory>
 
 #include "yf/ws/Window.h"
 

@@ -9,9 +9,9 @@
 #define YF_SG_TEXTUREIMPL_H
 
 #include <cstdint>
+#include <memory>
 #include <vector>
 #include <unordered_map>
-#include <memory>
 
 #include "yf/cg/Image.h"
 #include "yf/cg/DcTable.h"

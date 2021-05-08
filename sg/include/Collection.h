@@ -8,8 +8,8 @@
 #ifndef YF_SG_COLLECTION_H
 #define YF_SG_COLLECTION_H
 
-#include <string>
 #include <memory>
+#include <string>
 
 #include "yf/sg/Defs.h"
 #include "yf/sg/Scene.h"

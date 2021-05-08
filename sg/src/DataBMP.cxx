@@ -7,13 +7,12 @@
 
 #include <cwchar>
 #include <cstring>
-#include <fstream>
 #include <memory>
+#include <fstream>
 #include <algorithm>
 
-#include "yf/Except.h"
-
 #include "DataBMP.h"
+#include "yf/Except.h"
 
 #if defined(_DEFAULT_SOURCE)
 # include <endian.h>

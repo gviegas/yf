@@ -9,8 +9,8 @@
 #define YF_WS_WINDOW_H
 
 #include <cstdint>
-#include <string>
 #include <memory>
+#include <string>
 #include <functional>
 
 #include "yf/ws/Defs.h"

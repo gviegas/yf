@@ -8,8 +8,8 @@
 #ifndef YF_WS_KEYBOARD_H
 #define YF_WS_KEYBOARD_H
 
-#include <functional>
 #include <cstdint>
+#include <functional>
 
 #include "yf/ws/Defs.h"
 

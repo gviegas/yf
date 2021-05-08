@@ -2,11 +2,11 @@
 // WS
 // XCB.cxx
 //
-// Copyright © 2020 Gustavo C. Viegas.
+// Copyright © 2020-2021 Gustavo C. Viegas.
 //
 
-#include <cstring>
 #include <cstdlib>
+#include <cstring>
 #include <dlfcn.h>
 #define WS_LIBXCB "libxcb.so"
 

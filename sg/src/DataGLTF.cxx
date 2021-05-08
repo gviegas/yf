@@ -2043,82 +2043,34 @@ void loadSkin(Skin& dst, unordered_map<int32_t, ifstream>& bufferMap,
 
 /// Loads contents from a GLTF object.
 ///
-void loadContents(Collection& collection, const GLTF& gltf,
-                  int32_t sceneIndex, int32_t nodeIndex) {
-
-  // Select nodes & scenes
-  vector<int32_t> nodes;
-  vector<int32_t> scenes;
-
-  auto setDescendants = [&] {
-    for (size_t i = 0; i < nodes.size(); ++i) {
-      for (const auto& nd : gltf.nodes()[nodes[i]].children)
-        nodes.push_back(nd);
-    }
-  };
-
-  if (sceneIndex > -1) {
-    // Nodes from a specific scene
-    for (const auto& nd : gltf.scenes()[sceneIndex].nodes)
-      nodes.push_back(nd);
-    setDescendants();
-    scenes.push_back(sceneIndex);
-  } else if (nodeIndex > -1) {
-    // Nodes from a specific subgraph
-    nodes.push_back(nodeIndex);
-    setDescendants();
-  } else {
-    // Everything
-    for (size_t i = 0; i < gltf.nodes().size(); ++i)
-      nodes.push_back(i);
-    for (size_t i = 0; i < gltf.scenes().size(); ++i)
-      scenes.push_back(i);
-  }
-
-  // Select resources
-  vector<int32_t> meshes;
-  vector<int32_t> materials;
-  vector<int32_t> skins;
-
+void loadContents(Collection& collection, const GLTF& gltf) {
   unordered_map<int32_t, ifstream> bufferMap;
   unordered_map<int32_t, Texture> textureMap;
 
-  if (sceneIndex < 0 && nodeIndex < 0) {
-    // Everything
-    for (size_t i = 0; i < gltf.meshes().size(); ++i)
-      meshes.push_back(i);
-    for (size_t i = 0; i < gltf.materials().size(); ++i)
-      materials.push_back(i);
-    for (size_t i = 0; i < gltf.skins().size(); ++i)
-      skins.push_back(i);
-  } else {
-    // Only referenced resources
-    // TODO...
-    assert(false);
-  }
-
   // Create meshes
-  for (const auto& mesh : meshes) {
+  const auto meshOff = collection.meshes().size();
+  for (size_t i = 0; i < gltf.meshes().size(); ++i) {
     Mesh::Data data;
-    loadMesh(data, bufferMap, gltf, mesh);
+    loadMesh(data, bufferMap, gltf, i);
     collection.meshes().push_back({data});
   }
 
   // Create materials
-  for (const auto& matl : materials) {
+  const auto matlOff = collection.materials().size();
+  for (size_t i = 0; i < gltf.materials().size(); ++i) {
     collection.materials().push_back({});
-    loadMaterial(collection.materials().back(), textureMap, gltf, matl);
+    loadMaterial(collection.materials().back(), textureMap, gltf, i);
   }
 
   // Create skins
-  for (const auto& sk : skins) {
+  const auto skinOff = collection.skins().size();
+  for (size_t i = 0; i < gltf.skins().size(); ++i) {
     collection.skins().push_back({});
-    loadSkin(collection.skins().back(), bufferMap, gltf, sk);
+    loadSkin(collection.skins().back(), bufferMap, gltf, i);
   }
 
   // Check which nodes are joints
   vector<bool> isJoint(gltf.nodes().size(), false);
-
   for (const auto& sk : gltf.skins()) {
     for (const auto& jt : sk.joints)
       isJoint[jt] = true;
@@ -2127,25 +2079,25 @@ void loadContents(Collection& collection, const GLTF& gltf,
   // Create nodes
   unordered_map<int32_t, Node*> nodeMap;
 
-  for (const auto& nd : nodes) {
-    const auto& node = gltf.nodes()[nd];
+  for (size_t i = 0; i < gltf.nodes().size(); ++i) {
+    const auto& nd = gltf.nodes()[i];
 
-    if (node.mesh > -1) {
+    if (nd.mesh > -1) {
       // Model
       collection.nodes().push_back(make_unique<Model>());
       auto mdl = static_cast<Model*>(collection.nodes().back().get());
 
-      mdl->setMesh(collection.meshes()[meshes[node.mesh]]);
+      mdl->setMesh(collection.meshes()[meshOff+nd.mesh]);
       // TODO: support for multiple primitives
-      const auto matl = gltf.meshes()[node.mesh].primitives[0].material;
+      const auto matl = gltf.meshes()[nd.mesh].primitives[0].material;
       if (matl > -1)
-        mdl->setMaterial(collection.materials()[materials[matl]]);
-      if (node.skin > -1)
-        mdl->setSkin(collection.skins()[skins[node.skin]]);
+        mdl->setMaterial(collection.materials()[matlOff+matl]);
+      if (nd.skin > -1)
+        mdl->setSkin(collection.skins()[skinOff+nd.skin]);
 
-      assert(!isJoint[nd]);
+      assert(!isJoint[i]);
 
-    } else if (isJoint[nd]) {
+    } else if (isJoint[i]) {
       // Joint
       collection.nodes().push_back(make_unique<Joint>());
 
@@ -2156,30 +2108,29 @@ void loadContents(Collection& collection, const GLTF& gltf,
 
     auto& xform = collection.nodes().back()->transform();
 
-    if (node.transform.size() == 16) {
-      xform[0] = {node.transform[0], node.transform[1],
-                  node.transform[2], node.transform[3]};
-      xform[1] = {node.transform[4], node.transform[5],
-                  node.transform[6], node.transform[7]};
-      xform[2] = {node.transform[8], node.transform[9],
-                  node.transform[10], node.transform[11]};
-      xform[3] = {node.transform[12], node.transform[13],
-                  node.transform[14], node.transform[15]};
+    if (nd.transform.size() == 16) {
+      xform[0] = {nd.transform[0], nd.transform[1],
+                  nd.transform[2], nd.transform[3]};
+      xform[1] = {nd.transform[4], nd.transform[5],
+                  nd.transform[6], nd.transform[7]};
+      xform[2] = {nd.transform[8], nd.transform[9],
+                  nd.transform[10], nd.transform[11]};
+      xform[3] = {nd.transform[12], nd.transform[13],
+                  nd.transform[14], nd.transform[15]};
     } else {
-      auto t = translate(node.transform[0], node.transform[1],
-                         node.transform[2]);
-      auto r = rotate(Qnionf({node.transform[3], node.transform[4],
-                              node.transform[5], node.transform[6]}));
-      auto s = scale(node.transform[7], node.transform[8], node.transform[9]);
+      auto t = translate(nd.transform[0], nd.transform[1], nd.transform[2]);
+      auto r = rotate(Qnionf({nd.transform[3], nd.transform[4],
+                              nd.transform[5], nd.transform[6]}));
+      auto s = scale(nd.transform[7], nd.transform[8], nd.transform[9]);
       xform = t * r * s;
     }
 
     // XXX
     auto& name = collection.nodes().back()->name();
-    for (const auto& c : node.name)
+    for (const auto& c : nd.name)
       name.push_back(c);
 
-    nodeMap.emplace(nd, collection.nodes().back().get());
+    nodeMap.emplace(i, collection.nodes().back().get());
   }
 
   // Create node hierarchy
@@ -2190,24 +2141,23 @@ void loadContents(Collection& collection, const GLTF& gltf,
   }
 
   // Set skin joints
-  const auto skinOff = collection.skins().size() - skins.size();
-  for (size_t i = 0; i < skins.size(); ++i) {
+  for (size_t i = 0; i < gltf.skins().size(); ++i) {
     auto& skin = collection.skins()[skinOff+i];
     size_t index = 0;
-    for (const auto& jt : gltf.skins()[skins[i]].joints) {
+    for (const auto& jt : gltf.skins()[i].joints) {
       auto joint = static_cast<Joint*>(nodeMap[jt]);
       skin.setJoint(*joint, index++);
     }
   }
 
   // Create scenes
-  for (const auto& scn : scenes) {
+  for (const auto& scn : gltf.scenes()) {
     collection.scenes().push_back(make_unique<Scene>());
-    for (const auto& nd : gltf.scenes()[scn].nodes)
+    for (const auto& nd : scn.nodes)
       collection.scenes().back()->insert(*nodeMap[nd]);
     // XXX
     auto& name = collection.scenes().back()->name();
-    for (const auto& c : gltf.scenes()[scn].name)
+    for (const auto& c : scn.name)
       name.push_back(c);
   }
 }
@@ -2221,37 +2171,7 @@ void SG_NS::loadGLTF(Collection& collection, const wstring& pathname) {
   printGLTF(gltf);
 #endif
 
-  loadContents(collection, gltf, -1, -1);
-}
-
-void SG_NS::loadGLTF(Scene& dst, Collection& collection,
-                     const wstring& pathname, size_t index) {
-  GLTF gltf(pathname);
-
-#ifdef YF_DEVEL
-  printGLTF(gltf);
-#endif
-
-  if (index >= gltf.scenes().size())
-    throw invalid_argument("loadGLTF() index out of bounds");
-
-  // TODO
-  throw runtime_error("loadGLTF(Scene) unimplemented");
-}
-
-void SG_NS::loadGLTF(Node& dst, Collection& collection,
-                     const wstring& pathname, size_t index) {
-  GLTF gltf(pathname);
-
-#ifdef YF_DEVEL
-  printGLTF(gltf);
-#endif
-
-  if (index >= gltf.nodes().size())
-    throw invalid_argument("loadGLTF() index out of bounds");
-
-  // TODO
-  throw runtime_error("loadGLTF(Node) unimplemented");
+  loadContents(collection, gltf);
 }
 
 void SG_NS::loadGLTF(Mesh::Data& dst, const wstring& pathname, size_t index) {

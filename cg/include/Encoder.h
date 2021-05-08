@@ -9,9 +9,9 @@
 #define YF_CG_ENCODER_H
 
 #include <cstdint>
-#include <vector>
-#include <array>
 #include <memory>
+#include <array>
+#include <vector>
 
 #include "yf/cg/Defs.h"
 #include "yf/cg/Types.h"

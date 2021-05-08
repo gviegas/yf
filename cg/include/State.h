@@ -2,16 +2,16 @@
 // CG
 // State.h
 //
-// Copyright © 2020 Gustavo C. Viegas.
+// Copyright © 2020-2021 Gustavo C. Viegas.
 //
 
 #ifndef YF_CG_STATE_H
 #define YF_CG_STATE_H
 
 #include <cstdint>
+#include <memory>
 #include <unordered_map>
 #include <vector>
-#include <memory>
 
 #include "yf/cg/Defs.h"
 

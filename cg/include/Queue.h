@@ -9,8 +9,8 @@
 #define YF_CG_QUEUE_H
 
 #include <cstdint>
-#include <functional>
 #include <memory>
+#include <functional>
 
 #include "yf/cg/Defs.h"
 

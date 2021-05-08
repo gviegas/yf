@@ -8,11 +8,10 @@
 #ifndef YF_CG_WSI_H
 #define YF_CG_WSI_H
 
-#include <vector>
 #include <memory>
+#include <vector>
 
 #include "yf/ws/Window.h"
-
 #include "yf/cg/Image.h"
 
 CG_NS_BEGIN

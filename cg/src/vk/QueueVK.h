@@ -10,8 +10,8 @@
 
 #include <unordered_map>
 #include <unordered_set>
-#include <functional>
 #include <vector>
+#include <functional>
 
 #include "Defs.h"
 #include "Queue.h"

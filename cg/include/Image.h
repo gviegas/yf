@@ -136,13 +136,13 @@ struct Sampler {
   Filter magFilter = FilterNearest;
   Filter minFilter = FilterNearest;
 
-  bool operator ==(const Sampler& other) const {
+  bool operator==(const Sampler& other) const {
     return wrapU == other.wrapU && wrapV == other.wrapV &&
            wrapW == other.wrapW && magFilter == other.magFilter &&
            minFilter == other.minFilter;
   }
 
-  bool operator !=(const Sampler& other) const {
+  bool operator!=(const Sampler& other) const {
     return !operator==(other);
   }
 };

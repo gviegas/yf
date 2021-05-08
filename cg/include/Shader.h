@@ -8,8 +8,8 @@
 #ifndef YF_CG_SHADER_H
 #define YF_CG_SHADER_H
 
-#include <string>
 #include <memory>
+#include <string>
 
 #include "yf/cg/Defs.h"
 

@@ -9,8 +9,8 @@
 #define YF_CG_PASS_H
 
 #include <cstdint>
-#include <vector>
 #include <memory>
+#include <vector>
 
 #include "yf/cg/Defs.h"
 #include "yf/cg/Types.h"

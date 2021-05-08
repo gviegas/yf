@@ -8,8 +8,8 @@
 #ifndef YF_CG_DEVICE_H
 #define YF_CG_DEVICE_H
 
-#include <memory>
 #include <cstdint>
+#include <memory>
 
 #include "yf/cg/Defs.h"
 #include "yf/cg/Queue.h"

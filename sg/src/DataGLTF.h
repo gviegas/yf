@@ -20,16 +20,6 @@ SG_NS_BEGIN
 ///
 void loadGLTF(Collection& collection, const std::wstring& pathname);
 
-/// Loads scene graph from a glTF file.
-///
-void loadGLTF(Scene& dst, Collection& collection,
-              const std::wstring& pathname, size_t index);
-
-/// Loads node subgraph from a glTF file.
-///
-void loadGLTF(Node& dst, Collection& collection,
-              const std::wstring& pathname, size_t index);
-
 /// Loads mesh data from a glTF file.
 ///
 void loadGLTF(Mesh::Data& dst, const std::wstring& pathname, size_t index);

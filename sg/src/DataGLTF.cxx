@@ -2224,36 +2224,6 @@ void SG_NS::loadGLTF(Collection& collection, const wstring& pathname) {
   loadContents(collection, gltf, -1, -1);
 }
 
-void SG_NS::loadGLTF(Scene& dst, Collection& collection,
-                     const wstring& pathname, size_t index) {
-  GLTF gltf(pathname);
-
-#ifdef YF_DEVEL
-  printGLTF(gltf);
-#endif
-
-  if (index >= gltf.scenes().size())
-    throw invalid_argument("loadGLTF() index out of bounds");
-
-  // TODO
-  throw runtime_error("loadGLTF(Scene) unimplemented");
-}
-
-void SG_NS::loadGLTF(Node& dst, Collection& collection,
-                     const wstring& pathname, size_t index) {
-  GLTF gltf(pathname);
-
-#ifdef YF_DEVEL
-  printGLTF(gltf);
-#endif
-
-  if (index >= gltf.nodes().size())
-    throw invalid_argument("loadGLTF() index out of bounds");
-
-  // TODO
-  throw runtime_error("loadGLTF(Node) unimplemented");
-}
-
 void SG_NS::loadGLTF(Mesh::Data& dst, const wstring& pathname, size_t index) {
   GLTF gltf(pathname);
 

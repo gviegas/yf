@@ -11,6 +11,7 @@
 #include <cstddef>
 #include <memory>
 #include <vector>
+#include <string>
 
 #include "yf/sg/Defs.h"
 #include "yf/sg/Vector.h"
@@ -73,6 +74,11 @@ class Animation {
   bool operator!() const;
   bool operator==(const Animation& other) const;
   bool operator!=(const Animation& other) const;
+
+  /// Name.
+  ///
+  std::wstring& name();
+  const std::wstring& name() const;
 
   /// Actions.
   ///

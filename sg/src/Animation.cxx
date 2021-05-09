@@ -16,10 +16,9 @@ class Animation::Impl {
  public:
   Impl(const vector<Timeline>& inputs, const vector<Translation>& outT,
        const vector<Rotation>& outR, const vector<Scale>& outS)
-    : actions_(), inputs_(inputs), outT_(outT), outR_(outR), outS_(outS) { }
+    : inputs_(inputs), outT_(outT), outR_(outR), outS_(outS) { }
 
-  ~Impl() { }
-
+  wstring name_;
   vector<Action> actions_;
   vector<Timeline> inputs_;
   vector<Translation> outT_;
@@ -58,6 +57,18 @@ bool Animation::operator==(const Animation& other) const {
 
 bool Animation::operator!=(const Animation& other) const {
   return impl_ != other.impl_;
+}
+
+wstring& Animation::name() {
+  if (!impl_)
+    throw runtime_error("Call to name() of invalid Animation");
+  return impl_->name_;
+}
+
+const wstring& Animation::name() const {
+  if (!impl_)
+    throw runtime_error("Call to name() of invalid Animation");
+  return impl_->name_;
 }
 
 vector<Animation::Action>& Animation::actions() {

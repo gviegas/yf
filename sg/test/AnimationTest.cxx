@@ -65,6 +65,10 @@ struct AnimationTest : Test {
     a.push_back({L"==, !=", an1 == an3 && an4 == an1 && an1 != an2 &&
                             an2 == Animation()});
 
+    an1.name() = L"an1";
+
+    a.push_back({L"name()", an1.name() == L"an1" && an1.name() == an4.name()});
+
     return a;
   }
 };

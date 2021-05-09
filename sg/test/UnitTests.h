@@ -29,6 +29,7 @@ Test* textureTest();
 Test* materialTest();
 Test* skinTest();
 Test* modelTest();
+Test* animationTest();
 Test* collectionTest();
 Test* cameraTest();
 Test* renderTest();
@@ -47,13 +48,15 @@ const std::unordered_map<std::string, std::vector<TestFn>> TIDs{
   {"material", {materialTest}},
   {"skin", {skinTest}},
   {"model", {modelTest}},
+  {"animation", {animationTest}},
   {"collection", {collectionTest}},
   {"camera", {cameraTest}},
   {"render", {renderTest}},
   {"misc", {miscTest}},
   {"all", {nodeTest, sceneTest, viewTest, vectorTest, quaternionTest,
            matrixTest, meshTest, textureTest, materialTest, skinTest,
-           modelTest, collectionTest, cameraTest, renderTest, miscTest}}
+           modelTest, animationTest, collectionTest, cameraTest, renderTest,
+           miscTest}}
 };
 
 inline std::vector<Test*> unitTests(const std::string& id) {

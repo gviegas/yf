@@ -96,6 +96,23 @@ struct CollectionTest : Test {
                              coll.skins().back().joints().size() == 2 &&
                              coll.skins().back().inverseBind().empty()});
 
+    vector<Animation::Timeline> inputs({{1.0f}});
+    vector<Animation::Scale> outS({{Vec3f{2.0f, 2.0f, 2.0f}}});
+    coll.animations().push_back({inputs, {}, {}, outS});
+    Node nd1, nd2;
+    Animation::Action act1{&nd1, Animation::S, Animation::Step, 0, 0};
+    Animation::Action act2{&nd2, Animation::S, Animation::Step, 0, 0};
+    coll.animations().front().actions().push_back(act1);
+    coll.animations().front().actions().push_back(act2);
+
+    a.push_back({L"animations()",
+                 coll.animations().size() == 1 &&
+                 coll.animations().front().actions().size() == 2 &&
+                 coll.animations().front().inputs().size() == 1 &&
+                 coll.animations().front().outT().empty() &&
+                 coll.animations().front().outR().empty() &&
+                 coll.animations().front().outS().size() == 1});
+
     return a;
   }
 };

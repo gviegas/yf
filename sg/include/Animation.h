@@ -69,6 +69,11 @@ class Animation {
   Animation& operator=(const Animation& other);
   ~Animation();
 
+  explicit operator bool() const;
+  bool operator!() const;
+  bool operator==(const Animation& other) const;
+  bool operator!=(const Animation& other) const;
+
   /// Actions.
   ///
   std::vector<Action>& actions();

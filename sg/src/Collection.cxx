@@ -24,6 +24,7 @@ class Collection::Impl {
   vector<Texture> textures_{};
   vector<Material> materials_{};
   vector<Skin> skins_{};
+  vector<Animation> animations_{};
 };
 
 Collection::Collection(const wstring& pathname) : Collection() {
@@ -45,13 +46,14 @@ void Collection::clear() {
   impl_->textures_.clear();
   impl_->materials_.clear();
   impl_->skins_.clear();
+  impl_->animations_.clear();
 }
 
 vector<Scene::Ptr>& Collection::scenes() {
   return impl_->scenes_;
 }
 
-const std::vector<Scene::Ptr>& Collection::scenes() const {
+const vector<Scene::Ptr>& Collection::scenes() const {
   return impl_->scenes_;
 }
 
@@ -59,7 +61,7 @@ vector<Node::Ptr>& Collection::nodes() {
   return impl_->nodes_;
 }
 
-const std::vector<Node::Ptr>& Collection::nodes() const {
+const vector<Node::Ptr>& Collection::nodes() const {
   return impl_->nodes_;
 }
 
@@ -67,7 +69,7 @@ vector<Mesh>& Collection::meshes() {
   return impl_->meshes_;
 }
 
-const std::vector<Mesh>& Collection::meshes() const {
+const vector<Mesh>& Collection::meshes() const {
   return impl_->meshes_;
 }
 
@@ -75,7 +77,7 @@ vector<Texture>& Collection::textures() {
   return impl_->textures_;
 }
 
-const std::vector<Texture>& Collection::textures() const {
+const vector<Texture>& Collection::textures() const {
   return impl_->textures_;
 }
 
@@ -83,7 +85,7 @@ vector<Material>& Collection::materials() {
   return impl_->materials_;
 }
 
-const std::vector<Material>& Collection::materials() const {
+const vector<Material>& Collection::materials() const {
   return impl_->materials_;
 }
 
@@ -91,6 +93,14 @@ vector<Skin>& Collection::skins() {
   return impl_->skins_;
 }
 
-const std::vector<Skin>& Collection::skins() const {
+const vector<Skin>& Collection::skins() const {
   return impl_->skins_;
+}
+
+vector<Animation>& Collection::animations() {
+  return impl_->animations_;
+}
+
+const vector<Animation>& Collection::animations() const {
+  return impl_->animations_;
 }

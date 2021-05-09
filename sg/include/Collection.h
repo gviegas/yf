@@ -18,6 +18,7 @@
 #include "yf/sg/Texture.h"
 #include "yf/sg/Material.h"
 #include "yf/sg/Skin.h"
+#include "yf/sg/Animation.h"
 
 SG_NS_BEGIN
 
@@ -68,6 +69,11 @@ class Collection {
   ///
   std::vector<Skin>& skins();
   const std::vector<Skin>& skins() const;
+
+  /// Animations.
+  ///
+  std::vector<Animation>& animations();
+  const std::vector<Animation>& animations() const;
 
  private:
   class Impl;

@@ -63,9 +63,8 @@ inline CG_NS::VxInput vxInputFor(VxType type) {
     stride = sizeof(float[2]);
     break;
   case VxTypeJoints0:
-    // TODO: use a short type instead
-    format = CG_NS::VxFormatUint4;
-    stride = sizeof(uint32_t[4]);
+    format = CG_NS::VxFormatUbyte4;
+    stride = 4;
     break;
   default:
     throw std::invalid_argument("Invalid VxType value");

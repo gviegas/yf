@@ -235,7 +235,7 @@ class Symbol {
           break;
         }
       } while (n > 0);
-      } break;
+    } break;
 
     default:
       throw FileExcept("Invalid glTF file");
@@ -2092,12 +2092,11 @@ void loadAnimation(Animation& dst, unordered_map<int32_t, Node*>& nodeMap,
     auto dataIt = dataMap.find(sampler.input);
 
     if (dataIt == dataMap.end()) {
-      const auto& accessor = gltf.accessors()[sampler.input];
-      if (accessor.componentType != GLTF::Accessor::Float ||
-          accessor.type != "SCALAR")
+      const auto& acc = gltf.accessors()[sampler.input];
+      if (acc.componentType != GLTF::Accessor::Float || acc.type != "SCALAR")
         throw UnsupportedExcept("Unsupported glTF data type");
 
-      const auto& view = gltf.bufferViews()[accessor.bufferView];
+      const auto& view = gltf.bufferViews()[acc.bufferView];
       const auto& buffer = gltf.buffers()[view.buffer];
 
       auto bufIt = bufferMap.find(view.buffer);
@@ -2111,12 +2110,12 @@ void loadAnimation(Animation& dst, unordered_map<int32_t, Node*>& nodeMap,
 
       auto& ifs = bufIt->second;
 
-      if (!ifs.seekg(accessor.byteOffset + view.byteOffset))
+      if (!ifs.seekg(acc.byteOffset + view.byteOffset))
           throw FileExcept("Could not seek glTF .bin file");
 
-      inputs.push_back(Animation::Timeline(accessor.count));
+      inputs.push_back(Animation::Timeline(acc.count));
       auto dt = reinterpret_cast<char*>(inputs.back().data());
-      if (!ifs.read(dt, accessor.count * sizeof(float)))
+      if (!ifs.read(dt, acc.count * sizeof(float)))
         throw FileExcept("Could not read from glTF .bin file");
 
       action.input = inputs.size() - 1;
@@ -2130,8 +2129,8 @@ void loadAnimation(Animation& dst, unordered_map<int32_t, Node*>& nodeMap,
     dataIt = dataMap.find(sampler.output);
 
     if (dataIt == dataMap.end()) {
-      const auto& accessor = gltf.accessors()[sampler.output];
-      const auto& view = gltf.bufferViews()[accessor.bufferView];
+      const auto& acc = gltf.accessors()[sampler.output];
+      const auto& view = gltf.bufferViews()[acc.bufferView];
       const auto& buffer = gltf.buffers()[view.buffer];
 
       auto bufIt = bufferMap.find(view.buffer);
@@ -2145,33 +2144,31 @@ void loadAnimation(Animation& dst, unordered_map<int32_t, Node*>& nodeMap,
 
       auto& ifs = bufIt->second;
 
-      if (!ifs.seekg(accessor.byteOffset + view.byteOffset))
+      if (!ifs.seekg(acc.byteOffset + view.byteOffset))
           throw FileExcept("Could not seek glTF .bin file");
 
       switch (action.type) {
       case Animation::T: {
-        // TODO: support other data types
-        if (accessor.componentType != GLTF::Accessor::Float ||
-            accessor.type != "VEC3")
+        // TODO: support for other data types
+        if (acc.componentType != GLTF::Accessor::Float || acc.type != "VEC3")
           throw UnsupportedExcept("Unsupported glTF data type");
 
-        outT.push_back(Animation::Translation(accessor.count));
+        outT.push_back(Animation::Translation(acc.count));
         auto dt = reinterpret_cast<char*>(outT.back().data());
-        if (!ifs.read(dt, accessor.count * Vec3f::dataSize()))
+        if (!ifs.read(dt, acc.count * Vec3f::dataSize()))
           throw FileExcept("Could not read from glTF .bin file");
 
         action.output = outT.size() - 1;
       } break;
 
       case Animation::R: {
-        // TODO: support other data types
-        if (accessor.componentType != GLTF::Accessor::Float ||
-            accessor.type != "VEC4")
+        // TODO: support for other data types
+        if (acc.componentType != GLTF::Accessor::Float || acc.type != "VEC4")
           throw UnsupportedExcept("Unsupported glTF data type");
 
-        vector<Vec4f> tmp(accessor.count);
+        vector<Vec4f> tmp(acc.count);
         auto dt = reinterpret_cast<char*>(tmp.data());
-        if (!ifs.read(dt, accessor.count * Vec4f::dataSize()))
+        if (!ifs.read(dt, acc.count * Vec4f::dataSize()))
           throw FileExcept("Could not read from glTF .bin file");
 
         outR.push_back({});
@@ -2183,14 +2180,13 @@ void loadAnimation(Animation& dst, unordered_map<int32_t, Node*>& nodeMap,
       } break;
 
       case Animation::S: {
-        // TODO: support other data types
-        if (accessor.componentType != GLTF::Accessor::Float ||
-            accessor.type != "VEC3")
+        // TODO: support for other data types
+        if (acc.componentType != GLTF::Accessor::Float || acc.type != "VEC3")
           throw UnsupportedExcept("Unsupported glTF data type");
 
-        outS.push_back(Animation::Scale(accessor.count));
+        outS.push_back(Animation::Scale(acc.count));
         auto dt = reinterpret_cast<char*>(outS.back().data());
-        if (!ifs.read(dt, accessor.count * Vec3f::dataSize()))
+        if (!ifs.read(dt, acc.count * Vec3f::dataSize()))
           throw FileExcept("Could not read from glTF .bin file");
 
         action.output = outS.size() - 1;

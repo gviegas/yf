@@ -314,8 +314,8 @@ struct MiscTest : public Test {
 } while (false)
 
   bool misc4() {
-    Collection coll;//(L"tmp/fullscene2.gltf");
-    //coll.load(L"tmp/fullscene.gltf");
+    Collection coll(L"tmp/fullscene2.gltf");
+    coll.load(L"tmp/fullscene.gltf");
     coll.load(L"tmp/skin.gltf");
 
     // Print
@@ -386,9 +386,44 @@ struct MiscTest : public Test {
         SG_PRINTMAT(ib);
     }
 
+    wcout << "\n Animations: #" << coll.animations().size();
+    for (const auto& an: coll.animations()) {
+      wcout << "\n  Animation:"
+            << "\n   actions: #" << an.actions().size();
+      for (const auto& act: an.actions())
+        wcout << "\n    `" << act.target->name() << "`|"
+                           << act.type << "|" << act.method << "|"
+                           << act.input << "|" << act.output;
+      wcout << "\n   inputs: #" << an.inputs().size();
+      for (const auto& in : an.inputs()) {
+        wcout << "\n    *";
+        for (const auto& k : in)
+          wcout << "\n     " << k;
+      }
+      wcout << "\n   outT: #" << an.outT().size();
+      for (const auto& t : an.outT()) {
+        wcout << "\n    *";
+        for (const auto& v : t)
+          wcout << "\n     [" << v[0] << ", " << v[1] << ", " << v[2] << "]";
+      }
+      wcout << "\n   outR: #" << an.outR().size();
+      for (const auto& r : an.outR()) {
+        wcout << "\n    *";
+        for (const auto& q : r)
+          wcout << "\n     (" << q.r() << ", [" << q.v()[0] << ", "
+                              << q.v()[1] << ", " << q.v()[2] << "])";
+      }
+      wcout << "\n   outS: #" << an.outS().size();
+      for (const auto& s : an.outS()) {
+        wcout << "\n    *";
+        for (const auto& v : s)
+          wcout << "\n     [" << v[0] << ", " << v[1] << ", " << v[2] << "]";
+      }
+    }
+
     wcout << endl;
 
-#if 1
+#if 0
     return true;
 #endif
 

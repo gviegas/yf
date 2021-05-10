@@ -235,7 +235,7 @@ class Symbol {
           break;
         }
       } while (n > 0);
-      } break;
+    } break;
 
     default:
       throw FileExcept("Invalid glTF file");
@@ -2041,6 +2041,169 @@ void loadSkin(Skin& dst, unordered_map<int32_t, ifstream>& bufferMap,
   dst = {skin.joints.size(), inverseBind};
 }
 
+/// Loads a single animation from a GLTF object.
+///
+void loadAnimation(Animation& dst, unordered_map<int32_t, Node*>& nodeMap,
+                   unordered_map<int32_t, ifstream>& bufferMap,
+                   const GLTF& gltf, size_t index) {
+
+  assert(index < gltf.animations().size());
+
+  const auto& animation = gltf.animations()[index];
+
+  // GLTF accessor to Animation input/output mapping
+  unordered_map<int32_t, size_t> dataMap;
+
+  vector<Animation::Action> actions;
+  vector<Animation::Timeline> inputs;
+  vector<Animation::Translation> outT;
+  vector<Animation::Rotation> outR;
+  vector<Animation::Scale> outS;
+
+  for (const auto& ch : animation.channels) {
+    actions.push_back({});
+    auto& action = actions.back();
+
+    action.target = nodeMap[ch.target.node];
+
+    if (ch.target.path == "translation")
+      action.type = Animation::T;
+    else if (ch.target.path == "rotation")
+      action.type = Animation::R;
+    else if (ch.target.path == "scale")
+      action.type = Animation::S;
+    else
+      // TODO
+      throw UnsupportedExcept("Unsupported glTF animation path");
+
+    assert(ch.sampler > -1 && (size_t)ch.sampler < animation.samplers.size());
+    const auto& sampler = animation.samplers[ch.sampler];
+
+    if (sampler.interpolation == "STEP")
+      action.method = Animation::Step;
+    else if (sampler.interpolation == "LINEAR")
+      action.method = Animation::Linear;
+    else if (sampler.interpolation == "CUBICSPLINE")
+      action.method = Animation::Cubic;
+    else
+      throw UnsupportedExcept("Unsupported glTF animation interpolation");
+
+    // Input
+    auto dataIt = dataMap.find(sampler.input);
+
+    if (dataIt == dataMap.end()) {
+      const auto& acc = gltf.accessors()[sampler.input];
+      if (acc.componentType != GLTF::Accessor::Float || acc.type != "SCALAR")
+        throw UnsupportedExcept("Unsupported glTF data type");
+
+      const auto& view = gltf.bufferViews()[acc.bufferView];
+      const auto& buffer = gltf.buffers()[view.buffer];
+
+      auto bufIt = bufferMap.find(view.buffer);
+
+      if (bufIt == bufferMap.end()) {
+        const auto& pathname = gltf.directory() + '/' + buffer.uri;
+        bufIt = bufferMap.emplace(view.buffer, ifstream(pathname)).first;
+        if (!bufIt->second)
+          throw FileExcept("Could not open glTF .bin file");
+      }
+
+      auto& ifs = bufIt->second;
+
+      if (!ifs.seekg(acc.byteOffset + view.byteOffset))
+          throw FileExcept("Could not seek glTF .bin file");
+
+      inputs.push_back(Animation::Timeline(acc.count));
+      auto dt = reinterpret_cast<char*>(inputs.back().data());
+      if (!ifs.read(dt, acc.count * sizeof(float)))
+        throw FileExcept("Could not read from glTF .bin file");
+
+      action.input = inputs.size() - 1;
+      dataMap.emplace(sampler.input, action.input);
+
+    } else {
+      action.input = dataIt->second;
+    }
+
+    // Output
+    dataIt = dataMap.find(sampler.output);
+
+    if (dataIt == dataMap.end()) {
+      const auto& acc = gltf.accessors()[sampler.output];
+      const auto& view = gltf.bufferViews()[acc.bufferView];
+      const auto& buffer = gltf.buffers()[view.buffer];
+
+      auto bufIt = bufferMap.find(view.buffer);
+
+      if (bufIt == bufferMap.end()) {
+        const auto& pathname = gltf.directory() + '/' + buffer.uri;
+        bufIt = bufferMap.emplace(view.buffer, ifstream(pathname)).first;
+        if (!bufIt->second)
+          throw FileExcept("Could not open glTF .bin file");
+      }
+
+      auto& ifs = bufIt->second;
+
+      if (!ifs.seekg(acc.byteOffset + view.byteOffset))
+          throw FileExcept("Could not seek glTF .bin file");
+
+      switch (action.type) {
+      case Animation::T: {
+        // TODO: support for other data types
+        if (acc.componentType != GLTF::Accessor::Float || acc.type != "VEC3")
+          throw UnsupportedExcept("Unsupported glTF data type");
+
+        outT.push_back(Animation::Translation(acc.count));
+        auto dt = reinterpret_cast<char*>(outT.back().data());
+        if (!ifs.read(dt, acc.count * Vec3f::dataSize()))
+          throw FileExcept("Could not read from glTF .bin file");
+
+        action.output = outT.size() - 1;
+      } break;
+
+      case Animation::R: {
+        // TODO: support for other data types
+        if (acc.componentType != GLTF::Accessor::Float || acc.type != "VEC4")
+          throw UnsupportedExcept("Unsupported glTF data type");
+
+        vector<Vec4f> tmp(acc.count);
+        auto dt = reinterpret_cast<char*>(tmp.data());
+        if (!ifs.read(dt, acc.count * Vec4f::dataSize()))
+          throw FileExcept("Could not read from glTF .bin file");
+
+        outR.push_back({});
+        auto& r = outR.back();
+        for (const auto& v : tmp)
+          r.push_back(Qnionf(v));
+
+        action.output = outR.size() - 1;
+      } break;
+
+      case Animation::S: {
+        // TODO: support for other data types
+        if (acc.componentType != GLTF::Accessor::Float || acc.type != "VEC3")
+          throw UnsupportedExcept("Unsupported glTF data type");
+
+        outS.push_back(Animation::Scale(acc.count));
+        auto dt = reinterpret_cast<char*>(outS.back().data());
+        if (!ifs.read(dt, acc.count * Vec3f::dataSize()))
+          throw FileExcept("Could not read from glTF .bin file");
+
+        action.output = outS.size() - 1;
+      } break;
+      }
+
+      dataMap.emplace(sampler.output, action.output);
+
+    } else {
+      action.output = dataIt->second;
+    }
+  }
+
+  dst = {inputs, outT, outR, outS};
+  dst.actions() = actions;
+}
+
 /// Loads contents from a GLTF object.
 ///
 void loadContents(Collection& collection, const GLTF& gltf) {
@@ -2148,6 +2311,12 @@ void loadContents(Collection& collection, const GLTF& gltf) {
       auto joint = static_cast<Joint*>(nodeMap[jt]);
       skin.setJoint(*joint, index++);
     }
+  }
+
+  // Create animations
+  for (size_t i = 0; i < gltf.animations().size(); ++i) {
+    collection.animations().push_back({});
+    loadAnimation(collection.animations().back(), nodeMap, bufferMap, gltf, i);
   }
 
   // Create scenes

@@ -110,6 +110,46 @@ inline VkVertexInputRate toInputRateVK(VxStepFn stepFn) {
 ///
 inline VkFormat toFormatVK(VxFormat vxFormat) {
   switch (vxFormat) {
+  case VxFormatByte:  return VK_FORMAT_R8_SINT;
+  case VxFormatByte2: return VK_FORMAT_R8G8_SINT;
+  case VxFormatByte3: return VK_FORMAT_R8G8B8_SINT;
+  case VxFormatByte4: return VK_FORMAT_R8G8B8A8_SINT;
+
+  case VxFormatByteNorm:  return VK_FORMAT_R8_SNORM;
+  case VxFormatByteNorm2: return VK_FORMAT_R8G8_SNORM;
+  case VxFormatByteNorm3: return VK_FORMAT_R8G8B8_SNORM;
+  case VxFormatByteNorm4: return VK_FORMAT_R8G8B8A8_SNORM;
+
+  case VxFormatUbyte:  return VK_FORMAT_R8_UINT;
+  case VxFormatUbyte2: return VK_FORMAT_R8G8_UINT;
+  case VxFormatUbyte3: return VK_FORMAT_R8G8B8_UINT;
+  case VxFormatUbyte4: return VK_FORMAT_R8G8B8A8_UINT;
+
+  case VxFormatUbyteNorm:  return VK_FORMAT_R8_UNORM;
+  case VxFormatUbyteNorm2: return VK_FORMAT_R8G8_UNORM;
+  case VxFormatUbyteNorm3: return VK_FORMAT_R8G8B8_UNORM;
+  case VxFormatUbyteNorm4: return VK_FORMAT_R8G8B8A8_UNORM;
+
+  case VxFormatShrt:  return VK_FORMAT_R16_SINT;
+  case VxFormatShrt2: return VK_FORMAT_R16G16_SINT;
+  case VxFormatShrt3: return VK_FORMAT_R16G16B16_SINT;
+  case VxFormatShrt4: return VK_FORMAT_R16G16B16A16_SINT;
+
+  case VxFormatShrtNorm:  return VK_FORMAT_R16_SNORM;
+  case VxFormatShrtNorm2: return VK_FORMAT_R16G16_SNORM;
+  case VxFormatShrtNorm3: return VK_FORMAT_R16G16B16_SNORM;
+  case VxFormatShrtNorm4: return VK_FORMAT_R16G16B16A16_SNORM;
+
+  case VxFormatUshrt:  return VK_FORMAT_R16_UINT;
+  case VxFormatUshrt2: return VK_FORMAT_R16G16_UINT;
+  case VxFormatUshrt3: return VK_FORMAT_R16G16B16_UINT;
+  case VxFormatUshrt4: return VK_FORMAT_R16G16B16A16_UINT;
+
+  case VxFormatUshrtNorm:  return VK_FORMAT_R16_UNORM;
+  case VxFormatUshrtNorm2: return VK_FORMAT_R16G16_UNORM;
+  case VxFormatUshrtNorm3: return VK_FORMAT_R16G16B16_UNORM;
+  case VxFormatUshrtNorm4: return VK_FORMAT_R16G16B16A16_UNORM;
+
   case VxFormatInt:
     return VK_FORMAT_R32_SINT;
   case VxFormatInt2:

@@ -20,6 +20,46 @@ CG_NS_BEGIN
 /// Vertex formats.
 ///
 enum VxFormat {
+  VxFormatByte,
+  VxFormatByte2,
+  VxFormatByte3,
+  VxFormatByte4,
+
+  VxFormatByteNorm,
+  VxFormatByteNorm2,
+  VxFormatByteNorm3,
+  VxFormatByteNorm4,
+
+  VxFormatUbyte,
+  VxFormatUbyte2,
+  VxFormatUbyte3,
+  VxFormatUbyte4,
+
+  VxFormatUbyteNorm,
+  VxFormatUbyteNorm2,
+  VxFormatUbyteNorm3,
+  VxFormatUbyteNorm4,
+
+  VxFormatShrt,
+  VxFormatShrt2,
+  VxFormatShrt3,
+  VxFormatShrt4,
+
+  VxFormatShrtNorm,
+  VxFormatShrtNorm2,
+  VxFormatShrtNorm3,
+  VxFormatShrtNorm4,
+
+  VxFormatUshrt,
+  VxFormatUshrt2,
+  VxFormatUshrt3,
+  VxFormatUshrt4,
+
+  VxFormatUshrtNorm,
+  VxFormatUshrtNorm2,
+  VxFormatUshrtNorm3,
+  VxFormatUshrtNorm4,
+
   VxFormatInt,
   VxFormatInt2,
   VxFormatInt3,

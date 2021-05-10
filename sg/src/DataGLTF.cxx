@@ -2043,7 +2043,8 @@ void loadSkin(Skin& dst, unordered_map<int32_t, ifstream>& bufferMap,
 
 /// Loads a single animation from a GLTF object.
 ///
-void loadAnimation(Animation& dst, unordered_map<int32_t, ifstream>& bufferMap,
+void loadAnimation(Animation& dst, unordered_map<int32_t, Node*>& nodeMap,
+                   unordered_map<int32_t, ifstream>& bufferMap,
                    const GLTF& gltf, size_t index) {
 
   assert(index < gltf.animations().size());
@@ -2062,6 +2063,8 @@ void loadAnimation(Animation& dst, unordered_map<int32_t, ifstream>& bufferMap,
   for (const auto& ch : animation.channels) {
     actions.push_back({});
     auto& action = actions.back();
+
+    action.target = nodeMap[ch.target.node];
 
     if (ch.target.path == "translation")
       action.type = Animation::T;
@@ -2202,7 +2205,6 @@ void loadAnimation(Animation& dst, unordered_map<int32_t, ifstream>& bufferMap,
   }
 
   dst = {inputs, outT, outR, outS};
-  // XXX: targets NOT set
   dst.actions() = actions;
 }
 
@@ -2313,6 +2315,12 @@ void loadContents(Collection& collection, const GLTF& gltf) {
       auto joint = static_cast<Joint*>(nodeMap[jt]);
       skin.setJoint(*joint, index++);
     }
+  }
+
+  // Create animations
+  for (size_t i = 0; i < gltf.animations().size(); ++i) {
+    collection.animations().push_back({});
+    loadAnimation(collection.animations().back(), nodeMap, bufferMap, gltf, i);
   }
 
   // Create scenes

@@ -2202,6 +2202,11 @@ void loadAnimation(Animation& dst, unordered_map<int32_t, Node*>& nodeMap,
 
   dst = {inputs, outT, outR, outS};
   dst.actions() = actions;
+
+  // XXX
+  auto& name = dst.name();
+  for (const auto& c : animation.name)
+    name.push_back(c);
 }
 
 /// Loads contents from a GLTF object.

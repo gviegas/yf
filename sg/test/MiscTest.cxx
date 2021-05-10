@@ -388,7 +388,7 @@ struct MiscTest : public Test {
 
     wcout << "\n Animations: #" << coll.animations().size();
     for (const auto& an: coll.animations()) {
-      wcout << "\n  Animation:"
+      wcout << "\n  Animation `" << an.name() << "`:"
             << "\n   actions: #" << an.actions().size();
       for (const auto& act: an.actions())
         wcout << "\n    `" << act.target->name() << "`|"

@@ -359,6 +359,9 @@ void Renderer::prepare() {
     if (!resource.table) {
       const CG_NS::DcEntries inst{
         {MainUniform,          {CG_NS::DcTypeUniform,    instN}},
+        {CheckUniform,         {CG_NS::DcTypeUniform,    1}},
+        {SkinningUniform,      {CG_NS::DcTypeUniform,    1}},
+        {MaterialUniform,      {CG_NS::DcTypeUniform,    1}},
         {ColorImgSampler,      {CG_NS::DcTypeImgSampler, 1}},
         {MetalRoughImgSampler, {CG_NS::DcTypeImgSampler, 1}},
         {NormalImgSampler,     {CG_NS::DcTypeImgSampler, 1}},
@@ -393,7 +396,7 @@ void Renderer::prepare() {
                                   CG_NS::WindingCounterCw});
     }
 
-    return MdlLength * instN * allocN;
+    return (MdlLength * instN + ChkLength + SkinLength + MatlLength) * allocN;
   };
 
   uint64_t unifLen = GlbLength;

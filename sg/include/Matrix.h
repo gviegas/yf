@@ -347,13 +347,13 @@ constexpr Matrix<T, 3, 3> rotate3(T angle, const Vector<T, 3>& axis) {
   const T sz = s * z;
 
   res[0][0] = c + omc * x * x;
-  res[0][1] = omcxy + sz;
-  res[0][2] = omcxz - sy;
-  res[1][0] = omcxy - sz;
+  res[0][1] = omcxy - sz;
+  res[0][2] = omcxz + sy;
+  res[1][0] = omcxy + sz;
   res[1][1] = c + omc * y * y;
-  res[1][2] = omcyz + sx;
-  res[2][0] = omcxz + sy;
-  res[2][1] = omcyz - sx;
+  res[1][2] = omcyz - sx;
+  res[2][0] = omcxz - sy;
+  res[2][1] = omcyz + sx;
   res[2][2] = c + omc * z * z;
 
   return res;
@@ -410,8 +410,8 @@ constexpr Matrix<T, 3, 3> rotate3X(T angle) {
 
   res[0][0] = 1.0;
   res[1][1] = c;
-  res[1][2] = s;
-  res[2][1] = -s;
+  res[1][2] = -s;
+  res[2][1] = s;
   res[2][2] = c;
 
   return res;
@@ -430,9 +430,9 @@ constexpr Matrix<T, 3, 3> rotate3Y(T angle) {
   const T s = std::sin(angle);
 
   res[0][0] = c;
-  res[0][2] = -s;
+  res[0][2] = s;
   res[1][1] = 1.0;
-  res[2][0] = s;
+  res[2][0] = -s;
   res[2][2] = c;
 
   return res;
@@ -451,8 +451,8 @@ constexpr Matrix<T, 3, 3> rotate3Z(T angle) {
   const T s = std::sin(angle);
 
   res[0][0] = c;
-  res[0][1] = s;
-  res[1][0] = -s;
+  res[0][1] = -s;
+  res[1][0] = s;
   res[1][1] = c;
   res[2][2] = 1.0;
 
@@ -485,13 +485,13 @@ constexpr Matrix<T, 4, 4> rotate(T angle, const Vector<T, 3>& axis) {
   const T sz = s * z;
 
   res[0][0] = c + omc * x * x;
-  res[0][1] = omcxy + sz;
-  res[0][2] = omcxz - sy;
-  res[1][0] = omcxy - sz;
+  res[0][1] = omcxy - sz;
+  res[0][2] = omcxz + sy;
+  res[1][0] = omcxy + sz;
   res[1][1] = c + omc * y * y;
-  res[1][2] = omcyz + sx;
-  res[2][0] = omcxz + sy;
-  res[2][1] = omcyz - sx;
+  res[1][2] = omcyz - sx;
+  res[2][0] = omcxz - sy;
+  res[2][1] = omcyz + sx;
   res[2][2] = c + omc * z * z;
   res[3][3] = one;
 
@@ -551,8 +551,8 @@ constexpr Matrix<T, 4, 4> rotateX(T angle) {
 
   res[0][0] = one;
   res[1][1] = c;
-  res[1][2] = s;
-  res[2][1] = -s;
+  res[1][2] = -s;
+  res[2][1] = s;
   res[2][2] = c;
   res[3][3] = one;
 
@@ -573,9 +573,9 @@ constexpr Matrix<T, 4, 4> rotateY(T angle) {
   const T one = 1.0;
 
   res[0][0] = c;
-  res[0][2] = -s;
+  res[0][2] = s;
   res[1][1] = one;
-  res[2][0] = s;
+  res[2][0] = -s;
   res[2][2] = c;
   res[3][3] = one;
 
@@ -596,8 +596,8 @@ constexpr Matrix<T, 4, 4> rotateZ(T angle) {
   const T one = 1.0;
 
   res[0][0] = c;
-  res[0][1] = s;
-  res[1][0] = -s;
+  res[0][1] = -s;
+  res[1][0] = s;
   res[1][1] = c;
   res[2][2] = one;
   res[3][3] = one;

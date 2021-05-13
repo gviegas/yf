@@ -7,6 +7,7 @@
 
 #include <cassert>
 #include <algorithm>
+#include <array>
 #include <list>
 #include <typeinfo>
 #include <stdexcept>
@@ -25,9 +26,14 @@ using namespace std;
 
 // TODO: consider allowing custom length values
 constexpr uint64_t UnifLength = 1ULL << 14;
+
 // TODO
 constexpr uint64_t GlbLength = Mat4f::dataSize() << 1;
-constexpr uint64_t MdlLength = Mat4f::dataSize() << 1;
+
+// TODO
+constexpr uint64_t MdlJointN = 20;
+constexpr uint64_t MdlLength = (Mat4f::dataSize() << 1) +
+                               (Mat4f::dataSize() * MdlJointN);
 
 Renderer::Renderer() {
   auto& dev = CG_NS::device();
@@ -146,6 +152,7 @@ void Renderer::render(Scene& scene, CG_NS::Target& target) {
         enc.setState(resource->state.get());
         enc.setDcTable(MdlTable, alloc);
 
+        auto& skin = kv.second[0]->skin();
         auto& matl = kv.second[0]->material();
         auto& mesh = kv.second[0]->mesh();
 
@@ -159,12 +166,34 @@ void Renderer::render(Scene& scene, CG_NS::Target& target) {
                          transforms_[mdl];
           const auto mv = scene.camera().view() * m;
           const auto beg = off;
+
           len = Mat4f::dataSize();
           unifBuffer_->write(off, len, m.data());
           off += len;
           unifBuffer_->write(off, len, mv.data());
           off += len;
-          // TODO: other instance data
+
+          assert(!skin || skin.joints().size() < MdlJointN);
+
+          array<Mat4f, MdlJointN> jm;
+          jm.fill(Mat4f::identity());
+          if (skin) {
+            size_t i = 0;
+            for (const auto& jt : skin.joints()) {
+              jm[i] = jt->isLeaf() ?
+                      transforms_[jt->parent()] * jt->transform() :
+                      transforms_[jt];
+              jm[i] *= skin.inverseBind()[i];
+              // TODO: compute inverse once
+              jm[i] = invert(transforms_[mdl->parent()]) * jm[i];
+              ++i;
+            }
+          }
+          len = Mat4f::dataSize() * MdlJointN;
+          unifBuffer_->write(off, len, jm.data());
+          off += len;
+
+          // TODO: other per-instance data
 
           resource->table->write(alloc, Uniform, i, *unifBuffer_, beg,
                                  MdlLength);
@@ -237,7 +266,7 @@ void Renderer::processGraph(Scene& scene) {
     // Model
     if (typeid(node) == typeid(Model)) {
       auto& mdl = static_cast<Model&>(node);
-      const MdlKey key{mdl.mesh(), mdl.material()};
+      const MdlKey key{mdl.mesh(), mdl.material(), mdl.skin()};
 
       auto it = models_.find(key);
       if (it == models_.end())

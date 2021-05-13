@@ -27,19 +27,50 @@ using namespace std;
 // TODO: consider allowing custom length values
 constexpr uint64_t UnifLength = 1ULL << 14;
 
-// TODO
+/// Global uniform.
+///
+/// (1) view : Mat4f
+/// (2) proj : Mat4f
+///
 constexpr uint64_t GlbLength = Mat4f::dataSize() << 1;
 
-// TODO
-constexpr uint64_t MdlJointN = 20;
-constexpr uint64_t MdlLength = (Mat4f::dataSize() << 1) +
-                               (Mat4f::dataSize() * MdlJointN);
+/// Model (per-instance) uniform.
+///
+/// (1) model : Mat4f
+/// (2) model-view : Mat4f
+/// (3) model-view-proj : Mat4f
+///
+constexpr uint64_t MdlLength = Mat4f::dataSize() << 1;
+
+/// Check list uniform.
+///
+/// (1) mask : uint32
+///
+constexpr uint64_t ChkLength = 4;
+
+/// Skinning uniform.
+///
+/// (1) joint matrices : Mat4f[JointN]
+///
+constexpr uint64_t JointN = 20;
+constexpr uint64_t SkinLength = Mat4f::dataSize() * JointN;
+
+/// Material uniform.
+///
+/// (1) color fac : Vec4f
+/// (2) metallic fac : float
+/// (3) roughness fac : float
+/// (4) normal fac : float
+/// (5) occlusion fac : float
+/// (6) emissive fac : Vec3f
+///
+constexpr uint64_t MatlLength = Vec4f::dataSize() + 16 + Vec3f::dataSize();
 
 Renderer::Renderer() {
   auto& dev = CG_NS::device();
 
   // One global table instance for shared uniforms
-  const CG_NS::DcEntries glb{{Uniform, {CG_NS::DcTypeUniform, 1}}};
+  const CG_NS::DcEntries glb{{MainUniform, {CG_NS::DcTypeUniform, 1}}};
   glbTable_ = dev.dcTable(glb);
   glbTable_->allocate(1);
 
@@ -89,7 +120,7 @@ void Renderer::render(Scene& scene, CG_NS::Target& target) {
   off += len;
   // TODO: other global data (light, viewport, ortho matrix, ...)
 
-  glbTable_->write(0, Uniform, 0, *unifBuffer_, 0, GlbLength);
+  glbTable_->write(0, MainUniform, 0, *unifBuffer_, 0, GlbLength);
 
   // Render models
   auto renderMdl = [&] {
@@ -173,9 +204,9 @@ void Renderer::render(Scene& scene, CG_NS::Target& target) {
           unifBuffer_->write(off, len, mv.data());
           off += len;
 
-          assert(!skin || skin.joints().size() < MdlJointN);
+          assert(!skin || skin.joints().size() < JointN);
 
-          array<Mat4f, MdlJointN> jm;
+          array<Mat4f, JointN> jm;
           jm.fill(Mat4f::identity());
           if (skin) {
             size_t i = 0;
@@ -189,13 +220,13 @@ void Renderer::render(Scene& scene, CG_NS::Target& target) {
               ++i;
             }
           }
-          len = Mat4f::dataSize() * MdlJointN;
+          len = Mat4f::dataSize() * JointN;
           unifBuffer_->write(off, len, jm.data());
           off += len;
 
           // TODO: other per-instance data
 
-          resource->table->write(alloc, Uniform, i, *unifBuffer_, beg,
+          resource->table->write(alloc, MainUniform, i, *unifBuffer_, beg,
                                  MdlLength);
         }
 
@@ -327,7 +358,7 @@ void Renderer::prepare() {
     // Descriptors
     if (!resource.table) {
       const CG_NS::DcEntries inst{
-        {Uniform,              {CG_NS::DcTypeUniform,    instN}},
+        {MainUniform,          {CG_NS::DcTypeUniform,    instN}},
         {ColorImgSampler,      {CG_NS::DcTypeImgSampler, 1}},
         {MetalRoughImgSampler, {CG_NS::DcTypeImgSampler, 1}},
         {NormalImgSampler,     {CG_NS::DcTypeImgSampler, 1}},

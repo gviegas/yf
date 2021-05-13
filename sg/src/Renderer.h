@@ -39,12 +39,15 @@ class Renderer {
   ///
   static constexpr uint32_t GlbTable = 0;
   static constexpr uint32_t MdlTable = 1;
-  static constexpr CG_NS::DcId Uniform = 0;
-  static constexpr CG_NS::DcId ColorImgSampler = 1;
-  static constexpr CG_NS::DcId MetalRoughImgSampler = 2;
-  static constexpr CG_NS::DcId NormalImgSampler = 3;
-  static constexpr CG_NS::DcId OcclusionImgSampler = 4;
-  static constexpr CG_NS::DcId EmissiveImgSampler = 5;
+  static constexpr CG_NS::DcId MainUniform = 0;
+  static constexpr CG_NS::DcId CheckUniform = 1;
+  static constexpr CG_NS::DcId SkinningUniform = 2;
+  static constexpr CG_NS::DcId MaterialUniform = 3;
+  static constexpr CG_NS::DcId ColorImgSampler = 4;
+  static constexpr CG_NS::DcId MetalRoughImgSampler = 5;
+  static constexpr CG_NS::DcId NormalImgSampler = 6;
+  static constexpr CG_NS::DcId OcclusionImgSampler = 7;
+  static constexpr CG_NS::DcId EmissiveImgSampler = 8;
 
   /// Shader pathnames.
   ///

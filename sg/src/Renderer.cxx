@@ -40,7 +40,7 @@ constexpr uint64_t GlbLength = Mat4f::dataSize() << 1;
 /// (2) model-view : Mat4f
 /// (3) model-view-proj : Mat4f
 ///
-constexpr uint64_t MdlLength = Mat4f::dataSize() << 1;
+constexpr uint64_t MdlLength = Mat4f::dataSize() * 3;
 
 /// Check list uniform.
 ///
@@ -112,6 +112,7 @@ void Renderer::render(Scene& scene, CG_NS::Target& target) {
   // Update global uniform buffer
   uint64_t off = 0;
   uint64_t len;
+  uint64_t beg;
 
   len = Mat4f::dataSize();
   unifBuffer_->write(off, len, scene.camera().view().data());
@@ -186,42 +187,29 @@ void Renderer::render(Scene& scene, CG_NS::Target& target) {
         auto& skin = kv.second[0]->skin();
         auto& matl = kv.second[0]->material();
         auto& mesh = kv.second[0]->mesh();
+        // TODO: ?
+        const auto inv = invert(transforms_[kv.second.front()->parent()]);
 
         // Update instance-specific uniform buffer
         for (uint32_t i = 0; i < n; ++i) {
           auto mdl = kv.second.back();
           kv.second.pop_back();
 
+          beg = off;
+          len = Mat4f::dataSize();
+
           const auto m = mdl->isLeaf() ?
                          transforms_[mdl->parent()] * mdl->transform() :
                          transforms_[mdl];
-          const auto mv = scene.camera().view() * m;
-          const auto beg = off;
-
-          len = Mat4f::dataSize();
           unifBuffer_->write(off, len, m.data());
           off += len;
+
+          const auto mv = scene.camera().view() * m;
           unifBuffer_->write(off, len, mv.data());
           off += len;
 
-          assert(!skin || skin.joints().size() < JointN);
-
-          array<Mat4f, JointN> jm;
-          jm.fill(Mat4f::identity());
-          if (skin) {
-            size_t i = 0;
-            for (const auto& jt : skin.joints()) {
-              jm[i] = jt->isLeaf() ?
-                      transforms_[jt->parent()] * jt->transform() :
-                      transforms_[jt];
-              jm[i] *= skin.inverseBind()[i];
-              // TODO: compute inverse once
-              jm[i] = invert(transforms_[mdl->parent()]) * jm[i];
-              ++i;
-            }
-          }
-          len = Mat4f::dataSize() * JointN;
-          unifBuffer_->write(off, len, jm.data());
+          const auto mvp = scene.camera().projection() * mv;
+          unifBuffer_->write(off, len, mvp.data());
           off += len;
 
           // TODO: other per-instance data
@@ -229,6 +217,31 @@ void Renderer::render(Scene& scene, CG_NS::Target& target) {
           resource->table->write(alloc, MainUniform, i, *unifBuffer_, beg,
                                  MdlLength);
         }
+
+        // Update skinning data
+        array<Mat4f, JointN> jm;
+        jm.fill(Mat4f::identity());
+
+        if (skin) {
+          assert(skin.joints().size() < JointN);
+          size_t i = 0;
+          for (const auto& jt : skin.joints()) {
+            jm[i] = inv;
+            jm[i] *= jt->isLeaf() ?
+                     transforms_[jt->parent()] * jt->transform() :
+                     transforms_[jt];
+            jm[i] *= skin.inverseBind()[i];
+            ++i;
+          }
+        }
+
+        beg = off;
+        len = Mat4f::dataSize() * JointN;
+        unifBuffer_->write(off, len, jm.data());
+        off += len;
+
+        resource->table->write(alloc, SkinningUniform, 0, *unifBuffer_, beg,
+                               SkinLength);
 
         // Update material
         pair<Texture, CG_NS::DcId> texs[]{

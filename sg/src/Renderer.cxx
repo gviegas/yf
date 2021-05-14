@@ -256,7 +256,26 @@ void Renderer::render(Scene& scene, CG_NS::Target& target) {
             tp.first.impl().copy(*resource->table, alloc, tp.second,
                                  0, 0, nullptr);
         }
-        // TODO: also copy factors to uniform buffer
+
+        beg = off;
+        len = Vec4f::dataSize();
+        unifBuffer_->write(off, len, matl.pbrmr().colorFac.data());
+        off += len;
+        len = 4;
+        unifBuffer_->write(off, len, &matl.pbrmr().metallic);
+        off += len;
+        unifBuffer_->write(off, len, &matl.pbrmr().roughness);
+        off += len;
+        unifBuffer_->write(off, len, &matl.normal().scale);
+        off += len;
+        unifBuffer_->write(off, len, &matl.occlusion().strength);
+        off += len;
+        len = Vec3f::dataSize();
+        unifBuffer_->write(off, len, matl.emissive().factor.data());
+        off += len;
+
+        resource->table->write(alloc, MaterialUniform, 0, *unifBuffer_, beg,
+                               MatlLength);
 
         // Encode commands for this mesh
         if (mesh)

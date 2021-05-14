@@ -66,6 +66,23 @@ constexpr uint64_t SkinLength = Mat4f::dataSize() * JointN;
 ///
 constexpr uint64_t MatlLength = Vec4f::dataSize() + 16 + Vec3f::dataSize();
 
+/// Check uniform flags.
+///
+enum CheckBits : uint32_t {
+  TangentBit   = 0x0001,
+  NormalBit    = 0x0002,
+  TexCoord0Bit = 0x0004,
+  TexCoord1Bit = 0x0008,
+  Color0Bit    = 0x0010,
+  SkinBit      = 0x0020,
+
+  ColorTexBit      = 0x0100,
+  MetalRoughTexBit = 0x0200,
+  NormalTexBit     = 0x0400,
+  OcclusionTexBit  = 0x0800,
+  EmissiveTexBit   = 0x1000
+};
+
 Renderer::Renderer() {
   auto& dev = CG_NS::device();
 
@@ -276,6 +293,40 @@ void Renderer::render(Scene& scene, CG_NS::Target& target) {
 
         resource->table->write(alloc, MaterialUniform, 0, *unifBuffer_, beg,
                                MatlLength);
+
+        // Update check list
+        uint32_t chkMask = 0;
+
+        if (mesh.impl().canBind(VxTypeTangent))
+          chkMask |= TangentBit;
+        if (mesh.impl().canBind(VxTypeNormal))
+          chkMask |= NormalBit;
+        if (mesh.impl().canBind(VxTypeTexCoord0))
+          chkMask |= TexCoord0Bit;
+        if (mesh.impl().canBind(VxTypeTexCoord1))
+          chkMask |= TexCoord1Bit;
+        if (mesh.impl().canBind(VxTypeColor0))
+          chkMask |= Color0Bit;
+        if (skin)
+          chkMask |= SkinBit;
+        if (matl.pbrmr().colorTex)
+          chkMask |= ColorTexBit;
+        if (matl.pbrmr().metalRoughTex)
+          chkMask |= MetalRoughTexBit;
+        if (matl.normal().texture)
+          chkMask |= NormalTexBit;
+        if (matl.occlusion().texture)
+          chkMask |= OcclusionTexBit;
+        if (matl.emissive().texture)
+          chkMask |= EmissiveTexBit;
+
+        beg = off;
+        len = 4;
+        unifBuffer_->write(off, len, &chkMask);
+        off += len;
+
+        resource->table->write(alloc, CheckUniform, 0, *unifBuffer_, beg,
+                               ChkLength);
 
         // Encode commands for this mesh
         if (mesh)

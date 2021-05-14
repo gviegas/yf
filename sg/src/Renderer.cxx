@@ -24,22 +24,112 @@
 using namespace SG_NS;
 using namespace std;
 
-// TODO: consider allowing custom length values
-constexpr uint64_t UnifLength = 1ULL << 14;
+/// Resource identifiers that shaders must abide by.
+///
+constexpr uint32_t GlbTable = 0;
+constexpr uint32_t MdlTable = 1;
 
-// TODO
+constexpr CG_NS::DcId MainUniform = 0;
+constexpr CG_NS::DcId CheckUniform = 1;
+constexpr CG_NS::DcId SkinningUniform = 2;
+constexpr CG_NS::DcId MaterialUniform = 3;
+constexpr CG_NS::DcId ColorImgSampler = 4;
+constexpr CG_NS::DcId MetalRoughImgSampler = 5;
+constexpr CG_NS::DcId NormalImgSampler = 6;
+constexpr CG_NS::DcId OcclusionImgSampler = 7;
+constexpr CG_NS::DcId EmissiveImgSampler = 8;
+
+/// Shader pathnames.
+///
+using Shader = std::pair<CG_NS::Stage, const wchar_t*>;
+
+constexpr wchar_t ShaderDir[] = L"bin/";
+
+constexpr Shader MdlShaders[]{
+  {CG_NS::StageVertex, L"Model.vert"}, {CG_NS::StageFragment, L"Model.frag"}};
+
+constexpr Shader Mdl2Shaders[]{
+  {CG_NS::StageVertex, L"Model2.vert"}, MdlShaders[1]};
+
+constexpr Shader Mdl4Shaders[]{
+  {CG_NS::StageVertex, L"Model4.vert"}, MdlShaders[1]};
+
+constexpr Shader Mdl8Shaders[]{
+  {CG_NS::StageVertex, L"Model8.vert"}, MdlShaders[1]};
+
+constexpr Shader Mdl16Shaders[]{
+  {CG_NS::StageVertex, L"Model16.vert"}, MdlShaders[1]};
+
+constexpr Shader Mdl32Shaders[]{
+  {CG_NS::StageVertex, L"Model32.vert"}, MdlShaders[1]};
+
+/// Global uniform.
+///
+/// (1) view : Mat4f
+/// (2) proj : Mat4f
+///
 constexpr uint64_t GlbLength = Mat4f::dataSize() << 1;
 
-// TODO
-constexpr uint64_t MdlJointN = 20;
-constexpr uint64_t MdlLength = (Mat4f::dataSize() << 1) +
-                               (Mat4f::dataSize() * MdlJointN);
+/// Model (per-instance) uniform.
+///
+/// (1) model : Mat4f
+/// (2) model-view : Mat4f
+/// (3) model-view-proj : Mat4f
+///
+constexpr uint64_t MdlLength = Mat4f::dataSize() * 3;
+
+/// Check list uniform.
+///
+/// (1) mask : uint32
+///
+constexpr uint64_t ChkLength = 4;
+
+/// Skinning uniform.
+///
+/// (1) joint matrices : Mat4f[JointN]
+///
+constexpr uint64_t JointN = 20;
+constexpr uint64_t SkinLength = Mat4f::dataSize() * JointN;
+
+/// Material uniform.
+///
+/// (1) color fac : Vec4f
+/// (2) metallic fac : float
+/// (3) roughness fac : float
+/// (4) normal fac : float
+/// (5) occlusion fac : float
+/// (6) emissive fac : Vec3f
+/// (*) _alignment_
+///
+constexpr uint64_t MatlAlign = 20;
+constexpr uint64_t MatlLength = Vec4f::dataSize() + 16 + Vec3f::dataSize() +
+                                MatlAlign;
+
+// TODO: consider allowing custom length values
+constexpr uint64_t UnifLength = 1ULL << 20;
+
+/// Check uniform flags.
+///
+enum CheckBits : uint32_t {
+  TangentBit   = 0x0001,
+  NormalBit    = 0x0002,
+  TexCoord0Bit = 0x0004,
+  TexCoord1Bit = 0x0008,
+  Color0Bit    = 0x0010,
+  SkinBit      = 0x0020,
+
+  ColorTexBit      = 0x0100,
+  MetalRoughTexBit = 0x0200,
+  NormalTexBit     = 0x0400,
+  OcclusionTexBit  = 0x0800,
+  EmissiveTexBit   = 0x1000
+};
 
 Renderer::Renderer() {
   auto& dev = CG_NS::device();
 
   // One global table instance for shared uniforms
-  const CG_NS::DcEntries glb{{Uniform, {CG_NS::DcTypeUniform, 1}}};
+  const CG_NS::DcEntries glb{{MainUniform, {CG_NS::DcTypeUniform, 1}}};
   glbTable_ = dev.dcTable(glb);
   glbTable_->allocate(1);
 
@@ -81,6 +171,7 @@ void Renderer::render(Scene& scene, CG_NS::Target& target) {
   // Update global uniform buffer
   uint64_t off = 0;
   uint64_t len;
+  uint64_t beg;
 
   len = Mat4f::dataSize();
   unifBuffer_->write(off, len, scene.camera().view().data());
@@ -89,7 +180,7 @@ void Renderer::render(Scene& scene, CG_NS::Target& target) {
   off += len;
   // TODO: other global data (light, viewport, ortho matrix, ...)
 
-  glbTable_->write(0, Uniform, 0, *unifBuffer_, 0, GlbLength);
+  glbTable_->write(0, MainUniform, 0, *unifBuffer_, 0, GlbLength);
 
   // Render models
   auto renderMdl = [&] {
@@ -155,49 +246,61 @@ void Renderer::render(Scene& scene, CG_NS::Target& target) {
         auto& skin = kv.second[0]->skin();
         auto& matl = kv.second[0]->material();
         auto& mesh = kv.second[0]->mesh();
+        // TODO: ?
+        const auto inv = invert(transforms_[kv.second.front()->parent()]);
 
         // Update instance-specific uniform buffer
         for (uint32_t i = 0; i < n; ++i) {
           auto mdl = kv.second.back();
           kv.second.pop_back();
 
+          beg = off;
+          len = Mat4f::dataSize();
+
           const auto m = mdl->isLeaf() ?
                          transforms_[mdl->parent()] * mdl->transform() :
                          transforms_[mdl];
-          const auto mv = scene.camera().view() * m;
-          const auto beg = off;
-
-          len = Mat4f::dataSize();
           unifBuffer_->write(off, len, m.data());
           off += len;
+
+          const auto mv = scene.camera().view() * m;
           unifBuffer_->write(off, len, mv.data());
           off += len;
 
-          assert(!skin || skin.joints().size() < MdlJointN);
-
-          array<Mat4f, MdlJointN> jm;
-          jm.fill(Mat4f::identity());
-          if (skin) {
-            size_t i = 0;
-            for (const auto& jt : skin.joints()) {
-              jm[i] = jt->isLeaf() ?
-                      transforms_[jt->parent()] * jt->transform() :
-                      transforms_[jt];
-              jm[i] *= skin.inverseBind()[i];
-              // TODO: compute inverse once
-              jm[i] = invert(transforms_[mdl->parent()]) * jm[i];
-              ++i;
-            }
-          }
-          len = Mat4f::dataSize() * MdlJointN;
-          unifBuffer_->write(off, len, jm.data());
+          const auto mvp = scene.camera().projection() * mv;
+          unifBuffer_->write(off, len, mvp.data());
           off += len;
 
           // TODO: other per-instance data
 
-          resource->table->write(alloc, Uniform, i, *unifBuffer_, beg,
+          resource->table->write(alloc, MainUniform, i, *unifBuffer_, beg,
                                  MdlLength);
         }
+
+        // Update skinning data
+        array<Mat4f, JointN> jm;
+        jm.fill(Mat4f::identity());
+
+        if (skin) {
+          assert(skin.joints().size() < JointN);
+          size_t i = 0;
+          for (const auto& jt : skin.joints()) {
+            jm[i] = inv;
+            jm[i] *= jt->isLeaf() ?
+                     transforms_[jt->parent()] * jt->transform() :
+                     transforms_[jt];
+            jm[i] *= skin.inverseBind()[i];
+            ++i;
+          }
+        }
+
+        beg = off;
+        len = Mat4f::dataSize() * JointN;
+        unifBuffer_->write(off, len, jm.data());
+        off += len;
+
+        resource->table->write(alloc, SkinningUniform, 0, *unifBuffer_, beg,
+                               SkinLength);
 
         // Update material
         pair<Texture, CG_NS::DcId> texs[]{
@@ -212,7 +315,61 @@ void Renderer::render(Scene& scene, CG_NS::Target& target) {
             tp.first.impl().copy(*resource->table, alloc, tp.second,
                                  0, 0, nullptr);
         }
-        // TODO: also copy factors to uniform buffer
+
+        beg = off;
+        len = Vec4f::dataSize();
+        unifBuffer_->write(off, len, matl.pbrmr().colorFac.data());
+        off += len;
+        len = 4;
+        unifBuffer_->write(off, len, &matl.pbrmr().metallic);
+        off += len;
+        unifBuffer_->write(off, len, &matl.pbrmr().roughness);
+        off += len;
+        unifBuffer_->write(off, len, &matl.normal().scale);
+        off += len;
+        unifBuffer_->write(off, len, &matl.occlusion().strength);
+        off += len;
+        len = Vec3f::dataSize();
+        unifBuffer_->write(off, len, matl.emissive().factor.data());
+        off += len;
+        off += MatlAlign;
+
+        resource->table->write(alloc, MaterialUniform, 0, *unifBuffer_, beg,
+                               MatlLength);
+
+        // Update check list
+        uint32_t chkMask = 0;
+
+        if (mesh.impl().canBind(VxTypeTangent))
+          chkMask |= TangentBit;
+        if (mesh.impl().canBind(VxTypeNormal))
+          chkMask |= NormalBit;
+        if (mesh.impl().canBind(VxTypeTexCoord0))
+          chkMask |= TexCoord0Bit;
+        if (mesh.impl().canBind(VxTypeTexCoord1))
+          chkMask |= TexCoord1Bit;
+        if (mesh.impl().canBind(VxTypeColor0))
+          chkMask |= Color0Bit;
+        if (skin)
+          chkMask |= SkinBit;
+        if (matl.pbrmr().colorTex)
+          chkMask |= ColorTexBit;
+        if (matl.pbrmr().metalRoughTex)
+          chkMask |= MetalRoughTexBit;
+        if (matl.normal().texture)
+          chkMask |= NormalTexBit;
+        if (matl.occlusion().texture)
+          chkMask |= OcclusionTexBit;
+        if (matl.emissive().texture)
+          chkMask |= EmissiveTexBit;
+
+        beg = off;
+        len = 4;
+        unifBuffer_->write(off, len, &chkMask);
+        off += len;
+
+        resource->table->write(alloc, CheckUniform, 0, *unifBuffer_, beg,
+                               ChkLength);
 
         // Encode commands for this mesh
         if (mesh)
@@ -327,7 +484,10 @@ void Renderer::prepare() {
     // Descriptors
     if (!resource.table) {
       const CG_NS::DcEntries inst{
-        {Uniform,              {CG_NS::DcTypeUniform,    instN}},
+        {MainUniform,          {CG_NS::DcTypeUniform,    instN}},
+        {CheckUniform,         {CG_NS::DcTypeUniform,    1}},
+        {SkinningUniform,      {CG_NS::DcTypeUniform,    1}},
+        {MaterialUniform,      {CG_NS::DcTypeUniform,    1}},
         {ColorImgSampler,      {CG_NS::DcTypeImgSampler, 1}},
         {MetalRoughImgSampler, {CG_NS::DcTypeImgSampler, 1}},
         {NormalImgSampler,     {CG_NS::DcTypeImgSampler, 1}},
@@ -362,7 +522,7 @@ void Renderer::prepare() {
                                   CG_NS::WindingCounterCw});
     }
 
-    return MdlLength * instN * allocN;
+    return (MdlLength * instN + ChkLength + SkinLength + MatlLength) * allocN;
   };
 
   uint64_t unifLen = GlbLength;

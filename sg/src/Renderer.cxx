@@ -24,8 +24,44 @@
 using namespace SG_NS;
 using namespace std;
 
-// TODO: consider allowing custom length values
-constexpr uint64_t UnifLength = 1ULL << 14;
+/// Resource identifiers that shaders must abide by.
+///
+constexpr uint32_t GlbTable = 0;
+constexpr uint32_t MdlTable = 1;
+
+constexpr CG_NS::DcId MainUniform = 0;
+constexpr CG_NS::DcId CheckUniform = 1;
+constexpr CG_NS::DcId SkinningUniform = 2;
+constexpr CG_NS::DcId MaterialUniform = 3;
+constexpr CG_NS::DcId ColorImgSampler = 4;
+constexpr CG_NS::DcId MetalRoughImgSampler = 5;
+constexpr CG_NS::DcId NormalImgSampler = 6;
+constexpr CG_NS::DcId OcclusionImgSampler = 7;
+constexpr CG_NS::DcId EmissiveImgSampler = 8;
+
+/// Shader pathnames.
+///
+using Shader = std::pair<CG_NS::Stage, const wchar_t*>;
+
+constexpr wchar_t ShaderDir[] = L"bin/";
+
+constexpr Shader MdlShaders[]{
+  {CG_NS::StageVertex, L"Model.vert"}, {CG_NS::StageFragment, L"Model.frag"}};
+
+constexpr Shader Mdl2Shaders[]{
+  {CG_NS::StageVertex, L"Model2.vert"}, MdlShaders[1]};
+
+constexpr Shader Mdl4Shaders[]{
+  {CG_NS::StageVertex, L"Model4.vert"}, MdlShaders[1]};
+
+constexpr Shader Mdl8Shaders[]{
+  {CG_NS::StageVertex, L"Model8.vert"}, MdlShaders[1]};
+
+constexpr Shader Mdl16Shaders[]{
+  {CG_NS::StageVertex, L"Model16.vert"}, MdlShaders[1]};
+
+constexpr Shader Mdl32Shaders[]{
+  {CG_NS::StageVertex, L"Model32.vert"}, MdlShaders[1]};
 
 /// Global uniform.
 ///
@@ -63,8 +99,14 @@ constexpr uint64_t SkinLength = Mat4f::dataSize() * JointN;
 /// (4) normal fac : float
 /// (5) occlusion fac : float
 /// (6) emissive fac : Vec3f
+/// (*) _alignment_
 ///
-constexpr uint64_t MatlLength = Vec4f::dataSize() + 16 + Vec3f::dataSize();
+constexpr uint64_t MatlAlign = 20;
+constexpr uint64_t MatlLength = Vec4f::dataSize() + 16 + Vec3f::dataSize() +
+                                MatlAlign;
+
+// TODO: consider allowing custom length values
+constexpr uint64_t UnifLength = 1ULL << 20;
 
 /// Check uniform flags.
 ///
@@ -290,6 +332,7 @@ void Renderer::render(Scene& scene, CG_NS::Target& target) {
         len = Vec3f::dataSize();
         unifBuffer_->write(off, len, matl.emissive().factor.data());
         off += len;
+        off += MatlAlign;
 
         resource->table->write(alloc, MaterialUniform, 0, *unifBuffer_, beg,
                                MatlLength);

@@ -12,7 +12,6 @@
 #include <unordered_map>
 
 #include "yf/cg/Pass.h"
-#include "yf/cg/Shader.h"
 #include "yf/cg/DcTable.h"
 #include "yf/cg/State.h"
 #include "yf/cg/Queue.h"
@@ -34,37 +33,6 @@ class Renderer {
   Renderer(const Renderer&) = delete;
   Renderer& operator=(const Renderer&) = delete;
   ~Renderer() = default;
-
-  /// Resource identifiers that shaders must abide by.
-  ///
-  static constexpr uint32_t GlbTable = 0;
-  static constexpr uint32_t MdlTable = 1;
-  static constexpr CG_NS::DcId MainUniform = 0;
-  static constexpr CG_NS::DcId CheckUniform = 1;
-  static constexpr CG_NS::DcId SkinningUniform = 2;
-  static constexpr CG_NS::DcId MaterialUniform = 3;
-  static constexpr CG_NS::DcId ColorImgSampler = 4;
-  static constexpr CG_NS::DcId MetalRoughImgSampler = 5;
-  static constexpr CG_NS::DcId NormalImgSampler = 6;
-  static constexpr CG_NS::DcId OcclusionImgSampler = 7;
-  static constexpr CG_NS::DcId EmissiveImgSampler = 8;
-
-  /// Shader pathnames.
-  ///
-  using Shader = std::pair<CG_NS::Stage, const wchar_t*>;
-  static constexpr wchar_t ShaderDir[] = L"bin/";
-  static constexpr Shader MdlShaders[]{{CG_NS::StageVertex, L"Model.vert"},
-                                       {CG_NS::StageFragment, L"Model.frag"}};
-  static constexpr Shader Mdl2Shaders[]{{CG_NS::StageVertex, L"Model2.vert"},
-                                         MdlShaders[1]};
-  static constexpr Shader Mdl4Shaders[]{{CG_NS::StageVertex, L"Model4.vert"},
-                                         MdlShaders[1]};
-  static constexpr Shader Mdl8Shaders[]{{CG_NS::StageVertex, L"Model8.vert"},
-                                         MdlShaders[1]};
-  static constexpr Shader Mdl16Shaders[]{{CG_NS::StageVertex, L"Model16.vert"},
-                                          MdlShaders[1]};
-  static constexpr Shader Mdl32Shaders[]{{CG_NS::StageVertex, L"Model32.vert"},
-                                          MdlShaders[1]};
 
   /// Renders a scene on a given target.
   ///

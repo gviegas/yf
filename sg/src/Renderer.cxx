@@ -26,8 +26,8 @@ using namespace std;
 
 /// Resource identifiers that shaders must abide by.
 ///
-constexpr uint32_t GlbTable = 0;
-constexpr uint32_t MdlTable = 1;
+constexpr uint32_t GlobalTable = 0;
+constexpr uint32_t ModelTable = 1;
 
 constexpr CG_NS::DcId MainUniform = 0;
 constexpr CG_NS::DcId CheckUniform = 1;
@@ -68,7 +68,7 @@ constexpr Shader Mdl32Shaders[]{
 /// (1) view : Mat4f
 /// (2) proj : Mat4f
 ///
-constexpr uint64_t GlbLength = Mat4f::dataSize() << 1;
+constexpr uint64_t GlobalLength = Mat4f::dataSize() << 1;
 
 /// Model (per-instance) uniform.
 ///
@@ -76,20 +76,22 @@ constexpr uint64_t GlbLength = Mat4f::dataSize() << 1;
 /// (2) model-view : Mat4f
 /// (3) model-view-proj : Mat4f
 ///
-constexpr uint64_t MdlLength = Mat4f::dataSize() * 3;
+constexpr uint64_t InstanceLength = Mat4f::dataSize() * 3;
 
 /// Check list uniform.
 ///
 /// (1) mask : uint32
+/// (*) _alignment_
 ///
-constexpr uint64_t ChkLength = 4;
+constexpr uint64_t CheckAlign = 60;
+constexpr uint64_t CheckLength = 4 + CheckAlign;
 
 /// Skinning uniform.
 ///
 /// (1) joint matrices : Mat4f[JointN]
 ///
 constexpr uint64_t JointN = 20;
-constexpr uint64_t SkinLength = Mat4f::dataSize() * JointN;
+constexpr uint64_t SkinningLength = Mat4f::dataSize() * JointN;
 
 /// Material uniform.
 ///
@@ -101,12 +103,12 @@ constexpr uint64_t SkinLength = Mat4f::dataSize() * JointN;
 /// (6) emissive fac : Vec3f
 /// (*) _alignment_
 ///
-constexpr uint64_t MatlAlign = 20;
-constexpr uint64_t MatlLength = Vec4f::dataSize() + 16 + Vec3f::dataSize() +
-                                MatlAlign;
+constexpr uint64_t MaterialAlign = 20;
+constexpr uint64_t MaterialLength = Vec4f::dataSize() + 16 +
+                                    Vec3f::dataSize() + MaterialAlign;
 
 // TODO: consider allowing custom length values
-constexpr uint64_t UnifLength = 1ULL << 20;
+constexpr uint64_t UniformLength = 1ULL << 20;
 
 /// Check uniform flags.
 ///
@@ -135,7 +137,7 @@ Renderer::Renderer() {
 
   cmdBuffer_ = dev.defaultQueue().cmdBuffer();
 
-  unifBuffer_ = dev.buffer(UnifLength);
+  unifBuffer_ = dev.buffer(UniformLength);
 }
 
 void Renderer::render(Scene& scene, CG_NS::Target& target) {
@@ -164,7 +166,7 @@ void Renderer::render(Scene& scene, CG_NS::Target& target) {
   enc.setViewport({0.0f, 0.0f, static_cast<float>(target.size_.width),
                    static_cast<float>(target.size_.height), 0.0f, 1.0f});
   enc.setScissor({{0}, target.size_});
-  enc.setDcTable(GlbTable, 0);
+  enc.setDcTable(GlobalTable, 0);
   enc.clearColor(scene.color());
   enc.clearDepth(1.0f);
 
@@ -180,7 +182,7 @@ void Renderer::render(Scene& scene, CG_NS::Target& target) {
   off += len;
   // TODO: other global data (light, viewport, ortho matrix, ...)
 
-  glbTable_->write(0, MainUniform, 0, *unifBuffer_, 0, GlbLength);
+  glbTable_->write(0, MainUniform, 0, *unifBuffer_, 0, GlobalLength);
 
   // Render models
   auto renderMdl = [&] {
@@ -241,7 +243,7 @@ void Renderer::render(Scene& scene, CG_NS::Target& target) {
         }
 
         enc.setState(resource->state.get());
-        enc.setDcTable(MdlTable, alloc);
+        enc.setDcTable(ModelTable, alloc);
 
         auto& skin = kv.second[0]->skin();
         auto& matl = kv.second[0]->material();
@@ -274,7 +276,7 @@ void Renderer::render(Scene& scene, CG_NS::Target& target) {
           // TODO: other per-instance data
 
           resource->table->write(alloc, MainUniform, i, *unifBuffer_, beg,
-                                 MdlLength);
+                                 InstanceLength);
         }
 
         // Update skinning data
@@ -300,7 +302,7 @@ void Renderer::render(Scene& scene, CG_NS::Target& target) {
         off += len;
 
         resource->table->write(alloc, SkinningUniform, 0, *unifBuffer_, beg,
-                               SkinLength);
+                               SkinningLength);
 
         // Update material
         pair<Texture, CG_NS::DcId> texs[]{
@@ -332,10 +334,10 @@ void Renderer::render(Scene& scene, CG_NS::Target& target) {
         len = Vec3f::dataSize();
         unifBuffer_->write(off, len, matl.emissive().factor.data());
         off += len;
-        off += MatlAlign;
+        off += MaterialAlign;
 
         resource->table->write(alloc, MaterialUniform, 0, *unifBuffer_, beg,
-                               MatlLength);
+                               MaterialLength);
 
         // Update check list
         uint32_t chkMask = 0;
@@ -367,9 +369,10 @@ void Renderer::render(Scene& scene, CG_NS::Target& target) {
         len = 4;
         unifBuffer_->write(off, len, &chkMask);
         off += len;
+        off += CheckAlign;
 
         resource->table->write(alloc, CheckUniform, 0, *unifBuffer_, beg,
-                               ChkLength);
+                               CheckLength);
 
         // Encode commands for this mesh
         if (mesh)
@@ -390,7 +393,7 @@ void Renderer::render(Scene& scene, CG_NS::Target& target) {
 
   // Render & submit
   do {
-    off = GlbLength;
+    off = GlobalLength;
     renderMdl();
 
     cmdBuffer_->encode(enc);
@@ -522,10 +525,12 @@ void Renderer::prepare() {
                                   CG_NS::WindingCounterCw});
     }
 
-    return (MdlLength * instN + ChkLength + SkinLength + MatlLength) * allocN;
+    const auto instLen = InstanceLength * instN;
+    const auto sharLen = CheckLength + SkinningLength + MaterialLength;
+    return (instLen + sharLen) * allocN;
   };
 
-  uint64_t unifLen = GlbLength;
+  uint64_t unifLen = GlobalLength;
 
   // Set models
   // TODO: check limits and catch errors

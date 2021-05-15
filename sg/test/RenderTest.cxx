@@ -102,12 +102,14 @@ struct RenderTest : Test {
     // Resources
     Mesh mesh1{Mesh::Gltf, L"tmp/cube.gltf"};
     Mesh mesh2{Mesh::Gltf, L"tmp/cube.gltf"};
-    Texture tex{Texture::Png, L"tmp/cube.png"};
+    Texture tex1{Texture::Png, L"tmp/cube.png"};
+    Texture tex2{Texture::Png, L"tmp/cube2.png"};
     Material matl1;
-    matl1.pbrmr().colorTex = tex;
+    matl1.pbrmr().colorTex = tex1;
     Material matl2;
-    matl2.pbrmr().colorTex = tex;
-    Skin skin1(1, {});
+    matl2.pbrmr().colorTex = tex2;
+    matl2.pbrmr().colorFac[0] = 0.25f;
+    Skin skin1{};
 
     // Scene #1 contents
     const size_t instMdlN = 11;

@@ -26,6 +26,77 @@ INTERNAL_NS_BEGIN
 struct MiscTest : public Test {
   MiscTest() : Test(L"Misc") { }
 
+  struct Input {
+    bool moveF, moveB, moveL, moveR, moveU, moveD;
+    bool turnL, turnR, turnU, turnD;
+    bool zoomI, zoomO;
+    bool place, point;
+    bool quit;
+  };
+
+  static Input input;
+  static WS_NS::KeyCode key;
+  static constexpr float deltaM = 0.215f;
+  static constexpr float deltaT = 0.025f;
+  static constexpr float deltaZ = 0.035f;
+
+  static void onKey(WS_NS::KeyCode key, WS_NS::KeyState state,
+                    [[maybe_unused]] WS_NS::KeyModMask modMask) {
+
+    const bool b = state == WS_NS::KeyStatePressed;
+    MiscTest::key = key;
+
+    switch (key) {
+    case WS_NS::KeyCodeW:
+      input.moveF = b;
+      break;
+    case WS_NS::KeyCodeS:
+      input.moveB = b;
+      break;
+    case WS_NS::KeyCodeA:
+      input.moveL= b;
+      break;
+    case WS_NS::KeyCodeD:
+      input.moveR = b;
+      break;
+    case WS_NS::KeyCodeR:
+      input.moveU= b;
+      break;
+    case WS_NS::KeyCodeF:
+      input.moveD = b;
+      break;
+    case WS_NS::KeyCodeLeft:
+      input.turnL = b;
+      break;
+    case WS_NS::KeyCodeRight:
+      input.turnR = b;
+      break;
+    case WS_NS::KeyCodeUp:
+      input.turnU = b;
+      break;
+    case WS_NS::KeyCodeDown:
+      input.turnD = b;
+      break;
+    case WS_NS::KeyCodeE:
+      input.zoomI = b;
+      break;
+    case WS_NS::KeyCodeQ:
+      input.zoomO = b;
+      break;
+    case WS_NS::KeyCodeReturn:
+      input.place = b;
+      break;
+    case WS_NS::KeyCodeSpace:
+      input.point = b;
+      break;
+    case WS_NS::KeyCodeEsc:
+      input.quit = b;
+      break;
+    default:
+      break;
+    }
+  }
+
   bool misc1() {
     auto& dev = CG_NS::device();
     auto& que = dev.defaultQueue();
@@ -314,9 +385,10 @@ struct MiscTest : public Test {
 } while (false)
 
   bool misc4() {
-    Collection coll(L"tmp/fullscene2.gltf");
-    coll.load(L"tmp/fullscene.gltf");
-    coll.load(L"tmp/skin.gltf");
+    //Collection coll(L"tmp/fullscene2.gltf");
+    //Collection coll(L"tmp/fullscene.gltf");
+    Collection coll;
+    coll.load(L"tmp/skinning.gltf");
 
     // Print
     wcout << "\nCollection:";
@@ -427,13 +499,113 @@ struct MiscTest : public Test {
     return true;
 #endif
 
-    // Render
-    auto win = WS_NS::createWindow(800, 600, L"MISC 4");
-    bool quit = false;
-    WS_NS::onWdClose([&](auto) { quit = true; });
+    auto animate = [&] {
+      Mat4f t, r, s;
 
+      struct TRS { Vec3f t; Qnionf r; Vec3f s; };
+      const TRS trs[]{
+        {
+          {0.0f, -3.0f, 0.0f},
+          {1.0f, {}},
+          {1.0f, 1.0f, 1.0f}
+        },
+        {
+          {0.0f, 1.0f, 0.0f},
+          {0.9347f, {0.2910f, 0.1584f, 0.1285f}},
+          {1.0f, 1.0f, 1.0f}
+        },
+        {
+          {0.0f, 1.0f, 0.0f},
+          {1.0f, {}},
+          {1.0f, 1.0f, 1.0f}
+        },
+        {
+          {0.0f, 1.0f, 0.0f},
+          {1.0f, {}},
+          {1.0f, 1.0f, 1.0f}
+        },
+        {
+          {0.0f, 1.0f, 0.0f},
+          {1.0f, {-0.3131f, -0.1704f, -0.1383f}},
+          {1.0f, 1.0f, 1.0f}
+        },
+        {
+          {0.0f, 1.0f, 0.0f},
+          {1.0f, {}},
+          {1.0f, 1.0f, 1.0f}
+        }};
+
+      size_t i = 0;
+      for (const auto& jt : coll.skins()[0].joints()) {
+        t = translate(trs[i].t[0], trs[i].t[1], trs[i].t[2]);
+        r = rotate(trs[i].r);
+        s = scale(trs[i].s[0], trs[i].s[1], trs[i].s[2]);
+        jt->transform() = t * r * s;
+        ++i;
+      }
+    };
+
+    // Render
+    auto win = WS_NS::createWindow(480, 400, L"Misc 4");
     View view(win.get());
-    view.loop(*coll.scenes().front(), 60, [&](auto) { return !quit; });
+
+    WS_NS::onKbKey(onKey);
+
+    auto scn = coll.scenes().front().get();
+    scn->camera().place({10.0f, 10.0f, 10.0f});
+    scn->camera().point({});
+
+    view.loop(*scn, 60, [&](auto) {
+      if (input.quit)
+        return false;
+
+      auto& cam = scn->camera();
+
+      if (input.moveF)
+        cam.moveForward(deltaM);
+      if (input.moveB)
+        cam.moveBackward(deltaM);
+      if (input.moveL)
+        cam.moveLeft(deltaM);
+      if (input.moveR)
+        cam.moveRight(deltaM);
+      if (input.moveU)
+        cam.moveUp(deltaM);
+      if (input.moveD)
+        cam.moveDown(deltaM);
+      if (input.turnL)
+        cam.turnLeft(deltaT);
+      if (input.turnR)
+        cam.turnRight(deltaT);
+      if (input.turnU)
+        cam.turnUp(deltaT);
+      if (input.turnD)
+        cam.turnDown(deltaT);
+      if (input.zoomI)
+        cam.zoomIn(deltaZ);
+      if (input.zoomO)
+        cam.zoomOut(deltaZ);
+      if (input.place)
+        cam.place({0.0f, 0.0f, 20.0f});
+      if (input.point)
+        cam.point({});
+
+      if (key == WS_NS::KeyCodeTab) {
+        for (auto& nd : coll.nodes()) {
+          if (nd->name() == L"Cube") {
+            nd->transform() *= translate(0.0f, 1.0f, 0.0f);
+            break;
+          }
+        }
+
+        if (scn->name() == L"Skinning")
+          animate();
+
+        key = WS_NS::KeyCodeUnknown;
+      }
+
+      return true;
+    });
 
     return true;
   }
@@ -442,6 +614,9 @@ struct MiscTest : public Test {
     return {{L"misc4()", misc4()}};
   }
 };
+
+MiscTest::Input MiscTest::input;
+WS_NS::KeyCode MiscTest::key = WS_NS::KeyCodeUnknown;
 
 INTERNAL_NS_END
 

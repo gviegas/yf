@@ -7,35 +7,104 @@
 
 #version 460 core
 
-/// Global uniform.
+const uint TangentBit   = 0x01;
+const uint NormalBit    = 0x02;
+const uint TexCoord0Bit = 0x04;
+const uint TexCoord1Bit = 0x08;
+const uint Color0Bit    = 0x10;
+const uint SkinBit      = 0x20;
+
+const uint JointN = 20;
+
+/// Global data.
 ///
-layout(set=0, binding=0) uniform Glb {
+layout(set=0, binding=0) uniform Global {
   mat4 v;
   mat4 p;
   // TODO...
-} glb;
+} global;
 
-/// Instance-specific uniform.
+/// Per-instance data.
 ///
-layout(set=1, binding=0) uniform Inst {
+layout(set=1, binding=0) uniform Instance {
   mat4 m;
   mat4 mv;
+  mat4 mvp;
   // TODO...
-} inst;
+} instance;
 
-layout(location=0) in vec3 pos;
-layout(location=1) in vec3 norm;
-layout(location=3) in vec2 tc0;
-// TODO...
+/// Check list data.
+///
+layout(set=1, binding=1) uniform Check {
+  uint mask;
+} check;
 
-layout(location=0) out Vert {
-  vec3 norm;
-  vec2 tc0;
+/// Skinning data.
+///
+layout(set=1, binding=2) uniform Skinning {
+  mat4 jm[JointN];
+} skinning;
+
+layout(location=0) in vec3 position;
+layout(location=1) in vec4 tangent;
+layout(location=2) in vec3 normal;
+layout(location=3) in vec2 texCoord0;
+layout(location=4) in vec2 texCoord1;
+layout(location=5) in vec4 color0;
+layout(location=6) in uvec4 joints0;
+layout(location=7) in vec4 weights0;
+
+layout(location=0) out Vertex {
+  vec4 tangent;
+  vec3 normal;
+  vec2 texCoord0;
+  vec2 texCoord1;
+  vec4 color0;
   // TODO...
-} vert;
+} vertex;
+
+vec4 getPosition() {
+  vec4 pos = vec4(position, 1.0);
+
+  if ((check.mask & SkinBit) != 0) {
+    mat4 sm = weights0.x * skinning.jm[joints0.x] +
+              weights0.y * skinning.jm[joints0.y] +
+              weights0.z * skinning.jm[joints0.z] +
+              weights0.w * skinning.jm[joints0.w];
+    pos = sm * pos;
+  }
+
+  return pos;
+}
+
+void setVertex() {
+  if ((check.mask & TangentBit) != 0)
+    vertex.tangent = tangent;
+  else
+    vertex.tangent = vec4(0.0);
+
+  if ((check.mask & NormalBit) != 0)
+    vertex.normal = normal;
+  else
+    vertex.normal = vec3(0.0);
+
+  if ((check.mask & TexCoord0Bit) != 0)
+    vertex.texCoord0 = texCoord0;
+  else
+    vertex.texCoord0 = vec2(0.0);
+
+  if ((check.mask & TexCoord1Bit) != 0)
+    vertex.texCoord1 = texCoord1;
+  else
+    vertex.texCoord1 = vec2(0.0);
+
+  if ((check.mask & Color0Bit) != 0)
+    vertex.color0 = color0;
+  else
+    vertex.color0 = vec4(1.0);
+}
 
 void main() {
-  gl_Position = glb.p * inst.mv * vec4(pos, 1.0);
-  vert.norm = norm;
-  vert.tc0 = tc0;
+  gl_Position = instance.mvp * getPosition();
+  setVertex();
 }

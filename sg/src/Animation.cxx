@@ -8,6 +8,7 @@
 #include <stdexcept>
 
 #include "Animation.h"
+#include "Node.h"
 
 using namespace SG_NS;
 using namespace std;
@@ -45,18 +46,18 @@ class Animation::Impl {
   ///
   void update(chrono::nanoseconds elapsedTime) {
     time_ += elapsedTime;
+    const float tm = time_.count();
 
     // Get a pair of timeline indices defining the keyframes to interpolate
     auto getKeyframes = [&](const Timeline& input) {
-      const float tm = time_.count();
-
       if (input.front() > tm)
         return pair<size_t, size_t>();
 
       if (input.back() < tm)
-        return input.size() > 1 ?
-               pair<size_t, size_t>(input.size()-2, input.size()-1) :
-               pair<size_t, size_t>(input.size()-1, input.size()-1);
+        return pair<size_t, size_t>(input.size()-1, input.size()-1);
+//        return input.size() > 1 ?
+//               pair<size_t, size_t>(input.size()-2, input.size()-1) :
+//               pair<size_t, size_t>(input.size()-1, input.size()-1);
 
       size_t beg = 0;
       size_t end = input.size() - 1; // XXX: non-empty input
@@ -78,9 +79,35 @@ class Animation::Impl {
              pair<size_t, size_t>(cur, cur+1);
     };
 
+    // Vec3f lerp
+    auto lerp = [&](const Vec3f& v1, const Vec3f& v2, float f) {
+      return Vec3f{(1.0f - f) * v1[0] + f * v2[0],
+                   (1.0f - f) * v1[1] + f * v2[1],
+                   (1.0f - f) * v1[2] + f * v2[2]};
+    };
+
     // Update translation action
     auto updateT = [&](const Action& action) {
-      // TODO
+      const auto& inp = inputs_[action.input];
+      const auto& out = outT_[action.output];
+      const auto seq = getKeyframes(inp);
+      auto& t = action.target->translation();
+
+      switch (action.method) {
+      case Step:
+        // TODO
+        break;
+      case Linear:
+        if (seq.first != seq.second)
+          t = lerp(out[seq.first], out[seq.second],
+                   (tm-inp[seq.first]) / (inp[seq.second]-inp[seq.first]));
+        else
+          t = out[seq.first];
+        break;
+      case Cubic:
+        // TODO
+        break;
+      }
     };
 
     // Update rotation action

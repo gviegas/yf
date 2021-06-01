@@ -236,6 +236,30 @@ class Node::Impl {
     return transform_;
   }
 
+  Vec3f& translation() {
+    return t_;
+  }
+
+  const Vec3f& translation() const {
+    return t_;
+  }
+
+  Qnionf& rotation() {
+    return r_;
+  }
+
+  const Qnionf& rotation() const {
+    return r_;
+  }
+
+  Vec3f& scale() {
+    return s_;
+  }
+
+  const Vec3f& scale() const {
+    return s_;
+  }
+
  private:
   Node& node_;
   Impl* parent_ = nullptr;
@@ -245,6 +269,9 @@ class Node::Impl {
   size_t n_ = 1;
   wstring name_{};
   Mat4f transform_ = Mat4f::identity();
+  Vec3f t_{};
+  Qnionf r_{1.0f, {}};
+  Vec3f s_{1.0f, 1.0f, 1.0f};
 };
 
 Node::Node() : impl_(make_unique<Impl>(*this)) { }
@@ -330,4 +357,28 @@ Mat4f& Node::transform() {
 
 const Mat4f& Node::transform() const {
   return impl_->transform();
+}
+
+Vec3f& Node::translation() {
+  return impl_->translation();
+}
+
+const Vec3f& Node::translation() const {
+  return impl_->translation();
+}
+
+Qnionf& Node::rotation() {
+  return impl_->rotation();
+}
+
+const Qnionf& Node::rotation() const {
+  return impl_->rotation();
+}
+
+Vec3f& Node::scale() {
+  return impl_->scale();
+}
+
+const Vec3f& Node::scale() const {
+  return impl_->scale();
 }

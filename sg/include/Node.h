@@ -16,6 +16,7 @@
 
 #include "yf/sg/Defs.h"
 #include "yf/sg/Matrix.h"
+#include "yf/sg/Quaternion.h"
 
 SG_NS_BEGIN
 
@@ -77,15 +78,30 @@ class Node {
   std::vector<Node*> children() const;
   size_t children(std::vector<Node*>& dst) const;
 
-  /// Gets the node name.
+  /// Gets the node's name.
   ///
   std::wstring& name();
   const std::wstring& name() const;
 
-  /// Gets the node transformation matrix.
+  /// Gets the node's transformation matrix.
   ///
   Mat4f& transform();
   const Mat4f& transform() const;
+
+  /// Gets the node's translation vector.
+  ///
+  Vec3f& translation();
+  const Vec3f& translation() const;
+
+  /// Gets the node's quaternion rotation.
+  ///
+  Qnionf& rotation();
+  const Qnionf& rotation() const;
+
+  /// Gets the node's scale vector.
+  ///
+  Vec3f& scale();
+  const Vec3f& scale() const;
 
  private:
   class Impl;

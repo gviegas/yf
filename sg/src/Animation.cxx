@@ -117,7 +117,26 @@ class Animation::Impl {
 
     // Update scale action
     auto updateS = [&](const Action& action) {
-      // TODO
+      const auto& inp = inputs_[action.input];
+      const auto& out = outS_[action.output];
+      const auto seq = getKeyframes(inp);
+      auto& s = action.target->scale();
+
+      switch (action.method) {
+      case Step:
+        // TODO
+        break;
+      case Linear:
+        if (seq.first != seq.second)
+          s = lerp(out[seq.first], out[seq.second],
+                   (tm-inp[seq.first]) / (inp[seq.second]-inp[seq.first]));
+        else
+          s = out[seq.first];
+        break;
+      case Cubic:
+        // TODO
+        break;
+      }
     };
 
     for (const auto& act : actions_) {

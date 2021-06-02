@@ -605,7 +605,7 @@ constexpr Matrix<T, 4, 4> rotateZ(T angle) {
   return res;
 }
 
-/// Matrix scaling (3x3).
+/// Matrix scale (3x3).
 ///
 template<class T>
 constexpr Matrix<T, 3, 3> scale3(T sx, T sy, T sz) {
@@ -616,7 +616,14 @@ constexpr Matrix<T, 3, 3> scale3(T sx, T sy, T sz) {
   return res;
 }
 
-/// Matrix scaling.
+/// Matrix scale (3x3, vector).
+///
+template<class T>
+constexpr Matrix<T, 3, 3> scale3(const Vector<T, 3>& s) {
+  return scale3(s[0], s[1], s[2]);
+}
+
+/// Matrix scale.
 ///
 template<class T>
 constexpr Matrix<T, 4, 4> scale(T sx, T sy, T sz) {
@@ -628,6 +635,13 @@ constexpr Matrix<T, 4, 4> scale(T sx, T sy, T sz) {
   return res;
 }
 
+/// Matrix scale (vector).
+///
+template<class T>
+constexpr Matrix<T, 4, 4> scale(const Vector<T, 3>& s) {
+  return scale(s[0], s[1], s[2]);
+}
+
 /// Matrix translation.
 ///
 template<class T>
@@ -635,6 +649,13 @@ constexpr Matrix<T, 4, 4> translate(T tx, T ty, T tz) {
   auto res = Matrix<T, 4, 4>::identity();
   res[3] = {tx, ty, tz, 1};
   return res;
+}
+
+/// Matrix translation (vector).
+///
+template<class T>
+constexpr Matrix<T, 4, 4> translate(const Vector<T, 3>& t) {
+  return translate(t[0], t[1], t[2]);
 }
 
 /// View matrix.

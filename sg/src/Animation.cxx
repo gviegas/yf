@@ -124,7 +124,10 @@ class Animation::Impl {
 
       switch (action.method) {
       case Step:
-        // TODO
+        if (tm-inp[seq.first] < inp[seq.second]-tm)
+          t = out[seq.first];
+        else
+          t = out[seq.second];
         break;
       case Linear:
         if (seq.first != seq.second)
@@ -148,7 +151,10 @@ class Animation::Impl {
 
       switch (action.method) {
       case Step:
-        // TODO
+        if (tm-inp[seq.first] < inp[seq.second]-tm)
+          r = out[seq.first];
+        else
+          r = out[seq.second];
         break;
       case Linear:
         if (seq.first != seq.second)
@@ -172,7 +178,10 @@ class Animation::Impl {
 
       switch (action.method) {
       case Step:
-        // TODO
+        if (tm-inp[seq.first] < inp[seq.second]-tm)
+          s = out[seq.first];
+        else
+          s = out[seq.second];
         break;
       case Linear:
         if (seq.first != seq.second)

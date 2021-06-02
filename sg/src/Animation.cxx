@@ -5,6 +5,8 @@
 // Copyright © 2021 Gustavo C. Viegas.
 //
 
+#include <cfloat>
+#include <cmath>
 #include <stdexcept>
 
 #include "Animation.h"
@@ -86,6 +88,33 @@ class Animation::Impl {
                    (1.0f - f) * v1[2] + f * v2[2]};
     };
 
+    // Qnionf slerp
+    auto slerp = [&](const Qnionf& q1, const Qnionf& q2, float f) {
+      float d = dot(q1.v(), q2.v());
+
+      if (d > (1.0f - FLT_EPSILON)) {
+        const float r = (1.0f - f) * q1.r() + f * q2.r();
+        const Vec3f v = lerp(q1.v(), q2.v(), f);
+        return Qnionf(r, v);
+      }
+
+      float k = 1.0f;
+
+      if (d < 0.0f) {
+        k = -k;
+        d = -d;
+      }
+
+      const float ang = acos(d);
+      const float s = sinf(ang);
+      const float s1 = sinf((1.0f - f) * ang);
+      const float s2 = sinf(f * ang);
+
+      const float r = (q1.r() * s1 + q2.r() * s2 * k) / s;
+      const Vec3f v = (q1.v() * s1 + q2.v() * s2 * k) / s;
+      return Qnionf(r, v);
+    };
+
     // Update translation action
     auto updateT = [&](const Action& action) {
       const auto& inp = inputs_[action.input];
@@ -112,7 +141,26 @@ class Animation::Impl {
 
     // Update rotation action
     auto updateR = [&](const Action& action) {
-      // TODO
+      const auto& inp = inputs_[action.input];
+      const auto& out = outR_[action.output];
+      const auto seq = getKeyframes(inp);
+      auto& r = action.target->rotation();
+
+      switch (action.method) {
+      case Step:
+        // TODO
+        break;
+      case Linear:
+        if (seq.first != seq.second)
+          r = slerp(out[seq.first], out[seq.second],
+                    (tm-inp[seq.first]) / (inp[seq.second]-inp[seq.first]));
+        else
+          r = out[seq.first];
+        break;
+      case Cubic:
+        // TODO
+        break;
+      }
     };
 
     // Update scale action

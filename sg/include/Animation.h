@@ -12,6 +12,7 @@
 #include <memory>
 #include <vector>
 #include <string>
+#include <chrono>
 
 #include "yf/sg/Defs.h"
 #include "yf/sg/Vector.h"
@@ -94,6 +95,14 @@ class Animation {
   const std::vector<Translation>& outT() const;
   const std::vector<Rotation>& outR() const;
   const std::vector<Scale>& outS() const;
+
+  /// Plays the animation.
+  ///
+  bool play(std::chrono::nanoseconds elapsedTime);
+
+  /// Stops the animation.
+  ///
+  void stop();
 
  private:
   class Impl;

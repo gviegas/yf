@@ -58,9 +58,6 @@ class Animation::Impl {
 
       if (input.back() < tm)
         return pair<size_t, size_t>(input.size()-1, input.size()-1);
-//        return input.size() > 1 ?
-//               pair<size_t, size_t>(input.size()-2, input.size()-1) :
-//               pair<size_t, size_t>(input.size()-1, input.size()-1);
 
       size_t beg = 0;
       size_t end = input.size() - 1; // XXX: non-empty input
@@ -256,48 +253,56 @@ bool Animation::operator!=(const Animation& other) const {
 wstring& Animation::name() {
   if (!impl_)
     throw runtime_error("Call to name() of invalid Animation");
+
   return impl_->name_;
 }
 
 const wstring& Animation::name() const {
   if (!impl_)
     throw runtime_error("Call to name() of invalid Animation");
+
   return impl_->name_;
 }
 
 vector<Animation::Action>& Animation::actions() {
   if (!impl_)
     throw runtime_error("Call to actions() of invalid Animation");
+
   return impl_->actions_;
 }
 
 const vector<Animation::Action>& Animation::actions() const {
   if (!impl_)
     throw runtime_error("Call to actions() of invalid Animation");
+
   return impl_->actions_;
 }
 
 const vector<Animation::Timeline>& Animation::inputs() const {
   if (!impl_)
     throw runtime_error("Call to inputs() of invalid Animation");
+
   return impl_->inputs_;
 }
 
 const vector<Animation::Translation>& Animation::outT() const {
   if (!impl_)
     throw runtime_error("Call to outT() of invalid Animation");
+
   return impl_->outT_;
 }
 
 const vector<Animation::Rotation>& Animation::outR() const {
   if (!impl_)
     throw runtime_error("Call to outR() of invalid Animation");
+
   return impl_->outR_;
 }
 
 const vector<Animation::Scale>& Animation::outS() const {
   if (!impl_)
     throw runtime_error("Call to outS() of invalid Animation");
+
   return impl_->outS_;
 }
 

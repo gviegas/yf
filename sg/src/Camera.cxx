@@ -106,7 +106,7 @@ class Camera::Impl {
       angle = -delta;
 
     auto side = cross(dir_, worldUp);
-    auto front = rotate3(rotateQ(angle, side)) * dir_;
+    auto front = rotate3(rotateQ(-angle, side)) * dir_;
     dir_ = front.normalize();
     turnX_ += angle;
 
@@ -118,13 +118,13 @@ class Camera::Impl {
   }
 
   void turnLeft(float delta) {
-    dir_ *= rotate3(rotateQ(-delta, worldUp));
+    dir_ *= rotate3(rotateQ(delta, worldUp));
     dir_.normalize();
     pending_ |= View;
   }
 
   void turnRight(float delta) {
-    dir_ *= rotate3(rotateQ(delta, worldUp));
+    dir_ *= rotate3(rotateQ(-delta, worldUp));
     dir_.normalize();
     pending_ |= View;
   }

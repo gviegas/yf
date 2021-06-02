@@ -31,6 +31,7 @@ class Animation::Impl {
 
   void stop() {
     time_ = time_.zero();
+    completed_ = false;
   }
 
   wstring name_;
@@ -196,7 +197,12 @@ class Animation::Impl {
       }
     };
 
+    size_t completeN = 0;
+
     for (const auto& act : actions_) {
+      if (inputs_[act.input].back() <= tm)
+        ++completeN;
+
       switch (act.type) {
       case T:
         updateT(act);
@@ -210,7 +216,7 @@ class Animation::Impl {
       }
     }
 
-    // TODO
+    completed_ = completeN == actions_.size();
   }
 };
 

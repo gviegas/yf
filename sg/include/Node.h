@@ -92,20 +92,11 @@ class Node {
   Mat4f& transform();
   const Mat4f& transform() const;
 
-  /// Gets the node's translation vector.
+  /// Sets the node's TRS properties.
   ///
-  Vec3f& translation();
-  const Vec3f& translation() const;
-
-  /// Gets the node's quaternion rotation.
-  ///
-  Qnionf& rotation();
-  const Qnionf& rotation() const;
-
-  /// Gets the node's scale vector.
-  ///
-  Vec3f& scale();
-  const Vec3f& scale() const;
+  void setT(const Vec3f& t);
+  void setR(const Qnionf& r);
+  void setS(const Vec3f& s);
 
  private:
   class Impl;

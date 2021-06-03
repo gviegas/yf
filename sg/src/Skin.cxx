@@ -5,6 +5,7 @@
 // Copyright © 2021 Gustavo C. Viegas.
 //
 
+#include <cassert>
 #include <stdexcept>
 
 #include "Skin.h"
@@ -62,21 +63,18 @@ size_t Skin::hash() const {
 }
 
 void Skin::setJoint(Joint& joint, size_t index) {
-  if (!impl_)
-    throw runtime_error("Call to setJoint() of invalid Skin");
+  assert(impl_);
   if (index >= impl_->joints_.size())
     throw runtime_error("Skin setJoint() index out of bounds");
   impl_->joints_[index] = &joint;
 }
 
 const vector<Joint*>& Skin::joints() const {
-  if (!impl_)
-    throw runtime_error("Call to joints() of invalid Skin");
+  assert(impl_);
   return impl_->joints_;
 }
 
 const vector<Mat4f>& Skin::inverseBind() const {
-  if (!impl_)
-    throw runtime_error("Call to inverseBind() of invalid Skin");
+  assert(impl_);
   return impl_->inverseBind_;
 }

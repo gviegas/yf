@@ -6,6 +6,7 @@
 //
 
 #include <cstdint>
+#include <cfloat>
 #include <cmath>
 #include <algorithm>
 
@@ -21,7 +22,7 @@ class Camera::Impl {
     : pos_(origin), dir_(target - origin), aspect_(aspect),
       zoom_(fovMax), pending_(None) {
 
-    if (fabsf(dir_.length()) < 1e-6f)
+    if (fabsf(dir_.length()) < FLT_MIN)
       throw invalid_argument("Camera origin and target vectors must differ");
     if (aspect_ <= 0.0f)
       throw invalid_argument("Camera aspect must be greater than zero");
@@ -42,7 +43,7 @@ class Camera::Impl {
     auto dir = position - pos_;
 
     // TODO: consider just returning instead
-    if (fabsf(dir.length()) < 1e-6f)
+    if (fabsf(dir.length()) < FLT_MIN)
       throw invalid_argument("Camera point() position equal current position");
 
     dir.normalize();
@@ -147,7 +148,7 @@ class Camera::Impl {
     pending_ |= Proj;
   }
 
-  const Mat4f& transform() {
+  Mat4f& transform() {
     if (pending_ & View)
       updateView();
     if (pending_ & Proj)
@@ -158,14 +159,14 @@ class Camera::Impl {
     return viewProj_;
   }
 
-  const Mat4f& view() {
+  Mat4f& view() {
     if (pending_ & View)
       updateView();
 
     return view_;
   }
 
-  const Mat4f& projection() {
+  Mat4f& projection() {
     if (pending_ & Proj)
       updateProj();
 
@@ -294,14 +295,14 @@ void Camera::adjust(float aspect) {
   impl_->adjust(aspect);
 }
 
-const Mat4f& Camera::transform() {
+const Mat4f& Camera::transform() const {
   return impl_->transform();
 }
 
-const Mat4f& Camera::view() {
+const Mat4f& Camera::view() const {
   return impl_->view();
 }
 
-const Mat4f& Camera::projection() {
+const Mat4f& Camera::projection() const {
   return impl_->projection();
 }

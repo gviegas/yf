@@ -87,15 +87,15 @@ class Camera {
 
   /// Gets the view-projection matrix.
   ///
-  const Mat4f& transform();
+  const Mat4f& transform() const;
 
   /// Gets the view matrix.
   ///
-  const Mat4f& view();
+  const Mat4f& view() const;
 
   /// Gets the projection matrix.
   ///
-  const Mat4f& projection();
+  const Mat4f& projection() const;
 
  private:
   class Impl;

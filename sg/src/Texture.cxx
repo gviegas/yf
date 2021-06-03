@@ -35,7 +35,7 @@ Texture::Texture(FileType fileType, const wstring& textureFile) {
     throw invalid_argument("Invalid Texture file type");
   }
 
-  impl_ = make_unique<Impl>(data);
+  impl_ = make_shared<Impl>(data);
 }
 
 Texture::Texture() : impl_(nullptr) { }

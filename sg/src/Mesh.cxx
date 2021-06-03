@@ -34,7 +34,7 @@ Mesh::Mesh(FileType fileType, const wstring& meshFile, size_t index) {
     throw invalid_argument("Invalid Mesh file type");
   }
 
-  impl_ = make_unique<Impl>(data);
+  impl_ = make_shared<Impl>(data);
 }
 
 Mesh::Mesh() : impl_(nullptr) { }

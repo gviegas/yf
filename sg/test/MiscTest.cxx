@@ -388,7 +388,9 @@ struct MiscTest : public Test {
     //Collection coll(L"tmp/fullscene2.gltf");
     //Collection coll(L"tmp/fullscene.gltf");
     Collection coll;
-    coll.load(L"tmp/skinning.gltf");
+    //coll.load(L"tmp/animation.gltf");
+    //coll.load(L"tmp/animation2.gltf");
+    coll.load(L"tmp/animation3.gltf");
 
     // Print
     wcout << "\nCollection:";
@@ -499,52 +501,6 @@ struct MiscTest : public Test {
     return true;
 #endif
 
-    auto animate = [&] {
-      Mat4f t, r, s;
-
-      struct TRS { Vec3f t; Qnionf r; Vec3f s; };
-      const TRS trs[]{
-        {
-          {0.0f, -3.0f, 0.0f},
-          {1.0f, {}},
-          {1.0f, 1.0f, 1.0f}
-        },
-        {
-          {0.0f, 1.0f, 0.0f},
-          {0.9347f, {0.2910f, 0.1584f, 0.1285f}},
-          {1.0f, 1.0f, 1.0f}
-        },
-        {
-          {0.0f, 1.0f, 0.0f},
-          {1.0f, {}},
-          {1.0f, 1.0f, 1.0f}
-        },
-        {
-          {0.0f, 1.0f, 0.0f},
-          {1.0f, {}},
-          {1.0f, 1.0f, 1.0f}
-        },
-        {
-          {0.0f, 1.0f, 0.0f},
-          {1.0f, {-0.3131f, -0.1704f, -0.1383f}},
-          {1.0f, 1.0f, 1.0f}
-        },
-        {
-          {0.0f, 1.0f, 0.0f},
-          {1.0f, {}},
-          {1.0f, 1.0f, 1.0f}
-        }};
-
-      size_t i = 0;
-      for (const auto& jt : coll.skins()[0].joints()) {
-        t = translate(trs[i].t[0], trs[i].t[1], trs[i].t[2]);
-        r = rotate(trs[i].r);
-        s = scale(trs[i].s[0], trs[i].s[1], trs[i].s[2]);
-        jt->transform() = t * r * s;
-        ++i;
-      }
-    };
-
     // Render
     auto win = WS_NS::createWindow(480, 400, L"Misc 4");
     View view(win.get());
@@ -555,7 +511,9 @@ struct MiscTest : public Test {
     scn->camera().place({10.0f, 10.0f, 10.0f});
     scn->camera().point({});
 
-    view.loop(*scn, 60, [&](auto) {
+    bool isPlaying = false;
+
+    view.loop(*scn, 60, [&](auto elapsedTime) {
       if (input.quit)
         return false;
 
@@ -597,13 +555,21 @@ struct MiscTest : public Test {
             break;
           }
         }
-
-        if (scn->name() == L"Skinning")
-          animate();
-
-        key = WS_NS::KeyCodeUnknown;
+      } else if (key == WS_NS::KeyCodeZ) {
+        if (!coll.animations().empty())
+          isPlaying = true;
+      } else if (key == WS_NS::KeyCodeX) {
+        if (!coll.animations().empty()) {
+          isPlaying = false;
+          coll.animations().back().stop();
+        }
       }
 
+      if (isPlaying)
+        wcout << "\n completed ? "
+              << (coll.animations().back().play(elapsedTime) ? "no" : "yes");
+
+      key = WS_NS::KeyCodeUnknown;
       return true;
     });
 

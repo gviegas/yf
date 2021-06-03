@@ -53,14 +53,14 @@ void Model::setSkin(Skin& skin) {
   impl_->skin_ = skin;
 }
 
-Mesh& Model::mesh() {
+Mesh Model::mesh() {
   return impl_->mesh_;
 }
 
-Material& Model::material() {
+Material Model::material() {
   return impl_->material_;
 }
 
-Skin& Model::skin() {
+Skin Model::skin() {
   return impl_->skin_;
 }

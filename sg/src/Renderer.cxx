@@ -245,9 +245,9 @@ void Renderer::render(Scene& scene, CG_NS::Target& target) {
         enc.setState(resource->state.get());
         enc.setDcTable(ModelTable, alloc);
 
-        auto& skin = kv.second[0]->skin();
-        auto& matl = kv.second[0]->material();
-        auto& mesh = kv.second[0]->mesh();
+        auto skin = kv.second[0]->skin();
+        auto matl = kv.second[0]->material();
+        auto mesh = kv.second[0]->mesh();
         // TODO: ?
         const auto inv = invert(transforms_[kv.second.front()->parent()]);
 

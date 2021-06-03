@@ -38,9 +38,9 @@ class Model : public Node {
 
   /// Getters.
   ///
-  Mesh& mesh();
-  Material& material();
-  Skin& skin();
+  Mesh mesh();
+  Material material();
+  Skin skin();
 
  private:
   class Impl;

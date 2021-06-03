@@ -118,21 +118,22 @@ class Animation::Impl {
       const auto& inp = inputs_[action.input];
       const auto& out = outT_[action.output];
       const auto seq = getKeyframes(inp);
-      auto& t = action.target->translation();
+      auto node = action.target;
 
       switch (action.method) {
       case Step:
         if (tm-inp[seq.first] < inp[seq.second]-tm)
-          t = out[seq.first];
+          node->setT(out[seq.first]);
         else
-          t = out[seq.second];
+          node->setT(out[seq.second]);
         break;
       case Linear:
         if (seq.first != seq.second)
-          t = lerp(out[seq.first], out[seq.second],
-                   (tm-inp[seq.first]) / (inp[seq.second]-inp[seq.first]));
+          node->setT(lerp(out[seq.first], out[seq.second],
+                          (tm - inp[seq.first]) /
+                          (inp[seq.second] - inp[seq.first])));
         else
-          t = out[seq.first];
+          node->setT(out[seq.first]);
         break;
       case Cubic:
         // TODO
@@ -145,21 +146,22 @@ class Animation::Impl {
       const auto& inp = inputs_[action.input];
       const auto& out = outR_[action.output];
       const auto seq = getKeyframes(inp);
-      auto& r = action.target->rotation();
+      auto node = action.target;
 
       switch (action.method) {
       case Step:
         if (tm-inp[seq.first] < inp[seq.second]-tm)
-          r = out[seq.first];
+          node->setR(out[seq.first]);
         else
-          r = out[seq.second];
+          node->setR(out[seq.second]);
         break;
       case Linear:
         if (seq.first != seq.second)
-          r = slerp(out[seq.first], out[seq.second],
-                    (tm-inp[seq.first]) / (inp[seq.second]-inp[seq.first]));
+          node->setR(slerp(out[seq.first], out[seq.second],
+                           (tm - inp[seq.first]) /
+                           (inp[seq.second] - inp[seq.first])));
         else
-          r = out[seq.first];
+          node->setR(out[seq.first]);
         break;
       case Cubic:
         // TODO
@@ -172,21 +174,22 @@ class Animation::Impl {
       const auto& inp = inputs_[action.input];
       const auto& out = outS_[action.output];
       const auto seq = getKeyframes(inp);
-      auto& s = action.target->scale();
+      auto node = action.target;
 
       switch (action.method) {
       case Step:
         if (tm-inp[seq.first] < inp[seq.second]-tm)
-          s = out[seq.first];
+          node->setS(out[seq.first]);
         else
-          s = out[seq.second];
+          node->setS(out[seq.second]);
         break;
       case Linear:
         if (seq.first != seq.second)
-          s = lerp(out[seq.first], out[seq.second],
-                   (tm-inp[seq.first]) / (inp[seq.second]-inp[seq.first]));
+          node->setS(lerp(out[seq.first], out[seq.second],
+                          (tm - inp[seq.first]) /
+                          (inp[seq.second] - inp[seq.first])));
         else
-          s = out[seq.first];
+          node->setS(out[seq.first]);
         break;
       case Cubic:
         // TODO

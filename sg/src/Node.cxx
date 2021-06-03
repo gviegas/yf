@@ -247,31 +247,19 @@ class Node::Impl {
     return transform_;
   }
 
-  Vec3f& translation() {
+  void setT(const Vec3f& t) {
+    t_ = t;
     changed_ = true;
-    return t_;
   }
 
-  const Vec3f& translation() const {
-    return t_;
-  }
-
-  Qnionf& rotation() {
+  void setR(const Qnionf& r) {
+    r_ = r;
     changed_ = true;
-    return r_;
   }
 
-  const Qnionf& rotation() const {
-    return r_;
-  }
-
-  Vec3f& scale() {
+  void setS(const Vec3f& s) {
+    s_ = s;
     changed_ = true;
-    return s_;
-  }
-
-  const Vec3f& scale() const {
-    return s_;
   }
 
  private:
@@ -379,26 +367,14 @@ const Mat4f& Node::transform() const {
   return impl_->transform();
 }
 
-Vec3f& Node::translation() {
-  return impl_->translation();
+void Node::setT(const Vec3f& t) {
+  impl_->setT(t);
 }
 
-const Vec3f& Node::translation() const {
-  return impl_->translation();
+void Node::setR(const Qnionf& r) {
+  impl_->setR(r);
 }
 
-Qnionf& Node::rotation() {
-  return impl_->rotation();
-}
-
-const Qnionf& Node::rotation() const {
-  return impl_->rotation();
-}
-
-Vec3f& Node::scale() {
-  return impl_->scale();
-}
-
-const Vec3f& Node::scale() const {
-  return impl_->scale();
+void Node::setS(const Vec3f& s) {
+  impl_->setS(s);
 }

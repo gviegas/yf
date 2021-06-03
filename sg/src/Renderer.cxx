@@ -260,7 +260,7 @@ void Renderer::render(Scene& scene, CG_NS::Target& target) {
           len = Mat4f::dataSize();
 
           const auto m = mdl->isLeaf() ?
-                         transforms_[mdl->parent()] * mdl->transform() :
+                         transforms_[mdl->parent()] * mdl->localTransform() :
                          transforms_[mdl];
           unifBuffer_->write(off, len, m.data());
           off += len;
@@ -289,7 +289,7 @@ void Renderer::render(Scene& scene, CG_NS::Target& target) {
           for (const auto& jt : skin.joints()) {
             jm[i] = inv;
             jm[i] *= jt->isLeaf() ?
-                     transforms_[jt->parent()] * jt->transform() :
+                     transforms_[jt->parent()] * jt->localTransform() :
                      transforms_[jt];
             jm[i] *= skin.inverseBind()[i];
             ++i;
@@ -413,14 +413,14 @@ void Renderer::processGraph(Scene& scene) {
   if (scene.isLeaf())
     return;
 
-  transforms_.emplace(&scene, scene.transform());
+  transforms_.emplace(&scene, scene.localTransform());
 
   scene.traverse([&](Node& node) {
     // Transform
     if (!node.isLeaf()) {
       auto it = transforms_.find(node.parent());
       assert(it != transforms_.end());
-      transforms_.emplace(&node, it->second * node.transform());
+      transforms_.emplace(&node, it->second * node.localTransform());
     }
 
     // Model

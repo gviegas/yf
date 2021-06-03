@@ -83,6 +83,10 @@ class Node {
   std::wstring& name();
   const std::wstring& name() const;
 
+  /// Gets the node's combined local transform.
+  ///
+  const Mat4f& localTransform() const;
+
   /// Gets the node's transformation matrix.
   ///
   Mat4f& transform();

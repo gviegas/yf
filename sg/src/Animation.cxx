@@ -7,7 +7,7 @@
 
 #include <cfloat>
 #include <cmath>
-#include <stdexcept>
+#include <cassert>
 
 #include "Animation.h"
 #include "Node.h"
@@ -251,71 +251,51 @@ bool Animation::operator!=(const Animation& other) const {
 }
 
 wstring& Animation::name() {
-  if (!impl_)
-    throw runtime_error("Call to name() of invalid Animation");
-
+  assert(impl_);
   return impl_->name_;
 }
 
 const wstring& Animation::name() const {
-  if (!impl_)
-    throw runtime_error("Call to name() of invalid Animation");
-
+  assert(impl_);
   return impl_->name_;
 }
 
 vector<Animation::Action>& Animation::actions() {
-  if (!impl_)
-    throw runtime_error("Call to actions() of invalid Animation");
-
+  assert(impl_);
   return impl_->actions_;
 }
 
 const vector<Animation::Action>& Animation::actions() const {
-  if (!impl_)
-    throw runtime_error("Call to actions() of invalid Animation");
-
+  assert(impl_);
   return impl_->actions_;
 }
 
 const vector<Animation::Timeline>& Animation::inputs() const {
-  if (!impl_)
-    throw runtime_error("Call to inputs() of invalid Animation");
-
+  assert(impl_);
   return impl_->inputs_;
 }
 
 const vector<Animation::Translation>& Animation::outT() const {
-  if (!impl_)
-    throw runtime_error("Call to outT() of invalid Animation");
-
+  assert(impl_);
   return impl_->outT_;
 }
 
 const vector<Animation::Rotation>& Animation::outR() const {
-  if (!impl_)
-    throw runtime_error("Call to outR() of invalid Animation");
-
+  assert(impl_);
   return impl_->outR_;
 }
 
 const vector<Animation::Scale>& Animation::outS() const {
-  if (!impl_)
-    throw runtime_error("Call to outS() of invalid Animation");
-
+  assert(impl_);
   return impl_->outS_;
 }
 
 bool Animation::play(chrono::nanoseconds elapsedTime) {
-  if (!impl_)
-    throw runtime_error("Call to play() of invalid Animation");
-
+  assert(impl_);
   return impl_->play(elapsedTime);
 }
 
 void Animation::stop() {
-  if (!impl_)
-    throw runtime_error("Call to stop() of invalid Animation");
-
+  assert(impl_);
   impl_->stop();
 }

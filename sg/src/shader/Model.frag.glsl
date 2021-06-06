@@ -39,6 +39,7 @@ layout(set=1, binding=7) uniform sampler2D occlusionTex;
 layout(set=1, binding=8) uniform sampler2D emissiveTex;
 
 layout(location=0) in Vertex {
+  vec3 position;
   vec4 tangent;
   vec3 normal;
   vec2 texCoord0;

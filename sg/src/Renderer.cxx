@@ -67,8 +67,9 @@ constexpr Shader Mdl32Shaders[]{
 ///
 /// (1) view : Mat4f
 /// (2) proj : Mat4f
+/// (3) view-proj: Mat4f
 ///
-constexpr uint64_t GlobalLength = Mat4f::dataSize() << 1;
+constexpr uint64_t GlobalLength = Mat4f::dataSize() * 3;
 
 /// Model (per-instance) uniform.
 ///
@@ -182,7 +183,9 @@ void Renderer::render(Scene& scene, CG_NS::Target& target) {
   off += len;
   unifBuffer_->write(off, len, scene.camera().projection().data());
   off += len;
-  // TODO: other global data (light, viewport, ortho matrix, ...)
+  unifBuffer_->write(off, len, scene.camera().transform().data());
+  off += len;
+  // TODO: other global data
 
   glbTable_->write(0, MainUniform, 0, *unifBuffer_, 0, GlobalLength);
 

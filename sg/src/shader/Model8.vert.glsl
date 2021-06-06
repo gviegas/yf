@@ -60,6 +60,7 @@ layout(location=6) in uvec4 joints0;
 layout(location=7) in vec4 weights0;
 
 layout(location=0) out Vertex {
+  vec3 position;
   vec4 tangent;
   vec3 normal;
   vec2 texCoord0;
@@ -96,7 +97,9 @@ vec3 getNormal() {
   return norm;
 }
 
-void setVertex() {
+void setVertex(vec4 pos) {
+  vertex.position = pos.xyz / pos.w;
+
   if ((check.mask & TangentBit) != 0)
     vertex.tangent = tangent;
   else
@@ -125,6 +128,7 @@ void setVertex() {
 }
 
 void main() {
-  gl_Position = instance[gl_InstanceIndex].mvp * getPosition();
-  setVertex();
+  vec4 pos = instance[gl_InstanceIndex].m * getPosition();
+  setVertex(pos);
+  gl_Position = global.vp * pos;
 }

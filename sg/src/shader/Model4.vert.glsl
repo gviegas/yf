@@ -32,6 +32,7 @@ layout(set=1, binding=0) uniform Instance {
   mat4 m;
   mat4 mv;
   mat4 mvp;
+  mat4 nm;
   // TODO...
 } instance[InstanceN];
 
@@ -45,6 +46,7 @@ layout(set=1, binding=1) uniform Check {
 ///
 layout(set=1, binding=2) uniform Skinning {
   mat4 jm[JointN];
+  mat4 njm[JointN];
 } skinning;
 
 layout(location=0) in vec3 position;

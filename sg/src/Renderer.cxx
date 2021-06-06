@@ -75,8 +75,9 @@ constexpr uint64_t GlobalLength = Mat4f::dataSize() << 1;
 /// (1) model : Mat4f
 /// (2) model-view : Mat4f
 /// (3) model-view-proj : Mat4f
+/// (4) normal matrix : Mat4f
 ///
-constexpr uint64_t InstanceLength = Mat4f::dataSize() * 3;
+constexpr uint64_t InstanceLength = Mat4f::dataSize() << 2;
 
 /// Check list uniform.
 ///
@@ -248,7 +249,7 @@ void Renderer::render(Scene& scene, CG_NS::Target& target) {
         auto skin = kv.second[0]->skin();
         auto matl = kv.second[0]->material();
         auto mesh = kv.second[0]->mesh();
-        // TODO: ?
+        // TODO: Cache this
         const auto inv = invert(transforms_[kv.second.front()->parent()]);
 
         // Update instance-specific uniform buffer
@@ -271,6 +272,10 @@ void Renderer::render(Scene& scene, CG_NS::Target& target) {
 
           const auto mvp = scene.camera().projection() * mv;
           unifBuffer_->write(off, len, mvp.data());
+          off += len;
+
+          const auto nm = transpose(invert(m));
+          unifBuffer_->write(off, len, nm.data());
           off += len;
 
           // TODO: other per-instance data

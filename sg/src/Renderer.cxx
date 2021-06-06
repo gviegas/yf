@@ -75,8 +75,9 @@ constexpr uint64_t GlobalLength = Mat4f::dataSize() << 1;
 /// (1) model : Mat4f
 /// (2) model-view : Mat4f
 /// (3) model-view-proj : Mat4f
+/// (4) normal matrix : Mat4f
 ///
-constexpr uint64_t InstanceLength = Mat4f::dataSize() * 3;
+constexpr uint64_t InstanceLength = Mat4f::dataSize() << 2;
 
 /// Check list uniform.
 ///
@@ -89,9 +90,10 @@ constexpr uint64_t CheckLength = 4 + CheckAlign;
 /// Skinning uniform.
 ///
 /// (1) joint matrices : Mat4f[JointN]
+/// (2) normal joint matrices: Mat4f[JointN]
 ///
 constexpr uint64_t JointN = 20;
-constexpr uint64_t SkinningLength = Mat4f::dataSize() * JointN;
+constexpr uint64_t SkinningLength = Mat4f::dataSize() * (JointN << 1);
 
 /// Material uniform.
 ///
@@ -248,7 +250,7 @@ void Renderer::render(Scene& scene, CG_NS::Target& target) {
         auto skin = kv.second[0]->skin();
         auto matl = kv.second[0]->material();
         auto mesh = kv.second[0]->mesh();
-        // TODO: ?
+        // TODO: Cache this
         const auto inv = invert(transforms_[kv.second.front()->parent()]);
 
         // Update instance-specific uniform buffer
@@ -273,6 +275,10 @@ void Renderer::render(Scene& scene, CG_NS::Target& target) {
           unifBuffer_->write(off, len, mvp.data());
           off += len;
 
+          const auto nm = transpose(invert(m));
+          unifBuffer_->write(off, len, nm.data());
+          off += len;
+
           // TODO: other per-instance data
 
           resource->table->write(alloc, MainUniform, i, *unifBuffer_, beg,
@@ -282,6 +288,8 @@ void Renderer::render(Scene& scene, CG_NS::Target& target) {
         // Update skinning data
         array<Mat4f, JointN> jm;
         jm.fill(Mat4f::identity());
+        array<Mat4f, JointN> njm;
+        njm.fill(Mat4f::identity());
 
         if (skin) {
           assert(skin.joints().size() < JointN);
@@ -292,13 +300,18 @@ void Renderer::render(Scene& scene, CG_NS::Target& target) {
                      transforms_[jt->parent()] * jt->localTransform() :
                      transforms_[jt];
             jm[i] *= skin.inverseBind()[i];
+            njm[i] = transpose(invert(jm[i]));
             ++i;
           }
         }
 
         beg = off;
         len = Mat4f::dataSize() * JointN;
+
         unifBuffer_->write(off, len, jm.data());
+        off += len;
+
+        unifBuffer_->write(off, len, njm.data());
         off += len;
 
         resource->table->write(alloc, SkinningUniform, 0, *unifBuffer_, beg,

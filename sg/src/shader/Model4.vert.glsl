@@ -32,6 +32,7 @@ layout(set=1, binding=0) uniform Instance {
   mat4 m;
   mat4 mv;
   mat4 mvp;
+  mat4 nm;
   // TODO...
 } instance[InstanceN];
 
@@ -45,6 +46,7 @@ layout(set=1, binding=1) uniform Check {
 ///
 layout(set=1, binding=2) uniform Skinning {
   mat4 jm[JointN];
+  mat4 njm[JointN];
 } skinning;
 
 layout(location=0) in vec3 position;
@@ -79,6 +81,20 @@ vec4 getPosition() {
   return pos;
 }
 
+vec3 getNormal() {
+  vec3 norm = normal;
+
+  if ((check.mask & NormalBit) != 0) {
+    mat4 nsm = weights0.x * skinning.njm[joints0.x] +
+               weights0.y * skinning.njm[joints0.y] +
+               weights0.z * skinning.njm[joints0.z] +
+               weights0.w * skinning.njm[joints0.w];
+    norm = normalize(mat3(nsm) * norm);
+  }
+
+  return norm;
+}
+
 void setVertex() {
   if ((check.mask & TangentBit) != 0)
     vertex.tangent = tangent;
@@ -86,7 +102,8 @@ void setVertex() {
     vertex.tangent = vec4(0.0);
 
   if ((check.mask & NormalBit) != 0)
-    vertex.normal = normal;
+    vertex.normal =
+      normalize(vec3(instance[gl_InstanceIndex].nm * vec4(getNormal(), 0.0)));
   else
     vertex.normal = vec3(0.0);
 

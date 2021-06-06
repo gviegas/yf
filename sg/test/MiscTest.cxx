@@ -31,6 +31,7 @@ struct MiscTest : public Test {
     bool turnL, turnR, turnU, turnD;
     bool zoomI, zoomO;
     bool place, point;
+    bool mode;
     bool quit;
   };
 
@@ -88,6 +89,9 @@ struct MiscTest : public Test {
       break;
     case WS_NS::KeyCodeSpace:
       input.point = b;
+      break;
+    case WS_NS::KeyCodeM:
+      input.mode = b;
       break;
     case WS_NS::KeyCodeEsc:
       input.quit = b;
@@ -390,7 +394,8 @@ struct MiscTest : public Test {
     Collection coll;
     //coll.load(L"tmp/animation.gltf");
     //coll.load(L"tmp/animation2.gltf");
-    coll.load(L"tmp/animation3.gltf");
+    //coll.load(L"tmp/animation3.gltf");
+    coll.load(L"tmp/cube.gltf");
 
     // Print
     wcout << "\nCollection:";
@@ -511,6 +516,15 @@ struct MiscTest : public Test {
     scn->camera().place({10.0f, 10.0f, 10.0f});
     scn->camera().point({});
 
+    Node* obj = nullptr;
+    for (auto& nd : coll.nodes()) {
+      if (nd->name() == L"Cube") {
+        obj = nd.get();
+        break;
+      }
+    }
+
+    bool camMode = true;
     bool isPlaying = false;
 
     view.loop(*scn, 60, [&](auto elapsedTime) {
@@ -519,43 +533,67 @@ struct MiscTest : public Test {
 
       auto& cam = scn->camera();
 
-      if (input.moveF)
-        cam.moveForward(deltaM);
-      if (input.moveB)
-        cam.moveBackward(deltaM);
-      if (input.moveL)
-        cam.moveLeft(deltaM);
-      if (input.moveR)
-        cam.moveRight(deltaM);
-      if (input.moveU)
-        cam.moveUp(deltaM);
-      if (input.moveD)
-        cam.moveDown(deltaM);
-      if (input.turnL)
-        cam.turnLeft(deltaT);
-      if (input.turnR)
-        cam.turnRight(deltaT);
-      if (input.turnU)
-        cam.turnUp(deltaT);
-      if (input.turnD)
-        cam.turnDown(deltaT);
-      if (input.zoomI)
-        cam.zoomIn(deltaZ);
-      if (input.zoomO)
-        cam.zoomOut(deltaZ);
-      if (input.place)
-        cam.place({0.0f, 0.0f, 20.0f});
-      if (input.point)
-        cam.point({});
+      if (input.mode) {
+        camMode = !camMode;
+        input.mode = false;
+      }
 
-      if (key == WS_NS::KeyCodeTab) {
-        for (auto& nd : coll.nodes()) {
-          if (nd->name() == L"Cube") {
-            nd->transform() *= translate(0.0f, 1.0f, 0.0f);
-            break;
-          }
-        }
-      } else if (key == WS_NS::KeyCodeZ) {
+      if (camMode || !obj) {
+        if (input.moveF)
+          cam.moveForward(deltaM);
+        if (input.moveB)
+          cam.moveBackward(deltaM);
+        if (input.moveL)
+          cam.moveLeft(deltaM);
+        if (input.moveR)
+          cam.moveRight(deltaM);
+        if (input.moveU)
+          cam.moveUp(deltaM);
+        if (input.moveD)
+          cam.moveDown(deltaM);
+        if (input.turnL)
+          cam.turnLeft(deltaT);
+        if (input.turnR)
+          cam.turnRight(deltaT);
+        if (input.turnU)
+          cam.turnUp(deltaT);
+        if (input.turnD)
+          cam.turnDown(deltaT);
+        if (input.zoomI)
+          cam.zoomIn(deltaZ);
+        if (input.zoomO)
+          cam.zoomOut(deltaZ);
+        if (input.place)
+          cam.place({0.0f, 0.0f, 20.0f});
+        if (input.point)
+          cam.point({});
+      } else {
+        auto& xform = obj->transform();
+        if (input.moveF)
+          xform[3] += {0.0f, 0.0f, 0.1f, 0.0f};
+        if (input.moveB)
+          xform[3] += {0.0f, 0.0f, -0.1f, 0.0f};
+        if (input.moveL)
+          xform[3] += {-0.1f, 0.0f, 0.0f, 0.0f};
+        if (input.moveR)
+          xform[3] += {0.1f, 0.0f, 0.0f, 0.0f};
+        if (input.moveU)
+          xform[3] += {0.0f, 0.1f, 0.0f, 0.0f};
+        if (input.moveD)
+          xform[3] += {0.0f, -0.1f, 0.0f, 0.0f};
+        if (input.turnL)
+          xform *= rotate(rotateQY(0.1f));
+        if (input.turnR)
+          xform *= rotate(rotateQY(-0.1f));
+        if (input.turnU)
+          xform *= rotate(rotateQX(-0.1f));
+        if (input.turnD)
+          xform *= rotate(rotateQX(0.1f));
+        if (input.place)
+          xform[3] = {0.0f, 0.0f, 0.0f, 1.0f};
+      }
+
+      if (key == WS_NS::KeyCodeZ) {
         if (!coll.animations().empty())
           isPlaying = true;
       } else if (key == WS_NS::KeyCodeX) {

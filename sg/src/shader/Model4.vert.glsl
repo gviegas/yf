@@ -66,6 +66,7 @@ layout(location=0) out Vertex {
   vec2 texCoord0;
   vec2 texCoord1;
   vec4 color0;
+  vec3 eye;
   // TODO...
 } vertex;
 
@@ -125,6 +126,8 @@ void setVertex(vec4 pos) {
     vertex.color0 = color0;
   else
     vertex.color0 = vec4(1.0);
+
+  vertex.eye = global.v[3].xyz - vec3(global.v * pos);
 }
 
 void main() {

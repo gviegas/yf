@@ -45,6 +45,7 @@ layout(location=0) in Vertex {
   vec2 texCoord0;
   vec2 texCoord1;
   vec4 color0;
+  vec3 eye;
   // TODO...
 } vertex;
 

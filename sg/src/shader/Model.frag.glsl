@@ -16,6 +16,11 @@ const uint NormalTexBit     = 0x0400;
 const uint OcclusionTexBit  = 0x0800;
 const uint EmissiveTexBit   = 0x1000;
 
+// TODO: Punctual lights
+const vec3 LightDirection = vec3(-0.7527726527, -0.6199304199, -0.2214037214);
+const vec3 LightIntensity = vec3(6.0);
+const vec3 LightColor = vec3(1.0);
+
 /// Check list data.
 ///
 layout(set=1, binding=1) uniform Check {
@@ -90,8 +95,32 @@ vec4 getColor() {
     clr = textureLod(colorTex, vertex.texCoord0, 0.0);
   clr *= material.colorFac;
 
-  // TODO...
+  // TODO: metal-roughness sampling and normal/occlusion/emissive maps
 
+  vec3 v = normalize(vertex.eye);
+  vec3 l = normalize(-LightDirection);
+  vec3 n = normalize(vertex.normal);
+  vec3 h = normalize(l + v);
+
+  float VdotH = max(dot(v, h), 0.0);
+  float NdotV = max(dot(n, v), 0.0);
+  float NdotL = max(dot(n, l), 0.0);
+  float NdotH = max(dot(n, h), 0.0);
+
+  float metallic = material.metallicFac;
+  float roughness = material.roughnessFac;
+
+  vec3 ior = vec3(0.04);
+  vec3 albedo = mix(clr.rgb * (vec3(1.0) - ior), vec3(0.0), metallic);
+  vec3 f0 = mix(ior, clr.rgb, metallic);
+  float alphaRoughSq = roughness * roughness;
+  alphaRoughSq *= alphaRoughSq;
+
+  vec3 fTerm = fresnelF(f0, VdotH);
+  vec3 diffuse = diffuseBRDF(albedo, fTerm);
+  vec3 specular = specularBRDF(fTerm, NdotV, NdotL, NdotH, alphaRoughSq);
+
+  clr.xyz = (diffuse + specular) * LightIntensity * LightColor * NdotL;
   return clr;
 }
 

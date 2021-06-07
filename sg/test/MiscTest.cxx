@@ -394,8 +394,8 @@ struct MiscTest : public Test {
     Collection coll;
     //coll.load(L"tmp/animation.gltf");
     //coll.load(L"tmp/animation2.gltf");
-    //coll.load(L"tmp/animation3.gltf");
-    coll.load(L"tmp/cube.gltf");
+    coll.load(L"tmp/animation3.gltf");
+    //coll.load(L"tmp/cube.gltf");
 
     // Print
     wcout << "\nCollection:";

@@ -86,7 +86,7 @@ vec4 getPosition() {
 vec3 getNormal() {
   vec3 norm = normal;
 
-  if ((check.mask & NormalBit) != 0) {
+  if ((check.mask & SkinBit) != 0) {
     mat4 nsm = weights0.x * skinning.njm[joints0.x] +
                weights0.y * skinning.njm[joints0.y] +
                weights0.z * skinning.njm[joints0.z] +

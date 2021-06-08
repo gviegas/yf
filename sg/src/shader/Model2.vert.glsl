@@ -127,7 +127,7 @@ void setVertex(vec4 pos) {
   else
     vertex.color0 = vec4(1.0);
 
-  vertex.eye = global.v[3].xyz - vec3(global.v * pos);
+  vertex.eye = global.v[3].xyz - pos.xyz;
 }
 
 void main() {

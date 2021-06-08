@@ -95,7 +95,16 @@ vec4 getColor() {
     clr = textureLod(colorTex, vertex.texCoord0, 0.0);
   clr *= material.colorFac;
 
-  // TODO: metal-roughness sampling and normal/occlusion/emissive maps
+  float metallic = material.metallicFac;
+  float roughness = material.roughnessFac;
+
+  if ((check.mask & MetalRoughTexBit) != 0) {
+    vec4 mr = textureLod(metalRoughTex, vertex.texCoord0, 0.0);
+    metallic *= mr.b;
+    roughness *= mr.g;
+  }
+
+  // TODO: normal/occlusion/emissive maps
 
   vec3 v = normalize(vertex.eye);
   vec3 l = normalize(-LightDirection);
@@ -106,9 +115,6 @@ vec4 getColor() {
   float NdotV = max(dot(n, v), 0.0);
   float NdotL = max(dot(n, l), 0.0);
   float NdotH = max(dot(n, h), 0.0);
-
-  float metallic = material.metallicFac;
-  float roughness = material.roughnessFac;
 
   vec3 ior = vec3(0.04);
   vec3 albedo = mix(clr.rgb * (vec3(1.0) - ior), vec3(0.0), metallic);

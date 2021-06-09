@@ -5,6 +5,7 @@
 // Copyright © 2020-2021 Gustavo C. Viegas.
 //
 
+#include <cmath>
 #include <iostream>
 #include <chrono>
 
@@ -618,26 +619,69 @@ struct MiscTest : public Test {
   }
 
   bool misc5() {
+    struct Collision {
+      Node* node1;
+      Node* node2;
+      float prevDist;
+
+      Collision(Node* node1, Node* node2) : node1(node1), node2(node2) { }
+
+      bool check(const Vec3f& t1, const Vec3f& t2) {
+        if (!node1 || !node2)
+          return false;
+
+        const auto radius = 1.0f;
+        const auto& xform1 = node1->localTransform();
+        const auto& xform2 = node2->localTransform();
+        const auto x1 = xform1[3][0] + t1[0];
+        const auto y1 = xform1[3][1] + t1[1];
+        const auto z1 = xform1[3][2] + t1[2];
+        const auto x2 = xform2[3][0] + t2[0];
+        const auto y2 = xform2[3][1] + t2[1];
+        const auto z2 = xform2[3][2] + t2[2];
+
+        const Vec3f p{x2 - x1, y2 - y1, z2 - z1};
+        const auto dist = p.length();
+
+        wprintf(L"\ndist: %f\n", dist);
+
+        if (dist < radius * 2.0) {
+          if (prevDist < dist) {
+            prevDist = dist;
+            return false;
+          }
+          return true;
+        }
+        return false;
+      }
+    };
+
     Collection coll;
     coll.load(L"tmp/cube.gltf");
 
     // Dup.
-    Node* obj = nullptr;
+    Node* node1 = nullptr;
+    Node* node2 = nullptr;
+    Node* node = nullptr;
     for (auto& nd : coll.nodes()) {
       if (nd->name() == L"Cube") {
         Model* mdl = dynamic_cast<Model*>(nd.get());
         auto mesh = mdl->mesh();
         auto matl = mdl->material();
         Skin skin{};
-        obj = new Model(mesh, matl, skin);
-        nd->parent()->insert(*obj);
-        obj->name() = L"Cube2";
-        obj->transform() = translate(2.0f, 0.0f, 0.0f);
+        node = new Model(mesh, matl, skin);
+        nd->parent()->insert(*node);
+        node->name() = L"Cube2";
+        node->transform() = translate(2.0f, 0.0f, 0.0f);
+        node1 = nd.get();
+        node2 = node;
         break;
       }
     }
-    if (obj)
-      coll.nodes().push_back(unique_ptr<Model>(static_cast<Model*>(obj)));
+    if (node)
+      coll.nodes().push_back(unique_ptr<Model>(static_cast<Model*>(node)));
+
+    Collision collision(node1, node2);
 
     // Render
     auto win = WS_NS::createWindow(640, 480, L"Misc 5");
@@ -663,18 +707,12 @@ struct MiscTest : public Test {
         input.mode = false;
       }
 
-      if (input.next && obj) {
-        wstring name = obj->name() == L"Cube" ? L"Cube2" : L"Cube";
-        for (auto& nd : coll.nodes()) {
-          if (nd->name() == name) {
-            obj = nd.get();
-            break;
-          }
-        }
+      if (input.next && node) {
+        node = node == node1 ? node2 : node1;
         input.next = false;
       }
 
-      if (camMode || !obj) {
+      if (camMode || !node) {
         if (input.moveF)
           cam.moveForward(deltaM);
         if (input.moveB)
@@ -704,29 +742,39 @@ struct MiscTest : public Test {
         if (input.point)
           cam.point({});
       } else {
-        auto& xform = obj->transform();
+        Vec3f t;
+        Qnionf r(1.0f, {});
         if (input.moveF)
-          xform[3] += {0.0f, 0.0f, 0.1f, 0.0f};
+          t += {0.0f, 0.0f, 0.1f};
         if (input.moveB)
-          xform[3] += {0.0f, 0.0f, -0.1f, 0.0f};
+          t += {0.0f, 0.0f, -0.1f};
         if (input.moveL)
-          xform[3] += {-0.1f, 0.0f, 0.0f, 0.0f};
+          t += {-0.1f, 0.0f, 0.0f};
         if (input.moveR)
-          xform[3] += {0.1f, 0.0f, 0.0f, 0.0f};
+          t += {0.1f, 0.0f, 0.0f};
         if (input.moveU)
-          xform[3] += {0.0f, 0.1f, 0.0f, 0.0f};
+          t += {0.0f, 0.1f, 0.0f};
         if (input.moveD)
-          xform[3] += {0.0f, -0.1f, 0.0f, 0.0f};
+          t += {0.0f, -0.1f, 0.0f};
         if (input.turnL)
-          xform *= rotate(rotateQY(0.1f));
+          r *= rotateQY(0.1f);
         if (input.turnR)
-          xform *= rotate(rotateQY(-0.1f));
+          r *= rotateQY(-0.1f);
         if (input.turnU)
-          xform *= rotate(rotateQX(-0.1f));
+          r *= rotateQX(-0.1f);
         if (input.turnD)
-          xform *= rotate(rotateQX(0.1f));
+          r *= rotateQX(0.1f);
         if (input.place)
-          xform[3] = {0.0f, 0.0f, 0.0f, 1.0f};
+          t = {0.0f, 0.0f, 0.0f};
+
+        bool collid;
+        if (node == node1)
+          collid = collision.check(t, {});
+        else
+          collid = collision.check({}, t);
+
+        if (!collid)
+          node->transform() *= translate(t) * rotate(r);
       }
 
       if (key == WS_NS::KeyCodeZ) {

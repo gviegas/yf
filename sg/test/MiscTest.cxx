@@ -31,7 +31,7 @@ struct MiscTest : public Test {
     bool turnL, turnR, turnU, turnD;
     bool zoomI, zoomO;
     bool place, point;
-    bool mode;
+    bool mode, next;
     bool quit;
   };
 
@@ -92,6 +92,9 @@ struct MiscTest : public Test {
       break;
     case WS_NS::KeyCodeM:
       input.mode = b;
+      break;
+    case WS_NS::KeyCodeN:
+      input.next = b;
       break;
     case WS_NS::KeyCodeEsc:
       input.quit = b;
@@ -614,8 +617,141 @@ struct MiscTest : public Test {
     return true;
   }
 
+  bool misc5() {
+    Collection coll;
+    coll.load(L"tmp/cube.gltf");
+
+    // Dup.
+    Node* obj = nullptr;
+    for (auto& nd : coll.nodes()) {
+      if (nd->name() == L"Cube") {
+        Model* mdl = dynamic_cast<Model*>(nd.get());
+        auto mesh = mdl->mesh();
+        auto matl = mdl->material();
+        Skin skin{};
+        obj = new Model(mesh, matl, skin);
+        nd->parent()->insert(*obj);
+        obj->name() = L"Cube2";
+        obj->transform() = translate(2.0f, 0.0f, 0.0f);
+        break;
+      }
+    }
+    if (obj)
+      coll.nodes().push_back(unique_ptr<Model>(static_cast<Model*>(obj)));
+
+    // Render
+    auto win = WS_NS::createWindow(640, 480, L"Misc 5");
+    View view(win.get());
+
+    WS_NS::onKbKey(onKey);
+
+    auto scn = coll.scenes().front().get();
+    scn->camera().place({10.0f, 10.0f, 10.0f});
+    scn->camera().point({});
+
+    bool camMode = true;
+    bool isPlaying = false;
+
+    view.loop(*scn, 60, [&](auto elapsedTime) {
+      if (input.quit)
+        return false;
+
+      auto& cam = scn->camera();
+
+      if (input.mode) {
+        camMode = !camMode;
+        input.mode = false;
+      }
+
+      if (input.next && obj) {
+        wstring name = obj->name() == L"Cube" ? L"Cube2" : L"Cube";
+        for (auto& nd : coll.nodes()) {
+          if (nd->name() == name) {
+            obj = nd.get();
+            break;
+          }
+        }
+        input.next = false;
+      }
+
+      if (camMode || !obj) {
+        if (input.moveF)
+          cam.moveForward(deltaM);
+        if (input.moveB)
+          cam.moveBackward(deltaM);
+        if (input.moveL)
+          cam.moveLeft(deltaM);
+        if (input.moveR)
+          cam.moveRight(deltaM);
+        if (input.moveU)
+          cam.moveUp(deltaM);
+        if (input.moveD)
+          cam.moveDown(deltaM);
+        if (input.turnL)
+          cam.turnLeft(deltaT);
+        if (input.turnR)
+          cam.turnRight(deltaT);
+        if (input.turnU)
+          cam.turnUp(deltaT);
+        if (input.turnD)
+          cam.turnDown(deltaT);
+        if (input.zoomI)
+          cam.zoomIn(deltaZ);
+        if (input.zoomO)
+          cam.zoomOut(deltaZ);
+        if (input.place)
+          cam.place({0.0f, 0.0f, 20.0f});
+        if (input.point)
+          cam.point({});
+      } else {
+        auto& xform = obj->transform();
+        if (input.moveF)
+          xform[3] += {0.0f, 0.0f, 0.1f, 0.0f};
+        if (input.moveB)
+          xform[3] += {0.0f, 0.0f, -0.1f, 0.0f};
+        if (input.moveL)
+          xform[3] += {-0.1f, 0.0f, 0.0f, 0.0f};
+        if (input.moveR)
+          xform[3] += {0.1f, 0.0f, 0.0f, 0.0f};
+        if (input.moveU)
+          xform[3] += {0.0f, 0.1f, 0.0f, 0.0f};
+        if (input.moveD)
+          xform[3] += {0.0f, -0.1f, 0.0f, 0.0f};
+        if (input.turnL)
+          xform *= rotate(rotateQY(0.1f));
+        if (input.turnR)
+          xform *= rotate(rotateQY(-0.1f));
+        if (input.turnU)
+          xform *= rotate(rotateQX(-0.1f));
+        if (input.turnD)
+          xform *= rotate(rotateQX(0.1f));
+        if (input.place)
+          xform[3] = {0.0f, 0.0f, 0.0f, 1.0f};
+      }
+
+      if (key == WS_NS::KeyCodeZ) {
+        if (!coll.animations().empty())
+          isPlaying = true;
+      } else if (key == WS_NS::KeyCodeX) {
+        if (!coll.animations().empty()) {
+          isPlaying = false;
+          coll.animations().back().stop();
+        }
+      }
+
+      if (isPlaying)
+        wcout << "\n completed ? "
+              << (coll.animations().back().play(elapsedTime) ? "no" : "yes");
+
+      key = WS_NS::KeyCodeUnknown;
+      return true;
+    });
+
+    return true;
+  }
+
   Assertions run(const vector<string>&) {
-    return {{L"misc4()", misc4()}};
+    return {{L"misc5()", misc5()}};
   }
 };
 

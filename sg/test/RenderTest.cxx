@@ -110,23 +110,23 @@ struct RenderTest : Test {
     matl1.pbrmr().roughness = 0.2f;
     Material matl2;
     matl2.pbrmr().colorTex = tex2;
-    matl2.pbrmr().colorFac[0] = 0.25f;
+    matl2.pbrmr().colorFac[3] = 0.25f;
     matl2.pbrmr().metallic = 0.5f;
     matl2.pbrmr().roughness = 1.0f;
     Skin skin1{};
 
     // Scene #1 contents
-    const size_t instMdlN = 11;
+    const size_t instMdlN = 6;
     vector<Model> mdls{instMdlN, {mesh1, matl1, skin1}};
     mdls.push_back({mesh1, matl2, skin1});
     mdls.push_back({mesh2, matl1, skin1});
     mdls.push_back({mesh1, matl1, skin1});
     mdls.push_back({mesh2, matl2, skin1});
 
-    auto tf = static_cast<float>(mdls.size()) / -2.0f;
+    auto tf = -static_cast<float>(mdls.size());
     for (auto& mdl : mdls) {
       mdl.transform() = scale(0.5f, 0.5f, 0.5f) * translate(tf, tf, -tf);
-      tf += 1.0f;
+      tf += 2.0f;
     }
 
     Scene scn1;

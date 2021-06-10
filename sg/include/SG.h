@@ -11,6 +11,7 @@
 /// SG interface.
 ///
 #include "yf/sg/Animation.h"
+#include "yf/sg/Body.h"
 #include "yf/sg/Camera.h"
 #include "yf/sg/Collection.h"
 #include "yf/sg/Defs.h"

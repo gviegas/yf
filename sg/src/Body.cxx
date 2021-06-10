@@ -6,6 +6,7 @@
 //
 
 #include "Body.h"
+#include "Node.h"
 
 using namespace SG_NS;
 using namespace std;
@@ -23,10 +24,19 @@ class Body::Impl {
   Impl(const Vec3f& offset, const Vec3f& dimensions)
     : type_(BBox), offset_(offset), v_(dimensions) { }
 
+  Node* node() {
+    return node_;
+  }
+
+  void setNode(Node* node) {
+    node_ = node;
+  }
+
  private:
   Type type_;
   Vec3f offset_;
   Vec3f v_;
+  Node* node_;
 };
 
 Body::Body(const Vec3f& offset, float radius)
@@ -43,3 +53,11 @@ Body& Body::operator=(const Body& other) {
 }
 
 Body::~Body() { }
+
+Node* Body::node() {
+  return impl_->node();
+}
+
+void Body::setNode(Node* node) {
+  impl_->setNode(node);
+}

@@ -15,6 +15,8 @@
 
 SG_NS_BEGIN
 
+class Node;
+
 /// Physics body.
 ///
 class Body {
@@ -24,6 +26,9 @@ class Body {
   Body(const Body& other);
   Body& operator=(const Body& other);
   ~Body();
+
+  Node* node();
+  void setNode(Node* node);
 
  private:
   class Impl;

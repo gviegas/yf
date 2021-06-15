@@ -98,6 +98,21 @@ class Node {
   void setR(const Qnionf& r);
   void setS(const Vec3f& s);
 
+  /// Gets the node's world transform.
+  ///
+  Mat4f& worldTransform();
+  const Mat4f& worldTransform() const;
+
+  /// Gets the node's inverse world transform.
+  ///
+  Mat4f& worldInverse();
+  const Mat4f& worldInverse() const;
+
+  /// Gets the node's normal matrix.
+  ///
+  Mat4f& worldNormal();
+  const Mat4f& worldNormal() const;
+
  private:
   class Impl;
   std::unique_ptr<Impl> impl_;

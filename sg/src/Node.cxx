@@ -262,6 +262,30 @@ class Node::Impl {
     changed_ = true;
   }
 
+  Mat4f& worldTransform() {
+    return worldXform_;
+  }
+
+  const Mat4f& worldTransform() const {
+    return worldXform_;
+  }
+
+  Mat4f& worldInverse() {
+    return worldInv_;
+  }
+
+  const Mat4f& worldInverse() const {
+    return worldInv_;
+  }
+
+  Mat4f& worldNormal() {
+    return worldNorm_;
+  }
+
+  const Mat4f& worldNormal() const {
+    return worldNorm_;
+  }
+
  private:
   Node& node_;
   Impl* parent_ = nullptr;
@@ -276,6 +300,9 @@ class Node::Impl {
   Vec3f t_{};
   Qnionf r_{1.0f, {}};
   Vec3f s_{1.0f, 1.0f, 1.0f};
+  Mat4f worldXform_ = Mat4f::identity();
+  Mat4f worldInv_ = Mat4f::identity();
+  Mat4f worldNorm_ = Mat4f::identity();
 };
 
 Node::Node() : impl_(make_unique<Impl>(*this)) { }
@@ -377,4 +404,28 @@ void Node::setR(const Qnionf& r) {
 
 void Node::setS(const Vec3f& s) {
   impl_->setS(s);
+}
+
+Mat4f& Node::worldTransform() {
+  return impl_->worldTransform();
+}
+
+const Mat4f& Node::worldTransform() const {
+  return impl_->worldTransform();
+}
+
+Mat4f& Node::worldInverse() {
+  return impl_->worldInverse();
+}
+
+const Mat4f& Node::worldInverse() const {
+  return impl_->worldInverse();
+}
+
+Mat4f& Node::worldNormal() {
+  return impl_->worldNormal();
+}
+
+const Mat4f& Node::worldNormal() const {
+  return impl_->worldNormal();
 }

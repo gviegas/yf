@@ -253,8 +253,6 @@ void Renderer::render(Scene& scene, CG_NS::Target& target) {
         auto skin = kv.second[0]->skin();
         auto matl = kv.second[0]->material();
         auto mesh = kv.second[0]->mesh();
-        // TODO: Cache this
-        const auto inv = invert(transforms_[kv.second.front()->parent()]);
 
         // Update instance-specific uniform buffer
         for (uint32_t i = 0; i < n; ++i) {
@@ -264,9 +262,7 @@ void Renderer::render(Scene& scene, CG_NS::Target& target) {
           beg = off;
           len = Mat4f::dataSize();
 
-          const auto m = mdl->isLeaf() ?
-                         transforms_[mdl->parent()] * mdl->localTransform() :
-                         transforms_[mdl];
+          const auto& m = mdl->worldTransform();
           unifBuffer_->write(off, len, m.data());
           off += len;
 
@@ -278,7 +274,7 @@ void Renderer::render(Scene& scene, CG_NS::Target& target) {
           unifBuffer_->write(off, len, mvp.data());
           off += len;
 
-          const auto nm = transpose(invert(m));
+          const auto& nm = mdl->worldNormal();
           unifBuffer_->write(off, len, nm.data());
           off += len;
 
@@ -298,11 +294,8 @@ void Renderer::render(Scene& scene, CG_NS::Target& target) {
           assert(skin.joints().size() < JointN);
           size_t i = 0;
           for (const auto& jt : skin.joints()) {
-            jm[i] = inv;
-            jm[i] *= jt->isLeaf() ?
-                     transforms_[jt->parent()] * jt->localTransform() :
-                     transforms_[jt];
-            jm[i] *= skin.inverseBind()[i];
+            jm[i] = jt->parent()->worldInverse() * jt->worldTransform() *
+              skin.inverseBind()[i];
             njm[i] = transpose(invert(jm[i]));
             ++i;
           }
@@ -423,21 +416,20 @@ void Renderer::render(Scene& scene, CG_NS::Target& target) {
 }
 
 void Renderer::processGraph(Scene& scene) {
-  transforms_.clear();
   models_.clear();
 
   if (scene.isLeaf())
     return;
 
-  transforms_.emplace(&scene, scene.localTransform());
+  scene.worldTransform() = scene.localTransform();
+  scene.worldInverse() = invert(scene.worldTransform());
 
   scene.traverse([&](Node& node) {
-    // Transform
-    if (!node.isLeaf()) {
-      auto it = transforms_.find(node.parent());
-      assert(it != transforms_.end());
-      transforms_.emplace(&node, it->second * node.localTransform());
-    }
+    // Transforms
+    node.worldTransform() =
+      node.parent()->worldTransform() * node.localTransform();
+    node.worldInverse() = invert(node.worldTransform());
+    node.worldNormal() = transpose(node.worldInverse());
 
     // Model
     if (typeid(node) == typeid(Model)) {

@@ -269,18 +269,19 @@ void ImageVK::write(Offset2 offset, Size2 size, uint32_t layer, uint32_t level,
       changeLayout(VK_IMAGE_LAYOUT_GENERAL, true);
 
     const uint32_t txSz = (bitsPerTexel_ >> 3);
-    BufferVK* buf = nullptr;
+    auto stgIt = staging_.find(layer);
 
     // One staging buffer per layer
-    if (staging_.find(layer) == staging_.end()) {
+    if (stgIt == staging_.end()) {
       uint64_t sz = size_.width * size_.height * txSz;
       sz = (sz & ~255) + 256;
       if (levels_ > 1)
         sz <<= 1;
       VkBufferUsageFlags usage = VK_BUFFER_USAGE_TRANSFER_SRC_BIT;
-      auto tp = staging_.emplace(layer, make_unique<BufferVK>(sz, usage));
-      buf = tp.first->second.get();
+      stgIt = staging_.emplace(layer, make_unique<BufferVK>(sz, usage)).first;
     }
+
+    BufferVK* buf = stgIt->second.get();
 
     // The mipmap chain is stored contiguosly in the buffer
     uint64_t off = 0;

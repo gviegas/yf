@@ -294,8 +294,7 @@ void Renderer::render(Scene& scene, CG_NS::Target& target) {
           assert(skin.joints().size() < JointN);
           size_t i = 0;
           for (const auto& jt : skin.joints()) {
-            jm[i] = jt->parent()->worldInverse() * jt->worldTransform() *
-              skin.inverseBind()[i];
+            jm[i] = jt->worldTransform() * skin.inverseBind()[i];
             njm[i] = transpose(invert(jm[i]));
             ++i;
           }

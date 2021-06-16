@@ -393,8 +393,9 @@ struct MiscTest : public Test {
 } while (false)
 
   bool misc4() {
-    //Collection coll(L"tmp/fullscene2.gltf");
     //Collection coll(L"tmp/fullscene.gltf");
+    //Collection coll(L"tmp/fullscene2.gltf");
+    //Collection coll(L"tmp/fullscene3.gltf");
     Collection coll;
     //coll.load(L"tmp/animation.gltf");
     //coll.load(L"tmp/animation2.gltf");
@@ -572,29 +573,31 @@ struct MiscTest : public Test {
         if (input.point)
           cam.point({});
       } else {
-        auto& xform = obj->transform();
+        Vec3f t;
+        Qnionf r(1.0f, {});
         if (input.moveF)
-          xform[3] += {0.0f, 0.0f, 0.1f, 0.0f};
+          t[2] += 0.1f;
         if (input.moveB)
-          xform[3] += {0.0f, 0.0f, -0.1f, 0.0f};
+          t[2] -= 0.1f;
         if (input.moveL)
-          xform[3] += {-0.1f, 0.0f, 0.0f, 0.0f};
+          t[0] += 0.1f;
         if (input.moveR)
-          xform[3] += {0.1f, 0.0f, 0.0f, 0.0f};
+          t[0] -= 0.1f;
         if (input.moveU)
-          xform[3] += {0.0f, 0.1f, 0.0f, 0.0f};
+          t[1] += 0.1f;
         if (input.moveD)
-          xform[3] += {0.0f, -0.1f, 0.0f, 0.0f};
+          t[1] -= 0.1f;
         if (input.turnL)
-          xform *= rotate(rotateQY(0.1f));
+          r *= rotateQY(0.1f);
         if (input.turnR)
-          xform *= rotate(rotateQY(-0.1f));
+          r *= rotateQY(-0.1f);
         if (input.turnU)
-          xform *= rotate(rotateQX(-0.1f));
+          r *= rotateQX(-0.1f);
         if (input.turnD)
-          xform *= rotate(rotateQX(0.1f));
+          r *= rotateQX(0.1f);
         if (input.place)
-          xform[3] = {0.0f, 0.0f, 0.0f, 1.0f};
+          t = {0.0f, 0.0f, 0.0f};
+        obj->transform() *= translate(t) * rotate(r);
       }
 
       if (key == WS_NS::KeyCodeZ) {
@@ -749,9 +752,9 @@ struct MiscTest : public Test {
         if (input.moveB)
           t += {0.0f, 0.0f, -0.1f};
         if (input.moveL)
-          t += {-0.1f, 0.0f, 0.0f};
-        if (input.moveR)
           t += {0.1f, 0.0f, 0.0f};
+        if (input.moveR)
+          t += {-0.1f, 0.0f, 0.0f};
         if (input.moveU)
           t += {0.0f, 0.1f, 0.0f};
         if (input.moveD)
@@ -799,7 +802,7 @@ struct MiscTest : public Test {
   }
 
   Assertions run(const vector<string>&) {
-    return {{L"misc5()", misc5()}};
+    return {{L"misc4()", misc4()}};
   }
 };
 

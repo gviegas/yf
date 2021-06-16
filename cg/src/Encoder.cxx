@@ -26,6 +26,7 @@ class Encoder::Impl {
 };
 
 Encoder::Encoder(Type type) : impl_(make_unique<Impl>(type)) { }
+
 Encoder::~Encoder() { }
 
 Encoder::Type Encoder::type() const {
@@ -64,16 +65,19 @@ void GrEncoder::setDcTable(uint32_t tableIndex, uint32_t allocIndex) {
 
 void GrEncoder::setVertexBuffer(Buffer* buffer, uint64_t offset,
                                 uint32_t inputIndex) {
+
   impl_->encode(make_unique<VxBufferCmd>(buffer, offset, inputIndex));
 }
 
 void GrEncoder::setIndexBuffer(Buffer* buffer, uint64_t offset,
                                IndexType type) {
+
   impl_->encode(make_unique<IxBufferCmd>(buffer, offset, type));
 }
 
 void GrEncoder::draw(uint32_t vertexStart, uint32_t vertexCount,
                      uint32_t baseInstance, uint32_t instanceCount) {
+
   impl_->encode(make_unique<DrawCmd>(vertexStart, vertexCount,
                                      baseInstance, instanceCount));
 }
@@ -81,6 +85,7 @@ void GrEncoder::draw(uint32_t vertexStart, uint32_t vertexCount,
 void GrEncoder::drawIndexed(uint32_t indexStart, uint32_t vertexCount,
                             int32_t vertexOffset, uint32_t baseInstance,
                             uint32_t instanceCount) {
+
   impl_->encode(make_unique<DrawIxCmd>(indexStart, vertexCount, vertexOffset,
                                        baseInstance, instanceCount));
 }
@@ -124,6 +129,7 @@ TfEncoder::TfEncoder() : Encoder(Transfer) { }
 void TfEncoder::copy(Buffer* dst, uint64_t dstOffset,
                      Buffer* src, uint64_t srcOffset,
                      uint64_t size) {
+
   impl_->encode(make_unique<CopyBBCmd>(dst, dstOffset, src, srcOffset, size));
 }
 
@@ -132,6 +138,7 @@ void TfEncoder::copy(Image* dst, Offset2 dstOffset,
                      Image* src, Offset2 srcOffset,
                      uint32_t srcLayer, uint32_t srcLevel,
                      Size2 size, uint32_t layerCount) {
+
   impl_->encode(make_unique<CopyIICmd>(dst, dstOffset, dstLayer, dstLevel,
                                        src, srcOffset, srcLayer, srcLevel,
                                        size, layerCount));

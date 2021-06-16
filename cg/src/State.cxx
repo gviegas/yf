@@ -10,7 +10,9 @@
 using namespace CG_NS;
 
 GrState::GrState(const Config& config) : config_(config) { }
+
 GrState::~GrState() { }
 
 CpState::CpState(const Config& config) : config_(config) { }
+
 CpState::~CpState() { }

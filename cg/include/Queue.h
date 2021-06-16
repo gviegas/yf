@@ -10,7 +10,6 @@
 
 #include <cstdint>
 #include <memory>
-#include <functional>
 
 #include "yf/cg/Defs.h"
 

@@ -39,23 +39,23 @@ class Window;
 /// Pointer enter window event.
 ///
 using PtEnterFn = std::function<void (Window*, int32_t x, int32_t y)>;
-void onPtEnter(PtEnterFn fn);
+void onPtEnter(const PtEnterFn& fn);
 
 /// Pointer leave window event.
 ///
 using PtLeaveFn = std::function<void (Window*)>;
-void onPtLeave(PtLeaveFn fn);
+void onPtLeave(const PtLeaveFn& fn);
 
 /// Pointer motion event.
 ///
 using PtMotionFn = std::function<void (int32_t x, int32_t y)>;
-void onPtMotion(PtMotionFn fn);
+void onPtMotion(const PtMotionFn& fn);
 
 /// Pointer button press/release event.
 ///
 using PtButtonFn = std::function<void (Button, ButtonState,
                                        int32_t x, int32_t y)>;
-void onPtButton(PtButtonFn fn);
+void onPtButton(const PtButtonFn& fn);
 
 WS_NS_END
 

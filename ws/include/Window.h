@@ -89,12 +89,12 @@ Window::Ptr createWindow(uint32_t width, uint32_t height,
 /// Window close event.
 ///
 using WdCloseFn = std::function<void (Window*)>;
-void onWdClose(WdCloseFn fn);
+void onWdClose(const WdCloseFn& fn);
 
 /// Window resize event.
 ///
 using WdResizeFn = std::function<void (Window*, uint32_t w, uint32_t h)>;
-void onWdResize(WdResizeFn fn);
+void onWdResize(const WdResizeFn& fn);
 
 WS_NS_END
 

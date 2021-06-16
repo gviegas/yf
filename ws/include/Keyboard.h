@@ -159,17 +159,17 @@ class Window;
 /// Keyboard enter window event (focus gained).
 ///
 using KbEnterFn = std::function<void (Window*)>;
-void onKbEnter(KbEnterFn fn);
+void onKbEnter(const KbEnterFn& fn);
 
 /// Keyboard leave window event (focus lost).
 ///
 using KbLeaveFn = std::function<void (Window*)>;
-void onKbLeave(KbLeaveFn fn);
+void onKbLeave(const KbLeaveFn& fn);
 
 /// Keyboard key press/release event.
 ///
 using KbKeyFn = std::function<void (KeyCode, KeyState, KeyModMask)>;
-void onKbKey(KbKeyFn fn);
+void onKbKey(const KbKeyFn& fn);
 
 WS_NS_END
 

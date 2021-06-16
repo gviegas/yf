@@ -23,7 +23,7 @@ const Delegate& delegate() {
   return deleg;
 }
 
-void onWdClose(WdCloseFn fn) {
+void onWdClose(const WdCloseFn& fn) {
   deleg.wdClose_ = fn;
   if (fn)
     deleg.mask_ |= Delegate::WdClose;
@@ -31,7 +31,7 @@ void onWdClose(WdCloseFn fn) {
     deleg.mask_ &= ~Delegate::WdClose;
 }
 
-void onWdResize(WdResizeFn fn) {
+void onWdResize(const WdResizeFn& fn) {
   deleg.wdResize_ = fn;
   if (fn)
     deleg.mask_ |= Delegate::WdResize;
@@ -39,7 +39,7 @@ void onWdResize(WdResizeFn fn) {
     deleg.mask_ &= ~Delegate::WdResize;
 }
 
-void onKbEnter(KbEnterFn fn) {
+void onKbEnter(const KbEnterFn& fn) {
   deleg.kbEnter_ = fn;
   if (fn)
     deleg.mask_ |= Delegate::KbEnter;
@@ -47,7 +47,7 @@ void onKbEnter(KbEnterFn fn) {
     deleg.mask_ &= ~Delegate::KbEnter;
 }
 
-void onKbLeave(KbLeaveFn fn) {
+void onKbLeave(const KbLeaveFn& fn) {
   deleg.kbLeave_ = fn;
   if (fn)
     deleg.mask_ |= Delegate::KbLeave;
@@ -55,7 +55,7 @@ void onKbLeave(KbLeaveFn fn) {
     deleg.mask_ &= ~Delegate::KbLeave;
 }
 
-void onKbKey(KbKeyFn fn) {
+void onKbKey(const KbKeyFn& fn) {
   deleg.kbKey_ = fn;
   if (fn)
     deleg.mask_ |= Delegate::KbKey;
@@ -63,7 +63,7 @@ void onKbKey(KbKeyFn fn) {
     deleg.mask_ &= ~Delegate::KbKey;
 }
 
-void onPtEnter(PtEnterFn fn) {
+void onPtEnter(const PtEnterFn& fn) {
   deleg.ptEnter_ = fn;
   if (fn)
     deleg.mask_ |= Delegate::PtEnter;
@@ -71,7 +71,7 @@ void onPtEnter(PtEnterFn fn) {
     deleg.mask_ &= ~Delegate::PtEnter;
 }
 
-void onPtLeave(PtLeaveFn fn) {
+void onPtLeave(const PtLeaveFn& fn) {
   deleg.ptLeave_ = fn;
   if (fn)
     deleg.mask_ |= Delegate::PtLeave;
@@ -79,7 +79,7 @@ void onPtLeave(PtLeaveFn fn) {
     deleg.mask_ &= ~Delegate::PtLeave;
 }
 
-void onPtMotion(PtMotionFn fn) {
+void onPtMotion(const PtMotionFn& fn) {
   deleg.ptMotion_ = fn;
   if (fn)
     deleg.mask_ |= Delegate::PtMotion;
@@ -87,7 +87,7 @@ void onPtMotion(PtMotionFn fn) {
     deleg.mask_ &= ~Delegate::PtMotion;
 }
 
-void onPtButton(PtButtonFn fn) {
+void onPtButton(const PtButtonFn& fn) {
   deleg.ptButton_ = fn;
   if (fn)
     deleg.mask_ |= Delegate::PtButton;

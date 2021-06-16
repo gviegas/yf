@@ -5,17 +5,21 @@
 // Copyright © 2020-2021 Gustavo C. Viegas.
 //
 
+#include <utility>
+
 #include "Encoder.h"
 #include "Cmd.h"
 
 using namespace CG_NS;
 using namespace std;
 
-// TODO: Filter useless commands & check whether encoding is valid.
-
 class Encoder::Impl {
  public:
   Impl(Type type) : type_(type) { }
+
+  void encode(unique_ptr<Cmd> cmd) {
+    encoding_.push_back(move(cmd));
+  }
 
   const Type type_;
   Encoding encoding_;
@@ -39,70 +43,58 @@ const Encoding& Encoder::encoding() const {
 GrEncoder::GrEncoder() : Encoder(Graphics) { }
 
 void GrEncoder::setState(GrState* state) {
-  impl_->encoding_
-    .push_back(make_unique<StateGrCmd>(state));
+  impl_->encode(make_unique<StateGrCmd>(state));
 }
 
 void GrEncoder::setViewport(Viewport viewport, uint32_t viewportIndex) {
-  impl_->encoding_
-    .push_back(make_unique<ViewportCmd>(viewport, viewportIndex));
+  impl_->encode(make_unique<ViewportCmd>(viewport, viewportIndex));
 }
 
 void GrEncoder::setScissor(Scissor scissor, uint32_t viewportIndex) {
-  impl_->encoding_
-    .push_back(make_unique<ScissorCmd>(scissor, viewportIndex));
+  impl_->encode(make_unique<ScissorCmd>(scissor, viewportIndex));
 }
 
 void GrEncoder::setTarget(Target* target) {
-  impl_->encoding_
-    .push_back(make_unique<TargetCmd>(target));
+  impl_->encode(make_unique<TargetCmd>(target));
 }
 
 void GrEncoder::setDcTable(uint32_t tableIndex, uint32_t allocIndex) {
-  impl_->encoding_
-    .push_back(make_unique<DcTableCmd>(tableIndex, allocIndex));
+  impl_->encode(make_unique<DcTableCmd>(tableIndex, allocIndex));
 }
 
 void GrEncoder::setVertexBuffer(Buffer* buffer, uint64_t offset,
                                 uint32_t inputIndex) {
-  impl_->encoding_
-    .push_back(make_unique<VxBufferCmd>(buffer, offset, inputIndex));
+  impl_->encode(make_unique<VxBufferCmd>(buffer, offset, inputIndex));
 }
 
 void GrEncoder::setIndexBuffer(Buffer* buffer, uint64_t offset,
                                IndexType type) {
-  impl_->encoding_
-    .push_back(make_unique<IxBufferCmd>(buffer, offset, type));
+  impl_->encode(make_unique<IxBufferCmd>(buffer, offset, type));
 }
 
 void GrEncoder::draw(uint32_t vertexStart, uint32_t vertexCount,
                      uint32_t baseInstance, uint32_t instanceCount) {
-  impl_->encoding_
-    .push_back(make_unique<DrawCmd>(vertexStart, vertexCount,
-                                    baseInstance, instanceCount));
+  impl_->encode(make_unique<DrawCmd>(vertexStart, vertexCount,
+                                     baseInstance, instanceCount));
 }
 
 void GrEncoder::drawIndexed(uint32_t indexStart, uint32_t vertexCount,
                             int32_t vertexOffset, uint32_t baseInstance,
                             uint32_t instanceCount) {
-  impl_->encoding_
-    .push_back(make_unique<DrawIxCmd>(indexStart, vertexCount, vertexOffset,
-                                      baseInstance, instanceCount));
+  impl_->encode(make_unique<DrawIxCmd>(indexStart, vertexCount, vertexOffset,
+                                       baseInstance, instanceCount));
 }
 
 void GrEncoder::clearColor(Color value, uint32_t colorIndex) {
-  impl_->encoding_
-    .push_back(make_unique<ClearClCmd>(value, colorIndex));
+  impl_->encode(make_unique<ClearClCmd>(value, colorIndex));
 }
 
 void GrEncoder::clearDepth(float value) {
-  impl_->encoding_
-    .push_back(make_unique<ClearDpCmd>(value));
+  impl_->encode(make_unique<ClearDpCmd>(value));
 }
 
 void GrEncoder::clearStencil(uint32_t value) {
-  impl_->encoding_
-    .push_back(make_unique<ClearScCmd>(value));
+  impl_->encode(make_unique<ClearScCmd>(value));
 }
 
 //
@@ -112,18 +104,15 @@ void GrEncoder::clearStencil(uint32_t value) {
 CpEncoder::CpEncoder() : Encoder(Compute) { }
 
 void CpEncoder::setState(CpState* state) {
-  impl_->encoding_
-    .push_back(make_unique<StateCpCmd>(state));
+  impl_->encode(make_unique<StateCpCmd>(state));
 }
 
 void CpEncoder::setDcTable(uint32_t tableIndex, uint32_t allocIndex) {
-  impl_->encoding_
-    .push_back(make_unique<DcTableCmd>(tableIndex, allocIndex));
+  impl_->encode(make_unique<DcTableCmd>(tableIndex, allocIndex));
 }
 
 void CpEncoder::dispatch(Size3 size) {
-  impl_->encoding_
-    .push_back(make_unique<DispatchCmd>(size));
+  impl_->encode(make_unique<DispatchCmd>(size));
 }
 
 //
@@ -135,8 +124,7 @@ TfEncoder::TfEncoder() : Encoder(Transfer) { }
 void TfEncoder::copy(Buffer* dst, uint64_t dstOffset,
                      Buffer* src, uint64_t srcOffset,
                      uint64_t size) {
-  impl_->encoding_
-    .push_back(make_unique<CopyBBCmd>(dst, dstOffset, src, srcOffset, size));
+  impl_->encode(make_unique<CopyBBCmd>(dst, dstOffset, src, srcOffset, size));
 }
 
 void TfEncoder::copy(Image* dst, Offset2 dstOffset,
@@ -144,8 +132,7 @@ void TfEncoder::copy(Image* dst, Offset2 dstOffset,
                      Image* src, Offset2 srcOffset,
                      uint32_t srcLayer, uint32_t srcLevel,
                      Size2 size, uint32_t layerCount) {
-  impl_->encoding_
-    .push_back(make_unique<CopyIICmd>(dst, dstOffset, dstLayer, dstLevel,
-                                      src, srcOffset, srcLayer, srcLevel,
-                                      size, layerCount));
+  impl_->encode(make_unique<CopyIICmd>(dst, dstOffset, dstLayer, dstLevel,
+                                       src, srcOffset, srcLayer, srcLevel,
+                                       size, layerCount));
 }

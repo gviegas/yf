@@ -50,7 +50,7 @@ class Matrix {
 
     Matrix mat;
     for (size_t i = 0; i < colN; ++i)
-      mat[i][i] = 1;
+      mat[i][i] = static_cast<T>(1);
     return mat;
   }
 

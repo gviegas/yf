@@ -387,37 +387,32 @@ struct MiscTest : public Test {
     struct Collision {
       Node* node1;
       Node* node2;
-      float prevDist;
 
       Collision(Node* node1, Node* node2) : node1(node1), node2(node2) { }
 
-      bool check(const Vec3f& t1, const Vec3f& t2) {
+      bool check(const Mat4f& m1, const Mat4f& m2) {
         if (!node1 || !node2)
           return false;
 
         const auto radius = 1.0f;
-        const auto& xform1 = node1->localTransform();
-        const auto& xform2 = node2->localTransform();
-        const auto x1 = xform1[3][0] + t1[0];
-        const auto y1 = xform1[3][1] + t1[1];
-        const auto z1 = xform1[3][2] + t1[2];
-        const auto x2 = xform2[3][0] + t2[0];
-        const auto y2 = xform2[3][1] + t2[1];
-        const auto z2 = xform2[3][2] + t2[2];
+        const auto x1 = m1[3][0];
+        const auto y1 = m1[3][1];
+        const auto z1 = m1[3][2];
+        const auto x2 = m2[3][0];
+        const auto y2 = m2[3][1];
+        const auto z2 = m2[3][2];
 
         const Vec3f p{x2 - x1, y2 - y1, z2 - z1};
         const auto dist = p.length();
 
         wprintf(L"\ndist: %f\n", dist);
 
-        if (dist < radius * 2.0) {
-          if (prevDist < dist) {
-            prevDist = dist;
-            return false;
-          }
-          return true;
+        if (dist > radius * 2.0f) {
+          node1->transform() = m1;
+          node2->transform() = m2;
+          return false;
         }
-        return false;
+        return true;
       }
     };
 
@@ -532,14 +527,15 @@ struct MiscTest : public Test {
         if (input.place)
           t = {0.0f, 0.0f, 0.0f};
 
+        const Mat4f m = node->transform() * translate(t) * rotate(r);
         bool collid;
         if (node == node1)
-          collid = collision.check(t, {});
+          collid = collision.check(m, node2->transform());
         else
-          collid = collision.check({}, t);
+          collid = collision.check(node1->transform(), m);
 
-        if (!collid)
-          node->transform() *= translate(t) * rotate(r);
+        if (collid)
+          wcout << "*collided*\n";
       }
 
       if (key == WS_NS::KeyCodeZ) {
@@ -564,7 +560,7 @@ struct MiscTest : public Test {
   }
 
   Assertions run(const vector<string>&) {
-#if 1
+#if 0
     return {{L"misc1()", misc1()},
             {L"misc2()", misc2()},
             {L"misc3()", misc3()},

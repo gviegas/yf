@@ -350,7 +350,7 @@ struct MiscTest : public Test {
 
     Mesh mesh(Mesh::Gltf, L"tmp/cube.gltf");
     Texture tex(Texture::Png, L"tmp/cube.png");
-    Material matl({tex, {1.0f, 1.0f, 1.0f, 1.0f}, {}, 1.0f, 1.0f});
+    Material matl({tex, Vec4f(1.0f), {}, 1.0f, 1.0f});
 
     Model mdl;
     mdl.setMesh(mesh);
@@ -414,7 +414,7 @@ struct MiscTest : public Test {
         }
 
         const Vec3f dir = p / dist;
-        node1->transform() = translate(dir*-1.0f) * m1;
+        node1->transform() = translate(-dir) * m1;
         node2->transform() = translate(dir) * m2;
         return true;
       }

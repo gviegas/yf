@@ -412,6 +412,10 @@ struct MiscTest : public Test {
           node2->transform() = m2;
           return false;
         }
+
+        const Vec3f dir = p / dist;
+        node1->transform() = translate(dir*-1.0f) * m1;
+        node2->transform() = translate(dir) * m2;
         return true;
       }
     };

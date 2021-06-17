@@ -32,6 +32,13 @@ class Vector {
   Vector& operator=(const Vector&) = default;
   ~Vector() = default;
 
+  /// Single value construction.
+  ///
+  constexpr Vector(T scalar) {
+    for (auto& e : *this)
+      e = scalar;
+  }
+
   /// Initializer-list construction.
   ///
   /// Missing components are default-initialized.

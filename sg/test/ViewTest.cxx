@@ -21,7 +21,7 @@ struct ViewTest : Test {
   ViewTest() : Test(L"View") { }
 
   Assertions run(const vector<string>&) {
-    auto win = WS_NS::createWindow(400, 240, L"ViewTest");
+    auto win = WS_NS::createWindow(400, 240, name_);
     Scene scn;
 
     View view(win.get());

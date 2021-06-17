@@ -320,7 +320,7 @@ struct CollectionTest : Test {
 #endif
 
     // Render
-    auto win = WS_NS::createWindow(480, 400, L"Collection Test");
+    auto win = WS_NS::createWindow(640, 480, name_);
     View view(win.get());
 
     WS_NS::onKbKey(onKey);

@@ -564,7 +564,7 @@ struct MiscTest : public Test {
   }
 
   Assertions run(const vector<string>&) {
-#if 0
+#if 1
     return {{L"misc1()", misc1()},
             {L"misc2()", misc2()},
             {L"misc3()", misc3()},

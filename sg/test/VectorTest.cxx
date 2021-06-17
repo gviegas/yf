@@ -30,21 +30,24 @@ struct VectorTest : Test {
   Assertions run(const vector<string>&) {
     Assertions a;
 
-    Vec2i v1{-1, 44};
+    Vec3i v1(-1);
+
+    a.push_back({L"Vector(T)", v1[0] == -1 && v1[1] == -1 && v1[2] == -1});
+
+    SG_PRINTVEC(v1);
+
     Vec3u v2{1, 0, 0xff};
     Vec4f v3{1.0f, -1.0f, 5023.01f};
     Vec3d v4{0.04502119805};
     v4.operator[](2) = -1.0/2.0;
     --v3[1];
 
-    a.push_back({L"Vector(...)", v1[0] == -1 && v1[1] == 44 &&
-                                 v2[0] == 1 && v2[1] == 0 && v2[2] == 0xff &&
+    a.push_back({L"Vector{...}", v2[0] == 1 && v2[1] == 0 && v2[2] == 0xff &&
                                  v3[0] == 1.0f && v3[1] == -2.0f &&
                                  v3[2] == 5023.01f && v3[3] == 0.0f &&
                                  v4[0] == 0.04502119805 && v4[1] == 0.0 &&
                                  v4[2] == -1.0/2.0});
 
-    SG_PRINTVEC(v1);
     SG_PRINTVEC(v2);
     SG_PRINTVEC(v3);
     SG_PRINTVEC(v4);
@@ -54,17 +57,17 @@ struct VectorTest : Test {
     Vec3i v7{100, -200, -300};
     Vec3i v8 = (v7 -= v6) += v5;
     auto v9 = v6 - v7;
-    auto v10 = v5 + v6;
-    auto v11 = v10 * -1;
+    auto v10 = -v5 + v6;
+    auto v11 = v10 * -2;
     auto v12 = v10 / 2;
 
     a.push_back({L"-=, +=", v7[0] == 89 && v7[1] == -218 && v7[2] == -273 &&
                             v6[0] == 10 && v6[1] == 20 && v6[2] == -30 &&
                             v5[0] == -1 && v5[1] == 2 && v5[2] == -3});
     a.push_back({L"-, +", v9[0] == -79 && v9[1] == 238 && v9[2] == 243 &&
-                          v10[0] == 9 && v10[1] == 22 && v10[2] == -33});
-    a.push_back({L"*, /", v11[0] == -9 && v11[1] == -22 && v11[2] == 33 &&
-                          v12[0] == 4 && v12[1] == 11 && v12[2] == -16});
+                          v10[0] == 11 && v10[1] == 18 && v10[2] == -27});
+    a.push_back({L"*, /", v11[0] == -22 && v11[1] == -36 && v11[2] == 54 &&
+                          v12[0] == 5 && v12[1] == 9 && v12[2] == -13});
 
     SG_PRINTVEC(v5);
     SG_PRINTVEC(v6);

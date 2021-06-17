@@ -140,6 +140,16 @@ class Vector {
   T data_[sz]{};
 };
 
+/// Vector negation.
+///
+template<class T, size_t sz>
+constexpr Vector<T, sz> operator-(const Vector<T, sz>& vec) {
+  auto res = vec;
+  for (auto& e : res)
+    e = -e;
+  return res;
+}
+
 /// Vector subtraction.
 ///
 template<class T, size_t sz>
@@ -165,8 +175,8 @@ constexpr Vector<T, sz> operator+(const Vector<T, sz>& left,
 /// Vector multiplication.
 ///
 template<class T, size_t sz>
-constexpr Vector<T, sz> operator*(const Vector<T, sz>& vector, T scalar) {
-  auto res = vector;
+constexpr Vector<T, sz> operator*(const Vector<T, sz>& vec, T scalar) {
+  auto res = vec;
   res *= scalar;
   return res;
 }
@@ -174,8 +184,8 @@ constexpr Vector<T, sz> operator*(const Vector<T, sz>& vector, T scalar) {
 /// Vector division.
 ///
 template<class T, size_t sz>
-constexpr Vector<T, sz> operator/(const Vector<T, sz>& vector, T scalar) {
-  auto res = vector;
+constexpr Vector<T, sz> operator/(const Vector<T, sz>& vec, T scalar) {
+  auto res = vec;
   res /= scalar;
   return res;
 }
@@ -183,8 +193,8 @@ constexpr Vector<T, sz> operator/(const Vector<T, sz>& vector, T scalar) {
 /// Vector normalization.
 ///
 template<class T, size_t sz>
-constexpr Vector<T, sz> normalize(const Vector<T, sz>& vector) {
-  return Vector<T, sz>(vector).normalize();
+constexpr Vector<T, sz> normalize(const Vector<T, sz>& vec) {
+  return Vector<T, sz>(vec).normalize();
 }
 
 /// Dot product.

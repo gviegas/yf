@@ -248,7 +248,7 @@ struct MiscTest : public Test {
     }
 
     const auto mat = scale(0.2f, 0.2f, 0.2f) *
-                     rotate(3.141592f / 3.0f, {0.7071f, 0.7071f, 0.0f}) *
+                     rotate(3.14159265f / 3.0f, {0.7071f, 0.7071f, 0.0f}) *
                      translate(-2.0f, 1.3f, 2.4f);
     const size_t msize = mat.columns() * mat.rows() * sizeof(float);
 
@@ -350,7 +350,7 @@ struct MiscTest : public Test {
 
     Mesh mesh(Mesh::Gltf, L"tmp/cube.gltf");
     Texture tex(Texture::Png, L"tmp/cube.png");
-    Material matl{{tex, {}, {}, 1.0f, 1.0f}, {}, {}, {}};
+    Material matl({tex, {1.0f, 1.0f, 1.0f, 1.0f}, {}, 1.0f, 1.0f});
 
     Model mdl;
     mdl.setMesh(mesh);
@@ -373,7 +373,7 @@ struct MiscTest : public Test {
       });
 
       mdl.transform() = SG_NS::scale(scale, scale, scale) * rotateZ(angle);
-      angle += 3.14159265359f * 0.01f;
+      angle += 3.14159265358979f * 0.01f;
       scale += 0.025f;
 
       rend.render(scn, **tgtIt);
@@ -449,7 +449,7 @@ struct MiscTest : public Test {
     Collision collision(node1, node2);
 
     // Render
-    auto win = WS_NS::createWindow(640, 480, L"Misc 5");
+    auto win = WS_NS::createWindow(640, 480, name_);
     View view(win.get());
 
     WS_NS::onKbKey(onKey);
@@ -564,7 +564,14 @@ struct MiscTest : public Test {
   }
 
   Assertions run(const vector<string>&) {
+#if 1
+    return {{L"misc1()", misc1()},
+            {L"misc2()", misc2()},
+            {L"misc3()", misc3()},
+            {L"misc4()", misc4()}};
+#else
     return {{L"misc4()", misc4()}};
+#endif
   }
 };
 

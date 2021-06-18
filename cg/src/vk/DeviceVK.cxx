@@ -350,15 +350,15 @@ const VkPhysicalDeviceMemoryProperties& DeviceVK::memProperties() const {
   return memProperties_;
 }
 
-const std::vector<const char*>& DeviceVK::instExtensions() const {
+const vector<const char*>& DeviceVK::instExtensions() const {
   return instExtensions_;
 }
 
-const std::vector<const char*>& DeviceVK::devExtensions() const {
+const vector<const char*>& DeviceVK::devExtensions() const {
   return devExtensions_;
 }
 
-const std::vector<const char*>& DeviceVK::layers() const {
+const vector<const char*>& DeviceVK::layers() const {
   return layers_;
 }
 

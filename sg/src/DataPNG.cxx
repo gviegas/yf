@@ -359,7 +359,7 @@ void inflate(const vector<uint8_t>& src, vector<uint8_t>& dst) {
 ///
 class PNG {
  public:
-  PNG(const std::wstring& pathname)
+  PNG(const wstring& pathname)
     : ihdr_{}, plte_{}, idat_{},
       components_(0), bpp_(0), Bpp_(0), sclnSize_(0) {
 
@@ -812,7 +812,7 @@ class PNG {
 
 INTERNAL_NS_END
 
-void SG_NS::loadPNG(Texture::Data& dst, const std::wstring& pathname) {
+void SG_NS::loadPNG(Texture::Data& dst, const wstring& pathname) {
   PNG png(pathname);
 
 #ifdef YF_DEVEL

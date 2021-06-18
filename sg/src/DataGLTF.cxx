@@ -250,7 +250,7 @@ class Symbol {
 
   /// The tokens of the current symbol.
   ///
-  const std::string& tokens() const {
+  const string& tokens() const {
     return tokens_;
   }
 

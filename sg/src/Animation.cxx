@@ -21,7 +21,7 @@ class Animation::Impl {
        const vector<Rotation>& outR, const vector<Scale>& outS)
     : inputs_(inputs), outT_(outT), outR_(outR), outS_(outS) { }
 
-  bool play(std::chrono::nanoseconds elapsedTime) {
+  bool play(chrono::nanoseconds elapsedTime) {
     if (completed_)
       return false;
 

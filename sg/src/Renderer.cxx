@@ -41,7 +41,7 @@ constexpr CG_NS::DcId EmissiveImgSampler = 8;
 
 /// Shader pathnames.
 ///
-using Shader = std::pair<CG_NS::Stage, const wchar_t*>;
+using Shader = pair<CG_NS::Stage, const wchar_t*>;
 
 constexpr wchar_t ShaderDir[] = L"bin/";
 

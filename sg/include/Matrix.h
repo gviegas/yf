@@ -34,6 +34,18 @@ class Matrix {
   Matrix& operator=(const Matrix&) = default;
   ~Matrix() = default;
 
+  /// Single value construction that sets the matrix's diagonal.
+  ///
+  constexpr Matrix(T scalar) {
+    if (colN <= rowN) {
+      for (size_t i = 0; i < colN; ++i)
+        data_[i][i] = scalar;
+    } else {
+      for (size_t i = 0; i < rowN; ++i)
+        data_[i][i] = scalar;
+    }
+  }
+
   /// Initializer-list construction from column vectors.
   ///
   /// Missing components are default-initialized.

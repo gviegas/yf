@@ -170,7 +170,7 @@ void WindowXCB::close() {
   mapped_ = false;
 }
 
-void WindowXCB::setTitle(const std::wstring& title) {
+void WindowXCB::setTitle(const wstring& title) {
   mbstate_t state;
   memset(&state, 0, sizeof state);
   char str[TitleLen];

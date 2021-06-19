@@ -23,6 +23,9 @@ class Node;
 struct Shape {
   Vec3f t;
   Qnionf r;
+
+  Shape(const Vec3f& t = {}, const Qnionf& r = {1.0f, {}});
+  virtual ~Shape() = 0;
 };
 
 /// Sphere shape.

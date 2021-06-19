@@ -17,11 +17,23 @@
 using namespace SG_NS;
 using namespace std;
 
+//
+// Shape
+//
+
+Shape::Shape(const Vec3f& t, const Qnionf& r) : t(t), r(r) { }
+
+Shape::~Shape() { }
+
 Sphere::Sphere(float radius, const Vec3f& t, const Qnionf& r)
   : Shape{t, r}, radius(max(radius, FLT_MIN)) { }
 
 BBox::BBox(const Vec3f& extent, const Vec3f& t, const Qnionf& r)
   : Shape{t, r}, extent(extent) { }
+
+//
+// Body
+//
 
 class Body::Impl {
  public:

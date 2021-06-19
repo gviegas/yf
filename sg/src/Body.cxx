@@ -69,9 +69,9 @@ class Body::Impl {
   }
 
  private:
-  vector<Sphere> spheres_;
-  vector<BBox> bboxes_;
-  Node* node_;
+  vector<Sphere> spheres_{};
+  vector<BBox> bboxes_{};
+  Node* node_ = nullptr;
 };
 
 Body::Body(const Shape& shape) : impl_(make_unique<Impl>(shape)) { }

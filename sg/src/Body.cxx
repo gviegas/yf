@@ -50,7 +50,7 @@ class Body::Impl {
   Impl(const vector<Shape*>& shapes) {
     for (const auto& shape : shapes) {
       assert(shape);
-      const auto& type = typeid(shape);
+      const auto& type = typeid(*shape);
       if (type == typeid(Sphere))
         spheres_.push_back(static_cast<const Sphere&>(*shape));
       else if (type == typeid(BBox))

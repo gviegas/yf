@@ -12,10 +12,34 @@
 
 #include "yf/sg/Defs.h"
 #include "yf/sg/Vector.h"
+#include "yf/sg/Quaternion.h"
 
 SG_NS_BEGIN
 
 class Node;
+
+/// Physics Shape.
+///
+struct Shape {
+  const Vec3f t;
+  const Qnionf r;
+};
+
+/// Sphere shape.
+///
+struct Sphere : Shape {
+  const float radius;
+
+  Sphere(float radius, const Vec3f& t = {}, const Qnionf& r = {1.0f, {}});
+};
+
+/// Bounding box shape.
+///
+struct BBox : Shape {
+  const Vec3f extent;
+
+  BBox(const Vec3f& extent, const Vec3f& t = {}, const Qnionf& r = {1.0f, {}});
+};
 
 /// Physics body.
 ///

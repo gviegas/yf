@@ -21,14 +21,14 @@ class Node;
 /// Physics Shape.
 ///
 struct Shape {
-  const Vec3f t;
-  const Qnionf r;
+  Vec3f t;
+  Qnionf r;
 };
 
 /// Sphere shape.
 ///
 struct Sphere : Shape {
-  const float radius;
+  float radius;
 
   Sphere(float radius, const Vec3f& t = {}, const Qnionf& r = {1.0f, {}});
 };
@@ -36,7 +36,7 @@ struct Sphere : Shape {
 /// Bounding box shape.
 ///
 struct BBox : Shape {
-  const Vec3f extent;
+  Vec3f extent;
 
   BBox(const Vec3f& extent, const Vec3f& t = {}, const Qnionf& r = {1.0f, {}});
 };
@@ -45,8 +45,7 @@ struct BBox : Shape {
 ///
 class Body {
  public:
-  Body(const Vec3f& offset, float radius);
-  Body(const Vec3f& offset, const Vec3f& dimensions);
+  Body(const Shape& shape);
   Body(const Body& other);
   Body& operator=(const Body& other);
   ~Body();

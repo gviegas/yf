@@ -7,6 +7,8 @@
 
 #include <cfloat>
 #include <algorithm>
+#include <typeinfo>
+#include <stdexcept>
 
 #include "Body.h"
 #include "Node.h"
@@ -22,16 +24,15 @@ BBox::BBox(const Vec3f& extent, const Vec3f& t, const Qnionf& r)
 
 class Body::Impl {
  public:
-  enum Type {
-    Sphere,
-    BBox
-  };
-
-  Impl(const Vec3f& offset, float radius)
-    : type_(Sphere), offset_(offset), v_{radius} { }
-
-  Impl(const Vec3f& offset, const Vec3f& dimensions)
-    : type_(BBox), offset_(offset), v_(dimensions) { }
+  Impl(const Shape& shape) {
+    const auto& type = typeid(shape);
+    if (type == typeid(Sphere))
+      spheres_.push_back(static_cast<const Sphere&>(shape));
+    else if (type == typeid(BBox))
+      bboxes_.push_back(static_cast<const BBox&>(shape));
+    else
+      throw invalid_argument("Body() unknown shape type");
+  }
 
   Node* node() {
     return node_;
@@ -42,17 +43,12 @@ class Body::Impl {
   }
 
  private:
-  Type type_;
-  Vec3f offset_;
-  Vec3f v_;
+  vector<Sphere> spheres_;
+  vector<BBox> bboxes_;
   Node* node_;
 };
 
-Body::Body(const Vec3f& offset, float radius)
-  : impl_(make_unique<Impl>(offset, radius)) { }
-
-Body::Body(const Vec3f& offset, const Vec3f& dimensions)
-  : impl_(make_unique<Impl>(offset, dimensions)) { }
+Body::Body(const Shape& shape) : impl_(make_unique<Impl>(shape)) { }
 
 Body::Body(const Body& other) : impl_(make_unique<Impl>(*other.impl_)) { }
 

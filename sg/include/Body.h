@@ -9,6 +9,7 @@
 #define YF_SG_BODY_H
 
 #include <memory>
+#include <vector>
 
 #include "yf/sg/Defs.h"
 #include "yf/sg/Vector.h"

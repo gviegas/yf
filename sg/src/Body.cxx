@@ -5,11 +5,20 @@
 // Copyright © 2021 Gustavo C. Viegas.
 //
 
+#include <cfloat>
+#include <algorithm>
+
 #include "Body.h"
 #include "Node.h"
 
 using namespace SG_NS;
 using namespace std;
+
+Sphere::Sphere(float radius, const Vec3f& t, const Qnionf& r)
+  : Shape{t, r}, radius(max(radius, FLT_MIN)) { }
+
+BBox::BBox(const Vec3f& extent, const Vec3f& t, const Qnionf& r)
+  : Shape{t, r}, extent(extent) { }
 
 class Body::Impl {
  public:

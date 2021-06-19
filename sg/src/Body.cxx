@@ -8,6 +8,7 @@
 #include <cfloat>
 #include <algorithm>
 #include <typeinfo>
+#include <cassert>
 #include <stdexcept>
 
 #include "Body.h"
@@ -34,6 +35,19 @@ class Body::Impl {
       throw invalid_argument("Body() unknown shape type");
   }
 
+  Impl(const vector<Shape*>& shapes) {
+    for (const auto& shape : shapes) {
+      assert(shape);
+      const auto& type = typeid(shape);
+      if (type == typeid(Sphere))
+        spheres_.push_back(static_cast<const Sphere&>(*shape));
+      else if (type == typeid(BBox))
+        bboxes_.push_back(static_cast<const BBox&>(*shape));
+      else
+        throw invalid_argument("Body() unknown shape type");
+    }
+  }
+
   Node* node() {
     return node_;
   }
@@ -49,6 +63,8 @@ class Body::Impl {
 };
 
 Body::Body(const Shape& shape) : impl_(make_unique<Impl>(shape)) { }
+
+Body::Body(const vector<Shape*>& shapes) : impl_(make_unique<Impl>(shapes)) { }
 
 Body::Body(const Body& other) : impl_(make_unique<Impl>(*other.impl_)) { }
 

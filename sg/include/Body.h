@@ -46,6 +46,7 @@ struct BBox : Shape {
 class Body {
  public:
   Body(const Shape& shape);
+  Body(const std::vector<Shape*>& shapes);
   Body(const Body& other);
   Body& operator=(const Body& other);
   ~Body();

@@ -66,12 +66,78 @@ class Body::Impl {
 
   void setNode(Node* node) {
     node_ = node;
+    if (node_) {
+      const auto& xform = node_->transform();
+      localT_ = {xform[3][0], xform[3][1], xform[3][2]};
+    }
+  }
+
+  void next() {
+    const auto& xform = node_->transform();
+    localT_ = {xform[3][0], xform[3][1], xform[3][2]};
+  }
+
+  void undo() {
+    node_->transform()[3] = {localT_[0], localT_[1], localT_[2], 1.0f};
+  }
+
+  bool check(Impl& other) {
+    const auto& xform = node_->transform();
+    const Vec3f t{xform[3][0], xform[3][1], xform[3][2]};
+    const auto& xform2 = other.node_->transform();
+    const Vec3f t2{xform2[3][0], xform2[3][1], xform2[3][2]};
+
+    for (const auto& sph : spheres_) {
+      for (const auto& sph2 : other.spheres_)
+        if (intersects(sph, t, sph2, t2))
+          return true;
+      for (const auto& bb2 : other.bboxes_)
+        if (intersects(sph, t, bb2, t2))
+          return true;
+    }
+
+    for (const auto& bb : bboxes_) {
+      for (const auto& sph2 : other.spheres_)
+        if (intersects(sph2, t2, bb, t))
+          return true;
+      for (const auto& bb2 : other.bboxes_)
+        if (intersects(bb, t, bb2, t2))
+          return true;
+    }
+
+    return false;
+  }
+
+  static bool intersects(const Sphere& sphere1, const Vec3f& t1,
+                         const Sphere& sphere2, const Vec3f& t2) {
+
+    const Vec3f p1 = sphere1.t + t1;
+    const Vec3f p2 = sphere2.t + t2;
+    const auto dist = (p2 - p1).length();
+    return dist < sphere1.radius + sphere2.radius;
+  }
+
+  static bool intersects(const BBox& bbox1, const Vec3f& t1,
+                         const BBox& bbox2, const Vec3f& t2) {
+
+    // TODO
+    assert(false);
+    return false;
+  }
+
+  static bool intersects(const Sphere& sphere, const Vec3f& t1,
+                         const BBox& bbox, const Vec3f& t2) {
+
+    // TODO
+    assert(false);
+    return false;
   }
 
  private:
   vector<Sphere> spheres_{};
   vector<BBox> bboxes_{};
   Node* node_ = nullptr;
+  Vec3f localT_{};
 };
 
 Body::Body(const Shape& shape) : impl_(make_unique<Impl>(shape)) { }
@@ -93,4 +159,34 @@ Node* Body::node() {
 
 void Body::setNode(Node* node) {
   impl_->setNode(node);
+}
+
+void Body::update(const vector<Body*>& bodies) {
+  if (bodies.empty())
+    return;
+
+  const auto n = bodies.size();
+
+  for (size_t i = 0; i < n; ++i) {
+    auto body1 = bodies[i];
+    assert(body1);
+
+    auto chk = false;
+    for (size_t j = i+1; j < n; ++j) {
+      auto body2 = bodies[j];
+      assert(body2);
+
+      chk = body1->impl_->check(*body2->impl_);
+      if (chk) {
+        body2->impl_->undo();
+        break;
+      }
+    }
+
+    if (chk)
+      body1->impl_->undo();
+    else
+      body1->impl_->next();
+  }
+
 }

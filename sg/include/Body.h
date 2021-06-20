@@ -58,6 +58,8 @@ class Body {
   Node* node();
   void setNode(Node* node);
 
+  static void update(const std::vector<Body*>& bodies);
+
  private:
   class Impl;
   std::unique_ptr<Impl> impl_;

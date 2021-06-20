@@ -114,23 +114,45 @@ class Body::Impl {
     const Vec3f p1 = sphere1.t + t1;
     const Vec3f p2 = sphere2.t + t2;
     const auto dist = (p2 - p1).length();
+
     return dist < sphere1.radius + sphere2.radius;
   }
 
   static bool intersects(const BBox& bbox1, const Vec3f& t1,
                          const BBox& bbox2, const Vec3f& t2) {
 
-    // TODO
-    assert(false);
-    return false;
+    const Vec3f p1 = bbox1.t + t1;
+    const Vec3f off1 = bbox1.extent * 0.5f;
+    const Vec3f min1 = p1 - off1;
+    const Vec3f max1 = p1 + off1;
+
+    const Vec3f p2 = bbox2.t + t2;
+    const Vec3f off2 = bbox2.extent * 0.5f;
+    const Vec3f min2 = p2 - off2;
+    const Vec3f max2 = p2 + off2;
+
+    return min1[0] <= max2[0] && max1[0] >= min2[0] &&
+           min1[1] <= max2[1] && max1[1] >= min2[1] &&
+           min1[2] <= max2[2] && max1[2] >= min2[2];
   }
 
   static bool intersects(const Sphere& sphere, const Vec3f& t1,
                          const BBox& bbox, const Vec3f& t2) {
 
-    // TODO
-    assert(false);
-    return false;
+    const Vec3f p1 = sphere.t + t1;
+
+    Vec3f p2 = bbox.t + t2;
+    const Vec3f off2 = bbox.extent * 0.5f;
+    const Vec3f min2 = p2 - off2;
+    const Vec3f max2 = p2 + off2;
+
+    p2[0] = clamp(p1[0], min2[0], max2[0]);
+    p2[1] = clamp(p1[1], min2[1], max2[1]);
+    p2[2] = clamp(p1[2], min2[2], max2[2]);
+
+    const auto dist = (p2 - p1).length();
+
+    return dist < sphere.radius;
   }
 
  private:

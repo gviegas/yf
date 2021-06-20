@@ -563,14 +563,157 @@ struct MiscTest : public Test {
     return true;
   }
 
+  bool misc5() {
+    Collection coll;
+    coll.load(L"tmp/cube.gltf");
+
+    // Dup.
+    Node* node1 = nullptr;
+    Node* node2 = nullptr;
+    Node* node = nullptr;
+    for (auto& nd : coll.nodes()) {
+      if (nd->name() == L"Cube") {
+        Model* mdl = dynamic_cast<Model*>(nd.get());
+        auto mesh = mdl->mesh();
+        auto matl = mdl->material();
+        Skin skin{};
+        node = new Model(mesh, matl, skin);
+        nd->parent()->insert(*node);
+        node->name() = L"Cube2";
+        node->transform() = translate(5.0f, 0.0f, 0.0f);
+        node1 = nd.get();
+        node2 = node;
+        break;
+      }
+    }
+    if (node)
+      coll.nodes().push_back(unique_ptr<Model>(static_cast<Model*>(node)));
+    else
+      return -1;
+
+    Body body1(BBox(2.0f));
+    Body body2(Sphere(1.0f));
+
+    body1.setNode(node1);
+    body2.setNode(node2);
+
+    // Render
+    auto win = WS_NS::createWindow(640, 480, name_);
+    View view(win.get());
+
+    WS_NS::onKbKey(onKey);
+
+    auto scn = coll.scenes().front().get();
+    scn->camera().place({10.0f, 10.0f, 10.0f});
+    scn->camera().point({});
+
+    bool camMode = true;
+    bool isPlaying = false;
+
+    view.loop(*scn, 60, [&](auto elapsedTime) {
+      if (input.quit)
+        return false;
+
+      auto& cam = scn->camera();
+
+      if (input.mode) {
+        camMode = !camMode;
+        input.mode = false;
+      }
+
+      if (input.next && node) {
+        node = node == node1 ? node2 : node1;
+        input.next = false;
+      }
+
+      if (camMode || !node) {
+        if (input.moveF)
+          cam.moveForward(deltaM);
+        if (input.moveB)
+          cam.moveBackward(deltaM);
+        if (input.moveL)
+          cam.moveLeft(deltaM);
+        if (input.moveR)
+          cam.moveRight(deltaM);
+        if (input.moveU)
+          cam.moveUp(deltaM);
+        if (input.moveD)
+          cam.moveDown(deltaM);
+        if (input.turnL)
+          cam.turnLeft(deltaT);
+        if (input.turnR)
+          cam.turnRight(deltaT);
+        if (input.turnU)
+          cam.turnUp(deltaT);
+        if (input.turnD)
+          cam.turnDown(deltaT);
+        if (input.zoomI)
+          cam.zoomIn(deltaZ);
+        if (input.zoomO)
+          cam.zoomOut(deltaZ);
+        if (input.place)
+          cam.place({0.0f, 0.0f, 20.0f});
+        if (input.point)
+          cam.point({});
+      } else {
+        Vec3f t;
+        Qnionf r(1.0f, {});
+        if (input.moveF)
+          t += {0.0f, 0.0f, 0.1f};
+        if (input.moveB)
+          t += {0.0f, 0.0f, -0.1f};
+        if (input.moveL)
+          t += {0.1f, 0.0f, 0.0f};
+        if (input.moveR)
+          t += {-0.1f, 0.0f, 0.0f};
+        if (input.moveU)
+          t += {0.0f, 0.1f, 0.0f};
+        if (input.moveD)
+          t += {0.0f, -0.1f, 0.0f};
+        if (input.turnL)
+          r *= rotateQY(0.1f);
+        if (input.turnR)
+          r *= rotateQY(-0.1f);
+        if (input.turnU)
+          r *= rotateQX(-0.1f);
+        if (input.turnD)
+          r *= rotateQX(0.1f);
+        if (input.place)
+          t = {0.0f, 0.0f, 0.0f};
+
+        node->transform() *= translate(t) * rotate(r);
+        Body::update({&body1, &body2});
+      }
+
+      if (key == WS_NS::KeyCodeZ) {
+        if (!coll.animations().empty())
+          isPlaying = true;
+      } else if (key == WS_NS::KeyCodeX) {
+        if (!coll.animations().empty()) {
+          isPlaying = false;
+          coll.animations().back().stop();
+        }
+      }
+
+      if (isPlaying)
+        wcout << "\n completed ? "
+              << (coll.animations().back().play(elapsedTime) ? "no" : "yes");
+
+      key = WS_NS::KeyCodeUnknown;
+      return true;
+    });
+
+    return true;
+  }
+
   Assertions run(const vector<string>&) {
-#if 1
+#if 0
     return {{L"misc1()", misc1()},
             {L"misc2()", misc2()},
             {L"misc3()", misc3()},
             {L"misc4()", misc4()}};
 #else
-    return {{L"misc4()", misc4()}};
+    return {{L"misc5()", misc5()}};
 #endif
   }
 };

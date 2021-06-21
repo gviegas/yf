@@ -409,7 +409,7 @@ void Renderer::render(Scene& scene, CG_NS::Target& target) {
     cmdBuffer_->queue().submit();
   } while (!models_.empty());
 
-#ifdef YF_DEVEL
+#if defined(YF_DEVEL) && defined(YF_DEVEL_PRINT)
   print();
 #endif
 }

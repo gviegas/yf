@@ -25,6 +25,8 @@ InteractiveTest::InteractiveTest(wstring&& name, uint32_t width,
 
 void InteractiveTest::setScene(Scene* scene) {
   scene_ = scene;
+  if (scene_)
+    view_.swapScene(*scene);
 }
 
 void InteractiveTest::setObject(Node* node) {

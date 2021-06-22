@@ -20,7 +20,9 @@ InteractiveTest::Input InteractiveTest::input;
 
 InteractiveTest::InteractiveTest(wstring&& name, uint32_t width,
                                  uint32_t height)
-  : Test(move(name)), window_(WS_NS::createWindow(width, height, name)),
+  : Test(move(name)),
+    window_(WS_NS::createWindow(width, height, name, WS_NS::Window::Resizable |
+                                                     WS_NS::Window::Hidden)),
     view_(window_.get()), scene_{}, object_{} { }
 
 void InteractiveTest::setScene(Scene* scene) {
@@ -35,6 +37,7 @@ void InteractiveTest::setObject(Node* node) {
 
 void InteractiveTest::update(Scene& scene, const View::UpdateFn& fn) {
   scene_ = &scene;
+  window_->open();
 
   WS_NS::onPtMotion(onMotion);
   WS_NS::onPtButton(onButton);
@@ -113,6 +116,7 @@ void InteractiveTest::update(Scene& scene, const View::UpdateFn& fn) {
     return fn ? fn(elapsedTime) : true;
   });
 
+  window_->close();
   input = {};
 }
 

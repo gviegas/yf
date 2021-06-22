@@ -33,6 +33,8 @@ struct MiscTest : public Test {
     bool zoomI, zoomO;
     bool place, point;
     bool mode, next;
+    bool primary;
+    int x, y;
     bool quit;
   };
 
@@ -99,6 +101,22 @@ struct MiscTest : public Test {
       break;
     case WS_NS::KeyCodeEsc:
       input.quit = b;
+      break;
+    default:
+      break;
+    }
+  }
+
+  static void onButton(WS_NS::Button button, WS_NS::ButtonState state,
+                       int32_t x, int32_t y) {
+
+    const bool b = state == WS_NS::ButtonStatePressed;
+
+    switch (button) {
+    case WS_NS::ButtonLeft:
+      input.primary = b;
+      input.x = x;
+      input.y = y;
       break;
     default:
       break;
@@ -706,14 +724,119 @@ struct MiscTest : public Test {
     return true;
   }
 
+  bool misc6() {
+    Collection coll;
+    coll.load(L"tmp/fullscene.gltf");
+
+    // Render
+    auto win = WS_NS::createWindow(640, 480, name_);
+    View view(win.get());
+
+    WS_NS::onKbKey(onKey);
+    WS_NS::onPtButton(onButton);
+
+    auto scn = coll.scenes().front().get();
+    auto& cam = scn->camera();
+    cam.place({10.0f, 10.0f, 10.0f});
+    cam.point({});
+
+    Node* node = nullptr;
+    for (auto& nd : coll.nodes()) {
+      if (nd->name() == L"Cube") {
+        node = nd.get();
+        break;
+      }
+    }
+
+    bool camMode = true;
+
+    view.loop(*scn, 60, [&](auto) {
+      if (input.quit)
+        return false;
+
+      if (input.mode) {
+        camMode = !camMode;
+        input.mode = false;
+      }
+
+      if (camMode || !node) {
+        if (input.moveF)
+          cam.moveForward(deltaM);
+        if (input.moveB)
+          cam.moveBackward(deltaM);
+        if (input.moveL)
+          cam.moveLeft(deltaM);
+        if (input.moveR)
+          cam.moveRight(deltaM);
+        if (input.moveU)
+          cam.moveUp(deltaM);
+        if (input.moveD)
+          cam.moveDown(deltaM);
+        if (input.turnL)
+          cam.turnLeft(deltaT);
+        if (input.turnR)
+          cam.turnRight(deltaT);
+        if (input.turnU)
+          cam.turnUp(deltaT);
+        if (input.turnD)
+          cam.turnDown(deltaT);
+        if (input.zoomI)
+          cam.zoomIn(deltaZ);
+        if (input.zoomO)
+          cam.zoomOut(deltaZ);
+        if (input.place)
+          cam.place({0.0f, 0.0f, 20.0f});
+        if (input.point)
+          cam.point({});
+      } else {
+        Vec3f t;
+        Qnionf r(1.0f, {});
+        if (input.moveF)
+          t += {0.0f, 0.0f, 0.1f};
+        if (input.moveB)
+          t += {0.0f, 0.0f, -0.1f};
+        if (input.moveL)
+          t += {0.1f, 0.0f, 0.0f};
+        if (input.moveR)
+          t += {-0.1f, 0.0f, 0.0f};
+        if (input.moveU)
+          t += {0.0f, 0.1f, 0.0f};
+        if (input.moveD)
+          t += {0.0f, -0.1f, 0.0f};
+        if (input.turnL)
+          r *= rotateQY(0.1f);
+        if (input.turnR)
+          r *= rotateQY(-0.1f);
+        if (input.turnU)
+          r *= rotateQX(-0.1f);
+        if (input.turnD)
+          r *= rotateQX(0.1f);
+        if (input.place)
+          t = {0.0f, 0.0f, 0.0f};
+
+        node->transform() *= translate(t) * rotate(r);
+      }
+
+      if (input.primary) {
+        wcout << "\nprimary: (" << input.x << ", " << input.y << ")\n";
+        input.primary = false;
+      }
+
+      return true;
+    });
+
+    return true;
+  }
+
   Assertions run(const vector<string>&) {
 #if 0
     return {{L"misc1()", misc1()},
             {L"misc2()", misc2()},
             {L"misc3()", misc3()},
-            {L"misc4()", misc4()}};
+            {L"misc4()", misc4()},
+            {L"misc5()", misc5()}};
 #else
-    return {{L"misc5()", misc5()}};
+    return {{L"misc6()", misc6()}};
 #endif
   }
 };

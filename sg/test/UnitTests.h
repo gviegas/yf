@@ -34,7 +34,6 @@ Test* collectionTest();
 Test* cameraTest();
 Test* bodyTest();
 Test* renderTest();
-Test* miscTest();
 
 using TestFn = std::function<Test* ()>;
 const std::unordered_map<std::string, std::vector<TestFn>> TIDs{
@@ -54,11 +53,10 @@ const std::unordered_map<std::string, std::vector<TestFn>> TIDs{
   {"camera", {cameraTest}},
   {"body", {bodyTest}},
   {"render", {renderTest}},
-  {"misc", {miscTest}},
   {"all", {nodeTest, sceneTest, viewTest, vectorTest, quaternionTest,
            matrixTest, meshTest, textureTest, materialTest, skinTest,
            modelTest, animationTest, collectionTest, cameraTest, bodyTest,
-           renderTest, miscTest}}
+           renderTest}}
 };
 
 inline std::vector<Test*> unitTests(const std::string& id) {

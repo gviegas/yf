@@ -5,8 +5,11 @@
 // Copyright © 2021 Gustavo C. Viegas.
 //
 
-#include "Test.h"
+#include <iostream>
+
+#include "InteractiveTest.h"
 #include "SG.h"
+#include "yf/Except.h"
 
 using namespace TEST_NS;
 using namespace SG_NS;
@@ -14,8 +17,8 @@ using namespace std;
 
 INTERNAL_NS_BEGIN
 
-struct BodyTest : Test {
-  BodyTest() : Test(L"Body") { }
+struct BodyTest : InteractiveTest {
+  BodyTest() : InteractiveTest(L"Body", 640, 480) { }
 
   Assertions run(const vector<string>&) {
     Assertions a;
@@ -54,7 +57,79 @@ struct BodyTest : Test {
     a.push_back({L"setNode()", body1.node() == &node1 && !body2.node() &&
                                body3.node() == &node2});
 
+    fromFile();
     return a;
+  }
+
+  void fromFile() {
+    Collection coll;
+    coll.load(L"tmp/cube.gltf");
+
+    // Dup.
+    Node* node1 = nullptr;
+    Node* node2 = nullptr;
+    Node* node = nullptr;
+    for (auto& nd : coll.nodes()) {
+      if (nd->name() == L"Cube") {
+        Model* mdl = dynamic_cast<Model*>(nd.get());
+        auto mesh = mdl->mesh();
+        auto matl = mdl->material();
+        Skin skin{};
+        node = new Model(mesh, matl, skin);
+        nd->parent()->insert(*node);
+        node->name() = L"Cube2";
+        node->transform() = translate(5.0f, 0.0f, 0.0f);
+        node1 = nd.get();
+        node2 = node;
+        break;
+      }
+    }
+    if (node)
+      coll.nodes().push_back(unique_ptr<Model>(static_cast<Model*>(node)));
+    else
+      throw yf::FileExcept("BodyTest fromFile() - Invalid file");
+
+    setObject(node);
+
+    // Physics bodies
+    Body body1(BBox(2.0f));
+    Body body2(Sphere(1.0f));
+
+    body1.setNode(node1);
+    body2.setNode(node2);
+
+    // Render
+    auto scn = coll.scenes().front().get();
+    scn->camera().place({10.0f, 10.0f, 10.0f});
+    scn->camera().point({});
+
+    bool isPlaying = false;
+
+    update(*scn, [&](auto elapsedTime) {
+      if (input.next || input.prev) {
+        node = node == node1 ? node2 : node1;
+        setObject(node);
+        input.next = input.prev = false;
+      }
+
+      Body::update({&body1, &body2});
+
+      if (input.primary) {
+        if (!coll.animations().empty())
+          isPlaying = true;
+      } else if (input.secondary) {
+        if (!coll.animations().empty()) {
+          isPlaying = false;
+          coll.animations().back().stop();
+        }
+      }
+
+      if (isPlaying)
+        wcout << "\n completed ? "
+              << (coll.animations().back().play(elapsedTime) ? "no" : "yes");
+
+      return true;
+    });
   }
 };
 

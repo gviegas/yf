@@ -6,15 +6,22 @@
 //
 
 #include "InteractiveTest.h"
+#include "Camera.h"
 
 using namespace TEST_NS;
 using namespace SG_NS;
 using namespace std;
 
+constexpr float deltaM = 0.215f;
+constexpr float deltaT = 0.025f;
+constexpr float deltaZ = 0.035f;
+
+InteractiveTest::Input InteractiveTest::input;
+
 InteractiveTest::InteractiveTest(wstring&& name, uint32_t width,
                                  uint32_t height)
   : Test(move(name)), window_(WS_NS::createWindow(width, height, name)),
-    view_(window_.get()), scene_{}, object_{}, updateFn_{}, input_{} { }
+    view_(window_.get()), scene_{}, object_{} { }
 
 void InteractiveTest::setScene(Scene* scene) {
   scene_ = scene;
@@ -26,21 +33,90 @@ void InteractiveTest::setObject(Node* node) {
 
 void InteractiveTest::update(Scene& scene, const View::UpdateFn& fn) {
   scene_ = &scene;
-  updateFn_ = fn;
+
+  WS_NS::onPtMotion(onMotion);
+  WS_NS::onPtButton(onButton);
+  WS_NS::onKbKey(onKey);
+
+  bool camMode = true;
 
   view_.loop(scene, 60, [&](auto elapsedTime) {
-    return fn(elapsedTime);
+    if (input.quit || !scene_)
+      return false;
+
+    auto& cam = scene_->camera();
+
+    if (input.mode) {
+      camMode = !camMode;
+      input.mode = false;
+    }
+
+    if (camMode || !object_) {
+      if (input.moveF)
+        cam.moveForward(deltaM);
+      if (input.moveB)
+        cam.moveBackward(deltaM);
+      if (input.moveL)
+        cam.moveLeft(deltaM);
+      if (input.moveR)
+        cam.moveRight(deltaM);
+      if (input.moveU)
+        cam.moveUp(deltaM);
+      if (input.moveD)
+        cam.moveDown(deltaM);
+      if (input.turnL)
+        cam.turnLeft(deltaT);
+      if (input.turnR)
+        cam.turnRight(deltaT);
+      if (input.turnU)
+        cam.turnUp(deltaT);
+      if (input.turnD)
+        cam.turnDown(deltaT);
+      if (input.zoomI)
+        cam.zoomIn(deltaZ);
+      if (input.zoomO)
+        cam.zoomOut(deltaZ);
+      if (input.place)
+        cam.place({0.0f, 0.0f, 20.0f});
+      if (input.point)
+        cam.point({});
+    } else {
+      Vec3f t;
+      Qnionf r(1.0f, {});
+      if (input.moveF)
+        t[2] += 0.1f;
+      if (input.moveB)
+        t[2] -= 0.1f;
+      if (input.moveL)
+        t[0] += 0.1f;
+      if (input.moveR)
+        t[0] -= 0.1f;
+      if (input.moveU)
+        t[1] += 0.1f;
+      if (input.moveD)
+        t[1] -= 0.1f;
+      if (input.turnL)
+        r *= rotateQY(0.1f);
+      if (input.turnR)
+        r *= rotateQY(-0.1f);
+      if (input.turnU)
+        r *= rotateQX(-0.1f);
+      if (input.turnD)
+        r *= rotateQX(0.1f);
+      if (input.place)
+        t = {0.0f, 0.0f, 0.0f};
+      object_->transform() *= translate(t) * rotate(r);
+    }
+
+    return fn ? fn(elapsedTime) : true;
   });
-}
 
-InteractiveTest::Input& InteractiveTest::input() {
-  return input_;
+  input = {};
 }
-
 
 void InteractiveTest::onMotion(int32_t x, int32_t y) {
-  input_.x = x;
-  input_.y = y;
+  input.x = x;
+  input.y = y;
 }
 
 void InteractiveTest::onButton(WS_NS::Button button, WS_NS::ButtonState state,
@@ -50,17 +126,17 @@ void InteractiveTest::onButton(WS_NS::Button button, WS_NS::ButtonState state,
 
   switch (button) {
   case WS_NS::ButtonLeft:
-    input_.primary = b;
+    input.primary = b;
     break;
   case WS_NS::ButtonRight:
-    input_.secondary = b;
+    input.secondary = b;
     break;
   default:
     break;
   }
 
-  input_.x = x;
-  input_.y = y;
+  input.x = x;
+  input.y = y;
 }
 
 void InteractiveTest::onKey(WS_NS::KeyCode key, WS_NS::KeyState state,
@@ -70,58 +146,58 @@ void InteractiveTest::onKey(WS_NS::KeyCode key, WS_NS::KeyState state,
 
   switch (key) {
   case WS_NS::KeyCodeW:
-    input_.moveF = b;
+    input.moveF = b;
     break;
   case WS_NS::KeyCodeS:
-    input_.moveB = b;
+    input.moveB = b;
     break;
   case WS_NS::KeyCodeA:
-    input_.moveL= b;
+    input.moveL= b;
     break;
   case WS_NS::KeyCodeD:
-    input_.moveR = b;
+    input.moveR = b;
     break;
   case WS_NS::KeyCodeR:
-    input_.moveU= b;
+    input.moveU= b;
     break;
   case WS_NS::KeyCodeF:
-    input_.moveD = b;
+    input.moveD = b;
     break;
   case WS_NS::KeyCodeLeft:
-    input_.turnL = b;
+    input.turnL = b;
     break;
   case WS_NS::KeyCodeRight:
-    input_.turnR = b;
+    input.turnR = b;
     break;
   case WS_NS::KeyCodeUp:
-    input_.turnU = b;
+    input.turnU = b;
     break;
   case WS_NS::KeyCodeDown:
-    input_.turnD = b;
+    input.turnD = b;
     break;
   case WS_NS::KeyCodeE:
-    input_.zoomI = b;
+    input.zoomI = b;
     break;
   case WS_NS::KeyCodeQ:
-    input_.zoomO = b;
+    input.zoomO = b;
     break;
   case WS_NS::KeyCodeReturn:
-    input_.place = b;
+    input.place = b;
     break;
   case WS_NS::KeyCodeSpace:
-    input_.point = b;
+    input.point = b;
     break;
   case WS_NS::KeyCodeM:
-    input_.mode = b;
+    input.mode = b;
     break;
   case WS_NS::KeyCodeComma:
-    input_.prev = b;
+    input.prev = b;
     break;
   case WS_NS::KeyCodeDot:
-    input_.next = b;
+    input.next = b;
     break;
   case WS_NS::KeyCodeEsc:
-    input_.quit = b;
+    input.quit = b;
     break;
   default:
     break;

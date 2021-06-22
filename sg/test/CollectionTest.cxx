@@ -9,7 +9,7 @@
 
 #include "yf/ws/WS.h"
 
-#include "Test.h"
+#include "InteractiveTest.h"
 #include "SG.h"
 
 using namespace TEST_NS;
@@ -18,83 +18,8 @@ using namespace std;
 
 INTERNAL_NS_BEGIN
 
-struct CollectionTest : Test {
-  CollectionTest() : Test(L"Collection") { }
-
-  struct Input {
-    bool moveF, moveB, moveL, moveR, moveU, moveD;
-    bool turnL, turnR, turnU, turnD;
-    bool zoomI, zoomO;
-    bool place, point;
-    bool mode;
-    bool quit;
-  };
-
-  static Input input;
-  static WS_NS::KeyCode key;
-  static constexpr float deltaM = 0.215f;
-  static constexpr float deltaT = 0.025f;
-  static constexpr float deltaZ = 0.035f;
-
-  static void onKey(WS_NS::KeyCode key, WS_NS::KeyState state,
-                    [[maybe_unused]] WS_NS::KeyModMask modMask) {
-
-    const bool b = state == WS_NS::KeyStatePressed;
-    CollectionTest::key = key;
-
-    switch (key) {
-    case WS_NS::KeyCodeW:
-      input.moveF = b;
-      break;
-    case WS_NS::KeyCodeS:
-      input.moveB = b;
-      break;
-    case WS_NS::KeyCodeA:
-      input.moveL= b;
-      break;
-    case WS_NS::KeyCodeD:
-      input.moveR = b;
-      break;
-    case WS_NS::KeyCodeR:
-      input.moveU= b;
-      break;
-    case WS_NS::KeyCodeF:
-      input.moveD = b;
-      break;
-    case WS_NS::KeyCodeLeft:
-      input.turnL = b;
-      break;
-    case WS_NS::KeyCodeRight:
-      input.turnR = b;
-      break;
-    case WS_NS::KeyCodeUp:
-      input.turnU = b;
-      break;
-    case WS_NS::KeyCodeDown:
-      input.turnD = b;
-      break;
-    case WS_NS::KeyCodeE:
-      input.zoomI = b;
-      break;
-    case WS_NS::KeyCodeQ:
-      input.zoomO = b;
-      break;
-    case WS_NS::KeyCodeReturn:
-      input.place = b;
-      break;
-    case WS_NS::KeyCodeSpace:
-      input.point = b;
-      break;
-    case WS_NS::KeyCodeM:
-      input.mode = b;
-      break;
-    case WS_NS::KeyCodeEsc:
-      input.quit = b;
-      break;
-    default:
-      break;
-    }
-  }
+struct CollectionTest : InteractiveTest {
+  CollectionTest() : InteractiveTest(L"Collection", 640, 480) { }
 
   Assertions run(const vector<string>&) {
     Assertions a;
@@ -320,11 +245,6 @@ struct CollectionTest : Test {
 #endif
 
     // Render
-    auto win = WS_NS::createWindow(640, 480, name_);
-    View view(win.get());
-
-    WS_NS::onKbKey(onKey);
-
     auto scn = coll.scenes().front().get();
     scn->camera().place({10.0f, 10.0f, 10.0f});
     scn->camera().point({});
@@ -337,83 +257,10 @@ struct CollectionTest : Test {
       }
     }
 
-    bool camMode = true;
-
-    view.loop(*scn, 60, [&](auto) {
-      if (input.quit)
-        return false;
-
-      auto& cam = scn->camera();
-
-      if (input.mode) {
-        camMode = !camMode;
-        input.mode = false;
-      }
-
-      if (camMode || !obj) {
-        if (input.moveF)
-          cam.moveForward(deltaM);
-        if (input.moveB)
-          cam.moveBackward(deltaM);
-        if (input.moveL)
-          cam.moveLeft(deltaM);
-        if (input.moveR)
-          cam.moveRight(deltaM);
-        if (input.moveU)
-          cam.moveUp(deltaM);
-        if (input.moveD)
-          cam.moveDown(deltaM);
-        if (input.turnL)
-          cam.turnLeft(deltaT);
-        if (input.turnR)
-          cam.turnRight(deltaT);
-        if (input.turnU)
-          cam.turnUp(deltaT);
-        if (input.turnD)
-          cam.turnDown(deltaT);
-        if (input.zoomI)
-          cam.zoomIn(deltaZ);
-        if (input.zoomO)
-          cam.zoomOut(deltaZ);
-        if (input.place)
-          cam.place({0.0f, 0.0f, 20.0f});
-        if (input.point)
-          cam.point({});
-      } else {
-        Vec3f t;
-        Qnionf r(1.0f, {});
-        if (input.moveF)
-          t[2] += 0.1f;
-        if (input.moveB)
-          t[2] -= 0.1f;
-        if (input.moveL)
-          t[0] += 0.1f;
-        if (input.moveR)
-          t[0] -= 0.1f;
-        if (input.moveU)
-          t[1] += 0.1f;
-        if (input.moveD)
-          t[1] -= 0.1f;
-        if (input.turnL)
-          r *= rotateQY(0.1f);
-        if (input.turnR)
-          r *= rotateQY(-0.1f);
-        if (input.turnU)
-          r *= rotateQX(-0.1f);
-        if (input.turnD)
-          r *= rotateQX(0.1f);
-        if (input.place)
-          t = {0.0f, 0.0f, 0.0f};
-        obj->transform() *= translate(t) * rotate(r);
-      }
-
-      return true;
-    });
+    setObject(obj);
+    update(*scn, {});
   }
 };
-
-CollectionTest::Input CollectionTest::input{};
-WS_NS::KeyCode CollectionTest::key = WS_NS::KeyCodeUnknown;
 
 INTERNAL_NS_END
 

@@ -78,7 +78,7 @@ struct BodyTest : InteractiveTest {
         node = new Model(mesh, matl, skin);
         nd->parent()->insert(*node);
         node->name() = L"Cube2";
-        node->transform() = translate(5.0f, 0.0f, 0.0f);
+        node->transform() = translate(0.0f, 15.0f, 0.0f);
         node1 = nd.get();
         node2 = node;
         break;
@@ -100,8 +100,6 @@ struct BodyTest : InteractiveTest {
 
     // Render
     auto scn = coll.scenes().front().get();
-    scn->camera().place({10.0f, 10.0f, 10.0f});
-    scn->camera().point({});
 
     bool isPlaying = false;
 
@@ -111,6 +109,15 @@ struct BodyTest : InteractiveTest {
         setObject(node);
         input.next = input.prev = false;
       }
+
+      float dt = chrono::duration<float>(elapsedTime).count();
+
+      auto& xform = node->transform();
+      Mat3f rot{{xform[0][0], xform[0][1], xform[0][2]},
+                {xform[1][0], xform[1][1], xform[1][2]},
+                {xform[2][0], xform[2][1], xform[2][2]}};
+      auto g = invert(rot) * Vec3f{0.0f, -9.8f * dt, 0.0f};
+      xform *= translate(g);
 
       Body::update({&body1, &body2});
 

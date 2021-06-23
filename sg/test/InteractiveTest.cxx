@@ -16,7 +16,7 @@ constexpr float deltaM = 0.215f;
 constexpr float deltaT = 0.025f;
 constexpr float deltaZ = 0.035f;
 
-InteractiveTest::Input InteractiveTest::input;
+InteractiveTest::Input InteractiveTest::input{};
 
 InteractiveTest::InteractiveTest(wstring&& name, uint32_t width,
                                  uint32_t height)

@@ -5,6 +5,8 @@
 // Copyright © 2021 Gustavo C. Viegas.
 //
 
+#include <iostream>
+
 #include "InteractiveTest.h"
 #include "Camera.h"
 
@@ -12,9 +14,9 @@ using namespace TEST_NS;
 using namespace SG_NS;
 using namespace std;
 
-constexpr float deltaM = 0.215f;
-constexpr float deltaT = 0.025f;
-constexpr float deltaZ = 0.035f;
+constexpr float deltaM = 16.0f;
+constexpr float deltaT = 2.0f;
+constexpr float deltaZ = 5.0f;
 
 InteractiveTest::Input InteractiveTest::input{};
 
@@ -56,31 +58,88 @@ void InteractiveTest::update(Scene& scene, const View::UpdateFn& fn) {
       input.mode = false;
     }
 
+    const auto dt = chrono::duration<float>(elapsedTime).count();
+
+    if (input.primary) {
+      if (input.x < input.prevX) {
+        cam.turnLeft(0.25f * (input.prevX - input.x) * dt);
+        input.prevX = input.x;
+      } else if (input.x > input.prevX) {
+        cam.turnRight(0.25f * (input.x - input.prevX) * dt);
+        input.prevX = input.x;
+      }
+      if (input.y < input.prevY) {
+        cam.turnUp(0.25f * (input.prevY - input.y) * dt);
+        input.prevY = input.y;
+      } else if (input.y > input.prevY) {
+        cam.turnDown(0.25f * (input.y - input.prevY) * dt);
+        input.prevY = input.y;
+      }
+
+      const auto x = static_cast<float>(input.x);
+      const auto y = static_cast<float>(input.y);
+      const auto w = static_cast<float>(window_->width());
+      const auto h = static_cast<float>(window_->height());
+
+      auto project = [&] {
+        auto p = object_->worldTransform()[3];
+        p = cam.transform() * p;
+        p /= p[3];
+        p *= 0.5f;
+        p += 0.5f;
+        p[0] *= w;
+        p[1] *= h;
+        return Vec3f{p[0], p[1], p[2]};
+      };
+
+      auto unproject = [&] {
+        Vec4f p{x / w, y / h, 1.0f, 1.0f};
+        p *= 2.0f;
+        p -= 1.0f;
+        p = invert(cam.transform()) * p;
+        p /= p[3];
+        return Vec3f{p[0], p[1], p[2]};
+      };
+
+      if (object_) {
+        const auto l = object_->worldTransform()[3];
+        const auto p = project();
+        wcout << "\nobject: \n"
+              << " loc.  (" << l[0] << ", " << l[1] << ", " << l[2] << ")\n"
+              << " proj. (" << p[0] << ", " << p[1] << ", " << p[2] << ")\n";
+      }
+
+      const auto u = unproject();
+      wcout << "\npointer: \n"
+            << " loc.    (" << input.x << ", " << input.y << ")\n"
+            << " unproj. (" << u[0] << "," << u[1] << "," << u[2] << ")\n";
+    }
+
     if (camMode || !object_) {
       if (input.moveF)
-        cam.moveForward(deltaM);
+        cam.moveForward(deltaM * dt);
       if (input.moveB)
-        cam.moveBackward(deltaM);
+        cam.moveBackward(deltaM * dt);
       if (input.moveL)
-        cam.moveLeft(deltaM);
+        cam.moveLeft(deltaM * dt);
       if (input.moveR)
-        cam.moveRight(deltaM);
+        cam.moveRight(deltaM * dt);
       if (input.moveU)
-        cam.moveUp(deltaM);
+        cam.moveUp(deltaM * dt);
       if (input.moveD)
-        cam.moveDown(deltaM);
+        cam.moveDown(deltaM * dt);
       if (input.turnL)
-        cam.turnLeft(deltaT);
+        cam.turnLeft(deltaT * dt);
       if (input.turnR)
-        cam.turnRight(deltaT);
+        cam.turnRight(deltaT * dt);
       if (input.turnU)
-        cam.turnUp(deltaT);
+        cam.turnUp(deltaT * dt);
       if (input.turnD)
-        cam.turnDown(deltaT);
+        cam.turnDown(deltaT * dt);
       if (input.zoomI)
-        cam.zoomIn(deltaZ);
+        cam.zoomIn(deltaZ * dt);
       if (input.zoomO)
-        cam.zoomOut(deltaZ);
+        cam.zoomOut(deltaZ * dt);
       if (input.place)
         cam.place({0.0f, 0.0f, 20.0f});
       if (input.point)
@@ -89,28 +148,28 @@ void InteractiveTest::update(Scene& scene, const View::UpdateFn& fn) {
       Vec3f t;
       Qnionf r(1.0f, {});
       if (input.moveF)
-        t[2] += 0.1f;
+        t[2] += 10.0f;
       if (input.moveB)
-        t[2] -= 0.1f;
+        t[2] -= 10.0f;
       if (input.moveL)
-        t[0] += 0.1f;
+        t[0] += 10.0f;
       if (input.moveR)
-        t[0] -= 0.1f;
+        t[0] -= 10.0f;
       if (input.moveU)
-        t[1] += 0.1f;
+        t[1] += 10.0f;
       if (input.moveD)
-        t[1] -= 0.1f;
+        t[1] -= 10.0f;
       if (input.turnL)
-        r *= rotateQY(0.1f);
+        r *= rotateQY(6.0f * dt);
       if (input.turnR)
-        r *= rotateQY(-0.1f);
+        r *= rotateQY(-6.0f * dt);
       if (input.turnU)
-        r *= rotateQX(-0.1f);
+        r *= rotateQX(-6.0f * dt);
       if (input.turnD)
-        r *= rotateQX(0.1f);
+        r *= rotateQX(6.0f * dt);
       if (input.place)
         t = {0.0f, 0.0f, 0.0f};
-      object_->transform() *= translate(t) * rotate(r);
+      object_->transform() *= translate(t * dt) * rotate(r);
     }
 
     return fn ? fn(elapsedTime) : true;
@@ -121,6 +180,8 @@ void InteractiveTest::update(Scene& scene, const View::UpdateFn& fn) {
 }
 
 void InteractiveTest::onMotion(int32_t x, int32_t y) {
+  input.prevX = input.x;
+  input.prevY = input.y;
   input.x = x;
   input.y = y;
 }
@@ -141,6 +202,8 @@ void InteractiveTest::onButton(WS_NS::Button button, WS_NS::ButtonState state,
     break;
   }
 
+  input.prevX = input.x;
+  input.prevY = input.y;
   input.x = x;
   input.y = y;
 }

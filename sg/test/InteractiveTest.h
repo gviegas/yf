@@ -24,7 +24,7 @@ TEST_NS_BEGIN
 class InteractiveTest : public Test {
  public:
   struct Input {
-    int32_t x, y;
+    int32_t x, y, prevX, prevY;
     bool primary, secondary;
     bool moveF, moveB, moveL, moveR, moveU, moveD;
     bool turnL, turnR, turnU, turnD;

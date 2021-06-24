@@ -42,7 +42,7 @@ class Animation::Impl {
   const vector<Scale> outS_;
 
  private:
-  chrono::duration<float> time_;
+  chrono::duration<float> time_{};
   bool completed_ = false;
 
   /// Updates the animation.

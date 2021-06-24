@@ -121,14 +121,16 @@ struct BodyTest : InteractiveTest {
 
       Body::update({&body1, &body2});
 
-      if (input.primary) {
+      if (input.start) {
         if (!coll.animations().empty())
           isPlaying = true;
-      } else if (input.secondary) {
+        input.start = false;
+      } else if (input.stop) {
         if (!coll.animations().empty()) {
           isPlaying = false;
           coll.animations().back().stop();
         }
+        input.stop = false;
       }
 
       if (isPlaying)

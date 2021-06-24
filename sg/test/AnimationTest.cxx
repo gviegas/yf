@@ -216,16 +216,16 @@ struct AnimationTest : InteractiveTest {
     bool isPlaying = false;
 
     update(*scn, [&](auto elapsedTime) {
-      if (input.primary) {
+      if (input.start) {
         if (!coll.animations().empty())
           isPlaying = true;
-        input.primary = false;
-      } else if (input.secondary) {
+        input.start = false;
+      } else if (input.stop) {
         if (!coll.animations().empty()) {
           isPlaying = false;
           coll.animations().back().stop();
         }
-        input.secondary = false;
+        input.stop = false;
       }
 
       if (isPlaying)

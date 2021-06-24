@@ -89,9 +89,9 @@ struct RenderTest : InteractiveTest {
 
     // Render
     update(*scn, [&](auto) {
-      if (input.primary) {
+      if (input.swap) {
         scn = scn == &scn1 ? &scn2 : &scn1;
-        input.primary = false;
+        input.swap = false;
         setScene(scn);
       }
       return true;

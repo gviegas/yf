@@ -256,14 +256,23 @@ void InteractiveTest::onKey(WS_NS::KeyCode key, WS_NS::KeyState state,
   case WS_NS::KeyCodeSpace:
     input.point = b;
     break;
-  case WS_NS::KeyCodeM:
-    input.mode = b;
+  case WS_NS::KeyCodeZ:
+    input.start = b;
+    break;
+  case WS_NS::KeyCodeX:
+    input.stop = b;
     break;
   case WS_NS::KeyCodeComma:
     input.prev = b;
     break;
   case WS_NS::KeyCodeDot:
     input.next = b;
+    break;
+  case WS_NS::KeyCodeM:
+    input.mode = b;
+    break;
+  case WS_NS::KeyCodeTab:
+    input.swap = b;
     break;
   case WS_NS::KeyCodeEsc:
     input.quit = b;

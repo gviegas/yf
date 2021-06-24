@@ -30,7 +30,10 @@ class InteractiveTest : public Test {
     bool turnL, turnR, turnU, turnD;
     bool zoomI, zoomO;
     bool place, point;
-    bool mode, prev, next;
+    bool start, stop;
+    bool prev, next;
+    bool mode;
+    bool swap;
     bool quit;
   };
 

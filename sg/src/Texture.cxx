@@ -12,7 +12,6 @@
 
 #include "TextureImpl.h"
 #include "DataPNG.h"
-#include "DataBMP.h"
 #include "yf/Except.h"
 
 using namespace SG_NS;
@@ -27,9 +26,6 @@ Texture::Texture(FileType fileType, const wstring& textureFile) {
     throw runtime_error("Mesh::Internal unimplemented");
   case Png:
     loadPNG(data, textureFile);
-    break;
-  case Bmp:
-    loadBMP(data, textureFile);
     break;
   default:
     throw invalid_argument("Invalid Texture file type");

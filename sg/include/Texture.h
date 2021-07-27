@@ -24,8 +24,7 @@ class Texture {
   ///
   enum FileType {
     Internal,
-    Png,
-    Bmp
+    Png
   };
 
   Texture(FileType fileType, const std::wstring& textureFile);

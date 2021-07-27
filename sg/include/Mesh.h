@@ -24,8 +24,7 @@ class Mesh {
   ///
   enum FileType {
     Internal,
-    Gltf,
-    Obj
+    Gltf
   };
 
   Mesh(FileType fileType, const std::wstring& meshFile, size_t index = 0);

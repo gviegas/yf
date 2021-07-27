@@ -11,7 +11,6 @@
 
 #include "MeshImpl.h"
 #include "DataGLTF.h"
-#include "DataOBJ.h"
 #include "yf/Except.h"
 
 using namespace SG_NS;
@@ -26,9 +25,6 @@ Mesh::Mesh(FileType fileType, const wstring& meshFile, size_t index) {
     throw runtime_error("Mesh::Internal unimplemented");
   case Gltf:
     loadGLTF(data, meshFile, index);
-    break;
-  case Obj:
-    loadOBJ(data, meshFile);
     break;
   default:
     throw invalid_argument("Invalid Mesh file type");

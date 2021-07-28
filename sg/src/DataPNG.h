@@ -9,6 +9,7 @@
 #define YF_SG_DATAPNG_H
 
 #include <string>
+#include <fstream>
 
 #include "TextureImpl.h"
 
@@ -17,6 +18,7 @@ SG_NS_BEGIN
 /// Loads texture data from a PNG file.
 ///
 void loadPNG(Texture::Data& dst, const std::wstring& pathname);
+void loadPNG(Texture::Data& dst, std::ifstream& stream);
 
 SG_NS_END
 

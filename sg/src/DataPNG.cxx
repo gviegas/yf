@@ -10,7 +10,6 @@
 #include <cwchar>
 #include <cstring>
 #include <cassert>
-#include <fstream>
 #include <atomic>
 #include <algorithm>
 
@@ -824,6 +823,10 @@ void SG_NS::loadPNG(Texture::Data& dst, const wstring& pathname) {
   dst.size = {png.width(), png.height()};
   dst.levels = 1;
   dst.samples = CG_NS::Samples1;
+}
+
+void SG_NS::loadPNG(Texture::Data& dst, std::ifstream& stream) {
+  /* TODO */
 }
 
 //

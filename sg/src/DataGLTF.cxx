@@ -9,7 +9,6 @@
 #include <cstring>
 #include <cctype>
 #include <cassert>
-#include <fstream>
 #include <vector>
 #include <unordered_map>
 #include <type_traits>
@@ -292,58 +291,11 @@ class GLTF {
     if (!ifs)
       throw FileExcept("Could not open glTF file");
 
-    // Process symbols
-    Symbol symbol(ifs);
+    init(ifs);
+  }
 
-    if (symbol.next() != Symbol::Op || symbol.token() != '{')
-      throw FileExcept("Invalid glTF file");
-
-    while (true) {
-      switch (symbol.next()) {
-      case Symbol::Str:
-        if (symbol.tokens() == "scene")
-          parseScene(symbol);
-        else if (symbol.tokens() == "scenes")
-          parseScenes(symbol);
-        else if (symbol.tokens() == "nodes")
-          parseNodes(symbol);
-        else if (symbol.tokens() == "meshes")
-          parseMeshes(symbol);
-        else if (symbol.tokens() == "skins")
-          parseSkins(symbol);
-        else if (symbol.tokens() == "materials")
-          parseMaterials(symbol);
-        else if (symbol.tokens() == "textures")
-          parseTextures(symbol);
-        else if (symbol.tokens() == "samplers")
-          parseSamplers(symbol);
-        else if (symbol.tokens() == "images")
-          parseImages(symbol);
-        else if (symbol.tokens() == "cameras")
-          parseCameras(symbol);
-        else if (symbol.tokens() == "animations")
-          parseAnimations(symbol);
-        else if (symbol.tokens() == "accessors")
-          parseAccessors(symbol);
-        else if (symbol.tokens() == "bufferViews")
-          parseBufferViews(symbol);
-        else if (symbol.tokens() == "buffers")
-          parseBuffers(symbol);
-        else if (symbol.tokens() == "asset")
-          parseAsset(symbol);
-        else
-          symbol.consumeProperty();
-        break;
-
-      case Symbol::Op:
-        if (symbol.token() == '}')
-          return;
-        break;
-
-      default:
-        throw FileExcept("Invalid glTF file");
-      }
-    }
+  GLTF(ifstream& ifs, const string& directory) : directory_(directory) {
+    init(ifs);
   }
 
   GLTF(const GLTF&) = delete;
@@ -734,6 +686,63 @@ class GLTF {
   vector<BufferView> bufferViews_{};
   vector<Buffer> buffers_{};
   Asset asset_{};
+
+  /// Initializes GLTF data from a file stream.
+  ///
+  void init(ifstream& ifs) {
+    Symbol symbol(ifs);
+
+    // TODO: .glb
+    if (symbol.next() != Symbol::Op || symbol.token() != '{')
+      throw FileExcept("Invalid glTF file");
+
+    while (true) {
+      switch (symbol.next()) {
+      case Symbol::Str:
+        if (symbol.tokens() == "scene")
+          parseScene(symbol);
+        else if (symbol.tokens() == "scenes")
+          parseScenes(symbol);
+        else if (symbol.tokens() == "nodes")
+          parseNodes(symbol);
+        else if (symbol.tokens() == "meshes")
+          parseMeshes(symbol);
+        else if (symbol.tokens() == "skins")
+          parseSkins(symbol);
+        else if (symbol.tokens() == "materials")
+          parseMaterials(symbol);
+        else if (symbol.tokens() == "textures")
+          parseTextures(symbol);
+        else if (symbol.tokens() == "samplers")
+          parseSamplers(symbol);
+        else if (symbol.tokens() == "images")
+          parseImages(symbol);
+        else if (symbol.tokens() == "cameras")
+          parseCameras(symbol);
+        else if (symbol.tokens() == "animations")
+          parseAnimations(symbol);
+        else if (symbol.tokens() == "accessors")
+          parseAccessors(symbol);
+        else if (symbol.tokens() == "bufferViews")
+          parseBufferViews(symbol);
+        else if (symbol.tokens() == "buffers")
+          parseBuffers(symbol);
+        else if (symbol.tokens() == "asset")
+          parseAsset(symbol);
+        else
+          symbol.consumeProperty();
+        break;
+
+      case Symbol::Op:
+        if (symbol.token() == '}')
+          return;
+        break;
+
+      default:
+        throw FileExcept("Invalid glTF file");
+      }
+    }
+  }
 
   /// Parses an array of objects.
   ///
@@ -2348,8 +2357,32 @@ void SG_NS::loadGLTF(Collection& collection, const wstring& pathname) {
   loadContents(collection, gltf);
 }
 
+void SG_NS::loadGLTF(Collection& collection, ifstream& stream) {
+  GLTF gltf(stream, "");
+
+#ifdef YF_DEVEL
+  printGLTF(gltf);
+#endif
+
+  loadContents(collection, gltf);
+}
+
 void SG_NS::loadGLTF(Mesh::Data& dst, const wstring& pathname, size_t index) {
   GLTF gltf(pathname);
+
+#ifdef YF_DEVEL
+  printGLTF(gltf);
+#endif
+
+  if (index >= gltf.meshes().size())
+    throw invalid_argument("loadGLTF() index out of bounds");
+
+  unordered_map<int32_t, ifstream> bufferMap;
+  loadMesh(dst, bufferMap, gltf, index);
+}
+
+void SG_NS::loadGLTF(Mesh::Data& dst, ifstream& stream, size_t index) {
+  GLTF gltf(stream, "");
 
 #ifdef YF_DEVEL
   printGLTF(gltf);

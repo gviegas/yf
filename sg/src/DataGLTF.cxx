@@ -2358,7 +2358,13 @@ void SG_NS::loadGLTF(Collection& collection, const wstring& pathname) {
 }
 
 void SG_NS::loadGLTF(Collection& collection, ifstream& stream) {
-  // TODO
+  GLTF gltf(stream, "");
+
+#ifdef YF_DEVEL
+  printGLTF(gltf);
+#endif
+
+  loadContents(collection, gltf);
 }
 
 void SG_NS::loadGLTF(Mesh::Data& dst, const wstring& pathname, size_t index) {
@@ -2376,7 +2382,17 @@ void SG_NS::loadGLTF(Mesh::Data& dst, const wstring& pathname, size_t index) {
 }
 
 void SG_NS::loadGLTF(Mesh::Data& dst, ifstream& stream, size_t index) {
-  // TODO
+  GLTF gltf(stream, "");
+
+#ifdef YF_DEVEL
+  printGLTF(gltf);
+#endif
+
+  if (index >= gltf.meshes().size())
+    throw invalid_argument("loadGLTF() index out of bounds");
+
+  unordered_map<int32_t, ifstream> bufferMap;
+  loadMesh(dst, bufferMap, gltf, index);
 }
 
 //

@@ -839,8 +839,18 @@ void SG_NS::loadPNG(Texture::Data& dst, const wstring& pathname) {
   dst.samples = CG_NS::Samples1;
 }
 
-void SG_NS::loadPNG(Texture::Data& dst, std::ifstream& stream) {
-  /* TODO */
+void SG_NS::loadPNG(Texture::Data& dst, ifstream& stream) {
+  PNG png(stream);
+
+#ifdef YF_DEVEL
+  printPNG(png);
+#endif
+
+  dst.data = png.imageData();
+  dst.format = png.format();
+  dst.size = {png.width(), png.height()};
+  dst.levels = 1;
+  dst.samples = CG_NS::Samples1;
 }
 
 //

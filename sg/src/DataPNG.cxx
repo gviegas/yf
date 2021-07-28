@@ -378,141 +378,14 @@ class PNG {
     if (!ifs)
       throw FileExcept("Could not open PNG file");
 
-    // Check signature
-    uint8_t sign[sizeof Signature];
+    init(ifs);
+  }
 
-    if (!ifs.read(reinterpret_cast<char*>(sign), sizeof sign))
-      throw FileExcept("Could not read from PNG file");
+  PNG(ifstream& ifs)
+    : ihdr_{}, plte_{}, idat_{},
+      components_(0), bpp_(0), Bpp_(0), sclnSize_(0) {
 
-    if (memcmp(sign, Signature, sizeof sign) != 0)
-      throw FileExcept("Invalid PNG file");
-
-    // Process chunks
-    vector<char> buffer{};
-    buffer.resize(4096);
-
-    const uint32_t lengthOff = 0;
-    const uint32_t typeOff = 4;
-    const uint32_t dataOff = 8;
-    uint32_t length;
-    uint32_t type;
-    uint32_t crc;
-
-    auto setLength = [&] {
-      memcpy(&length, &buffer[lengthOff], sizeof length);
-      length = betoh(length);
-      const auto required = dataOff + length + sizeof crc;
-      if (required > buffer.size())
-        buffer.resize(required);
-    };
-
-    while (true) {
-      // Read length and type
-      if (!ifs.read(buffer.data(), dataOff))
-        throw FileExcept("Could not read from PNG file");
-
-      setLength();
-
-      // Read data and CRC
-      if (!ifs.read(&buffer[dataOff], length + sizeof crc))
-        throw FileExcept("Could not read from PNG file");
-
-      // Check CRC
-      memcpy(&crc, &buffer[dataOff+length], sizeof crc);
-      crc = betoh(crc);
-      if (crc != computeCRC(&buffer[typeOff], length + sizeof type))
-        throw FileExcept("Invalid CRC for PNG file");
-
-      // IHDR
-      if (memcmp(&buffer[typeOff], IHDRType, sizeof IHDRType) == 0) {
-        if (length < IHDRSize)
-          throw FileExcept("Invalid PNG file");
-
-        memcpy(&ihdr_, &buffer[dataOff], length);
-        ihdr_.width = betoh(ihdr_.width);
-        ihdr_.height = betoh(ihdr_.height);
-
-      // PLTE
-      } else if (memcmp(&buffer[typeOff], PLTEType, sizeof PLTEType) == 0) {
-        if (length % 3 != 0 || plte_.size() != 0)
-          throw FileExcept("Invalid PNG file");
-
-        plte_.resize(length);
-        memcpy(plte_.data(), &buffer[dataOff], length);
-
-      // IDAT
-      } else if (memcmp(&buffer[typeOff], IDATType, sizeof IDATType) == 0) {
-        if (length > 0) {
-          const auto offset = idat_.size();
-          idat_.resize(offset + length);
-          memcpy(&idat_[offset], &buffer[dataOff], length);
-        }
-
-      // IEND
-      } else if (memcmp(&buffer[typeOff], IENDType, sizeof IENDType) == 0) {
-        break;
-
-      // XXX: cannot ignore critical chunks
-      } else if (!(buffer[typeOff] & 32)) {
-        throw UnsupportedExcept("Unsupported PNG file");
-      }
-    }
-
-    // Validate
-    if (ihdr_.width == 0 || ihdr_.height == 0 ||
-        ihdr_.compressionMethod != 0 || ihdr_.filterMethod != 0 ||
-        ihdr_.interlaceMethod > 1 || idat_.empty())
-      throw FileExcept("Invalid PNG file");
-
-    if (ihdr_.colorType == 2 || ihdr_.colorType == 4 || ihdr_.colorType == 6) {
-      if (ihdr_.bitDepth != 8 && ihdr_.bitDepth != 16)
-        throw FileExcept("Invalid PNG file");
-    } else if (ihdr_.colorType == 0) {
-      if (ihdr_.bitDepth != 1 && ihdr_.bitDepth != 2 &&
-          ihdr_.bitDepth != 4 && ihdr_.bitDepth != 8 &&
-          ihdr_.bitDepth != 16)
-        throw FileExcept("Invalid PNG file");
-    } else if (ihdr_.colorType == 3) {
-      if (plte_.empty() || (ihdr_.bitDepth != 1 && ihdr_.bitDepth != 2 &&
-                            ihdr_.bitDepth != 4 && ihdr_.bitDepth != 8))
-        throw FileExcept("Invalid PNG file");
-    } else {
-      throw FileExcept("Invalid PNG file");
-    }
-
-    // TODO
-    if (ihdr_.interlaceMethod != 0)
-      throw UnsupportedExcept("Interlaced PNG images not supported");
-
-    // Set auxiliar data members
-    switch (ihdr_.colorType) {
-    case 0:
-    case 3:
-      components_ = 1;
-      break;
-    case 2:
-      components_ = 3;
-      break;
-    case 4:
-      components_ = 2;
-      break;
-    case 6:
-      components_ = 4;
-      break;
-    default:
-      throw FileExcept("Invalid PNG file");
-    }
-
-    bpp_ = components_ * ihdr_.bitDepth;
-    Bpp_ = max(bpp_ >> 3, 1U);
-
-    if (bpp_ & 7) {
-      // XXX: scanlines must begin at byte boundaries
-      const div_t d = div(ihdr_.width * bpp_, 8);
-      sclnSize_ = 1 + d.quot + (d.rem != 0);
-    } else {
-      sclnSize_ = 1 + ihdr_.width * Bpp_;
-    }
+    init(ifs);
   }
 
   PNG(const PNG&) = delete;
@@ -668,6 +541,147 @@ class PNG {
   uint32_t bpp_ = 0;
   uint32_t Bpp_ = 0;
   uint32_t sclnSize_ = 0; // XXX: including filter byte
+
+  /// Initializes PNG data from file stream.
+  ///
+  void init(ifstream& ifs) {
+    // Check signature
+    uint8_t sign[sizeof Signature];
+
+    if (!ifs.read(reinterpret_cast<char*>(sign), sizeof sign))
+      throw FileExcept("Could not read from PNG file");
+
+    if (memcmp(sign, Signature, sizeof sign) != 0)
+      throw FileExcept("Invalid PNG file");
+
+    // Process chunks
+    vector<char> buffer{};
+    buffer.resize(4096);
+
+    const uint32_t lengthOff = 0;
+    const uint32_t typeOff = 4;
+    const uint32_t dataOff = 8;
+    uint32_t length;
+    uint32_t type;
+    uint32_t crc;
+
+    auto setLength = [&] {
+      memcpy(&length, &buffer[lengthOff], sizeof length);
+      length = betoh(length);
+      const auto required = dataOff + length + sizeof crc;
+      if (required > buffer.size())
+        buffer.resize(required);
+    };
+
+    while (true) {
+      // Read length and type
+      if (!ifs.read(buffer.data(), dataOff))
+        throw FileExcept("Could not read from PNG file");
+
+      setLength();
+
+      // Read data and CRC
+      if (!ifs.read(&buffer[dataOff], length + sizeof crc))
+        throw FileExcept("Could not read from PNG file");
+
+      // Check CRC
+      memcpy(&crc, &buffer[dataOff+length], sizeof crc);
+      crc = betoh(crc);
+      if (crc != computeCRC(&buffer[typeOff], length + sizeof type))
+        throw FileExcept("Invalid CRC for PNG file");
+
+      // Copy data
+      if (memcmp(&buffer[typeOff], IHDRType, sizeof IHDRType) == 0) {
+        // IHDR
+        if (length < IHDRSize)
+          throw FileExcept("Invalid PNG file");
+
+        memcpy(&ihdr_, &buffer[dataOff], length);
+        ihdr_.width = betoh(ihdr_.width);
+        ihdr_.height = betoh(ihdr_.height);
+
+      } else if (memcmp(&buffer[typeOff], PLTEType, sizeof PLTEType) == 0) {
+        // PLTE
+        if (length % 3 != 0 || plte_.size() != 0)
+          throw FileExcept("Invalid PNG file");
+
+        plte_.resize(length);
+        memcpy(plte_.data(), &buffer[dataOff], length);
+
+      } else if (memcmp(&buffer[typeOff], IDATType, sizeof IDATType) == 0) {
+        // IDAT
+        if (length > 0) {
+          const auto offset = idat_.size();
+          idat_.resize(offset + length);
+          memcpy(&idat_[offset], &buffer[dataOff], length);
+        }
+
+      } else if (memcmp(&buffer[typeOff], IENDType, sizeof IENDType) == 0) {
+        // IEND
+        break;
+
+      } else if (!(buffer[typeOff] & 32)) {
+        // XXX: cannot ignore critical chunks
+        throw UnsupportedExcept("Unsupported PNG file");
+      }
+    }
+
+    // Validate
+    if (ihdr_.width == 0 || ihdr_.height == 0 ||
+        ihdr_.compressionMethod != 0 || ihdr_.filterMethod != 0 ||
+        ihdr_.interlaceMethod > 1 || idat_.empty())
+      throw FileExcept("Invalid PNG file");
+
+    if (ihdr_.colorType == 2 || ihdr_.colorType == 4 || ihdr_.colorType == 6) {
+      if (ihdr_.bitDepth != 8 && ihdr_.bitDepth != 16)
+        throw FileExcept("Invalid PNG file");
+    } else if (ihdr_.colorType == 0) {
+      if (ihdr_.bitDepth != 1 && ihdr_.bitDepth != 2 &&
+          ihdr_.bitDepth != 4 && ihdr_.bitDepth != 8 &&
+          ihdr_.bitDepth != 16)
+        throw FileExcept("Invalid PNG file");
+    } else if (ihdr_.colorType == 3) {
+      if (plte_.empty() || (ihdr_.bitDepth != 1 && ihdr_.bitDepth != 2 &&
+                            ihdr_.bitDepth != 4 && ihdr_.bitDepth != 8))
+        throw FileExcept("Invalid PNG file");
+    } else {
+      throw FileExcept("Invalid PNG file");
+    }
+
+    // TODO
+    if (ihdr_.interlaceMethod != 0)
+      throw UnsupportedExcept("Interlaced PNG images not supported");
+
+    // Set auxiliar data members
+    switch (ihdr_.colorType) {
+    case 0:
+    case 3:
+      components_ = 1;
+      break;
+    case 2:
+      components_ = 3;
+      break;
+    case 4:
+      components_ = 2;
+      break;
+    case 6:
+      components_ = 4;
+      break;
+    default:
+      throw FileExcept("Invalid PNG file");
+    }
+
+    bpp_ = components_ * ihdr_.bitDepth;
+    Bpp_ = max(bpp_ >> 3, 1U);
+
+    if (bpp_ & 7) {
+      // XXX: scanlines must begin at byte boundaries
+      const div_t d = div(ihdr_.width * bpp_, 8);
+      sclnSize_ = 1 + d.quot + (d.rem != 0);
+    } else {
+      sclnSize_ = 1 + ihdr_.width * Bpp_;
+    }
+  }
 
   /// Decompresses concatenated IDAT datastream.
   ///

@@ -9,7 +9,6 @@
 #include <cstring>
 #include <cctype>
 #include <cassert>
-#include <fstream>
 #include <vector>
 #include <unordered_map>
 #include <type_traits>
@@ -2348,6 +2347,10 @@ void SG_NS::loadGLTF(Collection& collection, const wstring& pathname) {
   loadContents(collection, gltf);
 }
 
+void SG_NS::loadGLTF(Collection& collection, ifstream& stream) {
+  // TODO
+}
+
 void SG_NS::loadGLTF(Mesh::Data& dst, const wstring& pathname, size_t index) {
   GLTF gltf(pathname);
 
@@ -2360,6 +2363,10 @@ void SG_NS::loadGLTF(Mesh::Data& dst, const wstring& pathname, size_t index) {
 
   unordered_map<int32_t, ifstream> bufferMap;
   loadMesh(dst, bufferMap, gltf, index);
+}
+
+void SG_NS::loadGLTF(Mesh::Data& dst, ifstream& stream, size_t index) {
+  // TODO
 }
 
 //

@@ -1952,21 +1952,29 @@ void loadMesh(Mesh::Data& dst, unordered_map<int32_t, ifstream>& bufferMap,
 
   for (const auto& dm : descMap) {
     const auto& buffer = gltf.buffers()[dm.first];
+    ifstream* ifs;
 
-    // TODO: .glb
-    if (buffer.uri.empty())
-      throw UnsupportedExcept("Unsupported glTF buffer");
+    if (buffer.uri.empty()) {
+      // embedded (.glb)
+      if (dm.first != 0)
+        throw UnsupportedExcept("Unsupported glTF buffer");
 
-    auto it = bufferMap.find(dm.first);
+      ifs = &const_cast<GLTF&>(gltf).bin();
 
-    if (it == bufferMap.end()) {
-      const auto pathname = gltf.directory() + '/' + buffer.uri;
-      it = bufferMap.emplace(dm.first, ifstream(pathname)).first;
-      if (!it->second)
-        throw FileExcept("Could not open glTF .bin file");
+    } else {
+      // external (.bin)
+      auto it = bufferMap.find(dm.first);
+      if (it == bufferMap.end()) {
+        const auto pathname = gltf.directory() + '/' + buffer.uri;
+        it = bufferMap.emplace(dm.first, ifstream(pathname)).first;
+        if (!it->second)
+          throw FileExcept("Could not open glTF .bin file");
+      }
+
+      ifs = &it->second;
     }
 
-    auto& ifs = it->second;
+    const auto beg = ifs->tellg();
 
     for (const auto& dc : dm.second) {
       size_t size = dc.accessor.sizeOfComponentType() *
@@ -1981,21 +1989,21 @@ void loadMesh(Mesh::Data& dst, unordered_map<int32_t, ifstream>& bufferMap,
       dst.data.push_back(make_unique<uint8_t[]>(size));
       auto dt = reinterpret_cast<char*>(dst.data.back().get());
 
-      if (!ifs.seekg(dc.accessor.byteOffset + dc.bufferView.byteOffset))
-        throw FileExcept("Could not seek glTF .bin file");
+      if (!ifs->seekg(beg + dc.accessor.byteOffset + dc.bufferView.byteOffset))
+        throw FileExcept("Could not seek glTF .glb/.bin file");
 
       if (dc.bufferView.byteStride > 0) {
         // interleaved
         for (size_t i = 0; i < da.elementN; ++i) {
-          if (!ifs.seekg(dc.bufferView.byteStride * i, ios_base::cur))
-            throw FileExcept("Could not seek glTF .bin file");
-          if (!ifs.read(dt, da.elementSize))
-            throw FileExcept("Could not read from glTF .bin file");
+          if (!ifs->seekg(dc.bufferView.byteStride * i, ios_base::cur))
+            throw FileExcept("Could not seek glTF .glb/.bin file");
+          if (!ifs->read(dt, da.elementSize))
+            throw FileExcept("Could not read from glTF .glb/.bin file");
         }
       } else {
         // packed
-        if (!ifs.read(dt, size))
-          throw FileExcept("Could not read from glTF .bin file");
+        if (!ifs->read(dt, size))
+          throw FileExcept("Could not read from glTF .glb/.bin file");
       }
 
       if (dc.type >= 0)

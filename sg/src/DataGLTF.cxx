@@ -287,20 +287,31 @@ class GLTF {
     if (pos != 0 && pos != path.npos)
       directory_ = {path.begin(), path.begin() + pos};
 
-    ifstream ifs(path);
-    if (!ifs)
-      throw FileExcept("Could not open glTF file");
-
-    init(ifs);
+    try {
+      ifs_ = new ifstream(path);
+      if (!(*ifs_))
+        throw FileExcept("Could not open glTF file");
+      init(*ifs_);
+      ownsStream_= true;
+    } catch (...) {
+      delete ifs_;
+      throw;
+    }
   }
 
-  GLTF(ifstream& ifs, const string& directory) : directory_(directory) {
+  GLTF(ifstream& ifs, const string& directory)
+    : directory_(directory), ownsStream_(false), ifs_(&ifs) {
+
     init(ifs);
   }
 
   GLTF(const GLTF&) = delete;
   GLTF& operator=(const GLTF&) = delete;
-  ~GLTF() = default;
+
+  ~GLTF() {
+    if (ownsStream_)
+      delete ifs_;
+  }
 
   /// Element of `glTF.scenes` property.
   ///

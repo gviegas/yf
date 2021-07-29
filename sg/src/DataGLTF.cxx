@@ -2035,10 +2035,31 @@ void loadMaterial(Material& dst, unordered_map<int32_t, Texture>& textureMap,
     const auto& texture = gltf.textures()[info.index];
     const auto& image = gltf.images()[texture.source];
 
-    // TODO: image type check & support for buffer view
-    if (image.uri.empty())
-      throw runtime_error("glTF image load from buffer view unimplemented");
+    // Image provided through a buffer view
+    if (image.uri.empty()) {
+      const auto& view = gltf.bufferViews()[image.bufferView];
+      const auto& buffer = gltf.buffers()[view.buffer];
 
+      if (buffer.uri.empty()) {
+        // embedded (.glb)
+        if (view.buffer != 0)
+          throw UnsupportedExcept("Unsupported glTF buffer");
+
+        auto& ifs = const_cast<GLTF&>(gltf).bin();
+        if (!ifs.seekg(view.byteOffset, ios_base::cur))
+          throw FileExcept("Could not seek glTF .glb file");
+
+        Texture tex(Texture::Png, ifs);
+        return textureMap.emplace(info.index, tex).first->second;
+
+      } else {
+        // TODO: external (.bin)
+        throw runtime_error("Image loading from glTF .bin unimplemented");
+      }
+    }
+
+    // Image provided through an URI
+    // TODO: base64
     wstring pathname;
     for (const auto& c : gltf.directory())
       pathname.push_back(c);

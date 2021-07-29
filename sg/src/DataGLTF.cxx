@@ -704,6 +704,36 @@ class GLTF {
   /// Initializes GLTF data from a file stream.
   ///
   void init(ifstream& ifs) {
+    const auto beg = ifs.tellg();
+
+    // TODO: endian
+    uint32_t magic;
+    if (!ifs.read(reinterpret_cast<char*>(&magic), sizeof magic))
+      throw FileExcept("Could not read from glTF file");
+
+    if (magic == 0x46546C67) {
+      // .glb
+      uint32_t version;
+      if (!ifs.read(reinterpret_cast<char*>(&version), sizeof version))
+        throw FileExcept("Could not read from glTF .glb file");
+      if (version != 2)
+        throw UnsupportedExcept("Unsupported glTF .glb version");
+      if (!ifs.seekg(4, ios_base::cur))
+        throw FileExcept("Could not seek glTF .glb file");
+
+      uint32_t jLen;
+      if (!ifs.read(reinterpret_cast<char*>(&jLen), sizeof jLen))
+        throw FileExcept("Could not read from glTF .glb file");
+      if (!ifs.seekg(4, ios_base::cur))
+        throw FileExcept("Could not seek glTF .glb file");
+
+      binOffset_ = beg + ifstream::pos_type(20 + jLen);
+
+    } else {
+      // .gltf
+      ifs.seekg(beg);
+    }
+
     Symbol symbol(ifs);
 
     // TODO: .glb

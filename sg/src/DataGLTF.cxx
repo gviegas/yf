@@ -2113,26 +2113,37 @@ void loadSkin(Skin& dst, unordered_map<int32_t, ifstream>& bufferMap,
     const auto& acc = gltf.accessors()[skin.inverseBindMatrices];
     const auto& view = gltf.bufferViews()[acc.bufferView];
     const auto& buffer = gltf.buffers()[view.buffer];
+    ifstream* ifs;
 
-    auto it = bufferMap.find(view.buffer);
+    if (buffer.uri.empty()) {
+      // embedded (.glb)
+      if (view.buffer != 0)
+        throw UnsupportedExcept("Unsupported glTF buffer");
 
-    if (it == bufferMap.end()) {
-      const auto pathname = gltf.directory() + '/' + buffer.uri;
-      it = bufferMap.emplace(view.buffer, ifstream(pathname)).first;
-      if (!it->second)
-        throw FileExcept("Could not open glTF .bin file");
+      ifs = &const_cast<GLTF&>(gltf).bin();
+
+    } else {
+      // external (.bin)
+      auto it = bufferMap.find(view.buffer);
+      if (it == bufferMap.end()) {
+        const auto pathname = gltf.directory() + '/' + buffer.uri;
+        it = bufferMap.emplace(view.buffer, ifstream(pathname)).first;
+        if (!it->second)
+          throw FileExcept("Could not open glTF .bin file");
+      }
+
+      ifs = &it->second;
     }
 
-    auto& ifs = it->second;
-
-    if (!ifs.seekg(acc.byteOffset + view.byteOffset))
-      throw FileExcept("Could not seek glTF .bin file");
+    const auto beg = ifs->tellg();
+    if (!ifs->seekg(beg + acc.byteOffset + view.byteOffset))
+      throw FileExcept("Could not seek glTF .glb/.bin file");
 
     inverseBind.resize(acc.count);
     for (auto& m : inverseBind) {
       auto dt = reinterpret_cast<char*>(m.data());
-      if (!ifs.read(dt, Mat4f::dataSize()))
-        throw FileExcept("Could not read from glTF .bin file");
+      if (!ifs->read(dt, Mat4f::dataSize()))
+        throw FileExcept("Could not read from glTF .glb/.bin file");
     }
   }
 

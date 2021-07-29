@@ -17,7 +17,7 @@
 using namespace SG_NS;
 using namespace std;
 
-Texture::Texture(FileType fileType, const wstring& textureFile) {
+Texture::Texture(FileType fileType, const wstring& pathname) {
   Data data;
 
   switch (fileType) {
@@ -25,7 +25,24 @@ Texture::Texture(FileType fileType, const wstring& textureFile) {
     // TODO
     throw runtime_error("Mesh::Internal unimplemented");
   case Png:
-    loadPNG(data, textureFile);
+    loadPNG(data, pathname);
+    break;
+  default:
+    throw invalid_argument("Invalid Texture file type");
+  }
+
+  impl_ = make_shared<Impl>(data);
+}
+
+Texture::Texture(FileType fileType, ifstream& stream) {
+  Data data;
+
+  switch (fileType) {
+  case Internal:
+    // TODO
+    throw runtime_error("Mesh::Internal unimplemented");
+  case Png:
+    loadPNG(data, stream);
     break;
   default:
     throw invalid_argument("Invalid Texture file type");

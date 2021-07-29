@@ -11,6 +11,7 @@
 #include <cstddef>
 #include <memory>
 #include <string>
+#include <fstream>
 
 #include "yf/sg/Defs.h"
 
@@ -27,7 +28,8 @@ class Texture {
     Png
   };
 
-  Texture(FileType fileType, const std::wstring& textureFile);
+  Texture(FileType fileType, const std::wstring& pathname);
+  Texture(FileType fileType, std::ifstream& stream);
   Texture();
   Texture(const Texture& other);
   Texture& operator=(const Texture& other);

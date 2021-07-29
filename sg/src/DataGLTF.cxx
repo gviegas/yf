@@ -614,6 +614,20 @@ class GLTF {
     string minVersion{};
   };
 
+  /// Seeks to the beginning of the binary buffer.
+  ///
+  /// XXX: If the `GLTF` object does not own the file stream, one must ensure
+  /// that it still exists before calling this method.
+  ///
+  ifstream& bin() {
+    assert(buffers_.size() != 0 && buffers_[0].uri.empty());
+
+    if (!ifs_->seekg(binOffset_))
+      throw FileExcept("Could not seek glTF .glb file");
+
+    return *ifs_;
+  }
+
   /// Getters.
   ///
   const string& directory() const {

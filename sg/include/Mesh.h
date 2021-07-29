@@ -11,6 +11,7 @@
 #include <cstddef>
 #include <memory>
 #include <string>
+#include <fstream>
 
 #include "yf/sg/Defs.h"
 
@@ -27,7 +28,8 @@ class Mesh {
     Gltf
   };
 
-  Mesh(FileType fileType, const std::wstring& meshFile, size_t index = 0);
+  Mesh(FileType fileType, const std::wstring& pathname, size_t index = 0);
+  Mesh(FileType fileType, std::ifstream& stream, size_t index = 0);
   Mesh();
   Mesh(const Mesh& other);
   Mesh& operator=(const Mesh& other);

@@ -16,7 +16,7 @@
 using namespace SG_NS;
 using namespace std;
 
-Mesh::Mesh(FileType fileType, const wstring& meshFile, size_t index) {
+Mesh::Mesh(FileType fileType, const wstring& pathname, size_t index) {
   Data data;
 
   switch (fileType) {
@@ -24,7 +24,24 @@ Mesh::Mesh(FileType fileType, const wstring& meshFile, size_t index) {
     // TODO
     throw runtime_error("Mesh::Internal unimplemented");
   case Gltf:
-    loadGLTF(data, meshFile, index);
+    loadGLTF(data, pathname, index);
+    break;
+  default:
+    throw invalid_argument("Invalid Mesh file type");
+  }
+
+  impl_ = make_shared<Impl>(data);
+}
+
+Mesh::Mesh(FileType fileType, ifstream& stream, size_t index) {
+  Data data;
+
+  switch (fileType) {
+  case Internal:
+    // TODO
+    throw runtime_error("Mesh::Internal unimplemented");
+  case Gltf:
+    loadGLTF(data, stream, index);
     break;
   default:
     throw invalid_argument("Invalid Mesh file type");

@@ -671,6 +671,9 @@ class GLTF {
 
  private:
   string directory_{};
+  bool ownsStream_ = false;
+  ifstream* ifs_ = nullptr;
+  ifstream::pos_type binOffset_ = -1;
   int32_t scene_ = -1;
   vector<Scene> scenes_{};
   vector<Node> nodes_{};

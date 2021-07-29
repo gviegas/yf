@@ -704,7 +704,10 @@ class GLTF {
   /// Initializes GLTF data from a file stream.
   ///
   void init(ifstream& ifs) {
+    // Check whether this is a .glb or a .gltf file
     const auto beg = ifs.tellg();
+    if (beg == ifstream::pos_type(-1))
+      throw FileExcept("Could not tell position of glTF file");
 
     // TODO: endian
     uint32_t magic;
@@ -734,9 +737,9 @@ class GLTF {
       ifs.seekg(beg);
     }
 
+    // Parse file contents
     Symbol symbol(ifs);
 
-    // TODO: .glb
     if (symbol.next() != Symbol::Op || symbol.token() != '{')
       throw FileExcept("Invalid glTF file");
 

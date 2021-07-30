@@ -287,20 +287,31 @@ class GLTF {
     if (pos != 0 && pos != path.npos)
       directory_ = {path.begin(), path.begin() + pos};
 
-    ifstream ifs(path);
-    if (!ifs)
-      throw FileExcept("Could not open glTF file");
-
-    init(ifs);
+    try {
+      ifs_ = new ifstream(path);
+      if (!(*ifs_))
+        throw FileExcept("Could not open glTF file");
+      init(*ifs_);
+      ownsStream_= true;
+    } catch (...) {
+      delete ifs_;
+      throw;
+    }
   }
 
-  GLTF(ifstream& ifs, const string& directory) : directory_(directory) {
+  GLTF(ifstream& ifs, const string& directory)
+    : directory_(directory), ownsStream_(false), ifs_(&ifs) {
+
     init(ifs);
   }
 
   GLTF(const GLTF&) = delete;
   GLTF& operator=(const GLTF&) = delete;
-  ~GLTF() = default;
+
+  ~GLTF() {
+    if (ownsStream_)
+      delete ifs_;
+  }
 
   /// Element of `glTF.scenes` property.
   ///
@@ -603,6 +614,20 @@ class GLTF {
     string minVersion{};
   };
 
+  /// Seeks to the beginning of the binary buffer.
+  ///
+  /// XXX: If the `GLTF` object does not own the file stream, one must ensure
+  /// that it still exists before calling this method.
+  ///
+  ifstream& bin() {
+    assert(buffers_.size() != 0 && buffers_[0].uri.empty());
+
+    if (!ifs_->seekg(binOffset_))
+      throw FileExcept("Could not seek glTF .glb file");
+
+    return *ifs_;
+  }
+
   /// Getters.
   ///
   const string& directory() const {
@@ -671,6 +696,9 @@ class GLTF {
 
  private:
   string directory_{};
+  bool ownsStream_ = false;
+  ifstream* ifs_ = nullptr;
+  ifstream::pos_type binOffset_ = -1;
   int32_t scene_ = -1;
   vector<Scene> scenes_{};
   vector<Node> nodes_{};
@@ -690,9 +718,42 @@ class GLTF {
   /// Initializes GLTF data from a file stream.
   ///
   void init(ifstream& ifs) {
+    // Check whether this is a .glb or a .gltf file
+    const auto beg = ifs.tellg();
+    if (beg == ifstream::pos_type(-1))
+      throw FileExcept("Could not tell position of glTF file");
+
+    // TODO: endian
+    uint32_t magic;
+    if (!ifs.read(reinterpret_cast<char*>(&magic), sizeof magic))
+      throw FileExcept("Could not read from glTF file");
+
+    if (magic == 0x46546C67) {
+      // .glb
+      uint32_t version;
+      if (!ifs.read(reinterpret_cast<char*>(&version), sizeof version))
+        throw FileExcept("Could not read from glTF .glb file");
+      if (version != 2)
+        throw UnsupportedExcept("Unsupported glTF .glb version");
+      if (!ifs.seekg(4, ios_base::cur))
+        throw FileExcept("Could not seek glTF .glb file");
+
+      uint32_t jLen;
+      if (!ifs.read(reinterpret_cast<char*>(&jLen), sizeof jLen))
+        throw FileExcept("Could not read from glTF .glb file");
+      if (!ifs.seekg(4, ios_base::cur))
+        throw FileExcept("Could not seek glTF .glb file");
+
+      binOffset_ = beg + ifstream::pos_type(28 + jLen);
+
+    } else {
+      // .gltf
+      ifs.seekg(beg);
+    }
+
+    // Parse file contents
     Symbol symbol(ifs);
 
-    // TODO: .glb
     if (symbol.next() != Symbol::Op || symbol.token() != '{')
       throw FileExcept("Invalid glTF file");
 
@@ -1891,21 +1952,31 @@ void loadMesh(Mesh::Data& dst, unordered_map<int32_t, ifstream>& bufferMap,
 
   for (const auto& dm : descMap) {
     const auto& buffer = gltf.buffers()[dm.first];
+    ifstream* ifs;
 
-    // TODO: .glb
-    if (buffer.uri.empty())
-      throw UnsupportedExcept("Unsupported glTF buffer");
+    if (buffer.uri.empty()) {
+      // embedded (.glb)
+      if (dm.first != 0)
+        throw UnsupportedExcept("Unsupported glTF buffer");
 
-    auto it = bufferMap.find(dm.first);
+      ifs = &const_cast<GLTF&>(gltf).bin();
 
-    if (it == bufferMap.end()) {
-      const auto pathname = gltf.directory() + '/' + buffer.uri;
-      it = bufferMap.emplace(dm.first, ifstream(pathname)).first;
-      if (!it->second)
-        throw FileExcept("Could not open glTF .bin file");
+    } else {
+      // external (.bin)
+      auto it = bufferMap.find(dm.first);
+      if (it == bufferMap.end()) {
+        const auto pathname = gltf.directory() + '/' + buffer.uri;
+        it = bufferMap.emplace(dm.first, ifstream(pathname)).first;
+        if (!it->second)
+          throw FileExcept("Could not open glTF .bin file");
+      } else if (!it->second.seekg(0)) {
+          throw FileExcept("Could not seek glTF .bin file");
+      }
+
+      ifs = &it->second;
     }
 
-    auto& ifs = it->second;
+    const auto beg = ifs->tellg();
 
     for (const auto& dc : dm.second) {
       size_t size = dc.accessor.sizeOfComponentType() *
@@ -1920,21 +1991,21 @@ void loadMesh(Mesh::Data& dst, unordered_map<int32_t, ifstream>& bufferMap,
       dst.data.push_back(make_unique<uint8_t[]>(size));
       auto dt = reinterpret_cast<char*>(dst.data.back().get());
 
-      if (!ifs.seekg(dc.accessor.byteOffset + dc.bufferView.byteOffset))
-        throw FileExcept("Could not seek glTF .bin file");
+      if (!ifs->seekg(beg + dc.accessor.byteOffset + dc.bufferView.byteOffset))
+        throw FileExcept("Could not seek glTF .glb/.bin file");
 
       if (dc.bufferView.byteStride > 0) {
         // interleaved
         for (size_t i = 0; i < da.elementN; ++i) {
-          if (!ifs.seekg(dc.bufferView.byteStride * i, ios_base::cur))
-            throw FileExcept("Could not seek glTF .bin file");
-          if (!ifs.read(dt, da.elementSize))
-            throw FileExcept("Could not read from glTF .bin file");
+          if (!ifs->seekg(dc.bufferView.byteStride * i, ios_base::cur))
+            throw FileExcept("Could not seek glTF .glb/.bin file");
+          if (!ifs->read(dt, da.elementSize))
+            throw FileExcept("Could not read from glTF .glb/.bin file");
         }
       } else {
         // packed
-        if (!ifs.read(dt, size))
-          throw FileExcept("Could not read from glTF .bin file");
+        if (!ifs->read(dt, size))
+          throw FileExcept("Could not read from glTF .glb/.bin file");
       }
 
       if (dc.type >= 0)
@@ -1966,10 +2037,31 @@ void loadMaterial(Material& dst, unordered_map<int32_t, Texture>& textureMap,
     const auto& texture = gltf.textures()[info.index];
     const auto& image = gltf.images()[texture.source];
 
-    // TODO: image type check & support for buffer view
-    if (image.uri.empty())
-      throw runtime_error("glTF image load from buffer view unimplemented");
+    // Image provided through a buffer view
+    if (image.uri.empty()) {
+      const auto& view = gltf.bufferViews()[image.bufferView];
+      const auto& buffer = gltf.buffers()[view.buffer];
 
+      if (buffer.uri.empty()) {
+        // embedded (.glb)
+        if (view.buffer != 0)
+          throw UnsupportedExcept("Unsupported glTF buffer");
+
+        auto& ifs = const_cast<GLTF&>(gltf).bin();
+        if (!ifs.seekg(view.byteOffset, ios_base::cur))
+          throw FileExcept("Could not seek glTF .glb file");
+
+        Texture tex(Texture::Png, ifs);
+        return textureMap.emplace(info.index, tex).first->second;
+
+      } else {
+        // TODO: external (.bin)
+        throw runtime_error("Image loading from glTF .bin unimplemented");
+      }
+    }
+
+    // Image provided through an URI
+    // TODO: base64
     wstring pathname;
     for (const auto& c : gltf.directory())
       pathname.push_back(c);
@@ -2023,26 +2115,39 @@ void loadSkin(Skin& dst, unordered_map<int32_t, ifstream>& bufferMap,
     const auto& acc = gltf.accessors()[skin.inverseBindMatrices];
     const auto& view = gltf.bufferViews()[acc.bufferView];
     const auto& buffer = gltf.buffers()[view.buffer];
+    ifstream* ifs;
 
-    auto it = bufferMap.find(view.buffer);
+    if (buffer.uri.empty()) {
+      // embedded (.glb)
+      if (view.buffer != 0)
+        throw UnsupportedExcept("Unsupported glTF buffer");
 
-    if (it == bufferMap.end()) {
-      const auto pathname = gltf.directory() + '/' + buffer.uri;
-      it = bufferMap.emplace(view.buffer, ifstream(pathname)).first;
-      if (!it->second)
-        throw FileExcept("Could not open glTF .bin file");
+      ifs = &const_cast<GLTF&>(gltf).bin();
+
+    } else {
+      // external (.bin)
+      auto it = bufferMap.find(view.buffer);
+      if (it == bufferMap.end()) {
+        const auto pathname = gltf.directory() + '/' + buffer.uri;
+        it = bufferMap.emplace(view.buffer, ifstream(pathname)).first;
+        if (!it->second)
+          throw FileExcept("Could not open glTF .bin file");
+      } else if (!it->second.seekg(0)) {
+        throw FileExcept("Could not seek glTF .bin file");
+      }
+
+      ifs = &it->second;
     }
 
-    auto& ifs = it->second;
-
-    if (!ifs.seekg(acc.byteOffset + view.byteOffset))
-      throw FileExcept("Could not seek glTF .bin file");
+    const auto beg = ifs->tellg();
+    if (!ifs->seekg(beg + acc.byteOffset + view.byteOffset))
+      throw FileExcept("Could not seek glTF .glb/.bin file");
 
     inverseBind.resize(acc.count);
     for (auto& m : inverseBind) {
       auto dt = reinterpret_cast<char*>(m.data());
-      if (!ifs.read(dt, Mat4f::dataSize()))
-        throw FileExcept("Could not read from glTF .bin file");
+      if (!ifs->read(dt, Mat4f::dataSize()))
+        throw FileExcept("Could not read from glTF .glb/.bin file");
     }
   }
 
@@ -2107,25 +2212,38 @@ void loadAnimation(Animation& dst, unordered_map<int32_t, Node*>& nodeMap,
 
       const auto& view = gltf.bufferViews()[acc.bufferView];
       const auto& buffer = gltf.buffers()[view.buffer];
+      ifstream* ifs;
 
-      auto bufIt = bufferMap.find(view.buffer);
+      if (buffer.uri.empty()) {
+        // embedded (.glb)
+        if (view.buffer != 0)
+          throw UnsupportedExcept("Unsupported glTF buffer");
 
-      if (bufIt == bufferMap.end()) {
-        const auto& pathname = gltf.directory() + '/' + buffer.uri;
-        bufIt = bufferMap.emplace(view.buffer, ifstream(pathname)).first;
-        if (!bufIt->second)
-          throw FileExcept("Could not open glTF .bin file");
+        ifs = &const_cast<GLTF&>(gltf).bin();
+
+      } else {
+        // external (.bin)
+        auto bufIt = bufferMap.find(view.buffer);
+        if (bufIt == bufferMap.end()) {
+          const auto& pathname = gltf.directory() + '/' + buffer.uri;
+          bufIt = bufferMap.emplace(view.buffer, ifstream(pathname)).first;
+          if (!bufIt->second)
+            throw FileExcept("Could not open glTF .bin file");
+        } else if (!bufIt->second.seekg(0)) {
+          throw FileExcept("Could not seek glTF .bin file");
+        }
+
+        ifs = &bufIt->second;
       }
 
-      auto& ifs = bufIt->second;
-
-      if (!ifs.seekg(acc.byteOffset + view.byteOffset))
-          throw FileExcept("Could not seek glTF .bin file");
+      const auto beg = ifs->tellg();
+      if (!ifs->seekg(beg + acc.byteOffset + view.byteOffset))
+          throw FileExcept("Could not seek glTF .glb/.bin file");
 
       inputs.push_back(Animation::Timeline(acc.count));
       auto dt = reinterpret_cast<char*>(inputs.back().data());
-      if (!ifs.read(dt, acc.count * sizeof(float)))
-        throw FileExcept("Could not read from glTF .bin file");
+      if (!ifs->read(dt, acc.count * sizeof(float)))
+        throw FileExcept("Could not read from glTF .glb/.bin file");
 
       action.input = inputs.size() - 1;
       dataMap.emplace(sampler.input, action.input);
@@ -2141,20 +2259,33 @@ void loadAnimation(Animation& dst, unordered_map<int32_t, Node*>& nodeMap,
       const auto& acc = gltf.accessors()[sampler.output];
       const auto& view = gltf.bufferViews()[acc.bufferView];
       const auto& buffer = gltf.buffers()[view.buffer];
+      ifstream* ifs;
 
-      auto bufIt = bufferMap.find(view.buffer);
+      if (buffer.uri.empty()) {
+        // embedded (.glb)
+        if (view.buffer != 0)
+          throw UnsupportedExcept("Unsupported glTF buffer");
 
-      if (bufIt == bufferMap.end()) {
-        const auto& pathname = gltf.directory() + '/' + buffer.uri;
-        bufIt = bufferMap.emplace(view.buffer, ifstream(pathname)).first;
-        if (!bufIt->second)
-          throw FileExcept("Could not open glTF .bin file");
+        ifs = &const_cast<GLTF&>(gltf).bin();
+
+      } else {
+        // external (.bin)
+        auto bufIt = bufferMap.find(view.buffer);
+        if (bufIt == bufferMap.end()) {
+          const auto& pathname = gltf.directory() + '/' + buffer.uri;
+          bufIt = bufferMap.emplace(view.buffer, ifstream(pathname)).first;
+          if (!bufIt->second)
+            throw FileExcept("Could not open glTF .bin file");
+        } else if (!bufIt->second.seekg(0)) {
+          throw FileExcept("Could not seek glTF .bin file");
+        }
+
+        ifs = &bufIt->second;
       }
 
-      auto& ifs = bufIt->second;
-
-      if (!ifs.seekg(acc.byteOffset + view.byteOffset))
-          throw FileExcept("Could not seek glTF .bin file");
+      const auto beg = ifs->tellg();
+      if (!ifs->seekg(beg + acc.byteOffset + view.byteOffset))
+          throw FileExcept("Could not seek glTF .glb/.bin file");
 
       switch (action.type) {
       case Animation::T: {
@@ -2164,8 +2295,8 @@ void loadAnimation(Animation& dst, unordered_map<int32_t, Node*>& nodeMap,
 
         outT.push_back(Animation::Translation(acc.count));
         auto dt = reinterpret_cast<char*>(outT.back().data());
-        if (!ifs.read(dt, acc.count * Vec3f::dataSize()))
-          throw FileExcept("Could not read from glTF .bin file");
+        if (!ifs->read(dt, acc.count * Vec3f::dataSize()))
+          throw FileExcept("Could not read from glTF .glb/.bin file");
 
         action.output = outT.size() - 1;
       } break;
@@ -2177,8 +2308,8 @@ void loadAnimation(Animation& dst, unordered_map<int32_t, Node*>& nodeMap,
 
         vector<Vec4f> tmp(acc.count);
         auto dt = reinterpret_cast<char*>(tmp.data());
-        if (!ifs.read(dt, acc.count * Vec4f::dataSize()))
-          throw FileExcept("Could not read from glTF .bin file");
+        if (!ifs->read(dt, acc.count * Vec4f::dataSize()))
+          throw FileExcept("Could not read from glTF .glb/.bin file");
 
         outR.push_back({});
         auto& r = outR.back();
@@ -2195,8 +2326,8 @@ void loadAnimation(Animation& dst, unordered_map<int32_t, Node*>& nodeMap,
 
         outS.push_back(Animation::Scale(acc.count));
         auto dt = reinterpret_cast<char*>(outS.back().data());
-        if (!ifs.read(dt, acc.count * Vec3f::dataSize()))
-          throw FileExcept("Could not read from glTF .bin file");
+        if (!ifs->read(dt, acc.count * Vec3f::dataSize()))
+          throw FileExcept("Could not read from glTF .glb/.bin file");
 
         action.output = outS.size() - 1;
       } break;

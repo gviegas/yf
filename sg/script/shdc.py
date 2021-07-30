@@ -10,12 +10,12 @@
 import subprocess
 
 vert = [
-    ('Model', '',        ['-DINSTANCE_N=1']),
-    ('Model', 'Model2',  ['-DINSTANCE_N=2']),
-    ('Model', 'Model4',  ['-DINSTANCE_N=4']),
-    ('Model', 'Model8',  ['-DINSTANCE_N=8']),
-    ('Model', 'Model16', ['-DINSTANCE_N=16']),
-    ('Model', 'Model32', ['-DINSTANCE_N=32'])
+    ('Model', '',        ['-DINSTANCE_N=1',  '-DJOINT_N=64']),
+    ('Model', 'Model2',  ['-DINSTANCE_N=2',  '-DJOINT_N=64']),
+    ('Model', 'Model4',  ['-DINSTANCE_N=4',  '-DJOINT_N=64']),
+    ('Model', 'Model8',  ['-DINSTANCE_N=8',  '-DJOINT_N=64']),
+    ('Model', 'Model16', ['-DINSTANCE_N=16', '-DJOINT_N=64']),
+    ('Model', 'Model32', ['-DINSTANCE_N=32', '-DJOINT_N=64'])
 ]
 
 frag = [

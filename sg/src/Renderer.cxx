@@ -93,7 +93,7 @@ constexpr uint64_t CheckLength = 4 + CheckAlign;
 /// (1) joint matrices : Mat4f[JointN]
 /// (2) normal joint matrices: Mat4f[JointN]
 ///
-constexpr uint64_t JointN = 20;
+constexpr uint64_t JointN = 64;
 constexpr uint64_t SkinningLength = Mat4f::dataSize() * (JointN << 1);
 
 /// Material uniform.

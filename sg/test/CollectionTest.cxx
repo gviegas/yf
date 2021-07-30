@@ -122,9 +122,10 @@ struct CollectionTest : InteractiveTest {
   }
 
   void fromFile() {
-    Collection coll(L"tmp/fullscene.gltf");
+    //Collection coll(L"tmp/fullscene.gltf");
     //Collection coll(L"tmp/fullscene2.gltf");
     //Collection coll(L"tmp/fullscene3.gltf");
+    Collection coll(L"tmp/fullscene3.glb");
 
     auto printMatrix = [](const Mat4f& mat) {
       for (size_t i = 0; i < mat.rows(); ++i) {

@@ -79,7 +79,8 @@ struct AnimationTest : InteractiveTest {
   void fromFile() {
     //Collection coll(L"tmp/animation.gltf");
     //Collection coll(L"tmp/animation2.gltf");
-    Collection coll(L"tmp/animation3.gltf");
+    //Collection coll(L"tmp/animation3.gltf");
+    Collection coll(L"tmp/animation3.glb");
 
     auto printMatrix = [](const Mat4f& mat) {
       for (size_t i = 0; i < mat.rows(); ++i) {

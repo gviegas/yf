@@ -744,7 +744,7 @@ class GLTF {
       if (!ifs.seekg(4, ios_base::cur))
         throw FileExcept("Could not seek glTF .glb file");
 
-      binOffset_ = beg + ifstream::pos_type(20 + jLen);
+      binOffset_ = beg + ifstream::pos_type(28 + jLen);
 
     } else {
       // .gltf
@@ -1969,6 +1969,8 @@ void loadMesh(Mesh::Data& dst, unordered_map<int32_t, ifstream>& bufferMap,
         it = bufferMap.emplace(dm.first, ifstream(pathname)).first;
         if (!it->second)
           throw FileExcept("Could not open glTF .bin file");
+      } else if (!it->second.seekg(0)) {
+          throw FileExcept("Could not seek glTF .bin file");
       }
 
       ifs = &it->second;
@@ -2130,6 +2132,8 @@ void loadSkin(Skin& dst, unordered_map<int32_t, ifstream>& bufferMap,
         it = bufferMap.emplace(view.buffer, ifstream(pathname)).first;
         if (!it->second)
           throw FileExcept("Could not open glTF .bin file");
+      } else if (!it->second.seekg(0)) {
+        throw FileExcept("Could not seek glTF .bin file");
       }
 
       ifs = &it->second;
@@ -2225,6 +2229,8 @@ void loadAnimation(Animation& dst, unordered_map<int32_t, Node*>& nodeMap,
           bufIt = bufferMap.emplace(view.buffer, ifstream(pathname)).first;
           if (!bufIt->second)
             throw FileExcept("Could not open glTF .bin file");
+        } else if (!bufIt->second.seekg(0)) {
+          throw FileExcept("Could not seek glTF .bin file");
         }
 
         ifs = &bufIt->second;
@@ -2270,6 +2276,8 @@ void loadAnimation(Animation& dst, unordered_map<int32_t, Node*>& nodeMap,
           bufIt = bufferMap.emplace(view.buffer, ifstream(pathname)).first;
           if (!bufIt->second)
             throw FileExcept("Could not open glTF .bin file");
+        } else if (!bufIt->second.seekg(0)) {
+          throw FileExcept("Could not seek glTF .bin file");
         }
 
         ifs = &bufIt->second;

@@ -807,7 +807,7 @@ class GLTF {
 
   /// Parses an array of objects.
   ///
-  void parseObjectArray(Symbol& symbol, function<void ()> callback) {
+  void parseObjectArray(Symbol& symbol, const function<void ()>& callback) {
     if (symbol.type() == Symbol::Op && symbol.token() == '{')
       callback();
 

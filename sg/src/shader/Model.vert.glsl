@@ -7,6 +7,10 @@
 
 #version 460 core
 
+#ifndef INSTANCE_N
+# error "INSTANCE_N not defined"
+#endif
+
 const uint TangentBit   = 0x01;
 const uint NormalBit    = 0x02;
 const uint TexCoord0Bit = 0x04;
@@ -33,7 +37,7 @@ layout(set=1, binding=0) uniform Instance {
   mat4 mvp;
   mat4 nm;
   // TODO...
-} instance;
+} instance[INSTANCE_N];
 
 /// Check list data.
 ///
@@ -105,7 +109,8 @@ void setVertex(vec4 pos) {
     vertex.tangent = vec4(0.0);
 
   if ((check.mask & NormalBit) != 0)
-    vertex.normal = normalize(vec3(instance.nm * vec4(getNormal(), 0.0)));
+    vertex.normal =
+      normalize(vec3(instance[gl_InstanceIndex].nm * vec4(getNormal(), 0.0)));
   else
     vertex.normal = vec3(0.0);
 
@@ -128,7 +133,7 @@ void setVertex(vec4 pos) {
 }
 
 void main() {
-  vec4 pos = instance.m * getPosition();
+  vec4 pos = instance[gl_InstanceIndex].m * getPosition();
   setVertex(pos);
   gl_Position = global.vp * pos;
 }

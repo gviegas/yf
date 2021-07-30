@@ -11,14 +11,16 @@
 # error "INSTANCE_N not defined"
 #endif
 
+#ifndef JOINT_N
+# error "JOINT_N not defined"
+#endif
+
 const uint TangentBit   = 0x01;
 const uint NormalBit    = 0x02;
 const uint TexCoord0Bit = 0x04;
 const uint TexCoord1Bit = 0x08;
 const uint Color0Bit    = 0x10;
 const uint SkinBit      = 0x20;
-
-const uint JointN = 20;
 
 /// Global data.
 ///
@@ -48,8 +50,8 @@ layout(set=1, binding=1) uniform Check {
 /// Skinning data.
 ///
 layout(set=1, binding=2) uniform Skinning {
-  mat4 jm[JointN];
-  mat4 njm[JointN];
+  mat4 jm[JOINT_N];
+  mat4 njm[JOINT_N];
 } skinning;
 
 layout(location=0) in vec3 position;

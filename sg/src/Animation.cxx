@@ -104,9 +104,9 @@ class Animation::Impl {
       }
 
       const float ang = acos(d);
-      const float s = sinf(ang);
-      const float s1 = sinf((1.0f - f) * ang);
-      const float s2 = sinf(f * ang);
+      const float s = sin(ang);
+      const float s1 = sin((1.0f - f) * ang);
+      const float s2 = sin(f * ang);
 
       const float r = (q1.r() * s1 + q2.r() * s2 * k) / s;
       const Vec3f v = (q1.v() * s1 + q2.v() * s2 * k) / s;

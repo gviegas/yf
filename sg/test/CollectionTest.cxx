@@ -53,9 +53,9 @@ struct CollectionTest : InteractiveTest {
                              coll.nodes().front()->name() == nd.name() &&
                              coll.nodes().back()->name() == nd.name()});
 
-    Mesh mesh{Mesh::Gltf, L"tmp/cube.gltf"};
+    Mesh mesh{Mesh::Gltf, L"tmp/cube.glb"};
     coll.meshes().push_back(mesh);
-    coll.meshes().push_back({Mesh::Gltf, L"tmp/cube.gltf"});
+    coll.meshes().push_back({Mesh::Gltf, L"tmp/cube.glb"});
     coll.meshes().push_back(coll.meshes().front());
 
     a.push_back({L"meshes()", coll.meshes().size() == 3 &&
@@ -122,10 +122,7 @@ struct CollectionTest : InteractiveTest {
   }
 
   void fromFile() {
-    //Collection coll(L"tmp/scene.gltf");
-    //Collection coll(L"tmp/scene2.gltf");
-    //Collection coll(L"tmp/scene3.gltf");
-    Collection coll(L"tmp/scene3.glb");
+    Collection coll(L"tmp/scene.glb");
 
     auto printMatrix = [](const Mat4f& mat) {
       for (size_t i = 0; i < mat.rows(); ++i) {

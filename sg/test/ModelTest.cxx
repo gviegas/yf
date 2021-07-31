@@ -27,7 +27,7 @@ struct ModelTest : Test {
 
     Model mdl1;
 
-    Mesh mesh{Mesh::FileType::Gltf, L"tmp/cube.gltf"};
+    Mesh mesh{Mesh::FileType::Gltf, L"tmp/cube.glb"};
     Model mdl2;
     mdl2.setMesh(mesh);
 

@@ -63,7 +63,7 @@ struct BodyTest : InteractiveTest {
 
   void fromFile() {
     Collection coll;
-    coll.load(L"tmp/cube.gltf");
+    coll.load(L"tmp/cube.glb");
 
     // Dup.
     Node* node1 = nullptr;

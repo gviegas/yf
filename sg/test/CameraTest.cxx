@@ -20,7 +20,7 @@ struct CameraTest : InteractiveTest {
   Assertions run(const vector<string>&) {
     Camera cam{{0.0f, 0.0f, 10.0f}, {}, 640.0f / 480.0f};
 
-    Mesh mesh(Mesh::Gltf, L"tmp/cube.gltf");
+    Mesh mesh(Mesh::Gltf, L"tmp/cube.glb");
     Texture tex(Texture::Png, L"tmp/cube.png");
     Material matl({tex, {1.0f, 1.0f, 1.0f, 1.0f}, {}, 1.0f, 1.0f});
     Skin skin{};

@@ -216,7 +216,7 @@ struct AnimationTest : InteractiveTest {
     update(*scn, [&](auto elapsedTime) {
       if (input.start) {
         if (!coll.animations().empty())
-          isPlaying = true;
+          isPlaying = !isPlaying;
         input.start = false;
       } else if (input.stop) {
         if (!coll.animations().empty()) {

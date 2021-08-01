@@ -2016,6 +2016,61 @@ void loadMesh(Mesh::Data& dst, unordered_map<int32_t, ifstream>& bufferMap,
   }
 }
 
+/// Loads a single skin from a GLTF object.
+///
+void loadSkin(Skin& dst, unordered_map<int32_t, ifstream>& bufferMap,
+              const GLTF& gltf, size_t index) {
+
+  assert(index < gltf.skins().size());
+
+  const auto& skin = gltf.skins()[index];
+
+  vector<Mat4f> inverseBind;
+
+  if (skin.inverseBindMatrices > 0) {
+    const auto& acc = gltf.accessors()[skin.inverseBindMatrices];
+    const auto& view = gltf.bufferViews()[acc.bufferView];
+    const auto& buffer = gltf.buffers()[view.buffer];
+    ifstream* ifs;
+
+    if (buffer.uri.empty()) {
+      // embedded (.glb)
+      if (view.buffer != 0)
+        throw UnsupportedExcept("Unsupported glTF buffer");
+
+      ifs = &const_cast<GLTF&>(gltf).bin();
+
+    } else {
+      // external (.bin)
+      auto it = bufferMap.find(view.buffer);
+      if (it == bufferMap.end()) {
+        const auto pathname = gltf.directory() + '/' + buffer.uri;
+        it = bufferMap.emplace(view.buffer, ifstream(pathname)).first;
+        if (!it->second)
+          throw FileExcept("Could not open glTF .bin file");
+      } else if (!it->second.seekg(0)) {
+        throw FileExcept("Could not seek glTF .bin file");
+      }
+
+      ifs = &it->second;
+    }
+
+    const auto beg = ifs->tellg();
+    if (!ifs->seekg(beg + acc.byteOffset + view.byteOffset))
+      throw FileExcept("Could not seek glTF .glb/.bin file");
+
+    inverseBind.resize(acc.count);
+    for (auto& m : inverseBind) {
+      auto dt = reinterpret_cast<char*>(m.data());
+      if (!ifs->read(dt, Mat4f::dataSize()))
+        throw FileExcept("Could not read from glTF .glb/.bin file");
+    }
+  }
+
+  // XXX: joints NOT set
+  dst = {skin.joints.size(), inverseBind};
+}
+
 /// Loads a single material from a GLTF object.
 ///
 void loadMaterial(Material& dst, unordered_map<int32_t, Texture>& textureMap,
@@ -2098,61 +2153,6 @@ void loadMaterial(Material& dst, unordered_map<int32_t, Texture>& textureMap,
   dst.emissive().factor = {material.emissiveFactor[0],
                            material.emissiveFactor[1],
                            material.emissiveFactor[2]};
-}
-
-/// Loads a single skin from a GLTF object.
-///
-void loadSkin(Skin& dst, unordered_map<int32_t, ifstream>& bufferMap,
-              const GLTF& gltf, size_t index) {
-
-  assert(index < gltf.skins().size());
-
-  const auto& skin = gltf.skins()[index];
-
-  vector<Mat4f> inverseBind;
-
-  if (skin.inverseBindMatrices > 0) {
-    const auto& acc = gltf.accessors()[skin.inverseBindMatrices];
-    const auto& view = gltf.bufferViews()[acc.bufferView];
-    const auto& buffer = gltf.buffers()[view.buffer];
-    ifstream* ifs;
-
-    if (buffer.uri.empty()) {
-      // embedded (.glb)
-      if (view.buffer != 0)
-        throw UnsupportedExcept("Unsupported glTF buffer");
-
-      ifs = &const_cast<GLTF&>(gltf).bin();
-
-    } else {
-      // external (.bin)
-      auto it = bufferMap.find(view.buffer);
-      if (it == bufferMap.end()) {
-        const auto pathname = gltf.directory() + '/' + buffer.uri;
-        it = bufferMap.emplace(view.buffer, ifstream(pathname)).first;
-        if (!it->second)
-          throw FileExcept("Could not open glTF .bin file");
-      } else if (!it->second.seekg(0)) {
-        throw FileExcept("Could not seek glTF .bin file");
-      }
-
-      ifs = &it->second;
-    }
-
-    const auto beg = ifs->tellg();
-    if (!ifs->seekg(beg + acc.byteOffset + view.byteOffset))
-      throw FileExcept("Could not seek glTF .glb/.bin file");
-
-    inverseBind.resize(acc.count);
-    for (auto& m : inverseBind) {
-      auto dt = reinterpret_cast<char*>(m.data());
-      if (!ifs->read(dt, Mat4f::dataSize()))
-        throw FileExcept("Could not read from glTF .glb/.bin file");
-    }
-  }
-
-  // XXX: joints NOT set
-  dst = {skin.joints.size(), inverseBind};
 }
 
 /// Loads a single animation from a GLTF object.
@@ -2363,18 +2363,18 @@ void loadContents(Collection& collection, const GLTF& gltf) {
     collection.meshes().push_back({data});
   }
 
-  // Create materials
-  const auto matlOff = collection.materials().size();
-  for (size_t i = 0; i < gltf.materials().size(); ++i) {
-    collection.materials().push_back({});
-    loadMaterial(collection.materials().back(), textureMap, gltf, i);
-  }
-
   // Create skins
   const auto skinOff = collection.skins().size();
   for (size_t i = 0; i < gltf.skins().size(); ++i) {
     collection.skins().push_back({});
     loadSkin(collection.skins().back(), bufferMap, gltf, i);
+  }
+
+  // Create materials
+  const auto matlOff = collection.materials().size();
+  for (size_t i = 0; i < gltf.materials().size(); ++i) {
+    collection.materials().push_back({});
+    loadMaterial(collection.materials().back(), textureMap, gltf, i);
   }
 
   // Check which nodes are joints

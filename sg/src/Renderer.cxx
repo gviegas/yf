@@ -15,10 +15,9 @@
 #include "yf/cg/Device.h"
 
 #include "Renderer.h"
-#include "Model.h"
-#include "Material.h"
-#include "TextureImpl.h"
 #include "MeshImpl.h"
+#include "TextureImpl.h"
+#include "Skin.h"
 #include "Camera.h"
 
 using namespace SG_NS;

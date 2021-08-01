@@ -20,7 +20,6 @@
 #include "Scene.h"
 #include "Model.h"
 #include "Mesh.h"
-#include "Skin.h"
 #include "Material.h"
 
 SG_NS_BEGIN

@@ -38,6 +38,8 @@ layout(set=1, binding=0) uniform Instance {
   mat4 mv;
   mat4 mvp;
   mat4 nm;
+  mat4 jm[JOINT_N];
+  mat4 njm[JOINT_N];
   // TODO...
 } instance[INSTANCE_N];
 
@@ -46,13 +48,6 @@ layout(set=1, binding=0) uniform Instance {
 layout(set=1, binding=1) uniform Check {
   uint mask;
 } check;
-
-/// Skinning data.
-///
-layout(set=1, binding=2) uniform Skinning {
-  mat4 jm[JOINT_N];
-  mat4 njm[JOINT_N];
-} skinning;
 
 layout(location=0) in vec3 position;
 layout(location=1) in vec4 tangent;

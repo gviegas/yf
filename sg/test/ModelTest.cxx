@@ -34,31 +34,33 @@ struct ModelTest : Test {
     a.push_back({L"Model()", !mdl1.mesh() && !mdl1.skin() &&
                              mdl2.mesh() == mesh && !mdl2.skin()});
 
-    Material material;
     Skin skin(1, {});
-    Model mdl3{mesh, material, skin};
+    Material material;
+    Model mdl3{mesh, skin, material};
 
-    a.push_back({L"Model(mesh, material, skin)",
-                 mdl3.mesh() == mesh && mdl3.material() == material &&
-                 mdl3.skin() == skin});
+    a.push_back({L"Model(mesh, skin, material)", mdl3.mesh() == mesh &&
+                                                 mdl3.skin() == skin &&
+                                                 mdl3.material() == material});
 
     Model mdl4{mdl3};
     a.push_back({L"Model(other)", mdl4.mesh() == mesh &&
-                                  mdl4.material() == material &&
                                   mdl4.skin() == skin &&
+                                  mdl4.material() == material &&
                                   mdl4.mesh() == mdl3.mesh() &&
-                                  mdl4.material() == mdl3.material() &&
-                                  mdl4.skin() == mdl3.skin()});
+                                  mdl4.skin() == mdl3.skin() &&
+                                  mdl4.material() == mdl3.material()});
 
     Model mdl5 = mdl3;
-    a.push_back({L"=", mdl5.mesh() == mesh && mdl5.material() == material &&
-                       mdl5.skin() == skin && mdl5.mesh() == mdl3.mesh() &&
-                       mdl5.material() == mdl3.material() &&
-                       mdl5.skin() == mdl3.skin()});
+    a.push_back({L"=", mdl5.mesh() == mesh &&
+                       mdl5.skin() == skin &&
+                       mdl5.material() == material &&
+                       mdl5.mesh() == mdl3.mesh() &&
+                       mdl5.skin() == mdl3.skin() &&
+                       mdl5.material() == mdl3.material()});
 
     mdl1.setMesh(mesh);
-    mdl1.setMaterial(material);
     mdl1.setSkin(skin);
+    mdl1.setMaterial(material);
 
     Material matl0;
     Mesh mesh0;
@@ -68,12 +70,15 @@ struct ModelTest : Test {
     mdl4.setSkin(skin0);
 
     a.push_back({L"set*()", mdl1.mesh() == mesh &&
+                            mdl1.skin() == skin &&
                             mdl1.material() == material &&
-                            mdl1.skin() == skin && mdl2.mesh() == mesh &&
+                            mdl2.mesh() == mesh &&
                             !mdl2.skin() && !mdl3.mesh() &&
+                            mdl3.skin() == skin &&
                             mdl3.material() == material &&
-                            mdl3.skin() == skin && mdl4.mesh() == mesh &&
-                            mdl4.material() == material && !mdl4.skin()});
+                            mdl4.mesh() == mesh &&
+                            !mdl4.skin() &&
+                            mdl4.material() == material});
 
     return a;
   }

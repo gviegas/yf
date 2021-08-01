@@ -228,16 +228,6 @@ class Node::Impl {
     return name_;
   }
 
-  Mat4f& localTransform() {
-    if (changed_) {
-      localXform_ = transform_;
-      // XXX: May not be required
-      localXform_ *= translate(t_) * rotate(r_) * ::scale(s_);
-      changed_ = false;
-    }
-    return localXform_;
-  }
-
   Mat4f& transform() {
     changed_ = true;
     return transform_;
@@ -295,7 +285,6 @@ class Node::Impl {
   size_t n_ = 1;
   wstring name_{};
   bool changed_ = false;
-  Mat4f localXform_ = Mat4f::identity();
   Mat4f transform_ = Mat4f::identity();
   Vec3f t_{};
   Qnionf r_{1.0f, {}};
@@ -380,10 +369,6 @@ wstring& Node::name() {
 
 const wstring& Node::name() const {
   return impl_->name();
-}
-
-const Mat4f& Node::localTransform() const {
-  return impl_->localTransform();
 }
 
 Mat4f& Node::transform() {

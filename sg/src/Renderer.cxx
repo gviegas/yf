@@ -31,13 +31,12 @@ constexpr uint32_t ModelTable = 1;
 
 constexpr CG_NS::DcId MainUniform = 0;
 constexpr CG_NS::DcId CheckUniform = 1;
-constexpr CG_NS::DcId SkinningUniform = 2;
-constexpr CG_NS::DcId MaterialUniform = 3;
-constexpr CG_NS::DcId ColorImgSampler = 4;
-constexpr CG_NS::DcId MetalRoughImgSampler = 5;
-constexpr CG_NS::DcId NormalImgSampler = 6;
-constexpr CG_NS::DcId OcclusionImgSampler = 7;
-constexpr CG_NS::DcId EmissiveImgSampler = 8;
+constexpr CG_NS::DcId MaterialUniform = 2;
+constexpr CG_NS::DcId ColorImgSampler = 3;
+constexpr CG_NS::DcId MetalRoughImgSampler = 4;
+constexpr CG_NS::DcId NormalImgSampler = 5;
+constexpr CG_NS::DcId OcclusionImgSampler = 6;
+constexpr CG_NS::DcId EmissiveImgSampler = 7;
 
 /// Shader pathnames.
 ///
@@ -77,8 +76,12 @@ constexpr uint64_t GlobalLength = Mat4f::dataSize() * 3;
 /// (2) model-view : Mat4f
 /// (3) model-view-proj : Mat4f
 /// (4) normal matrix : Mat4f
+/// (5) joint matrices : Mat4f[JointN]
+/// (6) normal joint matrices : Mat4f[JointN]
 ///
-constexpr uint64_t InstanceLength = Mat4f::dataSize() << 2;
+constexpr uint64_t JointN = 64;
+constexpr uint64_t SkinningLength = Mat4f::dataSize() * (JointN << 1);
+constexpr uint64_t InstanceLength = (Mat4f::dataSize() << 2) + SkinningLength;
 
 /// Check list uniform.
 ///
@@ -87,14 +90,6 @@ constexpr uint64_t InstanceLength = Mat4f::dataSize() << 2;
 ///
 constexpr uint64_t CheckAlign = 60;
 constexpr uint64_t CheckLength = 4 + CheckAlign;
-
-/// Skinning uniform.
-///
-/// (1) joint matrices : Mat4f[JointN]
-/// (2) normal joint matrices: Mat4f[JointN]
-///
-constexpr uint64_t JointN = 64;
-constexpr uint64_t SkinningLength = Mat4f::dataSize() * (JointN << 1);
 
 /// Material uniform.
 ///
@@ -278,39 +273,25 @@ void Renderer::render(Scene& scene, CG_NS::Target& target) {
           unifBuffer_->write(off, len, nm.data());
           off += len;
 
-          // TODO: other per-instance data
+          array<Mat4f, (JointN << 1)> skinning;
+          skinning.fill(Mat4f::identity());
+          if (skin) {
+            assert(skin.joints().size() < JointN);
+            size_t i = 0;
+            for (const auto& jt : skin.joints()) {
+              skinning[i] = jt->worldTransform() * skin.inverseBind()[i];
+              skinning[i+JointN] = transpose(invert(skinning[i]));
+              ++i;
+            }
+          }
+          beg = off;
+          len = SkinningLength;
+          unifBuffer_->write(off, len, skinning.data());
+          off += len;
 
           resource->table->write(alloc, MainUniform, i, *unifBuffer_, beg,
                                  InstanceLength);
         }
-
-        // Update skinning data
-        array<Mat4f, JointN> jm;
-        jm.fill(Mat4f::identity());
-        array<Mat4f, JointN> njm;
-        njm.fill(Mat4f::identity());
-
-        if (skin) {
-          assert(skin.joints().size() < JointN);
-          size_t i = 0;
-          for (const auto& jt : skin.joints()) {
-            jm[i] = jt->worldTransform() * skin.inverseBind()[i];
-            njm[i] = transpose(invert(jm[i]));
-            ++i;
-          }
-        }
-
-        beg = off;
-        len = Mat4f::dataSize() * JointN;
-
-        unifBuffer_->write(off, len, jm.data());
-        off += len;
-
-        unifBuffer_->write(off, len, njm.data());
-        off += len;
-
-        resource->table->write(alloc, SkinningUniform, 0, *unifBuffer_, beg,
-                               SkinningLength);
 
         // Update material
         pair<Texture, CG_NS::DcId> texs[]{
@@ -496,7 +477,6 @@ void Renderer::prepare() {
       const CG_NS::DcEntries inst{
         {MainUniform,          {CG_NS::DcTypeUniform,    instN}},
         {CheckUniform,         {CG_NS::DcTypeUniform,    1}},
-        {SkinningUniform,      {CG_NS::DcTypeUniform,    1}},
         {MaterialUniform,      {CG_NS::DcTypeUniform,    1}},
         {ColorImgSampler,      {CG_NS::DcTypeImgSampler, 1}},
         {MetalRoughImgSampler, {CG_NS::DcTypeImgSampler, 1}},
@@ -533,7 +513,7 @@ void Renderer::prepare() {
     }
 
     const auto instLen = InstanceLength * instN;
-    const auto sharLen = CheckLength + SkinningLength + MaterialLength;
+    const auto sharLen = CheckLength + MaterialLength;
     return (instLen + sharLen) * allocN;
   };
 

@@ -15,8 +15,8 @@
 SG_NS_BEGIN
 
 class Mesh;
-class Material;
 class Skin;
+class Material;
 
 /// Model.
 ///
@@ -24,7 +24,7 @@ class Model : public Node {
  public:
   using Ptr = std::unique_ptr<Model>;
 
-  Model(Mesh& mesh, Material& material, Skin& skin);
+  Model(Mesh& mesh, Skin& skin, Material& material);
   Model();
   Model(const Model& other);
   Model& operator=(const Model& other);
@@ -33,14 +33,14 @@ class Model : public Node {
   /// Setters.
   ///
   void setMesh(Mesh& mesh);
-  void setMaterial(Material& material);
   void setSkin(Skin& skin);
+  void setMaterial(Material& material);
 
   /// Getters.
   ///
   Mesh mesh();
-  Material material();
   Skin skin();
+  Material material();
 
  private:
   class Impl;

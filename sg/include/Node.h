@@ -83,16 +83,15 @@ class Node {
   std::wstring& name();
   const std::wstring& name() const;
 
-  /// Gets the node's combined local transform.
-  ///
-  const Mat4f& localTransform() const;
-
-  /// Gets the node's transformation matrix.
+  /// Gets the node's transform.
   ///
   Mat4f& transform();
   const Mat4f& transform() const;
 
   /// Sets the node's TRS properties.
+  ///
+  /// XXX: When any of the TRS properties are set, the node's `transform()`
+  /// is overwritten.
   ///
   void setT(const Vec3f& t);
   void setR(const Qnionf& r);

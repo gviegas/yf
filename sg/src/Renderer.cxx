@@ -402,13 +402,12 @@ void Renderer::processGraph(Scene& scene) {
   if (scene.isLeaf())
     return;
 
-  scene.worldTransform() = scene.localTransform();
+  scene.worldTransform() = scene.transform();
   scene.worldInverse() = invert(scene.worldTransform());
 
   scene.traverse([&](Node& node) {
     // Transforms
-    node.worldTransform() =
-      node.parent()->worldTransform() * node.localTransform();
+    node.worldTransform() = node.parent()->worldTransform() * node.transform();
     node.worldInverse() = invert(node.worldTransform());
     node.worldNormal() = transpose(node.worldInverse());
 

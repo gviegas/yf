@@ -111,13 +111,12 @@ constexpr uint64_t UniformLength = 1ULL << 20;
 /// Check uniform flags.
 ///
 enum CheckBits : uint32_t {
-  TangentBit   = 0x0001,
-  NormalBit    = 0x0002,
-  TexCoord0Bit = 0x0004,
-  TexCoord1Bit = 0x0008,
-  Color0Bit    = 0x0010,
-  SkinBit      = 0x0020,
-
+  TangentBit       = 0x0001,
+  NormalBit        = 0x0002,
+  TexCoord0Bit     = 0x0004,
+  TexCoord1Bit     = 0x0008,
+  Color0Bit        = 0x0010,
+  SkinBit          = 0x0020,
   ColorTexBit      = 0x0100,
   MetalRoughTexBit = 0x0200,
   NormalTexBit     = 0x0400,
@@ -245,9 +244,8 @@ void Renderer::render(Scene& scene, CG_NS::Target& target) {
         enc.setState(resource->state.get());
         enc.setDcTable(ModelTable, alloc);
 
-        auto skin = kv.second[0]->skin();
-        auto matl = kv.second[0]->material();
         auto mesh = kv.second[0]->mesh();
+        auto matl = kv.second[0]->material();
 
         // Update instance-specific uniform buffer
         for (uint32_t i = 0; i < n; ++i) {
@@ -273,6 +271,7 @@ void Renderer::render(Scene& scene, CG_NS::Target& target) {
           unifBuffer_->write(off, len, nm.data());
           off += len;
 
+          auto skin = mdl->skin();
           array<Mat4f, (JointN << 1)> skinning;
           skinning.fill(Mat4f::identity());
           if (skin) {
@@ -341,7 +340,8 @@ void Renderer::render(Scene& scene, CG_NS::Target& target) {
           chkMask |= TexCoord1Bit;
         if (mesh.impl().canBind(VxTypeColor0))
           chkMask |= Color0Bit;
-        if (skin)
+        if (mesh.impl().canBind(VxTypeJoints0) &&
+            mesh.impl().canBind(VxTypeWeights0))
           chkMask |= SkinBit;
         if (matl.pbrmr().colorTex)
           chkMask |= ColorTexBit;

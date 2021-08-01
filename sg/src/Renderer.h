@@ -20,8 +20,8 @@
 #include "Scene.h"
 #include "Model.h"
 #include "Mesh.h"
-#include "Material.h"
 #include "Skin.h"
+#include "Material.h"
 
 SG_NS_BEGIN
 
@@ -50,11 +50,9 @@ class Renderer {
   struct MdlKey {
     Mesh mesh{};
     Material material{};
-    Skin skin{};
 
     bool operator==(const MdlKey& other) const {
-      return mesh == other.mesh && material == other.material &&
-             skin == other.skin;
+      return mesh == other.mesh && material == other.material;
     }
   };
 
@@ -62,7 +60,7 @@ class Renderer {
   ///
   struct MdlHash {
     size_t operator()(const MdlKey& k) const {
-      return k.mesh.hash() ^ k.material.hash() ^ k.skin.hash();
+      return k.mesh.hash() ^ k.material.hash();
     }
   };
 

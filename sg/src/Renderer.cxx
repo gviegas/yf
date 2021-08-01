@@ -61,6 +61,9 @@ constexpr Shader Mdl16Shaders[]{
 constexpr Shader Mdl32Shaders[]{
   {CG_NS::StageVertex, L"Model32.vert"}, MdlShaders[1]};
 
+// FIXME: Writes to descriptor table may have strict alignment requirements.
+// These must be provided by CG and accounted for when defining the lengths.
+
 /// Global uniform.
 ///
 /// (1) view : Mat4f
@@ -282,7 +285,6 @@ void Renderer::render(Scene& scene, CG_NS::Target& target) {
               ++i;
             }
           }
-          beg = off;
           len = SkinningLength;
           unifBuffer_->write(off, len, skinning.data());
           off += len;

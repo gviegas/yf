@@ -73,10 +73,11 @@ vec4 getPosition() {
   vec4 pos = vec4(position, 1.0);
 
   if ((check.mask & SkinBit) != 0) {
-    mat4 sm = weights0.x * skinning.jm[joints0.x] +
-              weights0.y * skinning.jm[joints0.y] +
-              weights0.z * skinning.jm[joints0.z] +
-              weights0.w * skinning.jm[joints0.w];
+    const int i = gl_InstanceIndex;
+    mat4 sm = weights0.x * instance[i].jm[joints0.x] +
+              weights0.y * instance[i].jm[joints0.y] +
+              weights0.z * instance[i].jm[joints0.z] +
+              weights0.w * instance[i].jm[joints0.w];
     pos = sm * pos;
   }
 
@@ -87,10 +88,11 @@ vec3 getNormal() {
   vec3 norm = normal;
 
   if ((check.mask & SkinBit) != 0) {
-    mat4 nsm = weights0.x * skinning.njm[joints0.x] +
-               weights0.y * skinning.njm[joints0.y] +
-               weights0.z * skinning.njm[joints0.z] +
-               weights0.w * skinning.njm[joints0.w];
+    const int i = gl_InstanceIndex;
+    mat4 nsm = weights0.x * instance[i].njm[joints0.x] +
+               weights0.y * instance[i].njm[joints0.y] +
+               weights0.z * instance[i].njm[joints0.z] +
+               weights0.w * instance[i].njm[joints0.w];
     norm = normalize(mat3(nsm) * norm);
   }
 

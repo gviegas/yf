@@ -29,7 +29,7 @@ layout(set=1, binding=1) uniform Check {
 
 /// Material data.
 ///
-layout(set=1, binding=3) uniform Material {
+layout(set=1, binding=2) uniform Material {
   vec4 colorFac;
   float metallicFac;
   float roughnessFac;
@@ -40,11 +40,11 @@ layout(set=1, binding=3) uniform Material {
 
 /// Material textures.
 ///
-layout(set=1, binding=4) uniform sampler2D colorTex;
-layout(set=1, binding=5) uniform sampler2D metalRoughTex;
-layout(set=1, binding=6) uniform sampler2D normalTex;
-layout(set=1, binding=7) uniform sampler2D occlusionTex;
-layout(set=1, binding=8) uniform sampler2D emissiveTex;
+layout(set=1, binding=3) uniform sampler2D colorTex;
+layout(set=1, binding=4) uniform sampler2D metalRoughTex;
+layout(set=1, binding=5) uniform sampler2D normalTex;
+layout(set=1, binding=6) uniform sampler2D occlusionTex;
+layout(set=1, binding=7) uniform sampler2D emissiveTex;
 
 layout(location=0) in Vertex {
   vec3 position;

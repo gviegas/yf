@@ -229,11 +229,18 @@ class Node::Impl {
   }
 
   Mat4f& transform() {
-    changed_ = true;
+    if (changed_) {
+      transform_ = translate(t_) * rotate(r_) * scale(s_);
+      changed_ = false;
+    }
     return transform_;
   }
 
   const Mat4f& transform() const {
+    if (changed_) {
+      transform_ = translate(t_) * rotate(r_) * scale(s_);
+      changed_ = false;
+    }
     return transform_;
   }
 
@@ -284,8 +291,8 @@ class Node::Impl {
   Impl* nextSib_ = nullptr;
   size_t n_ = 1;
   wstring name_{};
-  bool changed_ = false;
-  Mat4f transform_ = Mat4f::identity();
+  mutable bool changed_ = false;
+  mutable Mat4f transform_ = Mat4f::identity();
   Vec3f t_{};
   Qnionf r_{1.0f, {}};
   Vec3f s_{1.0f, 1.0f, 1.0f};

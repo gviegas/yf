@@ -52,8 +52,8 @@ class Collection {
 
   /// Meshes.
   ///
-  std::vector<Mesh>& meshes();
-  const std::vector<Mesh>& meshes() const;
+  std::vector<Mesh::Ptr>& meshes();
+  const std::vector<Mesh::Ptr>& meshes() const;
 
   /// Textures.
   ///

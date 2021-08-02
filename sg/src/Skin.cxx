@@ -5,7 +5,6 @@
 // Copyright © 2021 Gustavo C. Viegas.
 //
 
-#include <cassert>
 #include <stdexcept>
 
 #include "Skin.h"
@@ -29,52 +28,21 @@ class Skin::Impl {
 };
 
 Skin::Skin(size_t jointN, const vector<Mat4f>& inverseBind)
-  : impl_(make_shared<Impl>(jointN, inverseBind)) { }
-
-Skin::Skin() : impl_(nullptr) { }
-
-Skin::Skin(const Skin& other) : impl_(other.impl_) { }
-
-Skin& Skin::operator=(const Skin& other) {
-  impl_ = other.impl_;
-  return *this;
-}
+  : impl_(make_unique<Impl>(jointN, inverseBind)) { }
 
 Skin::~Skin() { }
 
-Skin::operator bool() const {
-  return impl_ != nullptr;
-}
-
-bool Skin::operator!() const {
-  return impl_ == nullptr;
-}
-
-bool Skin::operator==(const Skin& other) const {
-  return impl_ == other.impl_;
-}
-
-bool Skin::operator!=(const Skin& other) const {
-  return impl_ != other.impl_;
-}
-
-size_t Skin::hash() const {
-  return std::hash<decltype(impl_)>()(impl_);
-}
-
 void Skin::setJoint(Joint& joint, size_t index) {
-  assert(impl_);
   if (index >= impl_->joints_.size())
     throw runtime_error("Skin setJoint() index out of bounds");
+
   impl_->joints_[index] = &joint;
 }
 
 const vector<Joint*>& Skin::joints() const {
-  assert(impl_);
   return impl_->joints_;
 }
 
 const vector<Mat4f>& Skin::inverseBind() const {
-  assert(impl_);
   return impl_->inverseBind_;
 }

@@ -33,13 +33,13 @@ class Model : public Node {
   /// Setters.
   ///
   void setMesh(Mesh* mesh);
-  void setSkin(Skin& skin);
+  void setSkin(Skin* skin);
   void setMaterial(Material& material);
 
   /// Getters.
   ///
   Mesh* mesh();
-  Skin skin();
+  Skin* skin();
   Material material();
 
  private:

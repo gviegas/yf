@@ -247,6 +247,8 @@ void Renderer::render(Scene& scene, CG_NS::Target& target) {
         enc.setDcTable(ModelTable, alloc);
 
         auto mesh = kv.second[0]->mesh();
+        if (!mesh)
+          throw runtime_error("Cannot render models with no mesh set");
         auto matl = kv.second[0]->material();
 
         // Update instance-specific uniform buffer
@@ -331,18 +333,18 @@ void Renderer::render(Scene& scene, CG_NS::Target& target) {
         // Update check list
         uint32_t chkMask = 0;
 
-        if (mesh.impl().canBind(VxTypeTangent))
+        if (mesh->impl().canBind(VxTypeTangent))
           chkMask |= TangentBit;
-        if (mesh.impl().canBind(VxTypeNormal))
+        if (mesh->impl().canBind(VxTypeNormal))
           chkMask |= NormalBit;
-        if (mesh.impl().canBind(VxTypeTexCoord0))
+        if (mesh->impl().canBind(VxTypeTexCoord0))
           chkMask |= TexCoord0Bit;
-        if (mesh.impl().canBind(VxTypeTexCoord1))
+        if (mesh->impl().canBind(VxTypeTexCoord1))
           chkMask |= TexCoord1Bit;
-        if (mesh.impl().canBind(VxTypeColor0))
+        if (mesh->impl().canBind(VxTypeColor0))
           chkMask |= Color0Bit;
-        if (mesh.impl().canBind(VxTypeJoints0) &&
-            mesh.impl().canBind(VxTypeWeights0))
+        if (mesh->impl().canBind(VxTypeJoints0) &&
+            mesh->impl().canBind(VxTypeWeights0))
           chkMask |= SkinBit;
         if (matl.pbrmr().colorTex)
           chkMask |= ColorTexBit;
@@ -365,11 +367,7 @@ void Renderer::render(Scene& scene, CG_NS::Target& target) {
                                CheckLength);
 
         // Encode commands for this mesh
-        if (mesh)
-          mesh.impl().encode(enc, 0, n);
-        else
-          // TODO
-          throw runtime_error("Cannot render models with no mesh set");
+        mesh->impl().encode(enc, 0, n);
 
         if (kv.second.empty())
           completed.push_back(kv.first);

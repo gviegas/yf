@@ -2395,7 +2395,7 @@ void loadContents(Collection& collection, const GLTF& gltf) {
       collection.nodes().push_back(make_unique<Model>());
       auto mdl = static_cast<Model*>(collection.nodes().back().get());
 
-      mdl->setMesh(collection.meshes()[meshOff+nd.mesh]);
+      mdl->setMesh(collection.meshes()[meshOff+nd.mesh].get());
       // TODO: support for multiple primitives
       const auto matl = gltf.meshes()[nd.mesh].primitives[0].material;
       if (matl > -1)

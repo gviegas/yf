@@ -21,6 +21,8 @@ SG_NS_BEGIN
 ///
 class Texture {
  public:
+  using Ptr = std::unique_ptr<Texture>;
+
   /// File types from which a texture can be created.
   ///
   enum FileType {
@@ -30,15 +32,7 @@ class Texture {
 
   Texture(FileType fileType, const std::wstring& pathname);
   Texture(FileType fileType, std::ifstream& stream);
-  Texture();
-  Texture(const Texture& other);
-  Texture& operator=(const Texture& other);
   ~Texture();
-
-  explicit operator bool() const;
-  bool operator!() const;
-  bool operator==(const Texture& other) const;
-  bool operator!=(const Texture& other) const;
 
   size_t hash() const;
 
@@ -49,7 +43,7 @@ class Texture {
   Impl& impl();
 
  private:
-  std::shared_ptr<Impl> impl_;
+  std::unique_ptr<Impl> impl_;
 };
 
 SG_NS_END

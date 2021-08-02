@@ -75,7 +75,7 @@ struct BodyTest : InteractiveTest {
         auto mesh = mdl->mesh();
         Skin skin{};
         auto matl = mdl->material();
-        node = new Model(mesh, skin, matl);
+        node = new Model(*mesh, skin, matl);
         nd->parent()->insert(*node);
         node->name() = L"Cube2";
         node->transform() = translate(0.0f, 15.0f, 0.0f);

@@ -53,15 +53,13 @@ struct CollectionTest : InteractiveTest {
                              coll.nodes().front()->name() == nd.name() &&
                              coll.nodes().back()->name() == nd.name()});
 
-    Mesh mesh{Mesh::Gltf, L"tmp/cube.glb"};
-    coll.meshes().push_back(mesh);
-    coll.meshes().push_back({Mesh::Gltf, L"tmp/cube.glb"});
-    coll.meshes().push_back(coll.meshes().front());
+    auto mesh = new Mesh(Mesh::Gltf, L"tmp/cube.glb");
+    coll.meshes().push_back(unique_ptr<Mesh>(mesh));
+    coll.meshes().push_back(make_unique<Mesh>(Mesh::Gltf, L"tmp/cube.glb"));
 
-    a.push_back({L"meshes()", coll.meshes().size() == 3 &&
-                              &coll.meshes()[0].impl() == &mesh.impl() &&
-                              &coll.meshes()[1].impl() != &mesh.impl() &&
-                              &coll.meshes()[2].impl() == &mesh.impl()});
+    a.push_back({L"meshes()", coll.meshes().size() == 2 &&
+                              coll.meshes()[0].get() == mesh &&
+                              &coll.meshes()[0]->impl() == &mesh->impl()});
 
     coll.textures().push_back({Texture::Png, L"tmp/cube.png"});
     Texture tex{Texture::Png, L"tmp/cube.png"};

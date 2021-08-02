@@ -279,10 +279,11 @@ void Renderer::render(Scene& scene, CG_NS::Target& target) {
           array<Mat4f, (JointN << 1)> skinning;
           skinning.fill(Mat4f::identity());
           if (skin) {
-            assert(skin.joints().size() < JointN);
+            assert(skin->joints().size() <= JointN);
             size_t i = 0;
-            for (const auto& jt : skin.joints()) {
-              skinning[i] = jt->worldTransform() * skin.inverseBind()[i];
+            for (const auto& jt : skin->joints()) {
+              assert(jt); // XXX
+              skinning[i] = jt->worldTransform() * skin->inverseBind()[i];
               skinning[i+JointN] = transpose(invert(skinning[i]));
               ++i;
             }

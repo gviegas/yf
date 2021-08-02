@@ -2018,8 +2018,8 @@ void loadMesh(Mesh::Data& dst, unordered_map<int32_t, ifstream>& bufferMap,
 
 /// Loads a single skin from a GLTF object.
 ///
-void loadSkin(Skin& dst, unordered_map<int32_t, ifstream>& bufferMap,
-              const GLTF& gltf, size_t index) {
+Skin* loadSkin(unordered_map<int32_t, ifstream>& bufferMap,
+               const GLTF& gltf, size_t index) {
 
   assert(index < gltf.skins().size());
 
@@ -2068,7 +2068,7 @@ void loadSkin(Skin& dst, unordered_map<int32_t, ifstream>& bufferMap,
   }
 
   // XXX: joints NOT set
-  dst = {skin.joints.size(), inverseBind};
+  return new Skin(skin.joints.size(), inverseBind);
 }
 
 /// Loads a single material from a GLTF object.
@@ -2366,8 +2366,8 @@ void loadContents(Collection& collection, const GLTF& gltf) {
   // Create skins
   const auto skinOff = collection.skins().size();
   for (size_t i = 0; i < gltf.skins().size(); ++i) {
-    collection.skins().push_back({});
-    loadSkin(collection.skins().back(), bufferMap, gltf, i);
+    auto skin = loadSkin(bufferMap, gltf, i);
+    collection.skins().push_back(unique_ptr<Skin>(skin));
   }
 
   // Create materials
@@ -2454,7 +2454,7 @@ void loadContents(Collection& collection, const GLTF& gltf) {
     size_t index = 0;
     for (const auto& jt : gltf.skins()[i].joints) {
       auto joint = static_cast<Joint*>(nodeMap[jt]);
-      skin.setJoint(*joint, index++);
+      skin->setJoint(*joint, index++);
     }
   }
 

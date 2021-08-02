@@ -15,9 +15,9 @@
 #include "yf/sg/Scene.h"
 #include "yf/sg/Node.h"
 #include "yf/sg/Mesh.h"
+#include "yf/sg/Skin.h"
 #include "yf/sg/Texture.h"
 #include "yf/sg/Material.h"
-#include "yf/sg/Skin.h"
 #include "yf/sg/Animation.h"
 
 SG_NS_BEGIN
@@ -55,6 +55,11 @@ class Collection {
   std::vector<Mesh::Ptr>& meshes();
   const std::vector<Mesh::Ptr>& meshes() const;
 
+  /// Skins.
+  ///
+  std::vector<Skin::Ptr>& skins();
+  const std::vector<Skin::Ptr>& skins() const;
+
   /// Textures.
   ///
   std::vector<Texture>& textures();
@@ -64,11 +69,6 @@ class Collection {
   ///
   std::vector<Material>& materials();
   const std::vector<Material>& materials() const;
-
-  /// Skins.
-  ///
-  std::vector<Skin>& skins();
-  const std::vector<Skin>& skins() const;
 
   /// Animations.
   ///

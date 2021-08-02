@@ -21,9 +21,9 @@ class Collection::Impl {
   vector<Scene::Ptr> scenes_{};
   vector<Node::Ptr> nodes_{};
   vector<Mesh::Ptr> meshes_{};
+  vector<Skin::Ptr> skins_{};
   vector<Texture> textures_{};
   vector<Material> materials_{};
-  vector<Skin> skins_{};
   vector<Animation> animations_{};
 };
 
@@ -43,9 +43,9 @@ void Collection::clear() {
   impl_->scenes_.clear();
   impl_->nodes_.clear();
   impl_->meshes_.clear();
+  impl_->skins_.clear();
   impl_->textures_.clear();
   impl_->materials_.clear();
-  impl_->skins_.clear();
   impl_->animations_.clear();
 }
 
@@ -73,6 +73,15 @@ const vector<Mesh::Ptr>& Collection::meshes() const {
   return impl_->meshes_;
 }
 
+vector<Skin::Ptr>& Collection::skins() {
+  return impl_->skins_;
+}
+
+const vector<Skin::Ptr>& Collection::skins() const {
+  return impl_->skins_;
+}
+
+
 vector<Texture>& Collection::textures() {
   return impl_->textures_;
 }
@@ -87,14 +96,6 @@ vector<Material>& Collection::materials() {
 
 const vector<Material>& Collection::materials() const {
   return impl_->materials_;
-}
-
-vector<Skin>& Collection::skins() {
-  return impl_->skins_;
-}
-
-const vector<Skin>& Collection::skins() const {
-  return impl_->skins_;
 }
 
 vector<Animation>& Collection::animations() {

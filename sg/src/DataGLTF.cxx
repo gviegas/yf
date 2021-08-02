@@ -2401,7 +2401,7 @@ void loadContents(Collection& collection, const GLTF& gltf) {
       if (matl > -1)
         mdl->setMaterial(collection.materials()[matlOff+matl]);
       if (nd.skin > -1)
-        mdl->setSkin(collection.skins()[skinOff+nd.skin]);
+        mdl->setSkin(collection.skins()[skinOff+nd.skin].get());
 
       assert(!isJoint[i]);
 

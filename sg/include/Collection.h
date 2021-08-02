@@ -62,8 +62,8 @@ class Collection {
 
   /// Textures.
   ///
-  std::vector<Texture>& textures();
-  const std::vector<Texture>& textures() const;
+  std::vector<Texture::Ptr>& textures();
+  const std::vector<Texture::Ptr>& textures() const;
 
   /// Materials.
   ///

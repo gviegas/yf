@@ -22,7 +22,7 @@ class Collection::Impl {
   vector<Node::Ptr> nodes_{};
   vector<Mesh::Ptr> meshes_{};
   vector<Skin::Ptr> skins_{};
-  vector<Texture> textures_{};
+  vector<Texture::Ptr> textures_{};
   vector<Material> materials_{};
   vector<Animation> animations_{};
 };
@@ -82,11 +82,11 @@ const vector<Skin::Ptr>& Collection::skins() const {
 }
 
 
-vector<Texture>& Collection::textures() {
+vector<Texture::Ptr>& Collection::textures() {
   return impl_->textures_;
 }
 
-const vector<Texture>& Collection::textures() const {
+const vector<Texture::Ptr>& Collection::textures() const {
   return impl_->textures_;
 }
 

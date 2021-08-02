@@ -21,6 +21,8 @@ SG_NS_BEGIN
 ///
 class Mesh {
  public:
+  using Ptr = std::unique_ptr<Mesh>;
+
   /// File types from which a mesh can be created.
   ///
   enum FileType {

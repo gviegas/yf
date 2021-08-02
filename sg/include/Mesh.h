@@ -30,15 +30,7 @@ class Mesh {
 
   Mesh(FileType fileType, const std::wstring& pathname, size_t index = 0);
   Mesh(FileType fileType, std::ifstream& stream, size_t index = 0);
-  Mesh();
-  Mesh(const Mesh& other);
-  Mesh& operator=(const Mesh& other);
   ~Mesh();
-
-  explicit operator bool() const;
-  bool operator!() const;
-  bool operator==(const Mesh& other) const;
-  bool operator!=(const Mesh& other) const;
 
   size_t hash() const;
 
@@ -49,7 +41,7 @@ class Mesh {
   Impl& impl();
 
  private:
-  std::shared_ptr<Impl> impl_;
+  std::unique_ptr<Impl> impl_;
 };
 
 SG_NS_END

@@ -39,7 +39,7 @@ struct RenderTest : InteractiveTest {
     matl2.pbrmr().roughness = 1.0f;
 
     // Scene #1 contents
-    const size_t instMdlN = 6;
+    const size_t instMdlN = 10;
     vector<Model> mdls{instMdlN, {mesh1, skin1, matl1}};
     mdls.push_back({mesh1, skin1, matl2});
     mdls.push_back({mesh2, skin1, matl1});
@@ -48,7 +48,9 @@ struct RenderTest : InteractiveTest {
 
     auto tf = -static_cast<float>(mdls.size());
     for (auto& mdl : mdls) {
-      mdl.transform() = scale(0.5f, 0.5f, 0.5f) * translate(tf, tf, -tf);
+      mdl.transform() = translate(tf, sin(tf), 0.0f) *
+                        rotate(0.3183f * tf, {0.7071f, 0.7071f}) *
+                        scale(Vec3f(0.5f));
       tf += 2.0f;
     }
 
@@ -57,7 +59,7 @@ struct RenderTest : InteractiveTest {
       scn1.insert(mdl);
     scn1.camera().place({0.0f, 0.0f, 20.0f});
     scn1.camera().point({});
-    scn1.color() = {0.05f, 0.05f, 0.2f, 1.0f};
+    scn1.color() = {0.01f, 0.02f, 0.1f, 1.0f};
 
     // Scene #2 contents
     Model mdl1{mesh1, skin1, matl1};
@@ -83,7 +85,7 @@ struct RenderTest : InteractiveTest {
     scn2.insert(grp2);
     scn2.transform() = rotateZ(3.14159265358979f / 4.0f);
     scn2.camera() = scn1.camera();
-    scn2.color()[0] = 0.125f;
+    scn2.color()[0] = 0.02f;
 
     auto scn = &scn1;
 

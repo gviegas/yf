@@ -2360,7 +2360,7 @@ void loadContents(Collection& collection, const GLTF& gltf) {
   for (size_t i = 0; i < gltf.meshes().size(); ++i) {
     Mesh::Data data;
     loadMesh(data, bufferMap, gltf, i);
-    collection.meshes().push_back({data});
+    collection.meshes().push_back(make_unique<Mesh>(data));
   }
 
   // Create skins

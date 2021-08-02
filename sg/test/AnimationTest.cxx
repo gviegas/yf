@@ -115,6 +115,21 @@ struct AnimationTest : InteractiveTest {
     }
 
     wcout << "\n Meshes: #" << coll.meshes().size();
+
+    wcout << "\n Skins: #" << coll.skins().size();
+    for (const auto& sk : coll.skins()) {
+      wcout << "\n  Skin:"
+            << "\n   joints: #" <<  sk->joints().size();
+      for (const auto& jt : sk->joints()) {
+        wcout << "\n\n   `" << jt->name() << "`";
+        printMatrix(jt->transform());
+      }
+      wcout << "\n\n   inverseBind: #" << sk->inverseBind().size();
+      wcout << "\n";
+      for (const auto& ib : sk->inverseBind())
+        printMatrix(ib);
+    }
+
     wcout << "\n Textures: #" << coll.textures().size();
 
     wcout << "\n Materials: #" << coll.materials().size();
@@ -140,20 +155,6 @@ struct AnimationTest : InteractiveTest {
             << "\n    factor: [" << matl.emissive().factor[0] << ", "
                                  << matl.emissive().factor[1] << ", "
                                  << matl.emissive().factor[2] << "]";
-    }
-
-    wcout << "\n Skins: #" << coll.skins().size();
-    for (const auto& sk : coll.skins()) {
-      wcout << "\n  Skin:"
-            << "\n   joints: #" <<  sk.joints().size();
-      for (const auto& jt : sk.joints()) {
-        wcout << "\n\n   `" << jt->name() << "`";
-        printMatrix(jt->transform());
-      }
-      wcout << "\n\n   inverseBind: #" << sk.inverseBind().size();
-      wcout << "\n";
-      for (const auto& ib : sk.inverseBind())
-        printMatrix(ib);
     }
 
     wcout << "\n Animations: #" << coll.animations().size();

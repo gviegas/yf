@@ -72,10 +72,11 @@ struct BodyTest : InteractiveTest {
     for (auto& nd : coll.nodes()) {
       if (nd->name() == L"Cube") {
         Model* mdl = dynamic_cast<Model*>(nd.get());
-        auto mesh = mdl->mesh();
-        Skin skin{};
+        node = new Model();
+        static_cast<Model*>(node)->setMesh(mdl->mesh());
+        static_cast<Model*>(node)->setSkin(mdl->skin());
         auto matl = mdl->material();
-        node = new Model(*mesh, skin, matl);
+        static_cast<Model*>(node)->setMaterial(matl);
         nd->parent()->insert(*node);
         node->name() = L"Cube2";
         node->transform() = translate(0.0f, 15.0f, 0.0f);

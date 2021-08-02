@@ -61,6 +61,16 @@ struct CollectionTest : InteractiveTest {
                               coll.meshes()[0].get() == mesh &&
                               &coll.meshes()[0]->impl() == &mesh->impl()});
 
+    coll.skins().push_back(make_unique<Skin>(1, vector<Mat4f>()));
+    auto skin = new Skin(2, {});
+    coll.skins().push_back(unique_ptr<Skin>(skin));
+
+    a.push_back({L"skins()", coll.skins().size() == 2 &&
+                             coll.skins().front()->joints().size() == 1 &&
+                             coll.skins().front()->inverseBind().empty() &&
+                             coll.skins().back()->joints().size() == 2 &&
+                             coll.skins().back()->inverseBind().empty()});
+
     coll.textures().push_back({Texture::Png, L"tmp/cube.png"});
     Texture tex{Texture::Png, L"tmp/cube.png"};
     coll.textures().push_back(tex);
@@ -87,16 +97,6 @@ struct CollectionTest : InteractiveTest {
                  coll.materials()[2].occlusion().texture == tex &&
                  coll.materials()[3].occlusion().strength == 0.5f &&
                  !coll.materials()[3].normal().texture});
-
-    coll.skins().push_back({1, {}});
-    Skin skin(2, {});
-    coll.skins().push_back(skin);
-
-    a.push_back({L"skins()", coll.skins().size() == 2 &&
-                             coll.skins().front().joints().size() == 1 &&
-                             coll.skins().front().inverseBind().empty() &&
-                             coll.skins().back().joints().size() == 2 &&
-                             coll.skins().back().inverseBind().empty()});
 
     vector<Animation::Timeline> inputs({{1.0f}});
     vector<Animation::Scale> outS({{Vec3f{2.0f, 2.0f, 2.0f}}});
@@ -158,6 +158,21 @@ struct CollectionTest : InteractiveTest {
     }
 
     wcout << "\n Meshes: #" << coll.meshes().size();
+
+    wcout << "\n Skins: #" << coll.skins().size();
+    for (const auto& sk : coll.skins()) {
+      wcout << "\n  Skin:"
+            << "\n   joints: #" <<  sk->joints().size();
+      for (const auto& jt : sk->joints()) {
+        wcout << "\n\n   `" << jt->name() << "`";
+        printMatrix(jt->transform());
+      }
+      wcout << "\n\n   inverseBind: #" << sk->inverseBind().size();
+      wcout << "\n";
+      for (const auto& ib : sk->inverseBind())
+        printMatrix(ib);
+    }
+
     wcout << "\n Textures: #" << coll.textures().size();
 
     wcout << "\n Materials: #" << coll.materials().size();
@@ -183,20 +198,6 @@ struct CollectionTest : InteractiveTest {
             << "\n    factor: [" << matl.emissive().factor[0] << ", "
                                  << matl.emissive().factor[1] << ", "
                                  << matl.emissive().factor[2] << "]";
-    }
-
-    wcout << "\n Skins: #" << coll.skins().size();
-    for (const auto& sk : coll.skins()) {
-      wcout << "\n  Skin:"
-            << "\n   joints: #" <<  sk.joints().size();
-      for (const auto& jt : sk.joints()) {
-        wcout << "\n\n   `" << jt->name() << "`";
-        printMatrix(jt->transform());
-      }
-      wcout << "\n\n   inverseBind: #" << sk.inverseBind().size();
-      wcout << "\n";
-      for (const auto& ib : sk.inverseBind())
-        printMatrix(ib);
     }
 
     wcout << "\n Animations: #" << coll.animations().size();

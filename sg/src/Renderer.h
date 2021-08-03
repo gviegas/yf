@@ -48,7 +48,7 @@ class Renderer {
   ///
   struct MdlKey {
     Mesh* mesh{};
-    Material material{};
+    Material* material{};
 
     bool operator==(const MdlKey& other) const {
       return mesh == other.mesh && material == other.material;
@@ -59,7 +59,7 @@ class Renderer {
   ///
   struct MdlHash {
     size_t operator()(const MdlKey& k) const {
-      return k.mesh->hash() ^ k.material.hash();
+      return k.mesh->hash() ^ k.material->hash();
     }
   };
 

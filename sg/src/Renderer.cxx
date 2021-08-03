@@ -249,7 +249,11 @@ void Renderer::render(Scene& scene, CG_NS::Target& target) {
         auto mesh = kv.second[0]->mesh();
         if (!mesh)
           throw runtime_error("Cannot render models with no mesh set");
+
         auto matl = kv.second[0]->material();
+        if (!matl)
+          // TODO: consider using default material instead
+          throw runtime_error("Cannot render models with no material set");
 
         // Update instance-specific uniform buffer
         for (uint32_t i = 0; i < n; ++i) {
@@ -298,11 +302,11 @@ void Renderer::render(Scene& scene, CG_NS::Target& target) {
 
         // Update material
         pair<Texture*, CG_NS::DcId> texs[]{
-          {matl.pbrmr().colorTex, ColorImgSampler},
-          {matl.pbrmr().metalRoughTex, MetalRoughImgSampler},
-          {matl.normal().texture, NormalImgSampler},
-          {matl.occlusion().texture, OcclusionImgSampler},
-          {matl.emissive().texture, EmissiveImgSampler}};
+          {matl->pbrmr().colorTex, ColorImgSampler},
+          {matl->pbrmr().metalRoughTex, MetalRoughImgSampler},
+          {matl->normal().texture, NormalImgSampler},
+          {matl->occlusion().texture, OcclusionImgSampler},
+          {matl->emissive().texture, EmissiveImgSampler}};
 
         for (auto& tp : texs) {
           if (tp.first)
@@ -312,19 +316,19 @@ void Renderer::render(Scene& scene, CG_NS::Target& target) {
 
         beg = off;
         len = Vec4f::dataSize();
-        unifBuffer_->write(off, len, matl.pbrmr().colorFac.data());
+        unifBuffer_->write(off, len, matl->pbrmr().colorFac.data());
         off += len;
         len = 4;
-        unifBuffer_->write(off, len, &matl.pbrmr().metallic);
+        unifBuffer_->write(off, len, &matl->pbrmr().metallic);
         off += len;
-        unifBuffer_->write(off, len, &matl.pbrmr().roughness);
+        unifBuffer_->write(off, len, &matl->pbrmr().roughness);
         off += len;
-        unifBuffer_->write(off, len, &matl.normal().scale);
+        unifBuffer_->write(off, len, &matl->normal().scale);
         off += len;
-        unifBuffer_->write(off, len, &matl.occlusion().strength);
+        unifBuffer_->write(off, len, &matl->occlusion().strength);
         off += len;
         len = Vec3f::dataSize();
-        unifBuffer_->write(off, len, matl.emissive().factor.data());
+        unifBuffer_->write(off, len, matl->emissive().factor.data());
         off += len;
         off += MaterialAlign;
 
@@ -347,15 +351,15 @@ void Renderer::render(Scene& scene, CG_NS::Target& target) {
         if (mesh->impl().canBind(VxTypeJoints0) &&
             mesh->impl().canBind(VxTypeWeights0))
           chkMask |= SkinBit;
-        if (matl.pbrmr().colorTex)
+        if (matl->pbrmr().colorTex)
           chkMask |= ColorTexBit;
-        if (matl.pbrmr().metalRoughTex)
+        if (matl->pbrmr().metalRoughTex)
           chkMask |= MetalRoughTexBit;
-        if (matl.normal().texture)
+        if (matl->normal().texture)
           chkMask |= NormalTexBit;
-        if (matl.occlusion().texture)
+        if (matl->occlusion().texture)
           chkMask |= OcclusionTexBit;
-        if (matl.emissive().texture)
+        if (matl->emissive().texture)
           chkMask |= EmissiveTexBit;
 
         beg = off;

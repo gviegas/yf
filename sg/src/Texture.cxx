@@ -31,7 +31,7 @@ Texture::Texture(FileType fileType, const wstring& pathname) {
     throw invalid_argument("Invalid Texture file type");
   }
 
-  impl_ = make_shared<Impl>(data);
+  impl_ = make_unique<Impl>(data);
 }
 
 Texture::Texture(FileType fileType, ifstream& stream) {
@@ -48,44 +48,18 @@ Texture::Texture(FileType fileType, ifstream& stream) {
     throw invalid_argument("Invalid Texture file type");
   }
 
-  impl_ = make_shared<Impl>(data);
+  impl_ = make_unique<Impl>(data);
 }
 
-Texture::Texture() : impl_(nullptr) { }
-
-Texture::Texture(const Data& data) : impl_(make_shared<Impl>(data)) { }
-
-Texture::Texture(const Texture& other) : impl_(other.impl_) { }
-
-Texture& Texture::operator=(const Texture& other) {
-  impl_ = other.impl_;
-  return *this;
-}
+Texture::Texture(const Data& data) : impl_(make_unique<Impl>(data)) { }
 
 Texture::~Texture() { }
-
-Texture::operator bool() const {
-  return impl_ != nullptr;
-}
-
-bool Texture::operator!() const {
-  return impl_ == nullptr;
-}
-
-bool Texture::operator==(const Texture& other) const {
-  return impl_ == other.impl_;
-}
-
-bool Texture::operator!=(const Texture& other) const {
-  return impl_ != other.impl_;
-}
 
 size_t Texture::hash() const {
   return std::hash<decltype(impl_)>()(impl_);
 }
 
 Texture::Impl& Texture::impl() {
-  assert(*this);
   return *impl_;
 }
 

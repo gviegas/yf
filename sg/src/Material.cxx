@@ -30,28 +30,13 @@ class Material::Impl {
 
 Material::Material(const Pbrmr& pbrmr, const Normal& normal,
                    const Occlusion& occlusion, const Emissive& emissive)
-  : impl_(make_shared<Impl>(pbrmr, normal, occlusion, emissive)) { }
+  : impl_(make_unique<Impl>(pbrmr, normal, occlusion, emissive)) { }
 
 Material::Material(const Pbrmr& pbrmr) : Material(pbrmr, {}, {}, {}) { }
 
-Material::Material() : impl_(make_shared<Impl>()) { }
-
-Material::Material(const Material& other) : impl_(other.impl_) { }
-
-Material& Material::operator=(const Material& other) {
-  impl_ = other.impl_;
-  return *this;
-}
+Material::Material() : impl_(make_unique<Impl>()) { }
 
 Material::~Material() { }
-
-bool Material::operator==(const Material& other) const {
-  return impl_ == other.impl_;
-}
-
-bool Material::operator!=(const Material& other) const {
-  return impl_ != other.impl_;
-}
 
 size_t Material::hash() const {
   return std::hash<decltype(impl_)>()(impl_);

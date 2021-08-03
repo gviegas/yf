@@ -247,7 +247,13 @@ void Renderer::render(Scene& scene, CG_NS::Target& target) {
         enc.setDcTable(ModelTable, alloc);
 
         auto mesh = kv.second[0]->mesh();
+        if (!mesh)
+          throw runtime_error("Cannot render models with no mesh set");
+
         auto matl = kv.second[0]->material();
+        if (!matl)
+          // TODO: consider using default material instead
+          throw runtime_error("Cannot render models with no material set");
 
         // Update instance-specific uniform buffer
         for (uint32_t i = 0; i < n; ++i) {
@@ -277,10 +283,11 @@ void Renderer::render(Scene& scene, CG_NS::Target& target) {
           array<Mat4f, (JointN << 1)> skinning;
           skinning.fill(Mat4f::identity());
           if (skin) {
-            assert(skin.joints().size() < JointN);
+            assert(skin->joints().size() <= JointN);
             size_t i = 0;
-            for (const auto& jt : skin.joints()) {
-              skinning[i] = jt->worldTransform() * skin.inverseBind()[i];
+            for (const auto& jt : skin->joints()) {
+              assert(jt); // XXX
+              skinning[i] = jt->worldTransform() * skin->inverseBind()[i];
               skinning[i+JointN] = transpose(invert(skinning[i]));
               ++i;
             }
@@ -294,34 +301,34 @@ void Renderer::render(Scene& scene, CG_NS::Target& target) {
         }
 
         // Update material
-        pair<Texture, CG_NS::DcId> texs[]{
-          {matl.pbrmr().colorTex, ColorImgSampler},
-          {matl.pbrmr().metalRoughTex, MetalRoughImgSampler},
-          {matl.normal().texture, NormalImgSampler},
-          {matl.occlusion().texture, OcclusionImgSampler},
-          {matl.emissive().texture, EmissiveImgSampler}};
+        pair<Texture*, CG_NS::DcId> texs[]{
+          {matl->pbrmr().colorTex, ColorImgSampler},
+          {matl->pbrmr().metalRoughTex, MetalRoughImgSampler},
+          {matl->normal().texture, NormalImgSampler},
+          {matl->occlusion().texture, OcclusionImgSampler},
+          {matl->emissive().texture, EmissiveImgSampler}};
 
         for (auto& tp : texs) {
           if (tp.first)
-            tp.first.impl().copy(*resource->table, alloc, tp.second,
-                                 0, 0, nullptr);
+            tp.first->impl().copy(*resource->table, alloc, tp.second,
+                                  0, 0, nullptr);
         }
 
         beg = off;
         len = Vec4f::dataSize();
-        unifBuffer_->write(off, len, matl.pbrmr().colorFac.data());
+        unifBuffer_->write(off, len, matl->pbrmr().colorFac.data());
         off += len;
         len = 4;
-        unifBuffer_->write(off, len, &matl.pbrmr().metallic);
+        unifBuffer_->write(off, len, &matl->pbrmr().metallic);
         off += len;
-        unifBuffer_->write(off, len, &matl.pbrmr().roughness);
+        unifBuffer_->write(off, len, &matl->pbrmr().roughness);
         off += len;
-        unifBuffer_->write(off, len, &matl.normal().scale);
+        unifBuffer_->write(off, len, &matl->normal().scale);
         off += len;
-        unifBuffer_->write(off, len, &matl.occlusion().strength);
+        unifBuffer_->write(off, len, &matl->occlusion().strength);
         off += len;
         len = Vec3f::dataSize();
-        unifBuffer_->write(off, len, matl.emissive().factor.data());
+        unifBuffer_->write(off, len, matl->emissive().factor.data());
         off += len;
         off += MaterialAlign;
 
@@ -331,28 +338,28 @@ void Renderer::render(Scene& scene, CG_NS::Target& target) {
         // Update check list
         uint32_t chkMask = 0;
 
-        if (mesh.impl().canBind(VxTypeTangent))
+        if (mesh->impl().canBind(VxTypeTangent))
           chkMask |= TangentBit;
-        if (mesh.impl().canBind(VxTypeNormal))
+        if (mesh->impl().canBind(VxTypeNormal))
           chkMask |= NormalBit;
-        if (mesh.impl().canBind(VxTypeTexCoord0))
+        if (mesh->impl().canBind(VxTypeTexCoord0))
           chkMask |= TexCoord0Bit;
-        if (mesh.impl().canBind(VxTypeTexCoord1))
+        if (mesh->impl().canBind(VxTypeTexCoord1))
           chkMask |= TexCoord1Bit;
-        if (mesh.impl().canBind(VxTypeColor0))
+        if (mesh->impl().canBind(VxTypeColor0))
           chkMask |= Color0Bit;
-        if (mesh.impl().canBind(VxTypeJoints0) &&
-            mesh.impl().canBind(VxTypeWeights0))
+        if (mesh->impl().canBind(VxTypeJoints0) &&
+            mesh->impl().canBind(VxTypeWeights0))
           chkMask |= SkinBit;
-        if (matl.pbrmr().colorTex)
+        if (matl->pbrmr().colorTex)
           chkMask |= ColorTexBit;
-        if (matl.pbrmr().metalRoughTex)
+        if (matl->pbrmr().metalRoughTex)
           chkMask |= MetalRoughTexBit;
-        if (matl.normal().texture)
+        if (matl->normal().texture)
           chkMask |= NormalTexBit;
-        if (matl.occlusion().texture)
+        if (matl->occlusion().texture)
           chkMask |= OcclusionTexBit;
-        if (matl.emissive().texture)
+        if (matl->emissive().texture)
           chkMask |= EmissiveTexBit;
 
         beg = off;
@@ -365,11 +372,7 @@ void Renderer::render(Scene& scene, CG_NS::Target& target) {
                                CheckLength);
 
         // Encode commands for this mesh
-        if (mesh)
-          mesh.impl().encode(enc, 0, n);
-        else
-          // TODO
-          throw runtime_error("Cannot render models with no mesh set");
+        mesh->impl().encode(enc, 0, n);
 
         if (kv.second.empty())
           completed.push_back(kv.first);

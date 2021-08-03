@@ -30,7 +30,7 @@ Mesh::Mesh(FileType fileType, const wstring& pathname, size_t index) {
     throw invalid_argument("Invalid Mesh file type");
   }
 
-  impl_ = make_shared<Impl>(data);
+  impl_ = make_unique<Impl>(data);
 }
 
 Mesh::Mesh(FileType fileType, ifstream& stream, size_t index) {
@@ -47,44 +47,18 @@ Mesh::Mesh(FileType fileType, ifstream& stream, size_t index) {
     throw invalid_argument("Invalid Mesh file type");
   }
 
-  impl_ = make_shared<Impl>(data);
+  impl_ = make_unique<Impl>(data);
 }
 
-Mesh::Mesh() : impl_(nullptr) { }
-
-Mesh::Mesh(const Data& data) : impl_(make_shared<Impl>(data)) { }
-
-Mesh::Mesh(const Mesh& other) : impl_(other.impl_) { }
-
-Mesh& Mesh::operator=(const Mesh& other) {
-  impl_ = other.impl_;
-  return *this;
-}
+Mesh::Mesh(const Data& data) : impl_(make_unique<Impl>(data)) { }
 
 Mesh::~Mesh() { }
-
-Mesh::operator bool() const {
-  return impl_ != nullptr;
-}
-
-bool Mesh::operator!() const {
-  return impl_ == nullptr;
-}
-
-bool Mesh::operator==(const Mesh& other) const {
-  return impl_ == other.impl_;
-}
-
-bool Mesh::operator!=(const Mesh& other) const {
-  return impl_ != other.impl_;
-}
 
 size_t Mesh::hash() const {
   return std::hash<decltype(impl_)>()(impl_);
 }
 
 Mesh::Impl& Mesh::impl() {
-  assert(*this);
   return *impl_;
 }
 

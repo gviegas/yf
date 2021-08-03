@@ -2018,8 +2018,8 @@ void loadMesh(Mesh::Data& dst, unordered_map<int32_t, ifstream>& bufferMap,
 
 /// Loads a single skin from a GLTF object.
 ///
-void loadSkin(Skin& dst, unordered_map<int32_t, ifstream>& bufferMap,
-              const GLTF& gltf, size_t index) {
+Skin* loadSkin(unordered_map<int32_t, ifstream>& bufferMap,
+               const GLTF& gltf, size_t index) {
 
   assert(index < gltf.skins().size());
 
@@ -2068,20 +2068,20 @@ void loadSkin(Skin& dst, unordered_map<int32_t, ifstream>& bufferMap,
   }
 
   // XXX: joints NOT set
-  dst = {skin.joints.size(), inverseBind};
+  return new Skin(skin.joints.size(), inverseBind);
 }
 
 /// Loads a single material from a GLTF object.
 ///
-void loadMaterial(Material& dst, unordered_map<int32_t, Texture>& textureMap,
-                  const GLTF& gltf, size_t index) {
+Material* loadMaterial(unordered_map<int32_t, Texture*>& textureMap,
+                       const GLTF& gltf, size_t index) {
 
   assert(index < gltf.materials().size());
 
   const auto& material = gltf.materials()[index];
 
   // Get texture
-  auto getTexture = [&](const GLTF::Material::TextureInfo& info) -> Texture {
+  auto getTexture = [&](const GLTF::Material::TextureInfo& info) -> Texture* {
     if (info.index < 0)
       return {};
 
@@ -2106,7 +2106,7 @@ void loadMaterial(Material& dst, unordered_map<int32_t, Texture>& textureMap,
         if (!ifs.seekg(view.byteOffset, ios_base::cur))
           throw FileExcept("Could not seek glTF .glb file");
 
-        Texture tex(Texture::Png, ifs);
+        auto tex = new Texture(Texture::Png, ifs);
         return textureMap.emplace(info.index, tex).first->second;
 
       } else {
@@ -2124,42 +2124,48 @@ void loadMaterial(Material& dst, unordered_map<int32_t, Texture>& textureMap,
     for (const auto& c : image.uri)
       pathname.push_back(c);
 
-    Texture tex(Texture::Png, pathname);
+    auto tex = new Texture(Texture::Png, pathname);
     return textureMap.emplace(info.index, tex).first->second;
   };
 
+  auto matl = make_unique<Material>();
+
   // PBRMR
   const auto& pbrmr = material.pbrMetallicRoughness;
-  dst.pbrmr().colorTex = getTexture(pbrmr.baseColorTexture);
-  dst.pbrmr().colorFac = {pbrmr.baseColorFactor[0], pbrmr.baseColorFactor[1],
-                          pbrmr.baseColorFactor[2], pbrmr.baseColorFactor[3]};
-  dst.pbrmr().metalRoughTex = getTexture(pbrmr.metallicRoughnessTexture);
-  dst.pbrmr().metallic = pbrmr.metallicFactor;
-  dst.pbrmr().roughness = pbrmr.roughnessFactor;
+  matl->pbrmr().colorTex = getTexture(pbrmr.baseColorTexture);
+  matl->pbrmr().colorFac = {pbrmr.baseColorFactor[0],
+                            pbrmr.baseColorFactor[1],
+                            pbrmr.baseColorFactor[2],
+                            pbrmr.baseColorFactor[3]};
+  matl->pbrmr().metalRoughTex = getTexture(pbrmr.metallicRoughnessTexture);
+  matl->pbrmr().metallic = pbrmr.metallicFactor;
+  matl->pbrmr().roughness = pbrmr.roughnessFactor;
 
   // Normal
   const auto& normal = material.normalTexture;
-  dst.normal().texture = getTexture(normal);
-  dst.normal().scale = normal.scale;
+  matl->normal().texture = getTexture(normal);
+  matl->normal().scale = normal.scale;
 
   // Occlusion
   const auto& occlusion = material.occlusionTexture;
-  dst.occlusion().texture = getTexture(occlusion);
-  dst.occlusion().strength = occlusion.strength;
+  matl->occlusion().texture = getTexture(occlusion);
+  matl->occlusion().strength = occlusion.strength;
 
   // Emissive
   const auto& emissive = material.emissiveTexture;
-  dst.emissive().texture = getTexture(emissive);
-  dst.emissive().factor = {material.emissiveFactor[0],
-                           material.emissiveFactor[1],
-                           material.emissiveFactor[2]};
+  matl->emissive().texture = getTexture(emissive);
+  matl->emissive().factor = {material.emissiveFactor[0],
+                             material.emissiveFactor[1],
+                             material.emissiveFactor[2]};
+
+  return matl.release();
 }
 
 /// Loads a single animation from a GLTF object.
 ///
-void loadAnimation(Animation& dst, unordered_map<int32_t, Node*>& nodeMap,
-                   unordered_map<int32_t, ifstream>& bufferMap,
-                   const GLTF& gltf, size_t index) {
+Animation* loadAnimation(unordered_map<int32_t, Node*>& nodeMap,
+                         unordered_map<int32_t, ifstream>& bufferMap,
+                         const GLTF& gltf, size_t index) {
 
   assert(index < gltf.animations().size());
 
@@ -2340,42 +2346,50 @@ void loadAnimation(Animation& dst, unordered_map<int32_t, Node*>& nodeMap,
     }
   }
 
-  dst = {inputs, outT, outR, outS};
-  dst.actions() = actions;
+  auto anim = new Animation(inputs, outT, outR, outS);
+  anim->actions() = actions;
 
   // XXX
-  auto& name = dst.name();
+  auto& name = anim->name();
   for (const auto& c : animation.name)
     name.push_back(c);
+
+  return anim;
 }
 
 /// Loads contents from a GLTF object.
 ///
 void loadContents(Collection& collection, const GLTF& gltf) {
   unordered_map<int32_t, ifstream> bufferMap;
-  unordered_map<int32_t, Texture> textureMap;
+  unordered_map<int32_t, Texture*> textureMap;
 
   // Create meshes
   const auto meshOff = collection.meshes().size();
   for (size_t i = 0; i < gltf.meshes().size(); ++i) {
     Mesh::Data data;
     loadMesh(data, bufferMap, gltf, i);
-    collection.meshes().push_back({data});
+    collection.meshes().push_back(make_unique<Mesh>(data));
   }
 
   // Create skins
   const auto skinOff = collection.skins().size();
   for (size_t i = 0; i < gltf.skins().size(); ++i) {
-    collection.skins().push_back({});
-    loadSkin(collection.skins().back(), bufferMap, gltf, i);
+    auto skin = loadSkin(bufferMap, gltf, i);
+    collection.skins().push_back(unique_ptr<Skin>(skin));
   }
 
   // Create materials
   const auto matlOff = collection.materials().size();
   for (size_t i = 0; i < gltf.materials().size(); ++i) {
-    collection.materials().push_back({});
-    loadMaterial(collection.materials().back(), textureMap, gltf, i);
+    auto matl = loadMaterial(textureMap, gltf, i);
+    collection.materials().push_back(unique_ptr<Material>(matl));
   }
+
+  // Insert loaded textures into collection
+  // TODO: load textures that are not referenced by materials
+  //const auto texOff = collection.textures().size();
+  for (auto& tx : textureMap)
+    collection.textures().push_back(unique_ptr<Texture>(tx.second));
 
   // Check which nodes are joints
   vector<bool> isJoint(gltf.nodes().size(), false);
@@ -2395,13 +2409,13 @@ void loadContents(Collection& collection, const GLTF& gltf) {
       collection.nodes().push_back(make_unique<Model>());
       auto mdl = static_cast<Model*>(collection.nodes().back().get());
 
-      mdl->setMesh(collection.meshes()[meshOff+nd.mesh]);
+      mdl->setMesh(collection.meshes()[meshOff+nd.mesh].get());
       // TODO: support for multiple primitives
       const auto matl = gltf.meshes()[nd.mesh].primitives[0].material;
       if (matl > -1)
-        mdl->setMaterial(collection.materials()[matlOff+matl]);
+        mdl->setMaterial(collection.materials()[matlOff+matl].get());
       if (nd.skin > -1)
-        mdl->setSkin(collection.skins()[skinOff+nd.skin]);
+        mdl->setSkin(collection.skins()[skinOff+nd.skin].get());
 
       assert(!isJoint[i]);
 
@@ -2454,14 +2468,14 @@ void loadContents(Collection& collection, const GLTF& gltf) {
     size_t index = 0;
     for (const auto& jt : gltf.skins()[i].joints) {
       auto joint = static_cast<Joint*>(nodeMap[jt]);
-      skin.setJoint(*joint, index++);
+      skin->setJoint(*joint, index++);
     }
   }
 
   // Create animations
   for (size_t i = 0; i < gltf.animations().size(); ++i) {
-    collection.animations().push_back({});
-    loadAnimation(collection.animations().back(), nodeMap, bufferMap, gltf, i);
+    auto anim = loadAnimation(nodeMap, bufferMap, gltf, i);
+    collection.animations().push_back(unique_ptr<Animation>(anim));
   }
 
   // Create scenes

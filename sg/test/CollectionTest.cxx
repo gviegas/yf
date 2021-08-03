@@ -53,69 +53,67 @@ struct CollectionTest : InteractiveTest {
                              coll.nodes().front()->name() == nd.name() &&
                              coll.nodes().back()->name() == nd.name()});
 
-    Mesh mesh{Mesh::Gltf, L"tmp/cube.glb"};
-    coll.meshes().push_back(mesh);
-    coll.meshes().push_back({Mesh::Gltf, L"tmp/cube.glb"});
-    coll.meshes().push_back(coll.meshes().front());
+    auto mesh = new Mesh(Mesh::Gltf, L"tmp/cube.glb");
+    coll.meshes().push_back(unique_ptr<Mesh>(mesh));
+    coll.meshes().push_back(make_unique<Mesh>(Mesh::Gltf, L"tmp/cube.glb"));
 
-    a.push_back({L"meshes()", coll.meshes().size() == 3 &&
-                              &coll.meshes()[0].impl() == &mesh.impl() &&
-                              &coll.meshes()[1].impl() != &mesh.impl() &&
-                              &coll.meshes()[2].impl() == &mesh.impl()});
+    a.push_back({L"meshes()", coll.meshes().size() == 2 &&
+                              coll.meshes()[0].get() == mesh &&
+                              &coll.meshes()[0]->impl() == &mesh->impl()});
 
-    coll.textures().push_back({Texture::Png, L"tmp/cube.png"});
-    Texture tex{Texture::Png, L"tmp/cube.png"};
-    coll.textures().push_back(tex);
-    coll.textures().push_back(tex);
-
-    a.push_back({L"textures()", coll.textures().size() == 3 &&
-                                &coll.textures()[0].impl() !=
-                                  &coll.textures()[1].impl() &&
-                                &coll.textures()[1].impl() ==
-                                  &coll.textures()[2].impl() &&
-                                &coll.textures()[2].impl() == &tex.impl()});
-
-    coll.materials().push_back({});
-    coll.materials().front().normal() = {coll.textures()[0], 0.25f};
-    coll.materials().push_back({{}, {}, {}, {}});
-    Material matl{{}, {}, {tex, 0.5f}, {}};
-    coll.materials().push_back(matl);
-    coll.materials().push_back(matl);
-
-    a.push_back({L"materials()",
-                 coll.materials().size() == 4 &&
-                 coll.materials()[0].normal().texture == coll.textures()[0] &&
-                 coll.materials()[0].normal().scale == 0.25f &&
-                 coll.materials()[2].occlusion().texture == tex &&
-                 coll.materials()[3].occlusion().strength == 0.5f &&
-                 !coll.materials()[3].normal().texture});
-
-    coll.skins().push_back({1, {}});
-    Skin skin(2, {});
-    coll.skins().push_back(skin);
+    coll.skins().push_back(make_unique<Skin>(1, vector<Mat4f>()));
+    auto skin = new Skin(2, {});
+    coll.skins().push_back(unique_ptr<Skin>(skin));
 
     a.push_back({L"skins()", coll.skins().size() == 2 &&
-                             coll.skins().front().joints().size() == 1 &&
-                             coll.skins().front().inverseBind().empty() &&
-                             coll.skins().back().joints().size() == 2 &&
-                             coll.skins().back().inverseBind().empty()});
+                             coll.skins().front()->joints().size() == 1 &&
+                             coll.skins().front()->inverseBind().empty() &&
+                             coll.skins().back()->joints().size() == 2 &&
+                             coll.skins().back()->inverseBind().empty()});
+
+    coll.textures().push_back(make_unique<Texture>(Texture::Png,
+                                                   L"tmp/cube.png"));
+    auto tex = new Texture(Texture::Png, L"tmp/cube.png");
+    coll.textures().push_back(unique_ptr<Texture>(tex));
+
+    a.push_back({L"textures()",
+                 coll.textures().size() == 2 &&
+                 &coll.textures()[0]->impl() != &coll.textures()[1]->impl()});
+
+    coll.materials().push_back(make_unique<Material>());
+    coll.materials().front()->normal() = {coll.textures()[0].get(), 0.25f};
+    coll.materials().push_back(make_unique<Material>());
+    auto matl = new Material({}, {}, {tex, 0.5f}, {});
+    coll.materials().push_back(Material::Ptr(matl));
+
+    a.push_back({L"materials()",
+                 coll.materials().size() == 3 &&
+                 coll.materials()[0]->normal().texture ==
+                  coll.textures()[0].get() &&
+                 coll.materials()[0]->normal().scale == 0.25f &&
+                 coll.materials()[2]->occlusion().texture == tex &&
+                 coll.materials()[2]->occlusion().strength == 0.5f &&
+                 !coll.materials()[2]->normal().texture});
 
     vector<Animation::Timeline> inputs({{1.0f}});
-    vector<Animation::Scale> outS({{Vec3f{2.0f, 2.0f, 2.0f}}});
-    coll.animations().push_back({inputs, {}, {}, outS});
+    vector<Animation::Translation> outT({{Vec3f(3.0f)}});
+    vector<Animation::Rotation> outR({{Qnionf(1.0f, {})}});
+    vector<Animation::Scale> outS({{Vec3f(2.0f)}});
+    coll.animations().push_back(make_unique<Animation>(inputs,
+                                                       outT, outR, outS));
     Node nd1, nd2;
     Animation::Action act1{&nd1, Animation::S, Animation::Step, 0, 0};
     Animation::Action act2{&nd2, Animation::S, Animation::Step, 0, 0};
-    coll.animations().front().actions().push_back(act1);
-    coll.animations().front().actions().push_back(act2);
+    coll.animations().front()->actions().push_back(act1);
+    coll.animations().front()->actions().push_back(act2);
 
     a.push_back({L"animations()",
                  coll.animations().size() == 1 &&
-                 coll.animations().front().actions().size() == 2 &&
-                 coll.animations().front().inputs().size() == 1 &&
-                 coll.animations().front().outT().empty() &&
-                 coll.animations().front().outR().empty() &&
-                 coll.animations().front().outS().size() == 1});
+                 coll.animations().front()->actions().size() == 2 &&
+                 coll.animations().front()->inputs().size() == 1 &&
+                 coll.animations().front()->outT().empty() &&
+                 coll.animations().front()->outR().empty() &&
+                 coll.animations().front()->outS().size() == 1});
 
     fromFile();
     return a;
@@ -160,76 +158,78 @@ struct CollectionTest : InteractiveTest {
     }
 
     wcout << "\n Meshes: #" << coll.meshes().size();
+
+    wcout << "\n Skins: #" << coll.skins().size();
+    for (const auto& sk : coll.skins()) {
+      wcout << "\n  Skin:"
+            << "\n   joints: #" <<  sk->joints().size();
+      for (const auto& jt : sk->joints()) {
+        wcout << "\n\n   `" << jt->name() << "`";
+        printMatrix(jt->transform());
+      }
+      wcout << "\n\n   inverseBind: #" << sk->inverseBind().size();
+      wcout << "\n";
+      for (const auto& ib : sk->inverseBind())
+        printMatrix(ib);
+    }
+
     wcout << "\n Textures: #" << coll.textures().size();
 
     wcout << "\n Materials: #" << coll.materials().size();
     for (const auto& matl : coll.materials()) {
       wcout << "\n  Material:"
             << "\n   pbrmr:"
-            << "\n    colorTex: " << (matl.pbrmr().colorTex ? 'y':'n')
-            << "\n    colorFac: [" << matl.pbrmr().colorFac[0] << ", "
-                                   << matl.pbrmr().colorFac[1] << ", "
-                                   << matl.pbrmr().colorFac[2] << ", "
-                                   << matl.pbrmr().colorFac[3] << "]"
-            << "\n    metalRoughTex: " << (matl.pbrmr().metalRoughTex ? 'y':'n')
-            << "\n    metallic: " << matl.pbrmr().metallic
-            << "\n    roughness: " << matl.pbrmr().roughness
+            << "\n    colorTex: " << (matl->pbrmr().colorTex ? 'y':'n')
+            << "\n    colorFac: [" << matl->pbrmr().colorFac[0] << ", "
+                                   << matl->pbrmr().colorFac[1] << ", "
+                                   << matl->pbrmr().colorFac[2] << ", "
+                                   << matl->pbrmr().colorFac[3] << "]"
+            << "\n    metalRoughTex: " << (matl->pbrmr().metalRoughTex ?
+                                           'y':'n')
+            << "\n    metallic: " << matl->pbrmr().metallic
+            << "\n    roughness: " << matl->pbrmr().roughness
             << "\n   normal:"
-            << "\n    texture: " << (matl.normal().texture ? 'y':'n')
-            << "\n    scale: " << matl.normal().scale
+            << "\n    texture: " << (matl->normal().texture ? 'y':'n')
+            << "\n    scale: " << matl->normal().scale
             << "\n   occlusion:"
-            << "\n    texture: " << (matl.occlusion().texture ? 'y':'n')
-            << "\n    strength: " << matl.occlusion().strength
+            << "\n    texture: " << (matl->occlusion().texture ? 'y':'n')
+            << "\n    strength: " << matl->occlusion().strength
             << "\n   emissive:"
-            << "\n    texture: " << (matl.emissive().texture ? 'y' : 'n')
-            << "\n    factor: [" << matl.emissive().factor[0] << ", "
-                                 << matl.emissive().factor[1] << ", "
-                                 << matl.emissive().factor[2] << "]";
-    }
-
-    wcout << "\n Skins: #" << coll.skins().size();
-    for (const auto& sk : coll.skins()) {
-      wcout << "\n  Skin:"
-            << "\n   joints: #" <<  sk.joints().size();
-      for (const auto& jt : sk.joints()) {
-        wcout << "\n\n   `" << jt->name() << "`";
-        printMatrix(jt->transform());
-      }
-      wcout << "\n\n   inverseBind: #" << sk.inverseBind().size();
-      wcout << "\n";
-      for (const auto& ib : sk.inverseBind())
-        printMatrix(ib);
+            << "\n    texture: " << (matl->emissive().texture ? 'y' : 'n')
+            << "\n    factor: [" << matl->emissive().factor[0] << ", "
+                                 << matl->emissive().factor[1] << ", "
+                                 << matl->emissive().factor[2] << "]";
     }
 
     wcout << "\n Animations: #" << coll.animations().size();
     for (const auto& an: coll.animations()) {
-      wcout << "\n  Animation `" << an.name() << "`:"
-            << "\n   actions: #" << an.actions().size();
-      for (const auto& act: an.actions())
+      wcout << "\n  Animation `" << an->name() << "`:"
+            << "\n   actions: #" << an->actions().size();
+      for (const auto& act: an->actions())
         wcout << "\n    `" << act.target->name() << "`|"
                            << act.type << "|" << act.method << "|"
                            << act.input << "|" << act.output;
-      wcout << "\n   inputs: #" << an.inputs().size();
-      for (const auto& in : an.inputs()) {
+      wcout << "\n   inputs: #" << an->inputs().size();
+      for (const auto& in : an->inputs()) {
         wcout << "\n    *";
         for (const auto& k : in)
           wcout << "\n     " << k;
       }
-      wcout << "\n   outT: #" << an.outT().size();
-      for (const auto& t : an.outT()) {
+      wcout << "\n   outT: #" << an->outT().size();
+      for (const auto& t : an->outT()) {
         wcout << "\n    *";
         for (const auto& v : t)
           wcout << "\n     [" << v[0] << ", " << v[1] << ", " << v[2] << "]";
       }
-      wcout << "\n   outR: #" << an.outR().size();
-      for (const auto& r : an.outR()) {
+      wcout << "\n   outR: #" << an->outR().size();
+      for (const auto& r : an->outR()) {
         wcout << "\n    *";
         for (const auto& q : r)
           wcout << "\n     (" << q.r() << ", [" << q.v()[0] << ", "
                               << q.v()[1] << ", " << q.v()[2] << "])";
       }
-      wcout << "\n   outS: #" << an.outS().size();
-      for (const auto& s : an.outS()) {
+      wcout << "\n   outS: #" << an->outS().size();
+      for (const auto& s : an->outS()) {
         wcout << "\n    *";
         for (const auto& v : s)
           wcout << "\n     [" << v[0] << ", " << v[1] << ", " << v[2] << "]";

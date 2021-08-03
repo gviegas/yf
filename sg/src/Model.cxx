@@ -16,13 +16,13 @@ using namespace std;
 class Model::Impl {
  public:
   Impl(Mesh& mesh, Skin& skin, Material& material)
-    : mesh_(mesh), skin_(skin), material_(material) { }
+    : mesh_(&mesh), skin_(&skin), material_(&material) { }
 
   Impl() = default;
 
-  Mesh mesh_;
-  Skin skin_;
-  Material material_;
+  Mesh* mesh_{};
+  Skin* skin_{};
+  Material* material_{};
 };
 
 Model::Model(Mesh& mesh, Skin& skin, Material& material)
@@ -41,26 +41,26 @@ Model& Model::operator=(const Model& other) {
 
 Model::~Model() { }
 
-void Model::setMesh(Mesh& mesh) {
+void Model::setMesh(Mesh* mesh) {
   impl_->mesh_ = mesh;
 }
 
-void Model::setSkin(Skin& skin) {
+void Model::setSkin(Skin* skin) {
   impl_->skin_ = skin;
 }
 
-void Model::setMaterial(Material& material) {
+void Model::setMaterial(Material* material) {
   impl_->material_ = material;
 }
 
-Mesh Model::mesh() {
+Mesh* Model::mesh() {
   return impl_->mesh_;
 }
 
-Skin Model::skin() {
+Skin* Model::skin() {
   return impl_->skin_;
 }
 
-Material Model::material() {
+Material* Model::material() {
   return impl_->material_;
 }

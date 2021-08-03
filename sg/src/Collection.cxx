@@ -20,11 +20,11 @@ class Collection::Impl {
 
   vector<Scene::Ptr> scenes_{};
   vector<Node::Ptr> nodes_{};
-  vector<Mesh> meshes_{};
-  vector<Texture> textures_{};
-  vector<Material> materials_{};
-  vector<Skin> skins_{};
-  vector<Animation> animations_{};
+  vector<Mesh::Ptr> meshes_{};
+  vector<Skin::Ptr> skins_{};
+  vector<Texture::Ptr> textures_{};
+  vector<Material::Ptr> materials_{};
+  vector<Animation::Ptr> animations_{};
 };
 
 Collection::Collection(const wstring& pathname) : Collection() {
@@ -43,9 +43,9 @@ void Collection::clear() {
   impl_->scenes_.clear();
   impl_->nodes_.clear();
   impl_->meshes_.clear();
+  impl_->skins_.clear();
   impl_->textures_.clear();
   impl_->materials_.clear();
-  impl_->skins_.clear();
   impl_->animations_.clear();
 }
 
@@ -65,42 +65,43 @@ const vector<Node::Ptr>& Collection::nodes() const {
   return impl_->nodes_;
 }
 
-vector<Mesh>& Collection::meshes() {
+vector<Mesh::Ptr>& Collection::meshes() {
   return impl_->meshes_;
 }
 
-const vector<Mesh>& Collection::meshes() const {
+const vector<Mesh::Ptr>& Collection::meshes() const {
   return impl_->meshes_;
 }
 
-vector<Texture>& Collection::textures() {
-  return impl_->textures_;
-}
-
-const vector<Texture>& Collection::textures() const {
-  return impl_->textures_;
-}
-
-vector<Material>& Collection::materials() {
-  return impl_->materials_;
-}
-
-const vector<Material>& Collection::materials() const {
-  return impl_->materials_;
-}
-
-vector<Skin>& Collection::skins() {
+vector<Skin::Ptr>& Collection::skins() {
   return impl_->skins_;
 }
 
-const vector<Skin>& Collection::skins() const {
+const vector<Skin::Ptr>& Collection::skins() const {
   return impl_->skins_;
 }
 
-vector<Animation>& Collection::animations() {
+
+vector<Texture::Ptr>& Collection::textures() {
+  return impl_->textures_;
+}
+
+const vector<Texture::Ptr>& Collection::textures() const {
+  return impl_->textures_;
+}
+
+vector<Material::Ptr>& Collection::materials() {
+  return impl_->materials_;
+}
+
+const vector<Material::Ptr>& Collection::materials() const {
+  return impl_->materials_;
+}
+
+vector<Animation::Ptr>& Collection::animations() {
   return impl_->animations_;
 }
 
-const vector<Animation>& Collection::animations() const {
+const vector<Animation::Ptr>& Collection::animations() const {
   return impl_->animations_;
 }

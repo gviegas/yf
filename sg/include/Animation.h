@@ -26,6 +26,8 @@ class Node;
 ///
 class Animation {
  public:
+  using Ptr = std::unique_ptr<Animation>;
+
   /// Input (keyframe times).
   ///
   using Timeline = std::vector<float>;
@@ -66,15 +68,7 @@ class Animation {
             const std::vector<Translation>& outT,
             const std::vector<Rotation>& outR,
             const std::vector<Scale>& outS);
-  Animation();
-  Animation(const Animation& other);
-  Animation& operator=(const Animation& other);
   ~Animation();
-
-  explicit operator bool() const;
-  bool operator!() const;
-  bool operator==(const Animation& other) const;
-  bool operator!=(const Animation& other) const;
 
   /// Name.
   ///
@@ -106,7 +100,7 @@ class Animation {
 
  private:
   class Impl;
-  std::shared_ptr<Impl> impl_;
+  std::unique_ptr<Impl> impl_;
 };
 
 SG_NS_END

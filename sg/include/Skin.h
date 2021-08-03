@@ -25,18 +25,10 @@ class Joint : public Node {};
 ///
 class Skin {
  public:
+  using Ptr = std::unique_ptr<Skin>;
+
   Skin(size_t jointN, const std::vector<Mat4f>& inverseBind);
-  Skin();
-  Skin(const Skin& other);
-  Skin& operator=(const Skin& other);
   ~Skin();
-
-  explicit operator bool() const;
-  bool operator!() const;
-  bool operator==(const Skin& other) const;
-  bool operator!=(const Skin& other) const;
-
-  size_t hash() const;
 
   /// Sets a skin joint.
   ///
@@ -52,7 +44,7 @@ class Skin {
 
  private:
   class Impl;
-  std::shared_ptr<Impl> impl_;
+  std::unique_ptr<Impl> impl_;
 };
 
 SG_NS_END

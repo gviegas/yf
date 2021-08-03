@@ -46,30 +46,6 @@ struct SkinTest : Test {
                                skin3.inverseBind().size() == 3 &&
                                skin4.joints().size() == 3 &&
                                skin4.inverseBind().empty() && check});
-    Skin skin5;
-
-    a.push_back({L"Skin()", !skin5});
-
-    Skin skin6(skin4);
-
-    a.push_back({L"Skin(skin)",
-                 skin6.joints().size() == skin4.joints().size() &&
-                 skin6.inverseBind().size() == skin4.inverseBind().size()});
-
-    Skin skin7 = skin3;
-
-    a.push_back({L"=",
-                 skin7.joints().size() == skin3.joints().size() &&
-                 skin7.inverseBind().size() == skin3.inverseBind().size()});
-
-    Skin skin8;
-
-    a.push_back({L"bool, !", skin1 && skin2 && skin3 && skin4 && !skin5 &&
-                             skin6 && skin7 && !skin8});
-
-    a.push_back({L"==, !=", skin1 != skin5 && skin5 != skin2 &&
-                            skin2 != skin1 && skin3 == skin7 &&
-                            skin6 == skin4 && skin5 == skin8});
 
     return a;
   }

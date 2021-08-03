@@ -27,13 +27,13 @@ struct RenderTest : InteractiveTest {
     Mesh mesh2{Mesh::Gltf, L"tmp/cube2.glb"};
     Texture tex1{Texture::Png, L"tmp/cube.png"};
     Texture tex2{Texture::Png, L"tmp/cube2.png"};
-    Skin skin1{};
+    Skin skin1{64, {}};
     Material matl1;
-    matl1.pbrmr().colorTex = tex1;
+    matl1.pbrmr().colorTex = &tex1;
     matl1.pbrmr().metallic = 1.0f;
     matl1.pbrmr().roughness = 0.2f;
     Material matl2;
-    matl2.pbrmr().colorTex = tex2;
+    matl2.pbrmr().colorTex = &tex2;
     matl2.pbrmr().colorFac[3] = 0.25f;
     matl2.pbrmr().metallic = 0.5f;
     matl2.pbrmr().roughness = 1.0f;

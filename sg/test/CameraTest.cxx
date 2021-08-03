@@ -21,10 +21,11 @@ struct CameraTest : InteractiveTest {
     Camera cam{{0.0f, 0.0f, 10.0f}, {}, 640.0f / 480.0f};
 
     Mesh mesh(Mesh::Gltf, L"tmp/cube.glb");
-    Skin skin{};
     Texture tex(Texture::Png, L"tmp/cube.png");
-    Material matl({tex, {1.0f, 1.0f, 1.0f, 1.0f}, {}, 1.0f, 1.0f});
-    Model mdl(mesh, skin, matl);
+    Material matl({&tex, {1.0f, 1.0f, 1.0f, 1.0f}, {}, 1.0f, 1.0f});
+    Model mdl{};
+    mdl.setMesh(&mesh);
+    mdl.setMaterial(&matl);
 
     Scene scn{};
     scn.camera() = cam;

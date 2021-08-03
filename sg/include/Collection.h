@@ -67,8 +67,8 @@ class Collection {
 
   /// Materials.
   ///
-  std::vector<Material>& materials();
-  const std::vector<Material>& materials() const;
+  std::vector<Material::Ptr>& materials();
+  const std::vector<Material::Ptr>& materials() const;
 
   /// Animations.
   ///

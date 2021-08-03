@@ -24,7 +24,7 @@ class Collection::Impl {
   vector<Skin::Ptr> skins_{};
   vector<Texture::Ptr> textures_{};
   vector<Material::Ptr> materials_{};
-  vector<Animation> animations_{};
+  vector<Animation::Ptr> animations_{};
 };
 
 Collection::Collection(const wstring& pathname) : Collection() {
@@ -98,10 +98,10 @@ const vector<Material::Ptr>& Collection::materials() const {
   return impl_->materials_;
 }
 
-vector<Animation>& Collection::animations() {
+vector<Animation::Ptr>& Collection::animations() {
   return impl_->animations_;
 }
 
-const vector<Animation>& Collection::animations() const {
+const vector<Animation::Ptr>& Collection::animations() const {
   return impl_->animations_;
 }

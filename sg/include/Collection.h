@@ -72,8 +72,8 @@ class Collection {
 
   /// Animations.
   ///
-  std::vector<Animation>& animations();
-  const std::vector<Animation>& animations() const;
+  std::vector<Animation::Ptr>& animations();
+  const std::vector<Animation::Ptr>& animations() const;
 
  private:
   class Impl;

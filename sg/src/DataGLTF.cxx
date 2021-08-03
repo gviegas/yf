@@ -2163,9 +2163,9 @@ Material* loadMaterial(unordered_map<int32_t, Texture*>& textureMap,
 
 /// Loads a single animation from a GLTF object.
 ///
-void loadAnimation(Animation& dst, unordered_map<int32_t, Node*>& nodeMap,
-                   unordered_map<int32_t, ifstream>& bufferMap,
-                   const GLTF& gltf, size_t index) {
+Animation* loadAnimation(unordered_map<int32_t, Node*>& nodeMap,
+                         unordered_map<int32_t, ifstream>& bufferMap,
+                         const GLTF& gltf, size_t index) {
 
   assert(index < gltf.animations().size());
 
@@ -2346,13 +2346,15 @@ void loadAnimation(Animation& dst, unordered_map<int32_t, Node*>& nodeMap,
     }
   }
 
-  dst = {inputs, outT, outR, outS};
-  dst.actions() = actions;
+  auto anim = new Animation(inputs, outT, outR, outS);
+  anim->actions() = actions;
 
   // XXX
-  auto& name = dst.name();
+  auto& name = anim->name();
   for (const auto& c : animation.name)
     name.push_back(c);
+
+  return anim;
 }
 
 /// Loads contents from a GLTF object.
@@ -2472,8 +2474,8 @@ void loadContents(Collection& collection, const GLTF& gltf) {
 
   // Create animations
   for (size_t i = 0; i < gltf.animations().size(); ++i) {
-    collection.animations().push_back({});
-    loadAnimation(collection.animations().back(), nodeMap, bufferMap, gltf, i);
+    auto anim = loadAnimation(nodeMap, bufferMap, gltf, i);
+    collection.animations().push_back(unique_ptr<Animation>(anim));
   }
 
   // Create scenes

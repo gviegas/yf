@@ -2073,8 +2073,8 @@ Skin* loadSkin(unordered_map<int32_t, ifstream>& bufferMap,
 
 /// Loads a single material from a GLTF object.
 ///
-void loadMaterial(Material& dst, unordered_map<int32_t, Texture*>& textureMap,
-                  const GLTF& gltf, size_t index) {
+Material* loadMaterial(unordered_map<int32_t, Texture*>& textureMap,
+                       const GLTF& gltf, size_t index) {
 
   assert(index < gltf.materials().size());
 
@@ -2128,31 +2128,37 @@ void loadMaterial(Material& dst, unordered_map<int32_t, Texture*>& textureMap,
     return textureMap.emplace(info.index, tex).first->second;
   };
 
+  auto matl = make_unique<Material>();
+
   // PBRMR
   const auto& pbrmr = material.pbrMetallicRoughness;
-  dst.pbrmr().colorTex = getTexture(pbrmr.baseColorTexture);
-  dst.pbrmr().colorFac = {pbrmr.baseColorFactor[0], pbrmr.baseColorFactor[1],
-                          pbrmr.baseColorFactor[2], pbrmr.baseColorFactor[3]};
-  dst.pbrmr().metalRoughTex = getTexture(pbrmr.metallicRoughnessTexture);
-  dst.pbrmr().metallic = pbrmr.metallicFactor;
-  dst.pbrmr().roughness = pbrmr.roughnessFactor;
+  matl->pbrmr().colorTex = getTexture(pbrmr.baseColorTexture);
+  matl->pbrmr().colorFac = {pbrmr.baseColorFactor[0],
+                            pbrmr.baseColorFactor[1],
+                            pbrmr.baseColorFactor[2],
+                            pbrmr.baseColorFactor[3]};
+  matl->pbrmr().metalRoughTex = getTexture(pbrmr.metallicRoughnessTexture);
+  matl->pbrmr().metallic = pbrmr.metallicFactor;
+  matl->pbrmr().roughness = pbrmr.roughnessFactor;
 
   // Normal
   const auto& normal = material.normalTexture;
-  dst.normal().texture = getTexture(normal);
-  dst.normal().scale = normal.scale;
+  matl->normal().texture = getTexture(normal);
+  matl->normal().scale = normal.scale;
 
   // Occlusion
   const auto& occlusion = material.occlusionTexture;
-  dst.occlusion().texture = getTexture(occlusion);
-  dst.occlusion().strength = occlusion.strength;
+  matl->occlusion().texture = getTexture(occlusion);
+  matl->occlusion().strength = occlusion.strength;
 
   // Emissive
   const auto& emissive = material.emissiveTexture;
-  dst.emissive().texture = getTexture(emissive);
-  dst.emissive().factor = {material.emissiveFactor[0],
-                           material.emissiveFactor[1],
-                           material.emissiveFactor[2]};
+  matl->emissive().texture = getTexture(emissive);
+  matl->emissive().factor = {material.emissiveFactor[0],
+                             material.emissiveFactor[1],
+                             material.emissiveFactor[2]};
+
+  return matl.release();
 }
 
 /// Loads a single animation from a GLTF object.
@@ -2373,8 +2379,8 @@ void loadContents(Collection& collection, const GLTF& gltf) {
   // Create materials
   const auto matlOff = collection.materials().size();
   for (size_t i = 0; i < gltf.materials().size(); ++i) {
-    collection.materials().push_back({});
-    loadMaterial(collection.materials().back(), textureMap, gltf, i);
+    auto matl = loadMaterial(textureMap, gltf, i);
+    collection.materials().push_back(unique_ptr<Material>(matl));
   }
 
   // Insert loaded textures into collection

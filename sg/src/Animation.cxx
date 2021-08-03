@@ -7,7 +7,6 @@
 
 #include <cfloat>
 #include <cmath>
-#include <cassert>
 
 #include "Animation.h"
 #include "Node.h"
@@ -224,81 +223,46 @@ Animation::Animation(const vector<Timeline>& inputs,
                      const vector<Translation>& outT,
                      const vector<Rotation>& outR,
                      const vector<Scale>& outS)
-  : impl_(make_shared<Impl>(inputs, outT, outR, outS)) { }
-
-Animation::Animation() : impl_(nullptr) { }
-
-Animation::Animation(const Animation& other) : impl_(other.impl_) { }
-
-Animation& Animation::operator=(const Animation& other) {
-  impl_ = other.impl_;
-  return *this;
-}
+  : impl_(make_unique<Impl>(inputs, outT, outR, outS)) { }
 
 Animation::~Animation() { }
 
-Animation::operator bool() const {
-  return impl_ != nullptr;
-}
-
-bool Animation::operator!() const {
-  return impl_ == nullptr;
-}
-
-bool Animation::operator==(const Animation& other) const {
-  return impl_ == other.impl_;
-}
-
-bool Animation::operator!=(const Animation& other) const {
-  return impl_ != other.impl_;
-}
-
 wstring& Animation::name() {
-  assert(impl_);
   return impl_->name_;
 }
 
 const wstring& Animation::name() const {
-  assert(impl_);
   return impl_->name_;
 }
 
 vector<Animation::Action>& Animation::actions() {
-  assert(impl_);
   return impl_->actions_;
 }
 
 const vector<Animation::Action>& Animation::actions() const {
-  assert(impl_);
   return impl_->actions_;
 }
 
 const vector<Animation::Timeline>& Animation::inputs() const {
-  assert(impl_);
   return impl_->inputs_;
 }
 
 const vector<Animation::Translation>& Animation::outT() const {
-  assert(impl_);
   return impl_->outT_;
 }
 
 const vector<Animation::Rotation>& Animation::outR() const {
-  assert(impl_);
   return impl_->outR_;
 }
 
 const vector<Animation::Scale>& Animation::outS() const {
-  assert(impl_);
   return impl_->outS_;
 }
 
 bool Animation::play(chrono::nanoseconds elapsedTime) {
-  assert(impl_);
   return impl_->play(elapsedTime);
 }
 
 void Animation::stop() {
-  assert(impl_);
   impl_->stop();
 }

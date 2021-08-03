@@ -15,8 +15,8 @@ using namespace std;
 
 class Model::Impl {
  public:
-  Impl(Mesh& mesh, Skin& skin, Material& material)
-    : mesh_(&mesh), skin_(&skin), material_(&material) { }
+  Impl(Mesh* mesh, Skin* skin, Material* material)
+    : mesh_(mesh), skin_(skin), material_(material) { }
 
   Impl() = default;
 
@@ -26,7 +26,7 @@ class Model::Impl {
 };
 
 Model::Model(Mesh& mesh, Skin& skin, Material& material)
-  : impl_(make_unique<Impl>(mesh, skin, material)) { }
+  : impl_(make_unique<Impl>(&mesh, &skin, &material)) { }
 
 Model::Model() : impl_(make_unique<Impl>()) { }
 

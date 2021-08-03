@@ -36,41 +36,17 @@ struct AnimationTest : InteractiveTest {
                                     an1.outT().size() == 2 &&
                                     an1.outR().empty() && an1.outS().empty()});
 
-    Animation an2;
-
-    a.push_back({L"Animation()", !an2});
-
-    Animation an3(an1);
-    Animation an4 = an3;
-
-    a.push_back({L"Animation(other), =", an3.actions().empty() &&
-                                         an4.actions().empty() &&
-                                         an3.inputs().size() == 2 &&
-                                         an4.inputs().size() == 2 &&
-                                         an3.outT().size() == 2 &&
-                                         an4.outT().size() == 2 &&
-                                         an3.outR().empty() &&
-                                         an4.outR().empty() &&
-                                         an3.outS().empty() &&
-                                         an4.outS().empty()});
-
     Node nd;
     Animation::Action act{&nd, Animation::T, Animation::Step, 1, 1};
     an1.actions().push_back(act);
 
     a.push_back({L"actions()", an1.actions().size() == 1 &&
-                               an3.actions().size() == 1 &&
                                an1.actions().front().input == 1 &&
-                               an4.actions().front().output == 1});
-
-    a.push_back({L"bool, !", an1 && !an2 && an3 && an4 && !Animation(an2)});
-
-    a.push_back({L"==, !=", an1 == an3 && an4 == an1 && an1 != an2 &&
-                            an2 == Animation()});
+                               an1.actions().front().output == 1});
 
     an1.name() = L"an1";
 
-    a.push_back({L"name()", an1.name() == L"an1" && an1.name() == an4.name()});
+    a.push_back({L"name()", an1.name() == L"an1"});
 
     fromFile();
     return a;
@@ -160,33 +136,33 @@ struct AnimationTest : InteractiveTest {
 
     wcout << "\n Animations: #" << coll.animations().size();
     for (const auto& an: coll.animations()) {
-      wcout << "\n  Animation `" << an.name() << "`:"
-            << "\n   actions: #" << an.actions().size();
-      for (const auto& act: an.actions())
+      wcout << "\n  Animation `" << an->name() << "`:"
+            << "\n   actions: #" << an->actions().size();
+      for (const auto& act: an->actions())
         wcout << "\n    `" << act.target->name() << "`|"
                            << act.type << "|" << act.method << "|"
                            << act.input << "|" << act.output;
-      wcout << "\n   inputs: #" << an.inputs().size();
-      for (const auto& in : an.inputs()) {
+      wcout << "\n   inputs: #" << an->inputs().size();
+      for (const auto& in : an->inputs()) {
         wcout << "\n    *";
         for (const auto& k : in)
           wcout << "\n     " << k;
       }
-      wcout << "\n   outT: #" << an.outT().size();
-      for (const auto& t : an.outT()) {
+      wcout << "\n   outT: #" << an->outT().size();
+      for (const auto& t : an->outT()) {
         wcout << "\n    *";
         for (const auto& v : t)
           wcout << "\n     [" << v[0] << ", " << v[1] << ", " << v[2] << "]";
       }
-      wcout << "\n   outR: #" << an.outR().size();
-      for (const auto& r : an.outR()) {
+      wcout << "\n   outR: #" << an->outR().size();
+      for (const auto& r : an->outR()) {
         wcout << "\n    *";
         for (const auto& q : r)
           wcout << "\n     (" << q.r() << ", [" << q.v()[0] << ", "
                               << q.v()[1] << ", " << q.v()[2] << "])";
       }
-      wcout << "\n   outS: #" << an.outS().size();
-      for (const auto& s : an.outS()) {
+      wcout << "\n   outS: #" << an->outS().size();
+      for (const auto& s : an->outS()) {
         wcout << "\n    *";
         for (const auto& v : s)
           wcout << "\n     [" << v[0] << ", " << v[1] << ", " << v[2] << "]";
@@ -223,14 +199,14 @@ struct AnimationTest : InteractiveTest {
       } else if (input.stop) {
         if (!coll.animations().empty()) {
           isPlaying = false;
-          coll.animations().back().stop();
+          coll.animations().back()->stop();
         }
         input.stop = false;
       }
 
       if (isPlaying)
         wcout << "\n completed ? "
-              << (coll.animations().back().play(elapsedTime) ? "no" : "yes");
+              << (coll.animations().back()->play(elapsedTime) ? "no" : "yes");
 
       return true;
     });

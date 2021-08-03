@@ -129,14 +129,14 @@ struct BodyTest : InteractiveTest {
       } else if (input.stop) {
         if (!coll.animations().empty()) {
           isPlaying = false;
-          coll.animations().back().stop();
+          coll.animations().back()->stop();
         }
         input.stop = false;
       }
 
       if (isPlaying)
         wcout << "\n completed ? "
-              << (coll.animations().back().play(elapsedTime) ? "no" : "yes");
+              << (coll.animations().back()->play(elapsedTime) ? "no" : "yes");
 
       return true;
     });

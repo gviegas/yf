@@ -73,7 +73,7 @@ struct CollectionTest : InteractiveTest {
 
     coll.textures().push_back(make_unique<Texture>(Texture::Png,
                                                    L"tmp/cube.png"));
-    auto tex = new Texture(Texture::Png, L"tmp/cue.png");
+    auto tex = new Texture(Texture::Png, L"tmp/cube.png");
     coll.textures().push_back(unique_ptr<Texture>(tex));
 
     a.push_back({L"textures()",
@@ -96,21 +96,24 @@ struct CollectionTest : InteractiveTest {
                  !coll.materials()[2]->normal().texture});
 
     vector<Animation::Timeline> inputs({{1.0f}});
-    vector<Animation::Scale> outS({{Vec3f{2.0f, 2.0f, 2.0f}}});
-    coll.animations().push_back({inputs, {}, {}, outS});
+    vector<Animation::Translation> outT({{Vec3f(3.0f)}});
+    vector<Animation::Rotation> outR({{Qnionf(1.0f, {})}});
+    vector<Animation::Scale> outS({{Vec3f(2.0f)}});
+    coll.animations().push_back(make_unique<Animation>(inputs,
+                                                       outT, outR, outS));
     Node nd1, nd2;
     Animation::Action act1{&nd1, Animation::S, Animation::Step, 0, 0};
     Animation::Action act2{&nd2, Animation::S, Animation::Step, 0, 0};
-    coll.animations().front().actions().push_back(act1);
-    coll.animations().front().actions().push_back(act2);
+    coll.animations().front()->actions().push_back(act1);
+    coll.animations().front()->actions().push_back(act2);
 
     a.push_back({L"animations()",
                  coll.animations().size() == 1 &&
-                 coll.animations().front().actions().size() == 2 &&
-                 coll.animations().front().inputs().size() == 1 &&
-                 coll.animations().front().outT().empty() &&
-                 coll.animations().front().outR().empty() &&
-                 coll.animations().front().outS().size() == 1});
+                 coll.animations().front()->actions().size() == 2 &&
+                 coll.animations().front()->inputs().size() == 1 &&
+                 coll.animations().front()->outT().empty() &&
+                 coll.animations().front()->outR().empty() &&
+                 coll.animations().front()->outS().size() == 1});
 
     fromFile();
     return a;
@@ -200,33 +203,33 @@ struct CollectionTest : InteractiveTest {
 
     wcout << "\n Animations: #" << coll.animations().size();
     for (const auto& an: coll.animations()) {
-      wcout << "\n  Animation `" << an.name() << "`:"
-            << "\n   actions: #" << an.actions().size();
-      for (const auto& act: an.actions())
+      wcout << "\n  Animation `" << an->name() << "`:"
+            << "\n   actions: #" << an->actions().size();
+      for (const auto& act: an->actions())
         wcout << "\n    `" << act.target->name() << "`|"
                            << act.type << "|" << act.method << "|"
                            << act.input << "|" << act.output;
-      wcout << "\n   inputs: #" << an.inputs().size();
-      for (const auto& in : an.inputs()) {
+      wcout << "\n   inputs: #" << an->inputs().size();
+      for (const auto& in : an->inputs()) {
         wcout << "\n    *";
         for (const auto& k : in)
           wcout << "\n     " << k;
       }
-      wcout << "\n   outT: #" << an.outT().size();
-      for (const auto& t : an.outT()) {
+      wcout << "\n   outT: #" << an->outT().size();
+      for (const auto& t : an->outT()) {
         wcout << "\n    *";
         for (const auto& v : t)
           wcout << "\n     [" << v[0] << ", " << v[1] << ", " << v[2] << "]";
       }
-      wcout << "\n   outR: #" << an.outR().size();
-      for (const auto& r : an.outR()) {
+      wcout << "\n   outR: #" << an->outR().size();
+      for (const auto& r : an->outR()) {
         wcout << "\n    *";
         for (const auto& q : r)
           wcout << "\n     (" << q.r() << ", [" << q.v()[0] << ", "
                               << q.v()[1] << ", " << q.v()[2] << "])";
       }
-      wcout << "\n   outS: #" << an.outS().size();
-      for (const auto& s : an.outS()) {
+      wcout << "\n   outS: #" << an->outS().size();
+      for (const auto& s : an->outS()) {
         wcout << "\n    *";
         for (const auto& v : s)
           wcout << "\n     [" << v[0] << ", " << v[1] << ", " << v[2] << "]";

@@ -21,6 +21,8 @@ SG_NS_BEGIN
 ///
 class Material {
  public:
+  using Ptr = std::unique_ptr<Material>;
+
   /// PBR metallic-roughness.
   ///
   struct Pbrmr {
@@ -55,12 +57,7 @@ class Material {
   Material(const Pbrmr&, const Normal&, const Occlusion&, const Emissive&);
   Material(const Pbrmr&);
   Material();
-  Material(const Material& other);
-  Material& operator=(const Material& other);
   ~Material();
-
-  bool operator==(const Material& other) const;
-  bool operator!=(const Material& other) const;
 
   size_t hash() const;
 
@@ -80,7 +77,7 @@ class Material {
 
  private:
   class Impl;
-  std::shared_ptr<Impl> impl_;
+  std::unique_ptr<Impl> impl_;
 };
 
 SG_NS_END

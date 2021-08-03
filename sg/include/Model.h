@@ -34,13 +34,13 @@ class Model : public Node {
   ///
   void setMesh(Mesh* mesh);
   void setSkin(Skin* skin);
-  void setMaterial(Material& material);
+  void setMaterial(Material* material);
 
   /// Getters.
   ///
   Mesh* mesh();
   Skin* skin();
-  Material material();
+  Material* material();
 
  private:
   class Impl;

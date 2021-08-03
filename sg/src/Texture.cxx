@@ -51,9 +51,9 @@ Texture::Texture(FileType fileType, ifstream& stream) {
   impl_ = make_unique<Impl>(data);
 }
 
-Texture::Texture() : impl_(nullptr) { }
-
 Texture::Texture(const Data& data) : impl_(make_unique<Impl>(data)) { }
+
+Texture::~Texture() { }
 
 size_t Texture::hash() const {
   return std::hash<decltype(impl_)>()(impl_);

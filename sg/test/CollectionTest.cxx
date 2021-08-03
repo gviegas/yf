@@ -71,20 +71,17 @@ struct CollectionTest : InteractiveTest {
                              coll.skins().back()->joints().size() == 2 &&
                              coll.skins().back()->inverseBind().empty()});
 
-    coll.textures().push_back({Texture::Png, L"tmp/cube.png"});
-    Texture tex{Texture::Png, L"tmp/cube.png"};
-    coll.textures().push_back(tex);
-    coll.textures().push_back(tex);
+    coll.textures().push_back(make_unique<Texture>(Texture::Png,
+                                                   L"tmp/cube.png"));
+    auto tex = new Texture(Texture::Png, L"tmp/cue.png");
+    coll.textures().push_back(unique_ptr<Texture>(tex));
 
-    a.push_back({L"textures()", coll.textures().size() == 3 &&
-                                &coll.textures()[0].impl() !=
-                                  &coll.textures()[1].impl() &&
-                                &coll.textures()[1].impl() ==
-                                  &coll.textures()[2].impl() &&
-                                &coll.textures()[2].impl() == &tex.impl()});
+    a.push_back({L"textures()",
+                 coll.textures().size() == 2 &&
+                 &coll.textures()[0]->impl() != &coll.textures()[1]->impl()});
 
     coll.materials().push_back({});
-    coll.materials().front().normal() = {coll.textures()[0], 0.25f};
+    coll.materials().front().normal() = {coll.textures()[0].get(), 0.25f};
     coll.materials().push_back({{}, {}, {}, {}});
     Material matl{{}, {}, {tex, 0.5f}, {}};
     coll.materials().push_back(matl);
@@ -92,7 +89,8 @@ struct CollectionTest : InteractiveTest {
 
     a.push_back({L"materials()",
                  coll.materials().size() == 4 &&
-                 coll.materials()[0].normal().texture == coll.textures()[0] &&
+                 coll.materials()[0].normal().texture ==
+                  coll.textures()[0].get() &&
                  coll.materials()[0].normal().scale == 0.25f &&
                  coll.materials()[2].occlusion().texture == tex &&
                  coll.materials()[3].occlusion().strength == 0.5f &&

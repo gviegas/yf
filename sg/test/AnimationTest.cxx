@@ -136,25 +136,26 @@ struct AnimationTest : InteractiveTest {
     for (const auto& matl : coll.materials()) {
       wcout << "\n  Material:"
             << "\n   pbrmr:"
-            << "\n    colorTex: " << (matl.pbrmr().colorTex ? 'y':'n')
-            << "\n    colorFac: [" << matl.pbrmr().colorFac[0] << ", "
-                                   << matl.pbrmr().colorFac[1] << ", "
-                                   << matl.pbrmr().colorFac[2] << ", "
-                                   << matl.pbrmr().colorFac[3] << "]"
-            << "\n    metalRoughTex: " << (matl.pbrmr().metalRoughTex ? 'y':'n')
-            << "\n    metallic: " << matl.pbrmr().metallic
-            << "\n    roughness: " << matl.pbrmr().roughness
+            << "\n    colorTex: " << (matl->pbrmr().colorTex ? 'y':'n')
+            << "\n    colorFac: [" << matl->pbrmr().colorFac[0] << ", "
+                                   << matl->pbrmr().colorFac[1] << ", "
+                                   << matl->pbrmr().colorFac[2] << ", "
+                                   << matl->pbrmr().colorFac[3] << "]"
+            << "\n    metalRoughTex: " << (matl->pbrmr().metalRoughTex ?
+                                           'y' : 'n')
+            << "\n    metallic: " << matl->pbrmr().metallic
+            << "\n    roughness: " << matl->pbrmr().roughness
             << "\n   normal:"
-            << "\n    texture: " << (matl.normal().texture ? 'y':'n')
-            << "\n    scale: " << matl.normal().scale
+            << "\n    texture: " << (matl->normal().texture ? 'y':'n')
+            << "\n    scale: " << matl->normal().scale
             << "\n   occlusion:"
-            << "\n    texture: " << (matl.occlusion().texture ? 'y':'n')
-            << "\n    strength: " << matl.occlusion().strength
+            << "\n    texture: " << (matl->occlusion().texture ? 'y':'n')
+            << "\n    strength: " << matl->occlusion().strength
             << "\n   emissive:"
-            << "\n    texture: " << (matl.emissive().texture ? 'y' : 'n')
-            << "\n    factor: [" << matl.emissive().factor[0] << ", "
-                                 << matl.emissive().factor[1] << ", "
-                                 << matl.emissive().factor[2] << "]";
+            << "\n    texture: " << (matl->emissive().texture ? 'y' : 'n')
+            << "\n    factor: [" << matl->emissive().factor[0] << ", "
+                                 << matl->emissive().factor[1] << ", "
+                                 << matl->emissive().factor[2] << "]";
     }
 
     wcout << "\n Animations: #" << coll.animations().size();

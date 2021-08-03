@@ -25,7 +25,7 @@ struct CameraTest : InteractiveTest {
     Material matl({&tex, {1.0f, 1.0f, 1.0f, 1.0f}, {}, 1.0f, 1.0f});
     Model mdl{};
     mdl.setMesh(&mesh);
-    mdl.setMaterial(matl);
+    mdl.setMaterial(&matl);
 
     Scene scn{};
     scn.camera() = cam;

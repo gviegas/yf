@@ -122,16 +122,6 @@ struct MaterialTest : Test {
                                isEqOcclusion(ml3.occlusion(), occ) &&
                                isEqEmissive(ml3.emissive(), emsv)});
 
-    Material ml4 = ml3;
-    Material ml5;
-    Material ml6;
-    print(ml4);
-    print(ml5);
-    print(ml6);
-
-    a.push_back({L"==, !=",
-                 ml1 != ml2 && ml3 != ml1 && ml4 == ml3 && ml5 != ml6});
-
     return a;
   }
 };

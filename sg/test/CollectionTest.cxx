@@ -96,7 +96,7 @@ struct CollectionTest : InteractiveTest {
                  !coll.materials()[2]->normal().texture});
 
     vector<Animation::Timeline> inputs({{1.0f}});
-    vector<Animation::Translation> outT({{Vec3f(3.0f)}});
+    vector<Animation::Translation> outT;
     vector<Animation::Rotation> outR({{Qnionf(1.0f, {})}});
     vector<Animation::Scale> outS({{Vec3f(2.0f)}});
     coll.animations().push_back(make_unique<Animation>(inputs,
@@ -112,7 +112,7 @@ struct CollectionTest : InteractiveTest {
                  coll.animations().front()->actions().size() == 2 &&
                  coll.animations().front()->inputs().size() == 1 &&
                  coll.animations().front()->outT().empty() &&
-                 coll.animations().front()->outR().empty() &&
+                 coll.animations().front()->outR().size() == 1 &&
                  coll.animations().front()->outS().size() == 1});
 
     fromFile();

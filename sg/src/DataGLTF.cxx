@@ -2411,7 +2411,7 @@ void loadContents(Collection& collection, const GLTF& gltf) {
       // TODO: support for multiple primitives
       const auto matl = gltf.meshes()[nd.mesh].primitives[0].material;
       if (matl > -1)
-        mdl->setMaterial(collection.materials()[matlOff+matl]);
+        mdl->setMaterial(collection.materials()[matlOff+matl].get());
       if (nd.skin > -1)
         mdl->setSkin(collection.skins()[skinOff+nd.skin].get());
 

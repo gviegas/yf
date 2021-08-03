@@ -25,6 +25,7 @@ class Model : public Node {
   using Ptr = std::unique_ptr<Model>;
 
   Model(Mesh& mesh, Skin& skin, Material& material);
+  Model(Mesh& mesh, Material& material);
   Model();
   Model(const Model& other);
   Model& operator=(const Model& other);

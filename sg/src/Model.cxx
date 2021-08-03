@@ -28,6 +28,9 @@ class Model::Impl {
 Model::Model(Mesh& mesh, Skin& skin, Material& material)
   : impl_(make_unique<Impl>(&mesh, &skin, &material)) { }
 
+Model::Model(Mesh& mesh, Material& material)
+  : impl_(make_unique<Impl>(&mesh, nullptr, &material)) { }
+
 Model::Model() : impl_(make_unique<Impl>()) { }
 
 Model::Model(const Model& other)

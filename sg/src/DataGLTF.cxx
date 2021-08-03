@@ -2073,7 +2073,7 @@ Skin* loadSkin(unordered_map<int32_t, ifstream>& bufferMap,
 
 /// Loads a single material from a GLTF object.
 ///
-void loadMaterial(Material& dst, unordered_map<int32_t, Texture>& textureMap,
+void loadMaterial(Material& dst, unordered_map<int32_t, Texture*>& textureMap,
                   const GLTF& gltf, size_t index) {
 
   assert(index < gltf.materials().size());
@@ -2081,7 +2081,7 @@ void loadMaterial(Material& dst, unordered_map<int32_t, Texture>& textureMap,
   const auto& material = gltf.materials()[index];
 
   // Get texture
-  auto getTexture = [&](const GLTF::Material::TextureInfo& info) -> Texture {
+  auto getTexture = [&](const GLTF::Material::TextureInfo& info) -> Texture* {
     if (info.index < 0)
       return {};
 
@@ -2106,7 +2106,7 @@ void loadMaterial(Material& dst, unordered_map<int32_t, Texture>& textureMap,
         if (!ifs.seekg(view.byteOffset, ios_base::cur))
           throw FileExcept("Could not seek glTF .glb file");
 
-        Texture tex(Texture::Png, ifs);
+        auto tex = new Texture(Texture::Png, ifs);
         return textureMap.emplace(info.index, tex).first->second;
 
       } else {
@@ -2124,7 +2124,7 @@ void loadMaterial(Material& dst, unordered_map<int32_t, Texture>& textureMap,
     for (const auto& c : image.uri)
       pathname.push_back(c);
 
-    Texture tex(Texture::Png, pathname);
+    auto tex = new Texture(Texture::Png, pathname);
     return textureMap.emplace(info.index, tex).first->second;
   };
 
@@ -2353,7 +2353,7 @@ void loadAnimation(Animation& dst, unordered_map<int32_t, Node*>& nodeMap,
 ///
 void loadContents(Collection& collection, const GLTF& gltf) {
   unordered_map<int32_t, ifstream> bufferMap;
-  unordered_map<int32_t, Texture> textureMap;
+  unordered_map<int32_t, Texture*> textureMap;
 
   // Create meshes
   const auto meshOff = collection.meshes().size();
@@ -2376,6 +2376,12 @@ void loadContents(Collection& collection, const GLTF& gltf) {
     collection.materials().push_back({});
     loadMaterial(collection.materials().back(), textureMap, gltf, i);
   }
+
+  // Insert loaded textures into collection
+  // TODO: load textures that are not referenced by materials
+  //const auto texOff = collection.textures().size();
+  for (auto& tx : textureMap)
+    collection.textures().push_back(unique_ptr<Texture>(tx.second));
 
   // Check which nodes are joints
   vector<bool> isJoint(gltf.nodes().size(), false);

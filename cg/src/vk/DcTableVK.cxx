@@ -257,7 +257,7 @@ void DcTableVK::resetImgRefs() {
   imgRefs_.clear();
 
   // Cannot copy unique pointers
-  for (auto i = sets_.size(); i > 0; --i) {
+  for (auto i = sets_.size(); i > 0; i--) {
     imgRefs_.push_back({});
 
     for (const auto& e : entries_) {
@@ -266,7 +266,7 @@ void DcTableVK::resetImgRefs() {
 
       auto it = imgRefs_.back().emplace(e.first, vector<ImgRef>()).first;
 
-      for (auto j = e.second.elements; j > 0; --j)
+      for (auto j = e.second.elements; j > 0; j--)
         it->second.push_back({nullptr, nullptr});
     }
 

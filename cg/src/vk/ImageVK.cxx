@@ -255,7 +255,7 @@ void ImageVK::write(Offset2 offset, Size2 size, uint32_t layer, uint32_t level,
     dst += layout.offset + layout.arrayPitch * layer;
     dst += offset.y * layout.rowPitch + offset.x * (bitsPerTexel_ >> 3);
 
-    for (uint32_t row = 0; row < size.height; ++row) {
+    for (uint32_t row = 0; row < size.height; row++) {
       memcpy(dst, src, len);
       dst += layout.rowPitch;
       src += len;
@@ -285,7 +285,7 @@ void ImageVK::write(Offset2 offset, Size2 size, uint32_t layer, uint32_t level,
 
     // The mipmap chain is stored contiguosly in the buffer
     uint64_t off = 0;
-    for (uint32_t i = 0; i < level; ++i) {
+    for (uint32_t i = 0; i < level; i++) {
       off += (size_.width >> i) * (size_.height >> i) * txSz;
       off = ((off-1) & ~3) + 4;
     }

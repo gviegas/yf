@@ -133,7 +133,7 @@ void QueueVK::submit() {
     infos[infoN].signalSemaphoreCount = 0;
     infos[infoN].pSignalSemaphores = nullptr;
 
-    ++infoN;
+    infoN++;
   }
 
   if (!pending_.empty()) {
@@ -150,7 +150,7 @@ void QueueVK::submit() {
     infos[infoN].signalSemaphoreCount = 0;
     infos[infoN].pSignalSemaphores = nullptr;
 
-    ++infoN;
+    infoN++;
   }
 
   // Sync. setup

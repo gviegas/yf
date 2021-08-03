@@ -181,7 +181,7 @@ void DeviceVK::initPhysicalDevice() {
 
   vector<pair<uint32_t, VkPhysicalDeviceProperties>> physProps;
   physProps.resize(physN);
-  for (uint32_t i = 0; i < physN; ++i) {
+  for (uint32_t i = 0; i < physN; i++) {
     physProps[i].first = i;
     vkGetPhysicalDeviceProperties(phys[i], &physProps[i].second);
   }
@@ -192,11 +192,9 @@ void DeviceVK::initPhysicalDevice() {
     const auto t2 = p2.second.deviceType;
     const auto v1 = p1.second.apiVersion;
     const auto v2 = p2.second.apiVersion;
-    decltype(t1) types[] = {
-      VK_PHYSICAL_DEVICE_TYPE_DISCRETE_GPU,
-      VK_PHYSICAL_DEVICE_TYPE_INTEGRATED_GPU,
-      VK_PHYSICAL_DEVICE_TYPE_CPU
-    };
+    decltype(t1) types[]{VK_PHYSICAL_DEVICE_TYPE_DISCRETE_GPU,
+                         VK_PHYSICAL_DEVICE_TYPE_INTEGRATED_GPU,
+                         VK_PHYSICAL_DEVICE_TYPE_CPU};
     for (auto& t : types) {
       if (t1 == t)
         return t1 != t2 || v1 >= v2;
@@ -217,7 +215,7 @@ void DeviceVK::initPhysicalDevice() {
     vkGetPhysicalDeviceQueueFamilyProperties(phys[p.first], &familyN,
                                              families.data());
 
-    for (uint32_t i = 0; i < familyN; ++i) {
+    for (uint32_t i = 0; i < familyN; i++) {
       if (families[i].queueFlags &
       (VK_QUEUE_GRAPHICS_BIT | VK_QUEUE_COMPUTE_BIT)) {
         queueFamily = i;
@@ -236,7 +234,7 @@ void DeviceVK::initPhysicalDevice() {
       physProperties_ = p.second;
 
       // Find a queue family on this device that supports presentation
-      for (uint32_t i = 0; i < familyN; ++i) {
+      for (uint32_t i = 0; i < familyN; i++) {
         auto nextFamily = (queueFamily + i) % familyN;
         if (WsiVK::checkPhysicalDevice(physicalDev_, nextFamily)) {
           presFamily = nextFamily;

@@ -20,7 +20,7 @@ INTERNAL_NS_BEGIN
 ///
 int32_t selectMemory(uint32_t requirement, VkMemoryPropertyFlags properties) {
   const auto& memProp = deviceVK().memProperties();
-  for (uint32_t i = 0; i < memProp.memoryTypeCount; ++i) {
+  for (uint32_t i = 0; i < memProp.memoryTypeCount; i++) {
     if (requirement & (1 << i)) {
       auto propFlags = memProp.memoryTypes[i].propertyFlags;
       if ((propFlags & properties) == properties)

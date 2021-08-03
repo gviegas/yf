@@ -95,7 +95,7 @@ GrStateVK::GrStateVK(const Config& config)
   vector<VkVertexInputAttributeDescription> vxAttrs;
 
   // TODO: validate
-  for (uint32_t bind = 0; bind < config.vxInputs.size(); ++bind) {
+  for (uint32_t bind = 0; bind < config.vxInputs.size(); bind++) {
     const auto& in = config.vxInputs[bind];
     vxBinds.push_back({bind, in.stride, toInputRateVK(in.stepFunction)});
     for (const auto& at : in.attributes)

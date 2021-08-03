@@ -375,7 +375,7 @@ void WsiVK::createSwapchain() {
 
   // Map image objects to indices
   indices_.clear();
-  for (uint32_t i = 0; i < images_.size(); ++i)
+  for (uint32_t i = 0; i < images_.size(); i++)
     indices_.emplace(images_[i], i);
 
   // Clear image acquisitions & set new limit
@@ -419,7 +419,7 @@ Image* WsiVK::nextImage(bool nonblocking) {
 
   VkSemaphore sem;
   uint32_t semIx = 0;
-  for (;; ++semIx) {
+  for (;; semIx++) {
     if (acquisitions_.find(semIx) == acquisitions_.end()) {
       sem = acqSemaphores_[semIx];
       break;

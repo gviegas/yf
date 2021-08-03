@@ -153,7 +153,7 @@ struct CopyTest : Test {
           wcout << "\n> buffer memory do not overlap - copied\n";
         } catch (invalid_argument& e) {
           wcout << "\n> buffer memory do overlap - not copied\n";
-          --cpySz;
+          cpySz--;
         }
       } else if (key == WS_NS::KeyCodeEsc) {
         quit = true;

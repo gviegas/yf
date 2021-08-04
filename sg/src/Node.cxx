@@ -214,7 +214,7 @@ class Node::Impl {
     size_t n = 0;
     do {
       dst.push_back(&node->node_);
-      ++n;
+      n++;
     } while ((node = node->nextSib_));
 
     return n;

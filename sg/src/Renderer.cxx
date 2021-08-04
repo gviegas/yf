@@ -220,7 +220,7 @@ void Renderer::render(Scene& scene, CG_NS::Target& target) {
         uint32_t alloc{};
 
         // Find a resource that can render this many instances
-        for (auto it = resources.begin(); it != resources.end(); ++it) {
+        for (auto it = resources.begin(); it != resources.end(); it++) {
           if (it->instN < size)
             continue;
           resource = it->resource;
@@ -256,7 +256,7 @@ void Renderer::render(Scene& scene, CG_NS::Target& target) {
           throw runtime_error("Cannot render models with no material set");
 
         // Update instance-specific uniform buffer
-        for (uint32_t i = 0; i < n; ++i) {
+        for (uint32_t i = 0; i < n; i++) {
           auto mdl = kv.second.back();
           kv.second.pop_back();
 
@@ -289,7 +289,7 @@ void Renderer::render(Scene& scene, CG_NS::Target& target) {
               assert(jt); // XXX
               skinning[i] = jt->worldTransform() * skin->inverseBind()[i];
               skinning[i+JointN] = transpose(invert(skinning[i]));
-              ++i;
+              i++;
             }
           }
           len = SkinningLength;
@@ -534,27 +534,27 @@ void Renderer::prepare() {
   for (const auto& kv : models_) {
     uint32_t size = kv.second.size();
     while (size >= 32) {
-      ++mdl32N;
+      mdl32N++;
       size -= 32;
     }
     if (size >= 16) {
-      ++mdl16N;
+      mdl16N++;
       size -= 16;
     }
     if (size >= 8) {
-      ++mdl8N;
+      mdl8N++;
       size -= 8;
     }
     if (size >= 4) {
-      ++mdl4N;
+      mdl4N++;
       size -= 4;
     }
     if (size >= 2) {
-      ++mdl2N;
+      mdl2N++;
       size -= 2;
     }
     if (size == 1)
-      ++mdlN;
+      mdlN++;
   }
 
   if (mdlN > 0)

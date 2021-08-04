@@ -221,9 +221,9 @@ class Symbol {
         switch (next()) {
         case Op:
           if (tokens_[0] == op)
-            ++n;
+            n++;
           else if (tokens_[0] == cl)
-            --n;
+            n--;
           break;
 
         case End:
@@ -1996,7 +1996,7 @@ void loadMesh(Mesh::Data& dst, unordered_map<int32_t, ifstream>& bufferMap,
 
       if (dc.bufferView.byteStride > 0) {
         // interleaved
-        for (size_t i = 0; i < da.elementN; ++i) {
+        for (size_t i = 0; i < da.elementN; i++) {
           if (!ifs->seekg(dc.bufferView.byteStride * i, ios_base::cur))
             throw FileExcept("Could not seek glTF .glb/.bin file");
           if (!ifs->read(dt, da.elementSize))
@@ -2365,7 +2365,7 @@ void loadContents(Collection& collection, const GLTF& gltf) {
 
   // Create meshes
   const auto meshOff = collection.meshes().size();
-  for (size_t i = 0; i < gltf.meshes().size(); ++i) {
+  for (size_t i = 0; i < gltf.meshes().size(); i++) {
     Mesh::Data data;
     loadMesh(data, bufferMap, gltf, i);
     collection.meshes().push_back(make_unique<Mesh>(data));
@@ -2373,14 +2373,14 @@ void loadContents(Collection& collection, const GLTF& gltf) {
 
   // Create skins
   const auto skinOff = collection.skins().size();
-  for (size_t i = 0; i < gltf.skins().size(); ++i) {
+  for (size_t i = 0; i < gltf.skins().size(); i++) {
     auto skin = loadSkin(bufferMap, gltf, i);
     collection.skins().push_back(unique_ptr<Skin>(skin));
   }
 
   // Create materials
   const auto matlOff = collection.materials().size();
-  for (size_t i = 0; i < gltf.materials().size(); ++i) {
+  for (size_t i = 0; i < gltf.materials().size(); i++) {
     auto matl = loadMaterial(textureMap, gltf, i);
     collection.materials().push_back(unique_ptr<Material>(matl));
   }
@@ -2401,7 +2401,7 @@ void loadContents(Collection& collection, const GLTF& gltf) {
   // Create nodes
   unordered_map<int32_t, Node*> nodeMap;
 
-  for (size_t i = 0; i < gltf.nodes().size(); ++i) {
+  for (size_t i = 0; i < gltf.nodes().size(); i++) {
     const auto& nd = gltf.nodes()[i];
 
     if (nd.mesh > -1) {
@@ -2463,7 +2463,7 @@ void loadContents(Collection& collection, const GLTF& gltf) {
   }
 
   // Set skin joints
-  for (size_t i = 0; i < gltf.skins().size(); ++i) {
+  for (size_t i = 0; i < gltf.skins().size(); i++) {
     auto& skin = collection.skins()[skinOff+i];
     size_t index = 0;
     for (const auto& jt : gltf.skins()[i].joints) {
@@ -2473,7 +2473,7 @@ void loadContents(Collection& collection, const GLTF& gltf) {
   }
 
   // Create animations
-  for (size_t i = 0; i < gltf.animations().size(); ++i) {
+  for (size_t i = 0; i < gltf.animations().size(); i++) {
     auto anim = loadAnimation(nodeMap, bufferMap, gltf, i);
     collection.animations().push_back(unique_ptr<Animation>(anim));
   }
@@ -2579,19 +2579,19 @@ void printGLTF(const GLTF& gltf) {
     wprintf(L"\n   transform:");
     if (nd.transform.size() == 10) {
       wprintf(L"\n    T: [ ");
-      for (size_t i = 0; i < 3; ++i)
+      for (size_t i = 0; i < 3; i++)
         wprintf(L"%.6f ", nd.transform[i]);
       wprintf(L"]");
       wprintf(L"\n    R: [ ");
-      for (size_t i = 3; i < 7; ++i)
+      for (size_t i = 3; i < 7; i++)
         wprintf(L"%.6f ", nd.transform[i]);
       wprintf(L"]");
       wprintf(L"\n    S: [ ");
-      for (size_t i = 7; i < 10; ++i)
+      for (size_t i = 7; i < 10; i++)
         wprintf(L"%.6f ", nd.transform[i]);
       wprintf(L"]");
     } else {
-      for (size_t i = 0; i < nd.transform.size(); ++i) {
+      for (size_t i = 0; i < nd.transform.size(); i++) {
         if (i%4 == 0)
           wprintf(L"\n   ");
         wprintf(L" %.6f", nd.transform[i]);

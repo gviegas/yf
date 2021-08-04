@@ -200,7 +200,7 @@ class Animation::Impl {
 
     for (const auto& act : actions_) {
       if (inputs_[act.input].back() <= tm)
-        ++completeN;
+        completeN++;
 
       switch (act.type) {
       case T:

@@ -2,7 +2,7 @@
 // SG
 // Run.cxx
 //
-// Copyright © 2020 Gustavo C. Viegas.
+// Copyright © 2020-2021 Gustavo C. Viegas.
 //
 
 #include <iostream>
@@ -21,7 +21,7 @@ int main(int argc, char* argv[]) {
 
   vector<string> args;
   wcout << argv[0] << " ";
-  for (int i = 1; i < argc; ++i) {
+  for (int i = 1; i < argc; i++) {
     args.push_back(argv[i]);
     wcout << argv[i] << " ";
   }

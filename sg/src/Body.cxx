@@ -212,12 +212,12 @@ void Body::update(const vector<Body*>& bodies) {
 
   const auto n = bodies.size();
 
-  for (size_t i = 0; i < n; ++i) {
+  for (size_t i = 0; i < n; i++) {
     auto body1 = bodies[i];
     assert(body1);
 
     auto chk = false;
-    for (size_t j = i+1; j < n; ++j) {
+    for (size_t j = i+1; j < n; j++) {
       auto body2 = bodies[j];
       assert(body2);
 

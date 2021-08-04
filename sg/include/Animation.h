@@ -68,6 +68,7 @@ class Animation {
             const std::vector<Translation>& outT,
             const std::vector<Rotation>& outR,
             const std::vector<Scale>& outS);
+
   ~Animation();
 
   /// Name.

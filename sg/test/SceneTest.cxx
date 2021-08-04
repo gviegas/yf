@@ -30,9 +30,9 @@ struct SceneTest : Test {
     const auto& xform = scn.camera().transform();
     auto prec = wcout.precision(3);
     wcout << "\ncamera().transform():\n";
-    for (size_t i = 0; i < xform.rows(); ++i) {
+    for (size_t i = 0; i < xform.rows(); i++) {
       wcout << "\n ";
-      for (size_t j = 0; j < xform.columns(); ++j)
+      for (size_t j = 0; j < xform.columns(); j++)
         wcout << xform[j][i] << "\t";
     }
     wcout << endl;

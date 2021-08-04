@@ -76,18 +76,18 @@ void createCodeTree(const vector<uint8_t>& codeLengths, ZTree& codeTree) {
   vector<uint32_t> count{};
   count.resize(maxLen + 1);
   for (const auto& len : codeLengths)
-    ++count[len];
+    count[len]++;
 
   // Set initial codes for each length
   count[0] = 0;
   vector<uint32_t> nextCode{};
   nextCode.resize(maxLen + 1);
-  for (uint8_t i = 1; i <= maxLen; ++i)
+  for (uint8_t i = 1; i <= maxLen; i++)
     nextCode[i] = (nextCode[i-1] + count[i-1]) << 1;
 
   // Create tree
   codeTree.push_back({});
-  for (uint32_t i = 0; i < codeLengths.size(); ++i) {
+  for (uint32_t i = 0; i < codeLengths.size(); i++) {
     if (codeLengths[i] == 0)
       continue;
 
@@ -95,7 +95,7 @@ void createCodeTree(const vector<uint8_t>& codeLengths, ZTree& codeTree) {
     const auto code = nextCode[length]++;
 
     uint16_t node = 0;
-    for (uint8_t j = 0; j < length; ++j) {
+    for (uint8_t j = 0; j < length; j++) {
       const uint8_t bit = (code >> (length-j-1)) & 1;
       if (codeTree[node][bit] == 0) {
         codeTree[node][bit] = codeTree.size();
@@ -152,7 +152,7 @@ void inflate(const vector<uint8_t>& src, vector<uint8_t>& dst) {
     // No compression
     if (btype == 0) {
       if (bitOff != 0) {
-        ++byteOff;
+        byteOff++;
         bitOff = 0;
       }
 
@@ -198,17 +198,17 @@ void inflate(const vector<uint8_t>& src, vector<uint8_t>& dst) {
       } else if (btype == 2) {
         // Dynamic H. codes
         uint16_t hlit = 0;
-        for (uint16_t i = 0; i < 5; ++i)
+        for (uint16_t i = 0; i < 5; i++)
           hlit |= nextBit() << i;
         hlit += 257;
 
         uint16_t hdist = 0;
-        for (uint16_t i = 0; i < 5; ++i)
+        for (uint16_t i = 0; i < 5; i++)
           hdist |= nextBit() << i;
-        ++hdist;
+        hdist++;
 
         uint16_t hclen = 0;
-        for (uint16_t i = 0; i < 4; ++i)
+        for (uint16_t i = 0; i < 4; i++)
           hclen |= nextBit() << i;
         hclen += 4;
 
@@ -217,7 +217,7 @@ void inflate(const vector<uint8_t>& src, vector<uint8_t>& dst) {
                                             11, 4, 12, 3, 13, 2, 14, 1, 15};
         vector<uint8_t> lenLengths{};
         lenLengths.resize(19);
-        for (uint16_t i = 0; i < hclen; ++i)
+        for (uint16_t i = 0; i < hclen; i++)
           lenLengths[lenMap[i]] = nextBit() | (nextBit()<<1) | (nextBit()<<2);
         ZTree lenTree{};
         createCodeTree(lenLengths, lenTree);
@@ -235,7 +235,7 @@ void inflate(const vector<uint8_t>& src, vector<uint8_t>& dst) {
             if (value < 16) {
               // Code length
               lengths.push_back(value);
-              ++count;
+              count++;
             } else if (value == 16) {
               // Copy previous
               uint8_t times = 3 + (nextBit() | (nextBit() << 1));
@@ -255,7 +255,7 @@ void inflate(const vector<uint8_t>& src, vector<uint8_t>& dst) {
               } else {
                 throw runtime_error("Invalid data for decompression");
               }
-              for (uint8_t i = 0; i < bits; ++i)
+              for (uint8_t i = 0; i < bits; i++)
                 times += nextBit() << i;
               count += times;
               lengths.resize(lengths.size() + times);
@@ -312,7 +312,7 @@ void inflate(const vector<uint8_t>& src, vector<uint8_t>& dst) {
             extraBits = 0;
             length = 258;
           }
-          for (uint8_t i = 0; i < extraBits; ++i)
+          for (uint8_t i = 0; i < extraBits; i++)
             length += nextBit() << i;
 
           // Decode distance
@@ -331,7 +331,7 @@ void inflate(const vector<uint8_t>& src, vector<uint8_t>& dst) {
             extraBits = 1 + ((value-4) >> 1);
             distance = 1 + (2 << extraBits) + (((value-4) & 1) << extraBits);
           }
-          for (uint8_t i = 0; i < extraBits; ++i)
+          for (uint8_t i = 0; i < extraBits; i++)
             distance += nextBit() << i;
 
           assert(distance <= dataOff);
@@ -340,7 +340,7 @@ void inflate(const vector<uint8_t>& src, vector<uint8_t>& dst) {
           // Copy data
           while (length--) {
             dst[dataOff] = dst[dataOff-distance];
-            ++dataOff;
+            dataOff++;
           }
 
         } else {
@@ -406,13 +406,13 @@ class PNG {
     // Palette indices
     if (ihdr_.colorType == 3) {
       // XXX: needs testing
-      for (uint32_t i = 0; i < ihdr_.height; ++i) {
+      for (uint32_t i = 0; i < ihdr_.height; i++) {
         const auto scanline = &cdata[1+i*sclnSize_];
         uint32_t byteOff = 0;
         uint32_t bitOff = 0;
-        for (uint32_t j = 0; j < ihdr_.width; ++j) {
+        for (uint32_t j = 0; j < ihdr_.width; j++) {
           uint8_t index = 0;
-          for (uint8_t k = 0; k < ihdr_.bitDepth; ++k)
+          for (uint8_t k = 0; k < ihdr_.bitDepth; k++)
             index |= scanline[byteOff] & (1 << (k+bitOff));
           index >>= bitOff;
           memcpy(&idata[i*lnSize+j*3], &plte_[index], 3);
@@ -425,13 +425,13 @@ class PNG {
     // 1/2/4 bit depth greyscale
     } else if (ihdr_.bitDepth < 8) {
       // XXX: needs testing
-      for (uint32_t i = 0; i < ihdr_.height; ++i) {
+      for (uint32_t i = 0; i < ihdr_.height; i++) {
         const auto scanline = &cdata[1+i*sclnSize_];
         uint32_t byteOff = 0;
         uint32_t bitOff = 0;
-        for (uint32_t j = 0; j < ihdr_.width; ++j) {
+        for (uint32_t j = 0; j < ihdr_.width; j++) {
           uint8_t value = 0;
-          for (uint8_t k = 0; k < ihdr_.bitDepth; ++k)
+          for (uint8_t k = 0; k < ihdr_.bitDepth; k++)
             value |= scanline[byteOff] & (1 << (k+bitOff));
           idata[i*lnSize+j] = value >> bitOff;
           const div_t d = div(bitOff + ihdr_.bitDepth, 8);
@@ -442,7 +442,7 @@ class PNG {
 
     // 8/16 bit depth truecolor or greyscale
     } else {
-      for (uint32_t i = 0; i < ihdr_.height; ++i)
+      for (uint32_t i = 0; i < ihdr_.height; i++)
         memcpy(&idata[i*lnSize], &cdata[1+i*sclnSize_], lnSize);
       if (ihdr_.bitDepth == 16) {
         for (size_t i = 0; i < size; i += 2) {
@@ -712,13 +712,13 @@ class PNG {
       case 1:
       case 4:
         // Sub/Paeth
-        for (uint32_t i = Bpp_+1; i < sclnSize_; ++i)
+        for (uint32_t i = Bpp_+1; i < sclnSize_; i++)
           curScln[i] += curScln[i-Bpp_];
         break;
 
       case 3:
         // Average
-        for (uint32_t i = Bpp_+1; i < sclnSize_; ++i)
+        for (uint32_t i = Bpp_+1; i < sclnSize_; i++)
           curScln[i] += curScln[i-Bpp_] >> 1;
         break;
 
@@ -736,21 +736,21 @@ class PNG {
 
       case 1:
         // Sub
-        for (uint32_t i = Bpp_+1; i < sclnSize_; ++i)
+        for (uint32_t i = Bpp_+1; i < sclnSize_; i++)
           curScln[i] += curScln[i-Bpp_];
         break;
 
       case 2:
         // Up
-        for (uint32_t i = 1; i < sclnSize_; ++i)
+        for (uint32_t i = 1; i < sclnSize_; i++)
           curScln[i] += priorScln[i];
         break;
 
       case 3:
         // Average
-        for (uint32_t i = 1; i <= Bpp_; ++i)
+        for (uint32_t i = 1; i <= Bpp_; i++)
           curScln[i] += priorScln[i] >> 1;
-        for (uint32_t i = Bpp_+1; i < sclnSize_; ++i) {
+        for (uint32_t i = Bpp_+1; i < sclnSize_; i++) {
           const uint16_t prev = curScln[i-Bpp_];
           const uint16_t prior = priorScln[i];
           curScln[i] += (prev + prior) >> 1;
@@ -759,9 +759,9 @@ class PNG {
 
       case 4:
         // Paeth
-        for (uint32_t i = 1; i <= Bpp_; ++i)
+        for (uint32_t i = 1; i <= Bpp_; i++)
           curScln[i] += priorScln[i];
-        for (uint32_t i = Bpp_+1; i < sclnSize_; ++i) {
+        for (uint32_t i = Bpp_+1; i < sclnSize_; i++) {
           const int16_t a = curScln[i-Bpp_];
           const int16_t b = priorScln[i];
           const int16_t c = priorScln[i-Bpp_];
@@ -781,7 +781,7 @@ class PNG {
     curScln = data.data();
     filter = curScln[0];
     reverse0();
-    for (uint32_t i = 1; i < ihdr_.height; ++i) {
+    for (uint32_t i = 1; i < ihdr_.height; i++) {
       priorScln = curScln;
       curScln = &data[i*sclnSize_];
       filter = curScln[0];
@@ -800,9 +800,9 @@ class PNG {
     static bool wait = true;
 
     if (pending.exchange(false)) {
-      for (uint32_t i = 0; i < 256; ++i) {
+      for (uint32_t i = 0; i < 256; i++) {
         auto x = i;
-        for (uint32_t j = 0; j < 8; ++j)
+        for (uint32_t j = 0; j < 8; j++)
           x = (x & 1) ? (0xEDB88320 ^ (x >> 1)) : (x >> 1);
         table[i] = x;
       }
@@ -812,7 +812,7 @@ class PNG {
     }
 
     uint32_t crc = 0xFFFFFFFF;
-    for (uint32_t i = 0; i < n; ++i)
+    for (uint32_t i = 0; i < n; i++)
       crc = table[(crc ^ data[i]) & 0xFF] ^ (crc >> 8);
 
     return crc ^ 0xFFFFFFFF;
@@ -864,7 +864,7 @@ INTERNAL_NS_BEGIN
 [[maybe_unused]]
 void printCodeTree(const ZTree& codeTree) {
   wprintf(L"\nCode Tree");
-  for (size_t i = 0; i < codeTree.size(); ++i) {
+  for (size_t i = 0; i < codeTree.size(); i++) {
     wprintf(L"\n (%lu) ", i);
     if (codeTree[i].isLeaf)
       wprintf(L"value: %u", codeTree[i].value);

@@ -28,9 +28,9 @@ struct MatrixTest : Test {
 
 #define SG_PRINTMAT(mat) do { \
   wcout << endl << #mat ":"; \
-  for (size_t i = 0; i < mat.rows(); ++i) { \
+  for (size_t i = 0; i < mat.rows(); i++) { \
     wcout << "\n   "; \
-    for (size_t j = 0; j < mat.columns(); ++j) \
+    for (size_t j = 0; j < mat.columns(); j++) \
       wcout << mat[j][i] << "\t\t"; \
   } \
   wcout << endl; \
@@ -129,13 +129,13 @@ struct MatrixTest : Test {
     auto m14 = Mat4f::identity();
 
     a.push_back({L"identity()", [&]() {
-      for (size_t i = 0; i < m12.columns(); ++i) {
+      for (size_t i = 0; i < m12.columns(); i++) {
         if (m12[i][i] != 1) return false;
       }
-      for (size_t i = 0; i < m13.columns(); ++i) {
+      for (size_t i = 0; i < m13.columns(); i++) {
         if (m13[i][i] != 1) return false;
       }
-      for (size_t i = 0; i < m14.columns(); ++i) {
+      for (size_t i = 0; i < m14.columns(); i++) {
         if (m14[i][i] != 1) return false;
       }
       return true;

@@ -36,7 +36,7 @@ struct NodeTest : Test {
     };
 
     vector<Node> nodes{6};
-    for (size_t i = 0; i < nodes.size(); ++i) {
+    for (size_t i = 0; i < nodes.size(); i++) {
       nodes[i].name() = L"#" + to_wstring(i);
       wcout << "\nNode named `" << nodes[i].name() << "` created";
     }
@@ -107,7 +107,7 @@ struct NodeTest : Test {
     if (chdN != 2 || chdN*2 != chds.size()) {
       a.back().second = false;
     } else {
-      for (size_t i = 0; i < chdN/2; ++i) {
+      for (size_t i = 0; i < chdN/2; i++) {
         if (count(chds.begin(), chds.end(), chds[i]) != 2) {
           a.back().second = false;
           break;
@@ -123,18 +123,18 @@ struct NodeTest : Test {
     auto prec = wcout.precision(3);
 
     wcout << "\ntransform() (default):\n";
-    for (size_t i = 0; i < xform.rows(); ++i) {
+    for (size_t i = 0; i < xform.rows(); i++) {
       wcout << "\n ";
-      for (size_t j = 0; j < xform.columns(); ++j)
+      for (size_t j = 0; j < xform.columns(); j++)
         wcout << xform[j][i] << "\t";
     }
     wcout << endl;
 
     xform2 = scale(2.0f, 3.0f, 4.0f) * translate(-1.0f, -2.0f, -3.0f);
     wcout << "\ntransform() (changed):\n";
-    for (size_t i = 0; i < xform.rows(); ++i) {
+    for (size_t i = 0; i < xform.rows(); i++) {
       wcout << "\n ";
-      for (size_t j = 0; j < xform.columns(); ++j)
+      for (size_t j = 0; j < xform.columns(); j++)
         wcout << xform[j][i] << "\t";
     }
     wcout << endl;

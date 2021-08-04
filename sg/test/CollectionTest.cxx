@@ -123,9 +123,9 @@ struct CollectionTest : InteractiveTest {
     Collection coll(L"tmp/scene.glb");
 
     auto printMatrix = [](const Mat4f& mat) {
-      for (size_t i = 0; i < mat.rows(); ++i) {
+      for (size_t i = 0; i < mat.rows(); i++) {
         wcout << "\n\t";
-        for (size_t j = 0; j < mat.columns(); ++j)
+        for (size_t j = 0; j < mat.columns(); j++)
           wcout << mat[j][i] << "\t";
       }
       wcout << endl;

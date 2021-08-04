@@ -39,8 +39,8 @@ struct VectorTest : Test {
     Vec3u v2{1, 0, 0xff};
     Vec4f v3{1.0f, -1.0f, 5023.01f};
     Vec3d v4{0.04502119805};
-    v4.operator[](2) = -1.0/2.0;
-    --v3[1];
+    v4.operator[](2) = -1.0 / 2.0;
+    v3[1]--;
 
     a.push_back({L"Vector{...}", v2[0] == 1 && v2[1] == 0 && v2[2] == 0xff &&
                                  v3[0] == 1.0f && v3[1] == -2.0f &&

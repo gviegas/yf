@@ -75,7 +75,7 @@ Mesh::Impl::Impl(const Data& data) {
   // Find a segment that can contain data of a given size, copy data to
   // buffer and update segment list
   auto copy = [&](uint64_t size, const void* data) -> uint64_t {
-    for (auto s = segments_.begin(); s != segments_.end(); ++s) {
+    for (auto s = segments_.begin(); s != segments_.end(); s++) {
       if (s->size < size)
         continue;
 
@@ -154,7 +154,7 @@ Mesh::Impl::~Impl() {
 
     auto next = segments_.begin();
     decltype(next) prev;
-    for (; next != segments_.end() && next->offset < offset+size; ++next)
+    for (; next != segments_.end() && next->offset < offset+size; next++)
       prev = next;
 
     // Merge segments if they are contiguous, insert new segment otherwise

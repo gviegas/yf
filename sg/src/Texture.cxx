@@ -103,14 +103,14 @@ Texture::Impl::Impl(const Data& data)
     }
     current = (current + 1) % unused.size();
   } while (layer_ == UINT32_MAX);
-  --resource.layers.remaining;
+  resource.layers.remaining--;
 
   // Copy the data
   CG_NS::Image& image = *resource.image;
   CG_NS::Size2 size = data.size;
   uint8_t* bytes = data.data.get();
   // TODO: check if this works as expected
-  for (uint32_t i = 0; i < data.levels; ++i) {
+  for (uint32_t i = 0; i < data.levels; i++) {
     image.write({0}, size, layer_, i, bytes);
     bytes += (image.bitsPerTexel_ >> 3) * size.width * size.height;
     size.width = max(1U, size.width >> 1);
@@ -169,7 +169,7 @@ bool Texture::Impl::setLayerCount(Resource& resource, uint32_t newCount) {
   CG_NS::TfEncoder enc;
   const auto cpyCount = min(newCount, resource.image->layers_);
   const auto cpySize = resource.image->size_;
-  for (uint32_t i = 0; i < resource.image->levels_; ++i)
+  for (uint32_t i = 0; i < resource.image->levels_; i++)
     enc.copy(newImg.get(), {0}, 0, i, resource.image.get(), {0}, 0, i,
              {cpySize.width >> i, cpySize.height >> i}, cpyCount);
 
@@ -186,7 +186,7 @@ bool Texture::Impl::setLayerCount(Resource& resource, uint32_t newCount) {
     resource.layers.unused.resize(newCount, true);
     resource.layers.remaining += newCount - oldCount;
   } else {
-    for (auto i = oldCount-1; i >= newCount; --i) {
+    for (auto i = oldCount-1; i >= newCount; i--) {
       if (!resource.layers.unused[i])
         throw runtime_error("Bad texture layer count");
     }

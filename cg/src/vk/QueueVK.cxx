@@ -604,7 +604,8 @@ void CmdBufferVK::encode(const GrEncoder& encoder) {
   };
 
   // Synchronize
-  auto sync = [&](const SyncCmd* sub) {
+  // TODO: improve
+  auto sync = [&](const SyncCmd*) {
     VkMemoryBarrier barrier;
     barrier.sType = VK_STRUCTURE_TYPE_MEMORY_BARRIER;
     barrier.pNext = nullptr;
@@ -729,7 +730,8 @@ void CmdBufferVK::encode(const CpEncoder& encoder) {
   };
 
   // Synchronize
-  auto sync = [&](const SyncCmd* sub) {
+  // TODO: improve
+  auto sync = [&](const SyncCmd*) {
     VkMemoryBarrier barrier;
     barrier.sType = VK_STRUCTURE_TYPE_MEMORY_BARRIER;
     barrier.pNext = nullptr;

@@ -728,6 +728,23 @@ void CmdBufferVK::encode(const CpEncoder& encoder) {
     vkCmdDispatch(handle_, sub->size.width, sub->size.height, sub->size.depth);
   };
 
+  // Synchronize
+  auto sync = [&](const SyncCmd* sub) {
+    VkMemoryBarrier barrier;
+    barrier.sType = VK_STRUCTURE_TYPE_MEMORY_BARRIER;
+    barrier.pNext = nullptr;
+    barrier.srcAccessMask = VK_ACCESS_MEMORY_WRITE_BIT;
+    barrier.dstAccessMask = VK_ACCESS_MEMORY_READ_BIT |
+                            VK_ACCESS_MEMORY_WRITE_BIT;
+
+    const VkPipelineStageFlags srcStg = VK_PIPELINE_STAGE_ALL_COMMANDS_BIT;
+    const VkPipelineStageFlags dstStg = VK_PIPELINE_STAGE_ALL_COMMANDS_BIT;
+    const VkDependencyFlags depend = 0;
+
+    vkCmdPipelineBarrier(handle_, srcStg, dstStg, depend, 1, &barrier,
+                         0, nullptr, 0, nullptr);
+  };
+
   for (const auto& cmd : encoder.encoding()) {
     switch (cmd->cmd) {
     case Cmd::StateCpT:
@@ -738,6 +755,9 @@ void CmdBufferVK::encode(const CpEncoder& encoder) {
       break;
     case Cmd::DispatchT:
       dispatch(static_cast<DispatchCmd*>(cmd.get()));
+      break;
+    case Cmd::SyncT:
+      sync(static_cast<SyncCmd*>(cmd.get()));
       break;
     default:
       assert(false);

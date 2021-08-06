@@ -33,7 +33,8 @@ struct Cmd {
     ClearDpT,
     ClearScT,
     CopyBBT,
-    CopyIIT
+    CopyIIT,
+    SyncT
   };
 
   /// The subclass of this command.
@@ -220,6 +221,12 @@ struct CopyIICmd : Cmd {
       dst(dst), dstOffset(dstOffset), dstLayer(dstLayer), dstLevel(dstLevel),
       src(src), srcOffset(srcOffset), srcLayer(srcLayer), srcLevel(srcLevel),
       size(size), layerCount(layerCount) { }
+};
+
+/// Synchronize command.
+///
+struct SyncCmd : Cmd {
+  SyncCmd() : Cmd(SyncT) { }
 };
 
 CG_NS_END

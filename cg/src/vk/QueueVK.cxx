@@ -603,6 +603,33 @@ void CmdBufferVK::encode(const GrEncoder& encoder) {
     clears.push_back({VK_IMAGE_ASPECT_STENCIL_BIT, 0, val});
   };
 
+  // Synchronize
+  // TODO: improve
+  auto sync = [&](const SyncCmd*) {
+    VkMemoryBarrier barrier;
+    barrier.sType = VK_STRUCTURE_TYPE_MEMORY_BARRIER;
+    barrier.pNext = nullptr;
+    barrier.srcAccessMask = VK_ACCESS_MEMORY_WRITE_BIT;
+    barrier.dstAccessMask = VK_ACCESS_MEMORY_READ_BIT |
+                            VK_ACCESS_MEMORY_WRITE_BIT;
+
+    const VkPipelineStageFlags srcStg = VK_PIPELINE_STAGE_ALL_COMMANDS_BIT;
+    const VkPipelineStageFlags dstStg = VK_PIPELINE_STAGE_ALL_COMMANDS_BIT;
+    const VkDependencyFlags depend = VK_DEPENDENCY_BY_REGION_BIT;
+
+    if (tgt) {
+      auto tmp = tgt;
+      endPass();
+      vkCmdPipelineBarrier(handle_, srcStg, dstStg, depend, 1, &barrier,
+                           0, nullptr, 0, nullptr);
+      tgt = tmp;
+      beginPass();
+    } else {
+      vkCmdPipelineBarrier(handle_, srcStg, dstStg, depend, 1, &barrier,
+                           0, nullptr, 0, nullptr);
+    }
+  };
+
   for (const auto& cmd : encoder.encoding()) {
     switch (cmd->cmd) {
     case Cmd::StateGrT:
@@ -640,6 +667,9 @@ void CmdBufferVK::encode(const GrEncoder& encoder) {
       break;
     case Cmd::ClearScT:
       clearSc(static_cast<ClearScCmd*>(cmd.get()));
+      break;
+    case Cmd::SyncT:
+      sync(static_cast<SyncCmd*>(cmd.get()));
       break;
     default:
       assert(false);
@@ -699,6 +729,24 @@ void CmdBufferVK::encode(const CpEncoder& encoder) {
     vkCmdDispatch(handle_, sub->size.width, sub->size.height, sub->size.depth);
   };
 
+  // Synchronize
+  // TODO: improve
+  auto sync = [&](const SyncCmd*) {
+    VkMemoryBarrier barrier;
+    barrier.sType = VK_STRUCTURE_TYPE_MEMORY_BARRIER;
+    barrier.pNext = nullptr;
+    barrier.srcAccessMask = VK_ACCESS_MEMORY_WRITE_BIT;
+    barrier.dstAccessMask = VK_ACCESS_MEMORY_READ_BIT |
+                            VK_ACCESS_MEMORY_WRITE_BIT;
+
+    const VkPipelineStageFlags srcStg = VK_PIPELINE_STAGE_ALL_COMMANDS_BIT;
+    const VkPipelineStageFlags dstStg = VK_PIPELINE_STAGE_ALL_COMMANDS_BIT;
+    const VkDependencyFlags depend = 0;
+
+    vkCmdPipelineBarrier(handle_, srcStg, dstStg, depend, 1, &barrier,
+                         0, nullptr, 0, nullptr);
+  };
+
   for (const auto& cmd : encoder.encoding()) {
     switch (cmd->cmd) {
     case Cmd::StateCpT:
@@ -709,6 +757,9 @@ void CmdBufferVK::encode(const CpEncoder& encoder) {
       break;
     case Cmd::DispatchT:
       dispatch(static_cast<DispatchCmd*>(cmd.get()));
+      break;
+    case Cmd::SyncT:
+      sync(static_cast<SyncCmd*>(cmd.get()));
       break;
     default:
       assert(false);

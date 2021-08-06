@@ -144,6 +144,10 @@ class GrEncoder final : public Encoder {
   void clearColor(Color value, uint32_t colorIndex = 0);
   void clearDepth(float value);
   void clearStencil(uint32_t value);
+
+  /// Synchronizes commands.
+  ///
+  void synchronize();
 };
 
 /// Compute encoder.
@@ -164,6 +168,10 @@ class CpEncoder final : public Encoder {
   /// Dispatches a workgroup.
   ///
   void dispatch(Size3 size);
+
+  /// Synchronizes commands.
+  ///
+  void synchronize();
 };
 
 /// Transfer encoder.

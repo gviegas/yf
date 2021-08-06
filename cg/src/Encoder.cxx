@@ -102,6 +102,10 @@ void GrEncoder::clearStencil(uint32_t value) {
   impl_->encode(make_unique<ClearScCmd>(value));
 }
 
+void GrEncoder::synchronize() {
+  impl_->encode(make_unique<SyncCmd>());
+}
+
 //
 // CpEncoder
 //
@@ -118,6 +122,10 @@ void CpEncoder::setDcTable(uint32_t tableIndex, uint32_t allocIndex) {
 
 void CpEncoder::dispatch(Size3 size) {
   impl_->encode(make_unique<DispatchCmd>(size));
+}
+
+void CpEncoder::synchronize() {
+  impl_->encode(make_unique<SyncCmd>());
 }
 
 //

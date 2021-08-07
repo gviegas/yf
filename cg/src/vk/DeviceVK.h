@@ -91,6 +91,7 @@ class DeviceVK final : public Device {
   void initInstance();
   void initPhysicalDevice();
   void initDevice(int32_t, int32_t);
+  void setLimits();
 };
 
 CG_NS_END

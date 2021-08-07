@@ -60,7 +60,7 @@ class DeviceVK final : public Device {
   const std::vector<const char*>& layers() const;
   uint32_t instVersion() const;
   uint32_t devVersion() const;
-  const VkPhysicalDeviceLimits& limits() const;
+  const VkPhysicalDeviceLimits& physLimits() const;
 
  private:
   QueueVK* queue_ = nullptr;

@@ -47,6 +47,8 @@ class DeviceVK final : public Device {
 
   Wsi::Ptr wsi(WS_NS::Window* window);
 
+  const Limits& limits() const;
+
   /// Getters.
   ///
   VkInstance instance();
@@ -73,6 +75,8 @@ class DeviceVK final : public Device {
   VkPhysicalDevice physicalDev_ = nullptr;
   VkPhysicalDeviceProperties physProperties_{};
   VkPhysicalDeviceMemoryProperties memProperties_{};
+
+  Limits limits_{};
 
   VkDevice device_ = nullptr;
   std::vector<const char*> devExtensions_{};

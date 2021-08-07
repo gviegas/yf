@@ -20,6 +20,7 @@
 #include "yf/cg/Pass.h"
 #include "yf/cg/State.h"
 #include "yf/cg/Wsi.h"
+#include "yf/cg/Limits.h"
 
 CG_NS_BEGIN
 
@@ -66,6 +67,10 @@ class Device {
   /// Creates a new wsi object.
   ///
   virtual Wsi::Ptr wsi(WS_NS::Window* window) = 0;
+
+  /// Gets limits.
+  ///
+  virtual const Limits& limits() const = 0;
 };
 
 /// Gets the device instance.

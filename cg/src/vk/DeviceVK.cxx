@@ -250,6 +250,7 @@ void DeviceVK::initPhysicalDevice() {
     throw UnsupportedExcept("Could not find a suitable physical device");
 
   vkGetPhysicalDeviceMemoryProperties(physicalDev_, &memProperties_);
+  setLimits();
 
   // Now the logical device can be initialized
   initDevice(queueFamily, presFamily);
@@ -324,6 +325,44 @@ void DeviceVK::initDevice(int32_t queueFamily, int32_t presFamily) {
     cache_ = VK_NULL_HANDLE;
 }
 
+void DeviceVK::setLimits() {
+  assert(physicalDev_);
+
+  const auto& lim = physProperties_.limits;
+
+  limits_.maxDrawIndex = lim.maxDrawIndexedIndexValue;
+  limits_.maxDispatchWidth = lim.maxComputeWorkGroupCount[0];
+  limits_.maxDispatchHeight = lim.maxComputeWorkGroupCount[1];
+  limits_.maxDispatchDepth = lim.maxComputeWorkGroupCount[2];
+
+  limits_.maxViewports = lim.maxViewports;
+  limits_.maxViewportWidth = lim.maxViewportDimensions[0];
+  limits_.maxViewportHeight = lim.maxViewportDimensions[1];
+
+  limits_.maxImageWidth = lim.maxImageDimension2D;
+  limits_.maxImageHeight = lim.maxImageDimension2D;
+  limits_.maxImageLayers = lim.maxImageArrayLayers;
+
+  limits_.maxPassColors = lim.maxColorAttachments;
+  limits_.maxTargetWidth = lim.maxFramebufferWidth;
+  limits_.maxTargetHeight = lim.maxFramebufferHeight;
+  limits_.maxTargetLayers = lim.maxFramebufferLayers;
+
+  limits_.maxDcUniform = lim.maxDescriptorSetUniformBuffers;
+  limits_.maxDcStorage = lim.maxDescriptorSetStorageBuffers;
+  limits_.maxDcImage = lim.maxDescriptorSetStorageImages;
+  limits_.maxDcImgSampler = min(lim.maxDescriptorSetSamplers,
+                                lim.maxDescriptorSetSampledImages);
+  limits_.maxDcEntries = lim.maxPerStageResources; // XXX
+  limits_.minDcUniformWriteAlignedOffset = lim.minUniformBufferOffsetAlignment;
+  limits_.maxDcUniformWriteSize = lim.maxUniformBufferRange;
+  limits_.minDcStorageWriteAlignedOffset = lim.minStorageBufferOffsetAlignment;
+  limits_.maxDcStorageWriteSize = lim.maxStorageBufferRange;
+
+  limits_.maxVxInputs = lim.maxVertexInputBindings;
+  limits_.maxVxAttrs = lim.maxVertexInputAttributes;
+}
+
 VkInstance DeviceVK::instance() {
   return instance_;
 }
@@ -368,7 +407,7 @@ uint32_t DeviceVK::devVersion() const {
   return physProperties_.apiVersion;
 }
 
-const VkPhysicalDeviceLimits& DeviceVK::limits() const {
+const VkPhysicalDeviceLimits& DeviceVK::physLimits() const {
   return physProperties_.limits;
 }
 
@@ -417,4 +456,8 @@ CpState::Ptr DeviceVK::state(const CpState::Config& config) {
 
 Wsi::Ptr DeviceVK::wsi(WS_NS::Window* window) {
   return make_unique<WsiVK>(window);
+}
+
+const Limits& DeviceVK::limits() const {
+  return limits_;
 }

@@ -16,6 +16,7 @@
 #include "yf/cg/Device.h"
 #include "yf/cg/Encoder.h"
 #include "yf/cg/Image.h"
+#include "yf/cg/Limits.h"
 #include "yf/cg/Pass.h"
 #include "yf/cg/Queue.h"
 #include "yf/cg/Shader.h"

@@ -153,13 +153,13 @@ void DcTableVK::write(uint32_t allocation, DcId id, uint32_t element,
 
   auto ent = entries_.find(id);
 
-  if (allocation >= sets_.size() ||
-      ent == entries_.end() ||
+  if (allocation >= sets_.size() || ent == entries_.end() ||
       (ent->second.type != DcTypeUniform &&
-        ent->second.type != DcTypeStorage) ||
-      element >= ent->second.elements ||
-      offset + size > buffer.size_)
+       ent->second.type != DcTypeStorage) ||
+      element >= ent->second.elements || offset + size > buffer.size_)
     throw invalid_argument("DcTable write() [Buffer]");
+
+  const auto& lim = deviceVK().physLimits();
 
   VkDescriptorBufferInfo info;
   info.buffer = static_cast<BufferVK&>(buffer).handle();
@@ -173,10 +173,17 @@ void DcTableVK::write(uint32_t allocation, DcId id, uint32_t element,
   wr.dstBinding = id;
   wr.dstArrayElement = element;
   wr.descriptorCount = 1;
-  if (ent->second.type == DcTypeUniform)
+  if (ent->second.type == DcTypeUniform) {
     wr.descriptorType = VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER;
-  else
+    if (offset % lim.minUniformBufferOffsetAlignment ||
+        size > lim.maxUniformBufferRange)
+      throw invalid_argument("DcTable write [Buffer] - limit");
+  } else {
     wr.descriptorType = VK_DESCRIPTOR_TYPE_STORAGE_BUFFER;
+    if (offset % lim.minStorageBufferOffsetAlignment ||
+        size > lim.maxStorageBufferRange)
+      throw invalid_argument("DcTable write [Buffer] - limit");
+  }
   wr.pImageInfo = nullptr;
   wr.pBufferInfo = &info;
   wr.pTexelBufferView = nullptr;
@@ -203,12 +210,10 @@ void DcTableVK::write(uint32_t allocation, DcId id, uint32_t element,
 
   auto ent = entries_.find(id);
 
-  if (allocation >= sets_.size() ||
-      ent == entries_.end() ||
+  if (allocation >= sets_.size() || ent == entries_.end() ||
       (ent->second.type != DcTypeImage &&
-        ent->second.type != DcTypeImgSampler) ||
-      element >= ent->second.elements ||
-      layer >= image.layers_)
+       ent->second.type != DcTypeImgSampler) ||
+      element >= ent->second.elements || layer >= image.layers_)
     throw invalid_argument("DcTableVK write() [Image]");
 
   ImgRef& ref = imgRefs_[allocation].find(id)->second[element];

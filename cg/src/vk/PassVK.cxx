@@ -24,6 +24,10 @@ PassVK::PassVK(const vector<ColorAttach>* colors,
                const DepStenAttach* depthStencil)
   : Pass(colors, resolves, depthStencil) {
 
+  const auto& lim = deviceVK().physLimits();
+  if (colors && colors->size() > lim.maxColorAttachments)
+    throw invalid_argument("Too many color attachments");
+
   vector<VkAttachmentDescription> attachDescs;
   vector<VkAttachmentReference> attachRefs;
 

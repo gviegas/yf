@@ -167,6 +167,12 @@ TargetVK::TargetVK(PassVK& pass, Size2 size, uint32_t layers,
   if (size == 0 || layers == 0)
     throw invalid_argument("TargetVK requires size > 0 and layers > 0");
 
+  const auto& lim = deviceVK().physLimits();
+  if (size.width > lim.maxFramebufferWidth ||
+      size.height > lim.maxFramebufferHeight ||
+      layers > lim.maxFramebufferLayers)
+    throw invalid_argument("TargetVK limit");
+
   // TODO: consider relaxing compatibility requirements
 
   // Define attachments

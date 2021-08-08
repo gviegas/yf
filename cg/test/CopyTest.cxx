@@ -29,7 +29,7 @@ struct CopyTest : Test {
     auto frag = dev.shader(StageFragment, L"tmp/frag");
 
     // Wsi
-    auto win = WS_NS::createWindow(480, 320, name_);
+    auto win = WS_NS::createWindow(480, 400, name_);
     Size2 winSz{win->width(), win->height()};
     auto wsi = dev.wsi(win.get());
     auto wsiImgs = wsi->images();
@@ -59,18 +59,22 @@ struct CopyTest : Test {
                              0.0f, -1.0f, 0.5f};
 
     const float tc[2*3] = {0.0f, 0.0f,
-                           1.0f, 0.0f,
-                           0.5f, 1.0f};
+                           1.0f, 0.5f,
+                           1.0f, 0.0f};
 
-    const float xform[] = {0.6f, 0.0f, 0.0f, 0.0f,
-                           0.0f, 0.6f, 0.0f, 0.0f,
-                           0.0f, 0.0f, 0.6f, 0.0f,
-                           0.0f, 0.0f, 0.0f, 1.0f};
+    const float xform[4*4] = {0.9f, 0.0f, 0.0f, 0.0f,
+                              0.0f, 0.9f, 0.0f, 0.0f,
+                              0.0f, 0.0f, 0.9f, 0.0f,
+                              0.0f, 0.0f, 0.0f, 1.0f};
 
-    auto buf = dev.buffer(256);
+    const uint64_t align = dev.limits().minDcUniformWriteAlignedOffset;
+    const uint64_t off = (sizeof pos + sizeof tc) % align ?
+                         align - ((sizeof pos + sizeof tc) % align) : 0;
+
+    auto buf = dev.buffer(4096);
     buf->write(0, sizeof pos, pos);
     buf->write(sizeof pos, sizeof tc, tc);
-    buf->write(sizeof pos + sizeof tc, sizeof xform, xform);
+    buf->write(sizeof pos + sizeof tc + off, sizeof xform, xform);
 
     // Image
     const uint8_t pixels[][3] = {{0, 0, 255}, {0, 255, 0}, {255, 0, 0}};
@@ -82,7 +86,7 @@ struct CopyTest : Test {
     DcEntries dcs{{0, {DcTypeUniform, 1}}, {1, {DcTypeImgSampler, 1}}};
     auto dtb = dev.dcTable(dcs);
     dtb->allocate(1);
-    dtb->write(0, 0, 0, *buf, sizeof pos + sizeof tc, sizeof xform);
+    dtb->write(0, 0, 0, *buf, sizeof pos + sizeof tc + off, sizeof xform);
     dtb->write(0, 1, 0, *img, 0, 0);
 
     // GrState

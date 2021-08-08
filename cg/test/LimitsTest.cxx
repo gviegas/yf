@@ -46,7 +46,6 @@ struct LimitsTest : Test {
           << "\n maxDcStorage    = " << lim.maxDcStorage
           << "\n maxDcImage      = " << lim.maxDcImage
           << "\n maxDcImgSampler = " << lim.maxDcImgSampler
-          << "\n maxDcEntries    = " << lim.maxDcEntries
           << "\n minDcUniformWriteAlignedOffset = "
           << lim.minDcUniformWriteAlignedOffset
           << "\n maxDcUniformWriteSize          = "

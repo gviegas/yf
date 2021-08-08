@@ -41,7 +41,6 @@ struct Limits {
   uint32_t maxDcStorage;
   uint32_t maxDcImage;
   uint32_t maxDcImgSampler;
-  uint32_t maxDcEntries;
   uint64_t minDcUniformWriteAlignedOffset;
   uint64_t maxDcUniformWriteSize;
   uint64_t minDcStorageWriteAlignedOffset;

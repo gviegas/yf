@@ -353,7 +353,6 @@ void DeviceVK::setLimits() {
   limits_.maxDcImage = lim.maxDescriptorSetStorageImages;
   limits_.maxDcImgSampler = min(lim.maxDescriptorSetSamplers,
                                 lim.maxDescriptorSetSampledImages);
-  limits_.maxDcEntries = lim.maxPerStageResources; // XXX
   limits_.minDcUniformWriteAlignedOffset = lim.minUniformBufferOffsetAlignment;
   limits_.maxDcUniformWriteSize = lim.maxUniformBufferRange;
   limits_.minDcStorageWriteAlignedOffset = lim.minStorageBufferOffsetAlignment;

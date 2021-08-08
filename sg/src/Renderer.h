@@ -43,6 +43,10 @@ class Renderer {
   CG_NS::DcTable::Ptr glbTable_{};
   CG_NS::CmdBuffer::Ptr cmdBuffer_{};
   CG_NS::Buffer::Ptr unifBuffer_{};
+  uint64_t glbPadding_ = 0;
+  uint64_t instPadding_ = 0;
+  uint64_t chkPadding_ = 0;
+  uint64_t matlPadding_ = 0;
 
   /// Key for the model map.
   ///

@@ -137,6 +137,18 @@ Renderer::Renderer() {
   cmdBuffer_ = dev.defaultQueue().cmdBuffer();
 
   unifBuffer_ = dev.buffer(UniformLength);
+
+  const auto align = dev.limits().minDcUniformWriteAlignedOffset;
+  uint64_t mod;
+
+  if ((mod = GlobalLength % align))
+    glbPadding_ = align - mod;
+  if ((mod = InstanceLength % align))
+    instPadding_ = align - mod;
+  if ((mod = CheckLength % align))
+    chkPadding_ = align - mod;
+  if ((mod = MaterialLength % align))
+    matlPadding_ = align - mod;
 }
 
 void Renderer::render(Scene& scene, CG_NS::Target& target) {

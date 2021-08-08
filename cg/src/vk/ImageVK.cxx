@@ -31,6 +31,10 @@ ImageVK::ImageVK(PxFormat format, Size2 size, uint32_t layers, uint32_t levels,
   if (levels == 0)
     throw invalid_argument("ImageVK requires levels != 0");
 
+  const auto& lim = deviceVK().physLimits();
+  if (layers > lim.maxImageArrayLayers)
+    throw invalid_argument("ImageVK layer count limit");
+
   // Convert to format
   VkFormat fmt = toFormatVK(format);
   if (fmt == VK_FORMAT_UNDEFINED)
@@ -40,10 +44,16 @@ ImageVK::ImageVK(PxFormat format, Size2 size, uint32_t layers, uint32_t levels,
   VkSampleCountFlagBits smpl = toSampleCountVK(samples);
 
   // Set image type
-  if (size.height > 1)
+  if (size.height > 1) {
+    if (size.width > lim.maxImageDimension2D ||
+        size.height > lim.maxImageDimension2D)
+      throw invalid_argument("ImageVK 2D image size limit");
     type_ = VK_IMAGE_TYPE_2D;
-  else
+  } else {
+    if (size.width > lim.maxImageDimension1D)
+      throw invalid_argument("ImageVK 1D image size limit");
     type_ = VK_IMAGE_TYPE_1D;
+  }
 
   // Get format properties
   auto phys = deviceVK().physicalDev();

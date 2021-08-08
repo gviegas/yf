@@ -60,34 +60,38 @@ struct DrawTest : Test {
 
     // Create buffer and fill with data
     struct Vertex { float pos[3]; float tc[2]; };
-    Vertex vdata[] = {{{-1.0f,  1.0f, 0.5f}, {0.0f, 0.0f}},
-                      {{ 1.0f,  1.0f, 0.5f}, {1.0f, 0.0f}},
-                      {{ 0.0f, -1.0f, 0.5f}, {0.5f, 1.0f}}};
+    const Vertex vxData[] = {{{-1.0f,  1.0f, 0.5f}, {0.0f, 0.0f}},
+                             {{ 1.0f,  1.0f, 0.5f}, {1.0f, 0.0f}},
+                             {{ 0.0f, -1.0f, 0.5f}, {0.5f, 1.0f}}};
 
-    float mdata[] = {0.9f, 0.0f, 0.0f, 0.0f,
-                     0.0f, 0.9f, 0.0f, 0.0f,
-                     0.0f, 0.0f, 0.9f, 0.0f,
-                     0.0f, 0.0f, 0.0f, 1.0f};
+    const float unifData[] = {0.9f, 0.0f, 0.0f, 0.0f,
+                              0.0f, 0.9f, 0.0f, 0.0f,
+                              0.0f, 0.0f, 0.9f, 0.0f,
+                              0.0f, 0.0f, 0.0f, 1.0f};
 
-    uint32_t voff = offsetof(Vertex, tc);
-    uint32_t vstrd = sizeof(Vertex);
+    const uint32_t vxOff = offsetof(Vertex, tc);
+    const uint32_t vxStrd = sizeof(Vertex);
 
-    auto buf = dev.buffer(1024);
-    buf->write(0, sizeof vdata, vdata);
-    buf->write(sizeof vdata, sizeof mdata, mdata);
+    const uint64_t unifAlign = dev.limits().minDcUniformWriteAlignedOffset;
+    const uint64_t unifOff = sizeof vxData % unifAlign ?
+                             unifAlign - (sizeof vxData % unifAlign) : 0;
+
+    auto buf = dev.buffer(2048);
+    buf->write(0, sizeof vxData, vxData);
+    buf->write(sizeof vxData + unifOff, sizeof unifData, unifData);
 
     // Create sampling image and fill with data
-    uint8_t pdata[][3] = {{255, 0, 0}, {255, 255, 0}};
+    const uint8_t pxData[][3] = {{255, 0, 0}, {255, 255, 0}};
 
     auto tex = dev.image(PxFormatRgb8Unorm, {2, 1}, 1, 1, Samples1);
-    tex->write({0}, {2, 1}, 0, 0, pdata);
+    tex->write({0}, {2, 1}, 0, 0, pxData);
 
     // Create descriptor table, allocate resources and copy data
     DcEntries dcs{{0, {DcTypeUniform, 1}},
                   {1, {DcTypeImgSampler, 1}}};
     auto dtb = dev.dcTable(dcs);
     dtb->allocate(1);
-    dtb->write(0, 0, 0, *buf, sizeof vdata, sizeof mdata);
+    dtb->write(0, 0, 0, *buf, sizeof vxData + unifOff, sizeof unifData);
     dtb->write(0, 1, 0, *tex, 0, 0);
 
     // Create graphics state
@@ -95,8 +99,8 @@ struct DrawTest : Test {
                            {vert.get(), frag.get()},
                            {dtb.get()},
                            { { {{0, {VxFormatFlt3, 0}},
-                                {1, {VxFormatFlt2, voff}}},
-                               vstrd, VxStepFnVertex } },
+                                {1, {VxFormatFlt2, vxOff}}},
+                               vxStrd, VxStepFnVertex } },
                            PrimitiveTriangle,
                            PolyModeFill,
                            CullModeBack,

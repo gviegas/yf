@@ -62,6 +62,7 @@ class DeviceVK final : public Device {
   const std::vector<const char*>& layers() const;
   uint32_t instVersion() const;
   uint32_t devVersion() const;
+  const VkPhysicalDeviceFeatures& features() const;
   const VkPhysicalDeviceLimits& physLimits() const;
 
  private:

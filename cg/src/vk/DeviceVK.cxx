@@ -431,6 +431,10 @@ uint32_t DeviceVK::devVersion() const {
   return physProperties_.apiVersion;
 }
 
+const VkPhysicalDeviceFeatures& DeviceVK::features() const {
+  return features_;
+}
+
 const VkPhysicalDeviceLimits& DeviceVK::physLimits() const {
   return physProperties_.limits;
 }

@@ -62,6 +62,7 @@ class DeviceVK final : public Device {
   const std::vector<const char*>& layers() const;
   uint32_t instVersion() const;
   uint32_t devVersion() const;
+  const VkPhysicalDeviceFeatures& features() const;
   const VkPhysicalDeviceLimits& physLimits() const;
 
  private:
@@ -75,6 +76,7 @@ class DeviceVK final : public Device {
   VkPhysicalDevice physicalDev_ = nullptr;
   VkPhysicalDeviceProperties physProperties_{};
   VkPhysicalDeviceMemoryProperties memProperties_{};
+  VkPhysicalDeviceFeatures features_{};
 
   Limits limits_{};
 
@@ -91,6 +93,7 @@ class DeviceVK final : public Device {
   void initInstance();
   void initPhysicalDevice();
   void initDevice(int32_t, int32_t);
+  void setFeatures();
   void setLimits();
 };
 

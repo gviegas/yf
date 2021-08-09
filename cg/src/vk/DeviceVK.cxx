@@ -250,6 +250,7 @@ void DeviceVK::initPhysicalDevice() {
     throw UnsupportedExcept("Could not find a suitable physical device");
 
   vkGetPhysicalDeviceMemoryProperties(physicalDev_, &memProperties_);
+  setFeatures();
   setLimits();
 
   // Now the logical device can be initialized
@@ -291,8 +292,7 @@ void DeviceVK::initDevice(int32_t queueFamily, int32_t presFamily) {
   devInfo.ppEnabledLayerNames = nullptr;
   devInfo.enabledExtensionCount = devExtensions_.size();
   devInfo.ppEnabledExtensionNames = devExtensions_.data();
-  // TODO
-  devInfo.pEnabledFeatures = nullptr;
+  devInfo.pEnabledFeatures = &features_;
 
   auto res = vkCreateDevice(physicalDev_, &devInfo, nullptr, &device_);
   if (res != VK_SUCCESS)
@@ -323,6 +323,31 @@ void DeviceVK::initDevice(int32_t queueFamily, int32_t presFamily) {
   res = vkCreatePipelineCache(device_, &cacheInfo, nullptr, &cache_);
   if (res != VK_SUCCESS)
     cache_ = VK_NULL_HANDLE;
+}
+
+void DeviceVK::setFeatures() {
+  assert(physicalDev_);
+
+  // TODO: other v1.0 features & features from new versions
+
+  decltype(features_) feat;
+  vkGetPhysicalDeviceFeatures(physicalDev_, &feat);
+
+  features_.geometryShader = feat.geometryShader;
+  features_.tessellationShader = feat.tessellationShader;
+  features_.fillModeNonSolid = feat.fillModeNonSolid;
+  features_.wideLines = feat.wideLines;
+  features_.largePoints = feat.largePoints;
+  features_.multiViewport = feat.multiViewport;
+#ifdef YF_DEVEL
+  features_.occlusionQueryPrecise = feat.occlusionQueryPrecise;
+  features_.pipelineStatisticsQuery = feat.pipelineStatisticsQuery;
+#endif
+  features_.vertexPipelineStoresAndAtomics =
+    feat.vertexPipelineStoresAndAtomics;
+  features_.fragmentStoresAndAtomics = feat.fragmentStoresAndAtomics;
+  features_.shaderClipDistance = feat.shaderClipDistance;
+  features_.shaderCullDistance = feat.shaderCullDistance;
 }
 
 void DeviceVK::setLimits() {
@@ -404,6 +429,10 @@ uint32_t DeviceVK::instVersion() const {
 
 uint32_t DeviceVK::devVersion() const {
   return physProperties_.apiVersion;
+}
+
+const VkPhysicalDeviceFeatures& DeviceVK::features() const {
+  return features_;
 }
 
 const VkPhysicalDeviceLimits& DeviceVK::physLimits() const {

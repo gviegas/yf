@@ -61,9 +61,6 @@ constexpr Shader Mdl16Shaders[]{
 constexpr Shader Mdl32Shaders[]{
   {CG_NS::StageVertex, L"Model32.vert"}, MdlShaders[1]};
 
-// FIXME: Writes to descriptor table may have strict alignment requirements.
-// These must be provided by CG and accounted for when defining the lengths.
-
 /// Global uniform.
 ///
 /// (1) view : Mat4f
@@ -88,10 +85,10 @@ constexpr uint64_t InstanceLength = (Mat4f::dataSize() << 2) + SkinningLength;
 /// Check list uniform.
 ///
 /// (1) mask : uint32
-/// (*) _alignment_
+/// (*) _padding_
 ///
-constexpr uint64_t CheckAlign = 60;
-constexpr uint64_t CheckLength = 4 + CheckAlign;
+constexpr uint64_t CheckPadding = 12;
+constexpr uint64_t CheckLength = 4 + CheckPadding;
 
 /// Material uniform.
 ///
@@ -101,11 +98,11 @@ constexpr uint64_t CheckLength = 4 + CheckAlign;
 /// (4) normal fac : float
 /// (5) occlusion fac : float
 /// (6) emissive fac : Vec3f
-/// (*) _alignment_
+/// (*) _padding_
 ///
-constexpr uint64_t MaterialAlign = 20;
+constexpr uint64_t MaterialPadding = 4;
 constexpr uint64_t MaterialLength = Vec4f::dataSize() + 16 +
-                                    Vec3f::dataSize() + MaterialAlign;
+                                    Vec3f::dataSize() + MaterialPadding;
 
 // TODO: consider allowing custom length values
 constexpr uint64_t UniformLength = 1ULL << 20;
@@ -343,7 +340,7 @@ void Renderer::render(Scene& scene, CG_NS::Target& target) {
         len = Vec3f::dataSize();
         unifBuffer_->write(off, len, matl->emissive().factor.data());
         off += len;
-        off += MaterialAlign;
+        off += MaterialPadding;
 
         resource->table->write(alloc, MaterialUniform, 0, *unifBuffer_, beg,
                                MaterialLength);
@@ -380,7 +377,7 @@ void Renderer::render(Scene& scene, CG_NS::Target& target) {
         len = 4;
         unifBuffer_->write(off, len, &chkMask);
         off += len;
-        off += CheckAlign;
+        off += CheckPadding;
 
         resource->table->write(alloc, CheckUniform, 0, *unifBuffer_, beg,
                                CheckLength);

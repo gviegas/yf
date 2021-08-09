@@ -193,9 +193,9 @@ void Renderer::render(Scene& scene, CG_NS::Target& target) {
   off += len;
   unifBuffer_->write(off, len, scene.camera().transform().data());
   off += len;
-  // TODO: other global data
 
   glbTable_->write(0, MainUniform, 0, *unifBuffer_, 0, GlobalLength);
+  off += glbPadding_;
 
   // Render models
   auto renderMdl = [&] {
@@ -310,6 +310,7 @@ void Renderer::render(Scene& scene, CG_NS::Target& target) {
 
           resource->table->write(alloc, MainUniform, i, *unifBuffer_, beg,
                                  InstanceLength);
+          off += instPadding_;
         }
 
         // Update material
@@ -346,6 +347,7 @@ void Renderer::render(Scene& scene, CG_NS::Target& target) {
 
         resource->table->write(alloc, MaterialUniform, 0, *unifBuffer_, beg,
                                MaterialLength);
+        off += matlPadding_;
 
         // Update check list
         uint32_t chkMask = 0;
@@ -382,6 +384,7 @@ void Renderer::render(Scene& scene, CG_NS::Target& target) {
 
         resource->table->write(alloc, CheckUniform, 0, *unifBuffer_, beg,
                                CheckLength);
+        off += chkPadding_;
 
         // Encode commands for this mesh
         mesh->impl().encode(enc, 0, n);
@@ -398,7 +401,7 @@ void Renderer::render(Scene& scene, CG_NS::Target& target) {
 
   // Render & submit
   do {
-    off = GlobalLength;
+    off = GlobalLength + glbPadding_;
     renderMdl();
 
     cmdBuffer_->encode(enc);

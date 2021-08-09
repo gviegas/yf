@@ -527,12 +527,12 @@ void Renderer::prepare() {
                                   CG_NS::WindingCounterCw});
     }
 
-    const auto instLen = InstanceLength * instN;
-    const auto sharLen = CheckLength + MaterialLength;
+    auto instLen = (InstanceLength + instPadding_) * instN;
+    auto sharLen = CheckLength + chkPadding_ + MaterialLength + matlPadding_;
     return (instLen + sharLen) * allocN;
   };
 
-  uint64_t unifLen = GlobalLength;
+  uint64_t unifLen = GlobalLength + glbPadding_;
 
   // Set models
   // TODO: check limits and catch errors

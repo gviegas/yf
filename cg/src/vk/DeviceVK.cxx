@@ -325,6 +325,31 @@ void DeviceVK::initDevice(int32_t queueFamily, int32_t presFamily) {
     cache_ = VK_NULL_HANDLE;
 }
 
+void DeviceVK::setFeatures() {
+  assert(physicalDev_);
+
+  // TODO: other v1.0 features & features from new versions
+
+  decltype(features_) feat;
+  vkGetPhysicalDeviceFeatures(physicalDev_, &feat);
+
+  features_.geometryShader = feat.geometryShader;
+  features_.tessellationShader = feat.tessellationShader;
+  features_.fillModeNonSolid = feat.fillModeNonSolid;
+  features_.wideLines = feat.wideLines;
+  features_.largePoints = feat.largePoints;
+  features_.multiViewport = feat.multiViewport;
+#ifdef YF_DEVEL
+  features_.occlusionQueryPrecise = feat.occlusionQueryPrecise;
+  features_.pipelineStatisticsQuery = feat.pipelineStatisticsQuery;
+#endif
+  features_.vertexPipelineStoresAndAtomics =
+    feat.vertexPipelineStoresAndAtomics;
+  features_.fragmentStoresAndAtomics = feat.fragmentStoresAndAtomics;
+  features_.shaderClipDistance = feat.shaderClipDistance;
+  features_.shaderCullDistance = feat.shaderCullDistance;
+}
+
 void DeviceVK::setLimits() {
   assert(physicalDev_);
 

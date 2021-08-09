@@ -75,6 +75,7 @@ class DeviceVK final : public Device {
   VkPhysicalDevice physicalDev_ = nullptr;
   VkPhysicalDeviceProperties physProperties_{};
   VkPhysicalDeviceMemoryProperties memProperties_{};
+  VkPhysicalDeviceFeatures features_{};
 
   Limits limits_{};
 
@@ -91,6 +92,7 @@ class DeviceVK final : public Device {
   void initInstance();
   void initPhysicalDevice();
   void initDevice(int32_t, int32_t);
+  void setFeatures();
   void setLimits();
 };
 

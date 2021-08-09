@@ -250,6 +250,7 @@ void DeviceVK::initPhysicalDevice() {
     throw UnsupportedExcept("Could not find a suitable physical device");
 
   vkGetPhysicalDeviceMemoryProperties(physicalDev_, &memProperties_);
+  setFeatures();
   setLimits();
 
   // Now the logical device can be initialized
@@ -291,8 +292,7 @@ void DeviceVK::initDevice(int32_t queueFamily, int32_t presFamily) {
   devInfo.ppEnabledLayerNames = nullptr;
   devInfo.enabledExtensionCount = devExtensions_.size();
   devInfo.ppEnabledExtensionNames = devExtensions_.data();
-  // TODO
-  devInfo.pEnabledFeatures = nullptr;
+  devInfo.pEnabledFeatures = &features_;
 
   auto res = vkCreateDevice(physicalDev_, &devInfo, nullptr, &device_);
   if (res != VK_SUCCESS)

@@ -61,9 +61,6 @@ constexpr Shader Mdl16Shaders[]{
 constexpr Shader Mdl32Shaders[]{
   {CG_NS::StageVertex, L"Model32.vert"}, MdlShaders[1]};
 
-// FIXME: Writes to descriptor table may have strict alignment requirements.
-// These must be provided by CG and accounted for when defining the lengths.
-
 /// Global uniform.
 ///
 /// (1) view : Mat4f
@@ -88,10 +85,10 @@ constexpr uint64_t InstanceLength = (Mat4f::dataSize() << 2) + SkinningLength;
 /// Check list uniform.
 ///
 /// (1) mask : uint32
-/// (*) _alignment_
+/// (*) _padding_
 ///
-constexpr uint64_t CheckAlign = 60;
-constexpr uint64_t CheckLength = 4 + CheckAlign;
+constexpr uint64_t CheckPadding = 12;
+constexpr uint64_t CheckLength = 4 + CheckPadding;
 
 /// Material uniform.
 ///
@@ -101,11 +98,11 @@ constexpr uint64_t CheckLength = 4 + CheckAlign;
 /// (4) normal fac : float
 /// (5) occlusion fac : float
 /// (6) emissive fac : Vec3f
-/// (*) _alignment_
+/// (*) _padding_
 ///
-constexpr uint64_t MaterialAlign = 20;
+constexpr uint64_t MaterialPadding = 4;
 constexpr uint64_t MaterialLength = Vec4f::dataSize() + 16 +
-                                    Vec3f::dataSize() + MaterialAlign;
+                                    Vec3f::dataSize() + MaterialPadding;
 
 // TODO: consider allowing custom length values
 constexpr uint64_t UniformLength = 1ULL << 20;
@@ -137,6 +134,18 @@ Renderer::Renderer() {
   cmdBuffer_ = dev.defaultQueue().cmdBuffer();
 
   unifBuffer_ = dev.buffer(UniformLength);
+
+  const auto align = dev.limits().minDcUniformWriteAlignedOffset;
+  uint64_t mod;
+
+  if ((mod = GlobalLength % align))
+    glbPadding_ = align - mod;
+  if ((mod = InstanceLength % align))
+    instPadding_ = align - mod;
+  if ((mod = CheckLength % align))
+    chkPadding_ = align - mod;
+  if ((mod = MaterialLength % align))
+    matlPadding_ = align - mod;
 }
 
 void Renderer::render(Scene& scene, CG_NS::Target& target) {
@@ -181,9 +190,9 @@ void Renderer::render(Scene& scene, CG_NS::Target& target) {
   off += len;
   unifBuffer_->write(off, len, scene.camera().transform().data());
   off += len;
-  // TODO: other global data
 
   glbTable_->write(0, MainUniform, 0, *unifBuffer_, 0, GlobalLength);
+  off += glbPadding_;
 
   // Render models
   auto renderMdl = [&] {
@@ -298,6 +307,7 @@ void Renderer::render(Scene& scene, CG_NS::Target& target) {
 
           resource->table->write(alloc, MainUniform, i, *unifBuffer_, beg,
                                  InstanceLength);
+          off += instPadding_;
         }
 
         // Update material
@@ -330,10 +340,11 @@ void Renderer::render(Scene& scene, CG_NS::Target& target) {
         len = Vec3f::dataSize();
         unifBuffer_->write(off, len, matl->emissive().factor.data());
         off += len;
-        off += MaterialAlign;
+        off += MaterialPadding;
 
         resource->table->write(alloc, MaterialUniform, 0, *unifBuffer_, beg,
                                MaterialLength);
+        off += matlPadding_;
 
         // Update check list
         uint32_t chkMask = 0;
@@ -366,10 +377,11 @@ void Renderer::render(Scene& scene, CG_NS::Target& target) {
         len = 4;
         unifBuffer_->write(off, len, &chkMask);
         off += len;
-        off += CheckAlign;
+        off += CheckPadding;
 
         resource->table->write(alloc, CheckUniform, 0, *unifBuffer_, beg,
                                CheckLength);
+        off += chkPadding_;
 
         // Encode commands for this mesh
         mesh->impl().encode(enc, 0, n);
@@ -386,7 +398,7 @@ void Renderer::render(Scene& scene, CG_NS::Target& target) {
 
   // Render & submit
   do {
-    off = GlobalLength;
+    off = GlobalLength + glbPadding_;
     renderMdl();
 
     cmdBuffer_->encode(enc);
@@ -515,12 +527,12 @@ void Renderer::prepare() {
                                   CG_NS::WindingCounterCw});
     }
 
-    const auto instLen = InstanceLength * instN;
-    const auto sharLen = CheckLength + MaterialLength;
+    auto instLen = (InstanceLength + instPadding_) * instN;
+    auto sharLen = CheckLength + chkPadding_ + MaterialLength + matlPadding_;
     return (instLen + sharLen) * allocN;
   };
 
-  uint64_t unifLen = GlobalLength;
+  uint64_t unifLen = GlobalLength + glbPadding_;
 
   // Set models
   // TODO: check limits and catch errors

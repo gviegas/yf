@@ -23,8 +23,8 @@ struct RenderTest : InteractiveTest {
     Assertions a;
 
     // Resources
-    Mesh mesh1{Mesh::Gltf, L"tmp/cube.glb"};
-    Mesh mesh2{Mesh::Gltf, L"tmp/cube2.glb"};
+    Mesh mesh1{L"tmp/cube.glb"};
+    Mesh mesh2{L"tmp/cube2.glb"};
     Texture tex1{Texture::Png, L"tmp/cube.png"};
     Texture tex2{Texture::Png, L"tmp/cube2.png"};
     Material matl1;

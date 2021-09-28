@@ -17,7 +17,7 @@ SG_NS_BEGIN
 
 /// Loads texture data from a PNG file.
 ///
-void loadPNG(Texture::Data& dst, const std::wstring& pathname);
+void loadPNG(Texture::Data& dst, const std::string& pathname);
 void loadPNG(Texture::Data& dst, std::ifstream& stream);
 
 SG_NS_END

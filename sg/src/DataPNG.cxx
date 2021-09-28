@@ -358,23 +358,11 @@ void inflate(const vector<uint8_t>& src, vector<uint8_t>& dst) {
 ///
 class PNG {
  public:
-  PNG(const wstring& pathname)
+  PNG(const string& pathname)
     : ihdr_{}, plte_{}, idat_{},
       components_(0), bpp_(0), Bpp_(0), sclnSize_(0) {
 
-    // Convert pathname string
-    string path{};
-    size_t len = (pathname.size() + 1) * sizeof(wchar_t);
-    path.resize(len);
-    const wchar_t* wsrc = pathname.data();
-    mbstate_t state;
-    memset(&state, 0, sizeof state);
-    len = wcsrtombs(path.data(), &wsrc, path.size(), &state);
-    if (wsrc || static_cast<size_t>(-1) == len)
-      throw ConversionExcept("Could not convert PNG file path");
-    path.resize(len);
-
-    ifstream ifs(path);
+    ifstream ifs(pathname);
     if (!ifs)
       throw FileExcept("Could not open PNG file");
 
@@ -825,7 +813,7 @@ class PNG {
 
 INTERNAL_NS_END
 
-void SG_NS::loadPNG(Texture::Data& dst, const wstring& pathname) {
+void SG_NS::loadPNG(Texture::Data& dst, const string& pathname) {
   PNG png(pathname);
 
 #ifdef YF_DEVEL

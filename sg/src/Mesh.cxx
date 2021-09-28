@@ -16,7 +16,7 @@
 using namespace SG_NS;
 using namespace std;
 
-Mesh::Mesh(const wstring& pathname, size_t index) {
+Mesh::Mesh(const string& pathname, size_t index) {
   // TODO: Consider checking the type of the file.
   Data data;
   loadGLTF(data, pathname, index);

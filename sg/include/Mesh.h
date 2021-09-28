@@ -23,7 +23,7 @@ class Mesh {
  public:
   using Ptr = std::unique_ptr<Mesh>;
 
-  Mesh(const std::wstring& pathname, size_t index = 0);
+  Mesh(const std::string& pathname, size_t index = 0);
   Mesh(std::ifstream& stream, size_t index = 0);
   ~Mesh();
 

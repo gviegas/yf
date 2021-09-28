@@ -457,8 +457,8 @@ Image::Ptr DeviceVK::image(PxFormat format, Size2 size, uint32_t layers,
   return make_unique<ImageVK>(format, size, layers, levels, samples);
 }
 
-Shader::Ptr DeviceVK::shader(Stage stage, const wstring& codeFile,
-                             const wstring& entryPoint) {
+Shader::Ptr DeviceVK::shader(Stage stage, const string& codeFile,
+                             const string& entryPoint) {
 
   return make_unique<ShaderVK>(stage, codeFile, entryPoint);
 }

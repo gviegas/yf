@@ -33,8 +33,8 @@ class DeviceVK final : public Device {
   Image::Ptr image(PxFormat format, Size2 size, uint32_t layers,
                    uint32_t levels, Samples samples);
 
-  Shader::Ptr shader(Stage stage, const std::wstring& codeFile,
-                     const std::wstring& entryPoint);
+  Shader::Ptr shader(Stage stage, const std::string& codeFile,
+                     const std::string& entryPoint);
 
   DcTable::Ptr dcTable(const DcEntries& entries);
 

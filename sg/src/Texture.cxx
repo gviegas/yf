@@ -17,7 +17,7 @@
 using namespace SG_NS;
 using namespace std;
 
-Texture::Texture(const wstring& pathname) {
+Texture::Texture(const string& pathname) {
   // TODO: Consider checking the type of the file.
   Data data;
   loadPNG(data, pathname);

@@ -23,7 +23,7 @@ class Texture {
  public:
   using Ptr = std::unique_ptr<Texture>;
 
-  Texture(const std::wstring& pathname);
+  Texture(const std::string& pathname);
   Texture(std::ifstream& stream);
   ~Texture();
 

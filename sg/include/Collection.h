@@ -26,7 +26,7 @@ SG_NS_BEGIN
 ///
 class Collection {
  public:
-  Collection(const std::wstring& pathname);
+  Collection(const std::string& pathname);
   Collection();
   Collection(const Collection&) = delete;
   Collection& operator=(const Collection&) = delete;
@@ -34,7 +34,7 @@ class Collection {
 
   /// Loads collection from file.
   ///
-  void load(const std::wstring& pathname);
+  void load(const std::string& pathname);
 
   /// Clears collection contents.
   ///

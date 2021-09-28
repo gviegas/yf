@@ -27,7 +27,7 @@ class Collection::Impl {
   vector<Animation::Ptr> animations_{};
 };
 
-Collection::Collection(const wstring& pathname) : Collection() {
+Collection::Collection(const string& pathname) : Collection() {
   load(pathname);
 }
 
@@ -35,7 +35,7 @@ Collection::Collection() : impl_(make_unique<Impl>()) { }
 
 Collection::~Collection() { }
 
-void Collection::load(const wstring& pathname) {
+void Collection::load(const string& pathname) {
   loadGLTF(*this, pathname);
 }
 

@@ -46,8 +46,8 @@ class Device {
 
   /// Creates a new shader object.
   ///
-  virtual Shader::Ptr shader(Stage stage, const std::wstring& codeFile,
-                             const std::wstring& entryPoint = L"main") = 0;
+  virtual Shader::Ptr shader(Stage stage, const std::string& codeFile,
+                             const std::string& entryPoint = "main") = 0;
 
   /// Creates a new descriptor table object.
   ///

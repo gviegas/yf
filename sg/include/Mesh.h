@@ -23,15 +23,8 @@ class Mesh {
  public:
   using Ptr = std::unique_ptr<Mesh>;
 
-  /// File types from which a mesh can be created.
-  ///
-  enum FileType {
-    Internal,
-    Gltf
-  };
-
-  Mesh(FileType fileType, const std::wstring& pathname, size_t index = 0);
-  Mesh(FileType fileType, std::ifstream& stream, size_t index = 0);
+  Mesh(const std::wstring& pathname, size_t index = 0);
+  Mesh(std::ifstream& stream, size_t index = 0);
   ~Mesh();
 
   size_t hash() const;

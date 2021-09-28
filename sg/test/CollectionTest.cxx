@@ -53,9 +53,9 @@ struct CollectionTest : InteractiveTest {
                              coll.nodes().front()->name() == nd.name() &&
                              coll.nodes().back()->name() == nd.name()});
 
-    auto mesh = new Mesh(L"tmp/cube.glb");
+    auto mesh = new Mesh("tmp/cube.glb");
     coll.meshes().push_back(unique_ptr<Mesh>(mesh));
-    coll.meshes().push_back(make_unique<Mesh>(L"tmp/cube.glb"));
+    coll.meshes().push_back(make_unique<Mesh>("tmp/cube.glb"));
 
     a.push_back({L"meshes()", coll.meshes().size() == 2 &&
                               coll.meshes()[0].get() == mesh &&
@@ -71,8 +71,8 @@ struct CollectionTest : InteractiveTest {
                              coll.skins().back()->joints().size() == 2 &&
                              coll.skins().back()->inverseBind().empty()});
 
-    coll.textures().push_back(make_unique<Texture>(L"tmp/cube.png"));
-    auto tex = new Texture(L"tmp/cube.png");
+    coll.textures().push_back(make_unique<Texture>("tmp/cube.png"));
+    auto tex = new Texture("tmp/cube.png");
     coll.textures().push_back(unique_ptr<Texture>(tex));
 
     a.push_back({L"textures()",
@@ -119,7 +119,7 @@ struct CollectionTest : InteractiveTest {
   }
 
   void fromFile() {
-    Collection coll(L"tmp/scene.glb");
+    Collection coll("tmp/scene.glb");
 
     auto printMatrix = [](const Mat4f& mat) {
       for (size_t i = 0; i < mat.rows(); i++) {

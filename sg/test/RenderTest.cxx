@@ -23,10 +23,10 @@ struct RenderTest : InteractiveTest {
     Assertions a;
 
     // Resources
-    Mesh mesh1{L"tmp/cube.glb"};
-    Mesh mesh2{L"tmp/cube2.glb"};
-    Texture tex1{L"tmp/cube.png"};
-    Texture tex2{L"tmp/cube2.png"};
+    Mesh mesh1{"tmp/cube.glb"};
+    Mesh mesh2{"tmp/cube2.glb"};
+    Texture tex1{"tmp/cube.png"};
+    Texture tex2{"tmp/cube2.png"};
     Material matl1;
     matl1.pbrmr().colorTex = &tex1;
     matl1.pbrmr().metallic = 1.0f;

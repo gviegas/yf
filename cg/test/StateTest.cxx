@@ -33,7 +33,7 @@ struct StateTest : Test {
     gc.vxInputs.back().attributes[4] = {VxFormatFlt4, 0};
     gc.vxInputs.back().stride = sizeof(float[4]);
     gc.vxInputs.back().stepFunction = VxStepFnVertex;
-    gc.primitive = PrimitiveTriangle;
+    gc.topology = TopologyTriangle;
     gc.polyMode = PolyModeFill;
     gc.cullMode = CullModeBack;
     gc.winding = WindingCounterCw;
@@ -48,7 +48,7 @@ struct StateTest : Test {
                   .find(4)->second.format == VxFormatFlt4 &&
                  gs.config_.vxInputs.back().attributes
                   .find(4)->second.offset == 0 &&
-                 gs.config_.primitive == PrimitiveTriangle &&
+                 gs.config_.topology == TopologyTriangle &&
                  gs.config_.polyMode == PolyModeFill &&
                  gs.config_.cullMode == CullModeBack &&
                  gs.config_.winding == WindingCounterCw});

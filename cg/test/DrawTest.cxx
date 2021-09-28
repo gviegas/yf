@@ -101,7 +101,7 @@ struct DrawTest : Test {
                            { { {{0, {VxFormatFlt3, 0}},
                                 {1, {VxFormatFlt2, vxOff}}},
                                vxStrd, VxStepFnVertex } },
-                           PrimitiveTriangle,
+                           TopologyTriangle,
                            PolyModeFill,
                            CullModeBack,
                            WindingCounterCw};

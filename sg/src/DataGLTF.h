@@ -19,12 +19,12 @@ SG_NS_BEGIN
 
 /// Loads contents from a glTF file.
 ///
-void loadGLTF(Collection& collection, const std::wstring& pathname);
+void loadGLTF(Collection& collection, const std::string& pathname);
 void loadGLTF(Collection& collection, std::ifstream& stream);
 
 /// Loads mesh data from a glTF file.
 ///
-void loadGLTF(Mesh::Data& dst, const std::wstring& pathname, size_t index);
+void loadGLTF(Mesh::Data& dst, const std::string& pathname, size_t index);
 void loadGLTF(Mesh::Data& dst, std::ifstream& stream, size_t index);
 
 SG_NS_END

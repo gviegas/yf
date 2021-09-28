@@ -269,26 +269,13 @@ class Symbol {
 ///
 class GLTF {
  public:
-  GLTF(const wstring& pathname) {
-    // Convert pathname string
-    string path{};
-    size_t len = (pathname.size() + 1) * sizeof(wchar_t);
-    path.resize(len);
-    const wchar_t* wsrc = pathname.data();
-    mbstate_t state;
-    memset(&state, 0, sizeof state);
-    len = wcsrtombs(path.data(), &wsrc, path.size(), &state);
-    if (wsrc || static_cast<size_t>(-1) == len)
-      throw ConversionExcept("Could not convert glTF file path");
-    path.resize(len);
-
-    // Set directory
-    const auto pos = path.find_last_of('/');
-    if (pos != 0 && pos != path.npos)
-      directory_ = {path.begin(), path.begin() + pos};
+  GLTF(const string& pathname) {
+    const auto pos = pathname.find_last_of('/');
+    if (pos != 0 && pos != pathname.npos)
+      directory_ = {pathname.begin(), pathname.begin() + pos};
 
     try {
-      ifs_ = new ifstream(path);
+      ifs_ = new ifstream(pathname);
       if (!(*ifs_))
         throw FileExcept("Could not open glTF file");
       init(*ifs_);
@@ -2117,13 +2104,7 @@ Material* loadMaterial(unordered_map<int32_t, Texture*>& textureMap,
 
     // Image provided through an URI
     // TODO: base64
-    wstring pathname;
-    for (const auto& c : gltf.directory())
-      pathname.push_back(c);
-    pathname.push_back('/');
-    for (const auto& c : image.uri)
-      pathname.push_back(c);
-
+    const string pathname = gltf.directory() + '/' + image.uri;
     auto tex = new Texture(pathname);
     return textureMap.emplace(info.index, tex).first->second;
   };
@@ -2492,7 +2473,7 @@ void loadContents(Collection& collection, const GLTF& gltf) {
 
 INTERNAL_NS_END
 
-void SG_NS::loadGLTF(Collection& collection, const wstring& pathname) {
+void SG_NS::loadGLTF(Collection& collection, const string& pathname) {
   GLTF gltf(pathname);
 
 #ifdef YF_DEVEL
@@ -2512,7 +2493,7 @@ void SG_NS::loadGLTF(Collection& collection, ifstream& stream) {
   loadContents(collection, gltf);
 }
 
-void SG_NS::loadGLTF(Mesh::Data& dst, const wstring& pathname, size_t index) {
+void SG_NS::loadGLTF(Mesh::Data& dst, const string& pathname, size_t index) {
   GLTF gltf(pathname);
 
 #ifdef YF_DEVEL

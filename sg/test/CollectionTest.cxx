@@ -71,9 +71,8 @@ struct CollectionTest : InteractiveTest {
                              coll.skins().back()->joints().size() == 2 &&
                              coll.skins().back()->inverseBind().empty()});
 
-    coll.textures().push_back(make_unique<Texture>(Texture::Png,
-                                                   L"tmp/cube.png"));
-    auto tex = new Texture(Texture::Png, L"tmp/cube.png");
+    coll.textures().push_back(make_unique<Texture>(L"tmp/cube.png"));
+    auto tex = new Texture(L"tmp/cube.png");
     coll.textures().push_back(unique_ptr<Texture>(tex));
 
     a.push_back({L"textures()",

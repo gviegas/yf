@@ -25,8 +25,8 @@ struct RenderTest : InteractiveTest {
     // Resources
     Mesh mesh1{L"tmp/cube.glb"};
     Mesh mesh2{L"tmp/cube2.glb"};
-    Texture tex1{Texture::Png, L"tmp/cube.png"};
-    Texture tex2{Texture::Png, L"tmp/cube2.png"};
+    Texture tex1{L"tmp/cube.png"};
+    Texture tex2{L"tmp/cube2.png"};
     Material matl1;
     matl1.pbrmr().colorTex = &tex1;
     matl1.pbrmr().metallic = 1.0f;

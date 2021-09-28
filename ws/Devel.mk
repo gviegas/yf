@@ -46,6 +46,9 @@ OUT := $(BIN_DIR)devel
 devel: $(OBJ)
 	$(CXX) $(CXX_FLAGS) $(LD_FLAGS) $^ $(LD_LIBS) -o $(OUT)
 
+compile: $(OBJ)
+	@echo Done.
+
 -include $(DEP)
 
 .PHONY: clean-out

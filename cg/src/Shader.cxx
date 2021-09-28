@@ -10,7 +10,7 @@
 using namespace CG_NS;
 using namespace std;
 
-Shader::Shader(Stage stage, const wstring& codeFile, const wstring& entryPoint)
+Shader::Shader(Stage stage, const string& codeFile, const string& entryPoint)
   : stage_(stage), codeFile_(codeFile), entryPoint_(entryPoint) { }
 
 Shader::~Shader() { }

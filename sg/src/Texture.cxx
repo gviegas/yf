@@ -17,37 +17,17 @@
 using namespace SG_NS;
 using namespace std;
 
-Texture::Texture(FileType fileType, const wstring& pathname) {
+Texture::Texture(const wstring& pathname) {
+  // TODO: Consider checking the type of the file.
   Data data;
-
-  switch (fileType) {
-  case Internal:
-    // TODO
-    throw runtime_error("Mesh::Internal unimplemented");
-  case Png:
-    loadPNG(data, pathname);
-    break;
-  default:
-    throw invalid_argument("Invalid Texture file type");
-  }
-
+  loadPNG(data, pathname);
   impl_ = make_unique<Impl>(data);
 }
 
-Texture::Texture(FileType fileType, ifstream& stream) {
+Texture::Texture(ifstream& stream) {
+  // TODO: Consider checking the type of the file.
   Data data;
-
-  switch (fileType) {
-  case Internal:
-    // TODO
-    throw runtime_error("Mesh::Internal unimplemented");
-  case Png:
-    loadPNG(data, stream);
-    break;
-  default:
-    throw invalid_argument("Invalid Texture file type");
-  }
-
+  loadPNG(data, stream);
   impl_ = make_unique<Impl>(data);
 }
 

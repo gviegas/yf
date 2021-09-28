@@ -23,15 +23,8 @@ class Texture {
  public:
   using Ptr = std::unique_ptr<Texture>;
 
-  /// File types from which a texture can be created.
-  ///
-  enum FileType {
-    Internal,
-    Png
-  };
-
-  Texture(FileType fileType, const std::wstring& pathname);
-  Texture(FileType fileType, std::ifstream& stream);
+  Texture(const std::wstring& pathname);
+  Texture(std::ifstream& stream);
   ~Texture();
 
   size_t hash() const;

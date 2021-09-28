@@ -21,7 +21,7 @@ struct CameraTest : InteractiveTest {
     Camera cam{{0.0f, 0.0f, 10.0f}, {}, 640.0f / 480.0f};
 
     Mesh mesh(L"tmp/cube.glb");
-    Texture tex(Texture::Png, L"tmp/cube.png");
+    Texture tex(L"tmp/cube.png");
     Material matl({&tex, {1.0f, 1.0f, 1.0f, 1.0f}, {}, 1.0f, 1.0f});
     Model mdl{};
     mdl.setMesh(&mesh);

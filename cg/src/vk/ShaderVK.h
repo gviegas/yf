@@ -17,8 +17,8 @@ CG_NS_BEGIN
 
 class ShaderVK final : public Shader {
  public:
-  ShaderVK(Stage stage, const std::wstring& codeFile,
-           const std::wstring& entryPoint);
+  ShaderVK(Stage stage, const std::string& codeFile,
+           const std::string& entryPoint);
   ~ShaderVK();
 
   /// Getters.
@@ -28,7 +28,6 @@ class ShaderVK final : public Shader {
 
  private:
   VkShaderModule module_ = VK_NULL_HANDLE;
-  std::string name_{};
 };
 
 /// Converts from a `Stage` value.

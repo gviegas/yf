@@ -522,7 +522,7 @@ void Renderer::prepare() {
                                        vxInputFor(VxTypeWeights0)};
 
       resource.state = dev.state({prevPass_, shd, tab, inp,
-                                  CG_NS::PrimitiveTriangle,
+                                  CG_NS::TopologyTriangle,
                                   CG_NS::PolyModeFill, CG_NS::CullModeBack,
                                   CG_NS::WindingCounterCw});
     }

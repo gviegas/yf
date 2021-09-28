@@ -39,27 +39,27 @@ constexpr CG_NS::DcId EmissiveImgSampler = 7;
 
 /// Shader pathnames.
 ///
-using Shader = pair<CG_NS::Stage, const wchar_t*>;
+using Shader = pair<CG_NS::Stage, const char*>;
 
-constexpr wchar_t ShaderDir[] = L"bin/";
+constexpr char ShaderDir[] = "bin/";
 
 constexpr Shader MdlShaders[]{
-  {CG_NS::StageVertex, L"Model.vert"}, {CG_NS::StageFragment, L"Model.frag"}};
+  {CG_NS::StageVertex, "Model.vert"}, {CG_NS::StageFragment, "Model.frag"}};
 
 constexpr Shader Mdl2Shaders[]{
-  {CG_NS::StageVertex, L"Model2.vert"}, MdlShaders[1]};
+  {CG_NS::StageVertex, "Model2.vert"}, MdlShaders[1]};
 
 constexpr Shader Mdl4Shaders[]{
-  {CG_NS::StageVertex, L"Model4.vert"}, MdlShaders[1]};
+  {CG_NS::StageVertex, "Model4.vert"}, MdlShaders[1]};
 
 constexpr Shader Mdl8Shaders[]{
-  {CG_NS::StageVertex, L"Model8.vert"}, MdlShaders[1]};
+  {CG_NS::StageVertex, "Model8.vert"}, MdlShaders[1]};
 
 constexpr Shader Mdl16Shaders[]{
-  {CG_NS::StageVertex, L"Model16.vert"}, MdlShaders[1]};
+  {CG_NS::StageVertex, "Model16.vert"}, MdlShaders[1]};
 
 constexpr Shader Mdl32Shaders[]{
-  {CG_NS::StageVertex, L"Model32.vert"}, MdlShaders[1]};
+  {CG_NS::StageVertex, "Model32.vert"}, MdlShaders[1]};
 
 /// Global uniform.
 ///
@@ -454,32 +454,32 @@ void Renderer::prepare() {
       case 1:
         for (const auto& tp : MdlShaders)
           resource.shaders.push_back(dev.shader(tp.first,
-                                                wstring(ShaderDir)+tp.second));
+                                                string(ShaderDir)+tp.second));
         break;
       case 2:
         for (const auto& tp : Mdl2Shaders)
           resource.shaders.push_back(dev.shader(tp.first,
-                                                wstring(ShaderDir)+tp.second));
+                                                string(ShaderDir)+tp.second));
         break;
       case 4:
         for (const auto& tp : Mdl4Shaders)
           resource.shaders.push_back(dev.shader(tp.first,
-                                                wstring(ShaderDir)+tp.second));
+                                                string(ShaderDir)+tp.second));
         break;
       case 8:
         for (const auto& tp : Mdl8Shaders)
           resource.shaders.push_back(dev.shader(tp.first,
-                                                wstring(ShaderDir)+tp.second));
+                                                string(ShaderDir)+tp.second));
         break;
       case 16:
         for (const auto& tp : Mdl16Shaders)
           resource.shaders.push_back(dev.shader(tp.first,
-                                                wstring(ShaderDir)+tp.second));
+                                                string(ShaderDir)+tp.second));
         break;
       case 32:
         for (const auto& tp : Mdl32Shaders)
           resource.shaders.push_back(dev.shader(tp.first,
-                                                wstring(ShaderDir)+tp.second));
+                                                string(ShaderDir)+tp.second));
         break;
       default:
         assert(false);

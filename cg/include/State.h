@@ -154,13 +154,15 @@ struct VxInput {
   VxStepFn stepFunction;
 };
 
-/// Type of a graphics primitive.
+/// Primitive topologies.
 ///
-enum Primitive {
-  PrimitivePoint,
-  PrimitiveLine,
-  PrimitiveTriangle
-  // TODO
+enum Topology {
+  TopologyPoint,
+  TopologyLine,
+  TopologyTriangle,
+  TopologyLnStrip,
+  TopologyTriStrip,
+  TopologyTriFan
 };
 
 /// Polygon modes.
@@ -204,7 +206,7 @@ class GrState {
     std::vector<Shader*> shaders;
     std::vector<DcTable*> dcTables;
     std::vector<VxInput> vxInputs;
-    Primitive primitive;
+    Topology topology;
     PolyMode polyMode;
     CullMode cullMode;
     Winding winding;

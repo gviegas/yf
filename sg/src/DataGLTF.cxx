@@ -2106,7 +2106,7 @@ Material* loadMaterial(unordered_map<int32_t, Texture*>& textureMap,
         if (!ifs.seekg(view.byteOffset, ios_base::cur))
           throw FileExcept("Could not seek glTF .glb file");
 
-        auto tex = new Texture(Texture::Png, ifs);
+        auto tex = new Texture(ifs);
         return textureMap.emplace(info.index, tex).first->second;
 
       } else {
@@ -2124,7 +2124,7 @@ Material* loadMaterial(unordered_map<int32_t, Texture*>& textureMap,
     for (const auto& c : image.uri)
       pathname.push_back(c);
 
-    auto tex = new Texture(Texture::Png, pathname);
+    auto tex = new Texture(pathname);
     return textureMap.emplace(info.index, tex).first->second;
   };
 

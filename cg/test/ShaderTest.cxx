@@ -19,17 +19,17 @@ struct ShaderTest : Test {
 
   Assertions run(const vector<string>&) {
     struct Shader_ : Shader {
-      Shader_(Stage stage, wstring&& codeFile, wstring&& entryPoint)
+      Shader_(Stage stage, string&& codeFile, string&& entryPoint)
         : Shader(stage, codeFile, entryPoint) { }
     };
 
     Assertions a;
 
-    const wstring code = L"path/to/code";
-    const wstring entry = L"_main0";
-    Shader_ shd(StageFragment, wstring(code), wstring(entry));
+    const string code = "path/to/code";
+    const string entry = "_main0";
+    Shader_ shd(StageFragment, string(code), string(entry));
 
-    a.push_back({L"Shader(StageFragment, "+code+L", "+entry+L")",
+    a.push_back({L"Shader(StageFragment, \"path/to/code\", \"_main0\")",
                  shd.stage_ == StageFragment && shd.codeFile_ == code &&
                  shd.entryPoint_ == entry});
 

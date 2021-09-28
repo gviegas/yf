@@ -47,13 +47,16 @@ class CpStateVK final : public CpState {
   VkPipeline pipeline_ = VK_NULL_HANDLE;
 };
 
-/// Converts from a `Primitive` value.
+/// Converts from a `Topology` value.
 ///
-inline VkPrimitiveTopology toTopologyVK(Primitive primitive) {
-  switch (primitive) {
-  case PrimitivePoint:    return VK_PRIMITIVE_TOPOLOGY_POINT_LIST;
-  case PrimitiveLine:     return VK_PRIMITIVE_TOPOLOGY_LINE_LIST;
-  case PrimitiveTriangle: return VK_PRIMITIVE_TOPOLOGY_TRIANGLE_LIST;
+inline VkPrimitiveTopology toTopologyVK(Topology topology) {
+  switch (topology) {
+  case TopologyPoint:    return VK_PRIMITIVE_TOPOLOGY_POINT_LIST;
+  case TopologyLine:     return VK_PRIMITIVE_TOPOLOGY_LINE_LIST;
+  case TopologyTriangle: return VK_PRIMITIVE_TOPOLOGY_TRIANGLE_LIST;
+  case TopologyLnStrip:  return VK_PRIMITIVE_TOPOLOGY_LINE_STRIP;
+  case TopologyTriStrip: return VK_PRIMITIVE_TOPOLOGY_TRIANGLE_STRIP;
+  case TopologyTriFan:   return VK_PRIMITIVE_TOPOLOGY_TRIANGLE_FAN;
   default:
     throw std::invalid_argument(__func__);
   }

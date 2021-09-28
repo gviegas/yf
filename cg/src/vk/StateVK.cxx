@@ -117,7 +117,7 @@ GrStateVK::GrStateVK(const Config& config)
   iaInfo.sType = VK_STRUCTURE_TYPE_PIPELINE_INPUT_ASSEMBLY_STATE_CREATE_INFO;
   iaInfo.pNext = nullptr;
   iaInfo.flags = 0;
-  iaInfo.topology = toTopologyVK(config.primitive);
+  iaInfo.topology = toTopologyVK(config.topology);
   iaInfo.primitiveRestartEnable = false;
 
   // Define tessellation state

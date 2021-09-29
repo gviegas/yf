@@ -48,7 +48,7 @@ struct DcTableTest : Test {
     }
     a.push_back({L"DcTable(ents1)", tab1.entries_.size() == 3 && chk});
 
-    a.push_back({L"DcTable({#const DcEntries (2)#)",
+    a.push_back({L"DcTable(ents2)",
                  tab2.entries_.size() == 1 &&
                  tab2.entries_[0].type == DcTypeImage &&
                  tab2.entries_[0].elements == 32});

@@ -5,6 +5,8 @@
 // Copyright © 2020-2021 Gustavo C. Viegas.
 //
 
+#include <algorithm>
+
 #include "DcTableVK.h"
 #include "BufferVK.h"
 #include "DeviceVK.h"
@@ -155,9 +157,10 @@ void DcTableVK::write(uint32_t allocation, DcId id, uint32_t element,
                       Buffer& buffer, uint64_t offset, uint64_t size) {
 
   const auto ent = lower_bound(entries_.begin(), entries_.end(),
-                               [](auto& a, auto& b) { a.id < b.id; });
+                               DcEntry{id, DcTypeUniform, 0},
+                               [](auto& a, auto& b) { return a.id < b.id; });
 
-  if (allocation >= sets_.size() || ent == entries_.end() ||
+  if (allocation >= sets_.size() || ent == entries_.end() || ent->id != id ||
       (ent->type != DcTypeUniform && ent->type != DcTypeStorage) ||
       element >= ent->elements || offset + size > buffer.size_)
     throw invalid_argument("DcTable write() [Buffer]");
@@ -212,9 +215,10 @@ void DcTableVK::write(uint32_t allocation, DcId id, uint32_t element,
                       Sampler* sampler) {
 
   const auto ent = lower_bound(entries_.begin(), entries_.end(),
-                               [](auto& a, auto& b) { a.id < b.id; });
+                               DcEntry{id, DcTypeImage, 0},
+                               [](auto& a, auto& b) { return a.id < b.id; });
 
-  if (allocation >= sets_.size() || ent == entries_.end() ||
+  if (allocation >= sets_.size() || ent == entries_.end() || ent->id != id ||
       (ent->type != DcTypeImage && ent->type != DcTypeImgSampler) ||
       element >= ent->elements || layer >= image.layers_)
     throw invalid_argument("DcTableVK write() [Image]");

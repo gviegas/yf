@@ -19,7 +19,7 @@ CG_NS_BEGIN
 
 class DcTableVK final : public DcTable {
  public:
-  explicit DcTableVK(const DcEntries& entries);
+  explicit DcTableVK(const std::vector<DcEntry>& entries);
   ~DcTableVK();
   void allocate(uint32_t n);
   uint32_t allocations() const;

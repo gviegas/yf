@@ -13,44 +13,47 @@
 using namespace CG_NS;
 using namespace std;
 
-DcTableVK::DcTableVK(const DcEntries& entries) : DcTable(entries) {
+DcTableVK::DcTableVK(const vector<DcEntry>& entries) : DcTable(entries) {
   if (entries.empty())
     throw invalid_argument("DcTableVK requires entries to be non-empty");
 
+  sort(const_cast<vector<DcEntry>&>(entries_).begin(),
+       const_cast<vector<DcEntry>&>(entries_).end(),
+       [](auto& a, auto& b) { return a.id < b.id; });
+
   vector<VkDescriptorSetLayoutBinding> binds;
   VkDescriptorType type;
-  uint32_t unifN  = 0;
-  uint32_t storN  = 0;
-  uint32_t imgN   = 0;
-  uint32_t ismplN = 0;
+  uint32_t unifN = 0;
+  uint32_t storN = 0;
+  uint32_t imgN = 0;
+  uint32_t isplrN = 0;
 
-  for (const auto& e : entries) {
-    if (e.second.elements == 0)
+  for (const auto& e : entries_) {
+    if (e.elements == 0)
       throw invalid_argument("DcEntry requires elements > 0");
 
-    switch (e.second.type) {
+    switch (e.type) {
     case DcTypeUniform:
       type = VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER;
-      unifN += e.second.elements;
+      unifN += e.elements;
       break;
     case DcTypeStorage:
       type = VK_DESCRIPTOR_TYPE_STORAGE_BUFFER;
-      storN += e.second.elements;
+      storN += e.elements;
       break;
     case DcTypeImage:
       type = VK_DESCRIPTOR_TYPE_STORAGE_IMAGE;
-      imgN += e.second.elements;
+      imgN += e.elements;
       break;
     case DcTypeImgSampler:
       type = VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER;
-      ismplN += e.second.elements;
+      isplrN += e.elements;
       break;
     default:
       throw invalid_argument("Invalid DcType value");
     }
 
-    binds.push_back({e.first, type, e.second.elements,
-                     VK_SHADER_STAGE_ALL, nullptr});
+    binds.push_back({e.id, type, e.elements, VK_SHADER_STAGE_ALL, nullptr});
   }
 
   VkDescriptorSetLayoutCreateInfo info;
@@ -71,8 +74,8 @@ DcTableVK::DcTableVK(const DcEntries& entries) : DcTable(entries) {
     poolSizes_.push_back({VK_DESCRIPTOR_TYPE_STORAGE_BUFFER, storN});
   if (imgN > 0)
     poolSizes_.push_back({VK_DESCRIPTOR_TYPE_STORAGE_IMAGE, imgN});
-  if (ismplN > 0)
-    poolSizes_.push_back({VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER, ismplN});
+  if (isplrN > 0)
+    poolSizes_.push_back({VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER, isplrN});
 }
 
 DcTableVK::~DcTableVK() {

@@ -8,7 +8,8 @@
 #include "DcTable.h"
 
 using namespace CG_NS;
+using namespace std;
 
-DcTable::DcTable(const DcEntries& entries) : entries_(entries) { }
+DcTable::DcTable(const vector<DcEntry>& entries) : entries_(entries) { }
 
 DcTable::~DcTable() { }

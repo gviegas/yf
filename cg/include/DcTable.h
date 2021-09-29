@@ -10,13 +10,15 @@
 
 #include <cstdint>
 #include <memory>
-#include <unordered_map>
+#include <vector>
 
 #include "yf/cg/Defs.h"
 #include "yf/cg/Buffer.h"
 #include "yf/cg/Image.h"
 
 CG_NS_BEGIN
+
+using DcId = uint32_t;
 
 /// Descriptor types.
 ///
@@ -30,12 +32,10 @@ enum DcType {
 /// Descriptor table entry.
 ///
 struct DcEntry {
+  DcId id;
   DcType type;
   uint32_t elements;
 };
-
-using DcId = uint32_t;
-using DcEntries = std::unordered_map<DcId, DcEntry>;
 
 /// Descriptor table.
 ///
@@ -43,7 +43,7 @@ class DcTable {
  public:
   using Ptr = std::unique_ptr<DcTable>;
 
-  explicit DcTable(const DcEntries& entries);
+  explicit DcTable(const std::vector<DcEntry>& entries);
   virtual ~DcTable();
 
   /// Allocates a given number of resources.
@@ -66,13 +66,13 @@ class DcTable {
 
   /// Writes to a table resource using an image object and sampler parameters.
   ///
-  virtual void write(uint32_t allocataion, DcId id, uint32_t element,
+  virtual void write(uint32_t allocation, DcId id, uint32_t element,
                      Image& image, uint32_t layer, uint32_t level,
                      Sampler& sampler) = 0;
 
   /// The table entries.
   ///
-  const DcEntries entries_;
+  const std::vector<DcEntry> entries_;
 };
 
 CG_NS_END

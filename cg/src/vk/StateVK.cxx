@@ -99,8 +99,7 @@ GrStateVK::GrStateVK(const Config& config)
     const auto& in = config.vxInputs[bind];
     vxBinds.push_back({bind, in.stride, toInputRateVK(in.stepFunction)});
     for (const auto& at : in.attributes)
-      vxAttrs.push_back({at.first, bind, toFormatVK(at.second.format),
-                         at.second.offset});
+      vxAttrs.push_back({at.id, bind, toFormatVK(at.format), at.offset});
   }
 
   VkPipelineVertexInputStateCreateInfo vxInfo;

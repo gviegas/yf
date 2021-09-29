@@ -8,6 +8,7 @@
 #ifndef YF_CG_WSI_H
 #define YF_CG_WSI_H
 
+#include <utility>
 #include <memory>
 #include <vector>
 
@@ -21,6 +22,7 @@ CG_NS_BEGIN
 class Wsi {
  public:
   using Ptr = std::unique_ptr<Wsi>;
+  using Index = uint32_t;
 
   Wsi(WS_NS::Window* window);
   virtual ~Wsi();
@@ -35,7 +37,7 @@ class Wsi {
 
   /// Gets the next writable image.
   ///
-  virtual Image* nextImage(bool nonblocking = true) = 0;
+  virtual std::pair<Image*, Index> nextImage(bool nonblocking = true) = 0;
 
   /// Presents a previously acquired image.
   ///

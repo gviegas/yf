@@ -154,12 +154,12 @@ uint32_t DcTableVK::allocations() const {
 void DcTableVK::write(uint32_t allocation, DcId id, uint32_t element,
                       Buffer& buffer, uint64_t offset, uint64_t size) {
 
-  auto ent = entries_.find(id);
+  const auto ent = lower_bound(entries_.begin(), entries_.end(),
+                               [](auto& a, auto& b) { a.id < b.id; });
 
   if (allocation >= sets_.size() || ent == entries_.end() ||
-      (ent->second.type != DcTypeUniform &&
-       ent->second.type != DcTypeStorage) ||
-      element >= ent->second.elements || offset + size > buffer.size_)
+      (ent->type != DcTypeUniform && ent->type != DcTypeStorage) ||
+      element >= ent->elements || offset + size > buffer.size_)
     throw invalid_argument("DcTable write() [Buffer]");
 
   const auto& lim = deviceVK().physLimits();
@@ -176,7 +176,7 @@ void DcTableVK::write(uint32_t allocation, DcId id, uint32_t element,
   wr.dstBinding = id;
   wr.dstArrayElement = element;
   wr.descriptorCount = 1;
-  if (ent->second.type == DcTypeUniform) {
+  if (ent->type == DcTypeUniform) {
     wr.descriptorType = VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER;
     if (offset % lim.minUniformBufferOffsetAlignment ||
         size > lim.maxUniformBufferRange)

@@ -36,7 +36,7 @@ class DeviceVK final : public Device {
   Shader::Ptr shader(Stage stage, const std::string& codeFile,
                      const std::string& entryPoint);
 
-  DcTable::Ptr dcTable(const DcEntries& entries);
+  DcTable::Ptr dcTable(const std::vector<DcEntry>& entries);
 
   Pass::Ptr pass(const std::vector<ColorAttach>* colors,
                  const std::vector<ColorAttach>* resolves,

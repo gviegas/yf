@@ -463,7 +463,7 @@ Shader::Ptr DeviceVK::shader(Stage stage, const string& codeFile,
   return make_unique<ShaderVK>(stage, codeFile, entryPoint);
 }
 
-DcTable::Ptr DeviceVK::dcTable(const DcEntries& entries) {
+DcTable::Ptr DeviceVK::dcTable(const vector<DcEntry>& entries) {
   return make_unique<DcTableVK>(entries);
 }
 

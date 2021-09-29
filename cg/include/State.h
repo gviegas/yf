@@ -10,12 +10,13 @@
 
 #include <cstdint>
 #include <memory>
-#include <unordered_map>
 #include <vector>
 
 #include "yf/cg/Defs.h"
 
 CG_NS_BEGIN
+
+using VxId = uint32_t;
 
 /// Vertex formats.
 ///
@@ -132,6 +133,7 @@ enum VxFormat {
 /// Vertex attribute.
 ///
 struct VxAttr {
+  VxId id;
   VxFormat format;
   uint32_t offset;
 };
@@ -143,13 +145,10 @@ enum VxStepFn {
   VxStepFnInstance
 };
 
-using VxId = uint32_t;
-using VxAttrs = std::unordered_map<VxId, VxAttr>;
-
 /// Collection of vertex attributes using the same buffer binding.
 ///
 struct VxInput {
-  VxAttrs attributes;
+  std::vector<VxAttr> attributes;
   uint32_t stride;
   VxStepFn stepFunction;
 };

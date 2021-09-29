@@ -116,7 +116,7 @@ struct DrawTest : Test {
     while (chrono::system_clock::now() < tm) {
       // Acquire next drawable image
       Image* img;
-      while (!(img = wsi->nextImage())) { }
+      while (!(img = wsi->nextImage().first)) { }
 
       auto tgtIt = find_if(tgts.begin(), tgts.end(), [&](auto& tgt) {
         return tgt->colors_->front().image == img;

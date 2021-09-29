@@ -164,7 +164,7 @@ struct CopyTest : Test {
         break;
       }
 
-      Image* next = wsi->nextImage(false);
+      Image* next = wsi->nextImage(false).first;
       auto tgtIt = find_if(tgts.begin(), tgts.end(), [&](auto& tgt) {
         return tgt->colors_->front().image == next;
       });

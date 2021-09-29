@@ -25,7 +25,7 @@ struct WsiTest : Test {
       Wsi_(WS_NS::Window* win) : Wsi(win) { }
       const vector<Image*>& images() const { assert(false); }
       uint32_t maxImages() const { return 0; }
-      Image* nextImage(bool) { return nullptr; }
+      pair<Image*, Index> nextImage(bool) { return {nullptr, UINT32_MAX}; }
       void present(Image*) { }
     };
 

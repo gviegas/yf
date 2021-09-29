@@ -70,7 +70,7 @@ inline CG_NS::VxInput vxInputFor(VxType type) {
     throw std::invalid_argument("Invalid VxType value");
   }
 
-  return {{{type, {format, 0}}}, stride, CG_NS::VxStepFnVertex};
+  return {{{type, format, 0}}, stride, CG_NS::VxStepFnVertex};
 }
 
 /// Generic mesh data for copying.

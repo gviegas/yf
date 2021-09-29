@@ -269,12 +269,12 @@ void DcTableVK::resetImgRefs() {
     imgRefs_.push_back({});
 
     for (const auto& e : entries_) {
-      if (e.second.type != DcTypeImgSampler && e.second.type != DcTypeImage)
+      if (e.type != DcTypeImgSampler && e.type != DcTypeImage)
         continue;
 
-      auto it = imgRefs_.back().emplace(e.first, vector<ImgRef>()).first;
+      auto it = imgRefs_.back().emplace(e.id, vector<ImgRef>()).first;
 
-      for (auto j = e.second.elements; j > 0; j--)
+      for (auto j = e.elements; j > 0; j--)
         it->second.push_back({nullptr, nullptr});
     }
 

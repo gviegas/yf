@@ -51,7 +51,7 @@ class Device {
 
   /// Creates a new descriptor table object.
   ///
-  virtual DcTable::Ptr dcTable(const DcEntries& entries) = 0;
+  virtual DcTable::Ptr dcTable(const std::vector<DcEntry>& entries) = 0;
 
   /// Creates a new pass object.
   ///

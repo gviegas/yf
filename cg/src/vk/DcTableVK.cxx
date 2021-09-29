@@ -211,12 +211,12 @@ void DcTableVK::write(uint32_t allocation, DcId id, uint32_t element,
                       Image& image, uint32_t layer, uint32_t level,
                       Sampler* sampler) {
 
-  auto ent = entries_.find(id);
+  const auto ent = lower_bound(entries_.begin(), entries_.end(),
+                               [](auto& a, auto& b) { a.id < b.id; });
 
   if (allocation >= sets_.size() || ent == entries_.end() ||
-      (ent->second.type != DcTypeImage &&
-       ent->second.type != DcTypeImgSampler) ||
-      element >= ent->second.elements || layer >= image.layers_)
+      (ent->type != DcTypeImage && ent->type != DcTypeImgSampler) ||
+      element >= ent->elements || layer >= image.layers_)
     throw invalid_argument("DcTableVK write() [Image]");
 
   ImgRef& ref = imgRefs_[allocation].find(id)->second[element];
@@ -242,7 +242,7 @@ void DcTableVK::write(uint32_t allocation, DcId id, uint32_t element,
   wr.pTexelBufferView = nullptr;
 
   // Check if sampler is needed
-  switch (ent->second.type) {
+  switch (ent->type) {
   case DcTypeImage:
     ref.sampler = nullptr;
     info.sampler = VK_NULL_HANDLE;

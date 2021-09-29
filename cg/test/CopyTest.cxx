@@ -83,7 +83,7 @@ struct CopyTest : Test {
     img->write({0}, {3, 1}, 0, 0, pixels);
 
     // DcTable
-    DcEntries dcs{{0, {DcTypeUniform, 1}}, {1, {DcTypeImgSampler, 1}}};
+    const vector<DcEntry> dcs{{0, DcTypeUniform, 1}, {1, DcTypeImgSampler, 1}};
     auto dtb = dev.dcTable(dcs);
     dtb->allocate(1);
     dtb->write(0, 0, 0, *buf, sizeof pos + sizeof tc + off, sizeof xform);

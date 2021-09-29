@@ -87,8 +87,7 @@ struct DrawTest : Test {
     tex->write({0}, {2, 1}, 0, 0, pxData);
 
     // Create descriptor table, allocate resources and copy data
-    DcEntries dcs{{0, {DcTypeUniform, 1}},
-                  {1, {DcTypeImgSampler, 1}}};
+    const vector<DcEntry> dcs{{0, DcTypeUniform, 1}, {1, DcTypeImgSampler, 1}};
     auto dtb = dev.dcTable(dcs);
     dtb->allocate(1);
     dtb->write(0, 0, 0, *buf, sizeof vxData + unifOff, sizeof unifData);

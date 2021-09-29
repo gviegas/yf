@@ -19,7 +19,7 @@ struct DcTableTest : Test {
 
   Assertions run(const vector<string>&) {
     struct DcTable_ : DcTable {
-      DcTable_(const DcEntries& entries) : DcTable(entries) { }
+      DcTable_(const vector<DcEntry>& entries) : DcTable(entries) { }
       void allocate(uint32_t) { }
       uint32_t allocations() const { return 0; }
       void write(uint32_t, DcId, uint32_t, Buffer&, uint64_t, uint64_t) { }
@@ -30,27 +30,28 @@ struct DcTableTest : Test {
 
     Assertions a;
 
-    const DcEntries ents1{{4, {DcTypeStorage,    1}},
-                          {2, {DcTypeUniform,    1}},
-                          {0, {DcTypeImgSampler, 8}}};
-    DcTable_ dt1(ents1);
+    const vector<DcEntry> ents1{{4, DcTypeStorage, 1}, {2, DcTypeUniform, 1},
+                                {0, DcTypeImgSampler, 8}};
+    DcTable_ tab1(ents1);
 
-    const DcEntries ents2{{6, {DcTypeImage, 32}}};
-    DcTable_ dt2(ents2);
+    const vector<DcEntry> ents2{{6, DcTypeImage, 32}};
+    DcTable_ tab2(ents2);
 
-    a.push_back({L"DcTable(#const DcEntries (1)#)",
-                 dt1.entries_.size() == 3 &&
-                 dt1.entries_.find(0)->second.type == DcTypeImgSampler &&
-                 dt1.entries_.find(0)->second.elements == 8 &&
-                 dt1.entries_.find(2)->second.type == DcTypeUniform &&
-                 dt1.entries_.find(2)->second.elements == 1 &&
-                 dt1.entries_.find(4)->second.type == DcTypeStorage &&
-                 dt1.entries_.find(4)->second.elements == 1});
+    bool chk = true;
+    for (const auto& e : tab1.entries_) {
+      if (e.id == 0 && (e.type != DcTypeImgSampler || e.elements != 8))
+        chk = false;
+      else if (e.id == 2 && (e.type != DcTypeUniform || e.elements != 1))
+        chk = false;
+      else if (e.id == 4 && (e.type != DcTypeStorage || e.elements != 1))
+        chk = false;
+    }
+    a.push_back({L"DcTable(ents1)", tab1.entries_.size() == 3 && chk});
 
     a.push_back({L"DcTable({#const DcEntries (2)#)",
-                 dt2.entries_.size() == 1 &&
-                 dt2.entries_.find(6)->second.type == DcTypeImage &&
-                 dt2.entries_.find(6)->second.elements == 32});
+                 tab2.entries_.size() == 1 &&
+                 tab2.entries_[0].type == DcTypeImage &&
+                 tab2.entries_[0].elements == 32});
 
     return a;
   }

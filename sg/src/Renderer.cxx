@@ -127,7 +127,7 @@ Renderer::Renderer() {
   auto& dev = CG_NS::device();
 
   // One global table instance for shared uniforms
-  const CG_NS::DcEntries glb{{MainUniform, {CG_NS::DcTypeUniform, 1}}};
+  const vector<CG_NS::DcEntry> glb{{MainUniform, CG_NS::DcTypeUniform, 1}};
   glbTable_ = dev.dcTable(glb);
   glbTable_->allocate(1);
 
@@ -489,15 +489,15 @@ void Renderer::prepare() {
 
     // Descriptors
     if (!resource.table) {
-      const CG_NS::DcEntries inst{
-        {MainUniform,          {CG_NS::DcTypeUniform,    instN}},
-        {CheckUniform,         {CG_NS::DcTypeUniform,    1}},
-        {MaterialUniform,      {CG_NS::DcTypeUniform,    1}},
-        {ColorImgSampler,      {CG_NS::DcTypeImgSampler, 1}},
-        {MetalRoughImgSampler, {CG_NS::DcTypeImgSampler, 1}},
-        {NormalImgSampler,     {CG_NS::DcTypeImgSampler, 1}},
-        {OcclusionImgSampler,  {CG_NS::DcTypeImgSampler, 1}},
-        {EmissiveImgSampler,   {CG_NS::DcTypeImgSampler, 1}}};
+      const vector<CG_NS::DcEntry> inst{
+        {MainUniform, CG_NS::DcTypeUniform, instN},
+        {CheckUniform, CG_NS::DcTypeUniform, 1},
+        {MaterialUniform, CG_NS::DcTypeUniform, 1},
+        {ColorImgSampler, CG_NS::DcTypeImgSampler, 1},
+        {MetalRoughImgSampler, CG_NS::DcTypeImgSampler, 1},
+        {NormalImgSampler, CG_NS::DcTypeImgSampler, 1},
+        {OcclusionImgSampler, CG_NS::DcTypeImgSampler, 1},
+        {EmissiveImgSampler, CG_NS::DcTypeImgSampler, 1}};
       resource.table = dev.dcTable(inst);
     }
 

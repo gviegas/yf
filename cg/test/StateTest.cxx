@@ -30,7 +30,7 @@ struct StateTest : Test {
 
     GrState::Config gc;
     gc.vxInputs.push_back({});
-    gc.vxInputs.back().attributes[4] = {VxFormatFlt4, 0};
+    gc.vxInputs.back().attributes.push_back({3, VxFormatFlt4, 0});
     gc.vxInputs.back().stride = sizeof(float[4]);
     gc.vxInputs.back().stepFunction = VxStepFnVertex;
     gc.topology = TopologyTriangle;
@@ -44,10 +44,11 @@ struct StateTest : Test {
 
     a.push_back({L"GrState(config)",
                  gs.config_.vxInputs.size() == 1 &&
-                 gs.config_.vxInputs.back().attributes
-                  .find(4)->second.format == VxFormatFlt4 &&
-                 gs.config_.vxInputs.back().attributes
-                  .find(4)->second.offset == 0 &&
+                 gs.config_.vxInputs.back().attributes.size() == 1 &&
+                 gs.config_.vxInputs.back().attributes.back().id == 3 &&
+                 gs.config_.vxInputs.back().attributes.back().format
+                  == VxFormatFlt4 &&
+                 gs.config_.vxInputs.back().attributes.back().offset == 0 &&
                  gs.config_.topology == TopologyTriangle &&
                  gs.config_.polyMode == PolyModeFill &&
                  gs.config_.cullMode == CullModeBack &&

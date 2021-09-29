@@ -93,13 +93,15 @@ struct DrawTest : Test {
     dtb->write(0, 0, 0, *buf, sizeof vxData + unifOff, sizeof unifData);
     dtb->write(0, 1, 0, *tex, 0, 0);
 
+    // Define vertex input
+    const VxInput vxIn = {{{0, VxFormatFlt3, 0}, {1, VxFormatFlt2, vxOff}},
+                          vxStrd, VxStepFnVertex};
+
     // Create graphics state
     GrState::Config config{pass.get(),
                            {vert.get(), frag.get()},
                            {dtb.get()},
-                           { { {{0, {VxFormatFlt3, 0}},
-                                {1, {VxFormatFlt2, vxOff}}},
-                               vxStrd, VxStepFnVertex } },
+                           {vxIn},
                            TopologyTriangle,
                            PolyModeFill,
                            CullModeBack,

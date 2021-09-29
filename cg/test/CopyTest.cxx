@@ -95,8 +95,8 @@ struct CopyTest : Test {
     config.shaders = {vert.get(), frag.get()};
     config.dcTables = {dtb.get()};
     config.vxInputs = {
-      {{{0, {VxFormatFlt3, 0}}}, sizeof(float[3]), VxStepFnVertex},
-      {{{1, {VxFormatFlt2, 0}}}, sizeof(float[2]), VxStepFnVertex} };
+      {{{0, VxFormatFlt3, 0}}, sizeof(float[3]), VxStepFnVertex},
+      {{{1, VxFormatFlt2, 0}}, sizeof(float[2]), VxStepFnVertex} };
     config.topology = TopologyTriangle;
     config.polyMode = PolyModeFill;
     config.cullMode = CullModeNone;

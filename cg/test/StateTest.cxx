@@ -18,12 +18,18 @@ struct StateTest : Test {
   StateTest() : Test(L"State") { }
 
   Assertions run(const vector<string>&) {
-    struct GrState_ : GrState {
-      GrState_(const Config& config) : GrState(config) { }
+    class GrState_ : public GrState {
+      Config config_;
+     public:
+      GrState_(const Config& config) : config_(config) { }
+      const Config& config() const { return config_; }
     };
 
-    struct CpState_ : CpState {
-      CpState_(const Config& config) : CpState(config) { }
+    class CpState_ : public CpState {
+      Config config_;
+     public:
+      CpState_(const Config& config) : config_(config) { }
+      const Config& config() const { return config_; }
     };
 
     Assertions a;
@@ -43,19 +49,20 @@ struct StateTest : Test {
     CpState_ cs(cc);
 
     a.push_back({L"GrState(config)",
-                 gs.config_.vxInputs.size() == 1 &&
-                 gs.config_.vxInputs.back().attributes.size() == 1 &&
-                 gs.config_.vxInputs.back().attributes.back().id == 3 &&
-                 gs.config_.vxInputs.back().attributes.back().format
+                 gs.config().vxInputs.size() == 1 &&
+                 gs.config().vxInputs.back().attributes.size() == 1 &&
+                 gs.config().vxInputs.back().attributes.back().id == 3 &&
+                 gs.config().vxInputs.back().attributes.back().format
                   == VxFormatFlt4 &&
-                 gs.config_.vxInputs.back().attributes.back().offset == 0 &&
-                 gs.config_.topology == TopologyTriangle &&
-                 gs.config_.polyMode == PolyModeFill &&
-                 gs.config_.cullMode == CullModeBack &&
-                 gs.config_.winding == WindingCounterCw});
+                 gs.config().vxInputs.back().attributes.back().offset == 0 &&
+                 gs.config().topology == TopologyTriangle &&
+                 gs.config().polyMode == PolyModeFill &&
+                 gs.config().cullMode == CullModeBack &&
+                 gs.config().winding == WindingCounterCw});
 
     a.push_back({L"CpState(config)",
-                 cs.config_.shader == nullptr && cs.config_.dcTables.empty()});
+                 cs.config().shader == nullptr &&
+                 cs.config().dcTables.empty()});
 
     return a;
   }

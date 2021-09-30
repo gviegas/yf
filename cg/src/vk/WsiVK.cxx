@@ -104,7 +104,7 @@ WsiVK::~WsiVK() {
     deviceVK().defaultQueue().submit();
 
     for_each(acquisitions_.begin(), acquisitions_.end(), [&](auto& i) {
-      present(images_[i]);
+      present(i);
     });
   }
 
@@ -460,16 +460,13 @@ pair<Image*, Wsi::Index> WsiVK::nextImage(bool nonblocking) {
   }
 }
 
-void WsiVK::present(Image* image) {
-  auto it = indices_.find(image);
-
-  if (it == indices_.end())
-    throw invalid_argument("Cannot present an image not owned by Wsi");
-  if (acquisitions_.erase(it->second) == 0)
+void WsiVK::present(Index imageIndex) {
+  if (imageIndex >= images_.size())
+    throw invalid_argument("Invalid image index for presentation");
+  if (acquisitions_.erase(imageIndex) == 0)
     throw invalid_argument("Cannot present an image that was not acquired");
 
-  auto img = static_cast<ImageVK*>(image);
-  auto imgIx = it->second;
+  auto img = static_cast<ImageVK*>(images_[imageIndex]);
   auto imgLay = img->layout();
 
   if (imgLay.first != imgLay.second)
@@ -507,7 +504,7 @@ void WsiVK::present(Image* image) {
   info.pWaitSemaphores = nullptr;
   info.swapchainCount = 1;
   info.pSwapchains = &swapchain_;
-  info.pImageIndices = &imgIx;
+  info.pImageIndices = &imageIndex;
   info.pResults = nullptr;
 
   auto res = vkQueuePresentKHR(queue_, &info);

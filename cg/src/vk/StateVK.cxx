@@ -71,9 +71,9 @@ GrStateVK::GrStateVK(const Config& config)
     info.sType = VK_STRUCTURE_TYPE_PIPELINE_SHADER_STAGE_CREATE_INFO;
     info.pNext = nullptr;
     info.flags = 0;
-    info.stage = toShaderStageVK(shd->stage_);
+    info.stage = toShaderStageVK(shd->stage());
     info.module = static_cast<ShaderVK*>(shd)->module();
-    info.pName = static_cast<ShaderVK*>(shd)->name().data();
+    info.pName = static_cast<ShaderVK*>(shd)->entryPoint().data();
     info.pSpecializationInfo = nullptr;
 
     if (info.stage & stgFlags_) {
@@ -303,7 +303,7 @@ VkPipeline GrStateVK::pipeline() {
 CpStateVK::CpStateVK(const Config& config)
   : CpState(config), plLayout_(plLayoutVK(config.dcTables)) {
 
-  if (!config.shader || config.shader->stage_ != StageCompute)
+  if (!config.shader || config.shader->stage() != StageCompute)
     throw invalid_argument("CpStateVK requires a compute shader");
 
   auto dev = deviceVK().device();
@@ -316,7 +316,7 @@ CpStateVK::CpStateVK(const Config& config)
   stgInfo.flags = 0;
   stgInfo.stage = VK_SHADER_STAGE_COMPUTE_BIT;
   stgInfo.module = static_cast<ShaderVK*>(config.shader)->module();
-  stgInfo.pName = static_cast<ShaderVK*>(config.shader)->name().data();
+  stgInfo.pName = static_cast<ShaderVK*>(config.shader)->entryPoint().data();
   stgInfo.pSpecializationInfo = nullptr;
 
   // Create pipeline

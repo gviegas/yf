@@ -18,15 +18,31 @@ struct PassTest : Test {
   PassTest() : Test(L"Pass") { }
 
   Assertions run(const vector<string>&) {
-    struct Pass_ : Pass {
+    class Pass_ : public Pass {
+      vector<ColorAttach>* colors_;
+      vector<ColorAttach>* resolves_;
+      DepStenAttach* depthStencil_;
+     public:
       Pass_(const vector<ColorAttach>* colors,
             const vector<ColorAttach>* resolves,
             const DepStenAttach* depthStencil)
-        : Pass(colors, resolves, depthStencil) { }
+        : colors_(colors ? new auto(*colors) : nullptr),
+          resolves_(resolves ? new auto(*resolves) : nullptr),
+          depthStencil_(depthStencil ? new auto(*depthStencil) : nullptr) { }
+
+      ~Pass_() {
+        delete colors_;
+        delete resolves_;
+        delete depthStencil_;
+      }
 
       Target::Ptr target(Size2, uint32_t, const vector<AttachImg>*,
                          const vector<AttachImg>*, const AttachImg*)
                          { return nullptr; }
+
+      const vector<ColorAttach>* colors() const { return colors_; }
+      const vector<ColorAttach>* resolves() const { return resolves_; }
+      const DepStenAttach* depthStencil() const { return depthStencil_; }
     };
 
     Assertions a;
@@ -50,66 +66,66 @@ struct PassTest : Test {
     Pass_ p4(nullptr, nullptr, &depSten);
 
     a.push_back({L"Pass(#one color, resolve and depth/stencil#)",
-                 p1.colors_ != nullptr && p1.colors_->size() == 1 &&
-                 p1.colors_->front().format == PxFormatBgra8Srgb &&
-                 p1.colors_->front().samples == Samples4 &&
-                 p1.colors_->front().loadOp == LoadOpLoad &&
-                 p1.colors_->front().storeOp == StoreOpDontCare &&
-                 p1.resolves_ != nullptr && p1.resolves_->size() == 1 &&
-                 p1.resolves_->front().format == PxFormatBgra8Srgb &&
-                 p1.resolves_->front().samples == Samples1 &&
-                 p1.resolves_->front().loadOp == LoadOpDontCare &&
-                 p1.resolves_->front().storeOp == StoreOpStore &&
-                 p1.depthStencil_ != nullptr &&
-                 p1.depthStencil_->format == PxFormatD16Unorm &&
-                 p1.depthStencil_->samples == Samples1 &&
-                 p1.depthStencil_->depLoadOp == LoadOpDontCare &&
-                 p1.depthStencil_->depStoreOp == StoreOpStore &&
-                 p1.depthStencil_->stenLoadOp == LoadOpDontCare &&
-                 p1.depthStencil_->stenStoreOp == StoreOpDontCare});
+                 p1.colors() != nullptr && p1.colors()->size() == 1 &&
+                 p1.colors()->front().format == PxFormatBgra8Srgb &&
+                 p1.colors()->front().samples == Samples4 &&
+                 p1.colors()->front().loadOp == LoadOpLoad &&
+                 p1.colors()->front().storeOp == StoreOpDontCare &&
+                 p1.resolves() != nullptr && p1.resolves()->size() == 1 &&
+                 p1.resolves()->front().format == PxFormatBgra8Srgb &&
+                 p1.resolves()->front().samples == Samples1 &&
+                 p1.resolves()->front().loadOp == LoadOpDontCare &&
+                 p1.resolves()->front().storeOp == StoreOpStore &&
+                 p1.depthStencil() != nullptr &&
+                 p1.depthStencil()->format == PxFormatD16Unorm &&
+                 p1.depthStencil()->samples == Samples1 &&
+                 p1.depthStencil()->depLoadOp == LoadOpDontCare &&
+                 p1.depthStencil()->depStoreOp == StoreOpStore &&
+                 p1.depthStencil()->stenLoadOp == LoadOpDontCare &&
+                 p1.depthStencil()->stenStoreOp == StoreOpDontCare});
 
     a.push_back({L"Pass(#two colors and depth/stencil, no resolve#)",
-                 p2.colors_ != nullptr && p2.colors_->size() == 2 &&
-                 p2.colors_->front().format == PxFormatBgra8Srgb &&
-                 p2.colors_->front().samples == Samples1 &&
-                 p2.colors_->front().loadOp == LoadOpLoad &&
-                 p2.colors_->front().storeOp == StoreOpDontCare &&
-                 p2.colors_->back().format == PxFormatRgba8Unorm &&
-                 p2.colors_->back().samples == Samples1 &&
-                 p2.colors_->back().loadOp == LoadOpLoad &&
-                 p2.colors_->back().storeOp == StoreOpStore &&
-                 p2.resolves_ == nullptr &&
-                 p2.depthStencil_ != nullptr &&
-                 p2.depthStencil_->format == PxFormatD16Unorm &&
-                 p2.depthStencil_->samples == Samples1 &&
-                 p2.depthStencil_->depLoadOp == LoadOpDontCare &&
-                 p2.depthStencil_->depStoreOp == StoreOpDontCare &&
-                 p2.depthStencil_->stenLoadOp == LoadOpDontCare &&
-                 p2.depthStencil_->stenStoreOp == StoreOpDontCare});
+                 p2.colors() != nullptr && p2.colors()->size() == 2 &&
+                 p2.colors()->front().format == PxFormatBgra8Srgb &&
+                 p2.colors()->front().samples == Samples1 &&
+                 p2.colors()->front().loadOp == LoadOpLoad &&
+                 p2.colors()->front().storeOp == StoreOpDontCare &&
+                 p2.colors()->back().format == PxFormatRgba8Unorm &&
+                 p2.colors()->back().samples == Samples1 &&
+                 p2.colors()->back().loadOp == LoadOpLoad &&
+                 p2.colors()->back().storeOp == StoreOpStore &&
+                 p2.resolves() == nullptr &&
+                 p2.depthStencil() != nullptr &&
+                 p2.depthStencil()->format == PxFormatD16Unorm &&
+                 p2.depthStencil()->samples == Samples1 &&
+                 p2.depthStencil()->depLoadOp == LoadOpDontCare &&
+                 p2.depthStencil()->depStoreOp == StoreOpDontCare &&
+                 p2.depthStencil()->stenLoadOp == LoadOpDontCare &&
+                 p2.depthStencil()->stenStoreOp == StoreOpDontCare});
 
     a.push_back({L"Pass(#color only#)",
-                 p3.colors_ != nullptr && p3.colors_->size() == 2 &&
-                 p3.colors_->front().format == PxFormatBgra8Srgb &&
-                 p3.colors_->front().samples == Samples1 &&
-                 p3.colors_->front().loadOp == LoadOpLoad &&
-                 p3.colors_->front().storeOp == StoreOpDontCare &&
-                 p3.colors_->back().format == PxFormatRgba8Unorm &&
-                 p3.colors_->back().samples == Samples1 &&
-                 p3.colors_->back().loadOp == LoadOpLoad &&
-                 p3.colors_->back().storeOp == StoreOpStore &&
-                 p3.resolves_ == nullptr &&
-                 p3.depthStencil_ == nullptr});
+                 p3.colors() != nullptr && p3.colors()->size() == 2 &&
+                 p3.colors()->front().format == PxFormatBgra8Srgb &&
+                 p3.colors()->front().samples == Samples1 &&
+                 p3.colors()->front().loadOp == LoadOpLoad &&
+                 p3.colors()->front().storeOp == StoreOpDontCare &&
+                 p3.colors()->back().format == PxFormatRgba8Unorm &&
+                 p3.colors()->back().samples == Samples1 &&
+                 p3.colors()->back().loadOp == LoadOpLoad &&
+                 p3.colors()->back().storeOp == StoreOpStore &&
+                 p3.resolves() == nullptr &&
+                 p3.depthStencil() == nullptr});
 
     a.push_back({L"Pass(#depth/stencil only#)",
-                 p4.colors_ == nullptr &&
-                 p4.resolves_ == nullptr &&
-                 p4.depthStencil_ != nullptr &&
-                 p4.depthStencil_->format == PxFormatD16Unorm &&
-                 p4.depthStencil_->samples == Samples1 &&
-                 p4.depthStencil_->depLoadOp == LoadOpDontCare &&
-                 p4.depthStencil_->depStoreOp == StoreOpDontCare &&
-                 p4.depthStencil_->stenLoadOp == LoadOpDontCare &&
-                 p4.depthStencil_->stenStoreOp == StoreOpDontCare});
+                 p4.colors() == nullptr &&
+                 p4.resolves() == nullptr &&
+                 p4.depthStencil() != nullptr &&
+                 p4.depthStencil()->format == PxFormatD16Unorm &&
+                 p4.depthStencil()->samples == Samples1 &&
+                 p4.depthStencil()->depLoadOp == LoadOpDontCare &&
+                 p4.depthStencil()->depStoreOp == StoreOpDontCare &&
+                 p4.depthStencil()->stenLoadOp == LoadOpDontCare &&
+                 p4.depthStencil()->stenStoreOp == StoreOpDontCare});
 
     return a;
   }

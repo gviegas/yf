@@ -119,7 +119,7 @@ struct DrawTest : Test {
       while (!(img = wsi->nextImage()).first) { }
 
       auto tgtIt = find_if(tgts.begin(), tgts.end(), [&](auto& tgt) {
-        return tgt->colors_->front().image == img.first;
+        return tgt->colors()->front().image == img.first;
       });
       assert(tgtIt != tgts.end() && tgtIt == tgts.begin() + img.second);
 

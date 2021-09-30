@@ -5,8 +5,6 @@
 // Copyright © 2020-2021 Gustavo C. Viegas.
 //
 
-#include <stdexcept>
-
 #include "PassVK.h"
 #include "ImageVK.h"
 #include "DeviceVK.h"
@@ -139,12 +137,13 @@ PassVK::PassVK(const vector<ColorAttach>* colors,
 }
 
 PassVK::~PassVK() {
-  // TODO: notify
-  auto dev = deviceVK().device();
-  vkDestroyRenderPass(dev, renderPass_, nullptr);
   delete colors_;
   delete resolves_;
   delete depthStencil_;
+
+  // TODO: notify
+  auto dev = deviceVK().device();
+  vkDestroyRenderPass(dev, renderPass_, nullptr);
 }
 
 Target::Ptr PassVK::target(Size2 size, uint32_t layers,
@@ -202,26 +201,26 @@ TargetVK::TargetVK(PassVK& pass, Size2 size, uint32_t layers,
       }
     };
 
-    if (!pass_.colors() || pass_.colors()->size() != colors->size())
+    if (!pass.colors() || pass.colors()->size() != colors->size())
       throw invalid_argument("Target not compatible with pass");
 
     colors_ = new auto(*colors);
     add(*colors);
 
     if (resolves) {
-      if (!pass_.resolves() || pass_.resolves()->size() != resolves->size())
+      if (!pass.resolves() || pass.resolves()->size() != resolves->size())
         throw invalid_argument("Target not compatible with pass");
 
       resolves_ = new auto(*resolves);
       add(*resolves);
     }
 
-  } else if (pass_.colors()) {
+  } else if (pass.colors()) {
     throw invalid_argument("Target not compatible with pass");
   }
 
-  if (depthStencil_) {
-    if (!pass_.depthStencil())
+  if (depthStencil) {
+    if (!pass.depthStencil())
       throw invalid_argument("Target not compatible with pass");
 
     depthStencil_ = new auto(*depthStencil);
@@ -230,7 +229,7 @@ TargetVK::TargetVK(PassVK& pass, Size2 size, uint32_t layers,
     views_.push_back(img->getView(depthStencil->layer, layers,
                                   depthStencil->level, 1));
 
-  } else if (pass_.depthStencil()) {
+  } else if (pass.depthStencil()) {
     throw invalid_argument("Target not compatible with pass");
   }
 
@@ -243,7 +242,7 @@ TargetVK::TargetVK(PassVK& pass, Size2 size, uint32_t layers,
   info.sType = VK_STRUCTURE_TYPE_FRAMEBUFFER_CREATE_INFO;
   info.pNext = nullptr;
   info.flags = 0;
-  info.renderPass = pass_.renderPass();
+  info.renderPass = pass.renderPass();
   info.attachmentCount = attachs.size();
   info.pAttachments = attachs.data();
   info.width = size.width;
@@ -257,12 +256,13 @@ TargetVK::TargetVK(PassVK& pass, Size2 size, uint32_t layers,
 }
 
 TargetVK::~TargetVK() {
-  // TODO: notify
-  auto dev = deviceVK().device();
-  vkDestroyFramebuffer(dev, framebuffer_, nullptr);
   delete colors_;
   delete resolves_;
   delete depthStencil_;
+
+  // TODO: notify
+  auto dev = deviceVK().device();
+  vkDestroyFramebuffer(dev, framebuffer_, nullptr);
 }
 
 Pass& TargetVK::pass() {

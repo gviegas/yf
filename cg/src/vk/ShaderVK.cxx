@@ -19,9 +19,9 @@ using namespace std;
 
 ShaderVK::ShaderVK(Stage stage, const string& codeFile,
                    const string& entryPoint)
-  : Shader(stage, codeFile, entryPoint) {
+  : stage_(stage), entryPoint_(entryPoint) {
 
-  if (codeFile_.empty() || entryPoint_.empty())
+  if (codeFile.empty() || entryPoint.empty())
     throw invalid_argument("ShaderVK requires valid codeFile and entryPoint");
 
   // Get shader code data and create module
@@ -56,6 +56,14 @@ ShaderVK::~ShaderVK() {
   // TODO: notify
   auto dev = deviceVK().device();
   vkDestroyShaderModule(dev, module_, nullptr);
+}
+
+Stage ShaderVK::stage() const {
+  return stage_;
+}
+
+const std::string& ShaderVK::entryPoint() const {
+  return entryPoint_;
 }
 
 VkShaderModule ShaderVK::module() {

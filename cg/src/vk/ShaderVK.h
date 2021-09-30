@@ -21,12 +21,17 @@ class ShaderVK final : public Shader {
            const std::string& entryPoint);
   ~ShaderVK();
 
+  Stage stage() const;
+  const std::string& entryPoint() const;
+
   /// Getters.
   ///
   VkShaderModule module();
   const std::string& name() const;
 
  private:
+  const Stage stage_{};
+  const std::string entryPoint_{};
   VkShaderModule module_ = VK_NULL_HANDLE;
 };
 

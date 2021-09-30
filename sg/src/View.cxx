@@ -61,17 +61,18 @@ class View::Impl {
 
   void render(Scene* scene) {
     auto nextImg = wsi_->nextImage(false);
-    auto nextTgt = targets_.find(nextImg);
-    if (nextTgt == targets_.end())
+    if (!nextImg.first || nextImg.second >= targets_.size())
       throw runtime_error("Invalid render target");
 
-    // TODO: this should only be done on loop() start and window resize
-    scene->camera().adjust(static_cast<float>(nextTgt->second->size_.width) /
-                           static_cast<float>(nextTgt->second->size_.height));
+    auto nextTgt = targets_[nextImg.second].get();
 
-    renderer_.render(*scene, *nextTgt->second);
+    // TODO: this should only be done on loop() start and window resize
+    scene->camera().adjust(static_cast<float>(nextTgt->size_.width) /
+                           static_cast<float>(nextTgt->size_.height));
+
+    renderer_.render(*scene, *nextTgt);
     // TODO: catch broken swapchain errors
-    wsi_->present(nextImg);
+    wsi_->present(nextImg.second);
   }
 
  private:
@@ -80,7 +81,7 @@ class View::Impl {
   CG_NS::Wsi::Ptr wsi_{};
   CG_NS::Image::Ptr depthStencil_{};
   CG_NS::Pass::Ptr pass_{};
-  unordered_map<CG_NS::Image*, CG_NS::Target::Ptr> targets_{};
+  vector<CG_NS::Target::Ptr> targets_{};
   bool looping_ = false;
   Scene* scene_ = nullptr;
 
@@ -125,7 +126,7 @@ class View::Impl {
 
     for (const auto& img : imgs) {
       clrs[0].image = img;
-      targets_.emplace(img, pass_->target(size, 1, &clrs, nullptr, &ds));
+      targets_.push_back(pass_->target(size, 1, &clrs, nullptr, &ds));
     }
   }
 };

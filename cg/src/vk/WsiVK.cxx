@@ -411,7 +411,7 @@ uint32_t WsiVK::maxImages() const {
   return acqLimit_;
 }
 
-Image* WsiVK::nextImage(bool nonblocking) {
+pair<Image*, Wsi::Index> WsiVK::nextImage(bool nonblocking) {
   if (acquisitions_.size() == acqLimit_)
     throw LimitExcept("Limit for Wsi image acquisitions reached");
 
@@ -438,11 +438,11 @@ Image* WsiVK::nextImage(bool nonblocking) {
       swap(acqSemaphores_[semIx], acqSemaphores_[imgIx]);
     que.waitFor(sem, VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT);
     acquisitions_.insert(imgIx);
-    return images_[imgIx];
+    return {images_[imgIx], imgIx};
 
   case VK_TIMEOUT:
   case VK_NOT_READY:
-    return nullptr;
+    return {nullptr, UINT32_MAX};
 
   case VK_SUBOPTIMAL_KHR:
   case VK_ERROR_OUT_OF_DATE_KHR:

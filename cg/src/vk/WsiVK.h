@@ -22,7 +22,7 @@ class WsiVK final : public Wsi {
   ~WsiVK();
   const std::vector<Image*>& images() const;
   uint32_t maxImages() const;
-  Image* nextImage(bool nonblocking);
+  std::pair<Image*, Index> nextImage(bool nonblocking);
   void present(Image* image);
 
   /// Checks whether a given physical device supports presentation.

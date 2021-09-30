@@ -32,16 +32,12 @@ class Shader {
  public:
   using Ptr = std::unique_ptr<Shader>;
 
-  Shader(Stage stage, const std::string& codeFile,
-         const std::string& entryPoint = "main");
-
   virtual ~Shader() = 0;
 
-  /// Instance constants.
+  /// Getters.
   ///
-  const Stage stage_;
-  const std::string codeFile_;
-  const std::string entryPoint_;
+  virtual Stage stage() const = 0;
+  virtual const std::string& entryPoint() const = 0;
 };
 
 CG_NS_END

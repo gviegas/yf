@@ -64,7 +64,6 @@ class Queue {
     Transfer = 0x04
   };
 
-  explicit Queue(CapabilityMask capabilities);
   virtual ~Queue();
 
   /// Creates a new command buffer object.
@@ -75,9 +74,9 @@ class Queue {
   ///
   virtual void submit() = 0;
 
-  /// The capabilities of the queue.
+  /// Gets the capabilities of the queue.
   ///
-  const CapabilityMask capabilities_;
+  virtual CapabilityMask capabilities() const = 0;
 };
 
 CG_NS_END

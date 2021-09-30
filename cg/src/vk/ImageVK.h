@@ -34,6 +34,12 @@ class ImageVK final : public Image {
   void write(Offset2 offset, Size2 size, uint32_t layer, uint32_t level,
              const void* data);
 
+  PxFormat format() const;
+  Size2 size() const;
+  uint32_t layers() const;
+  uint32_t levels() const;
+  Samples samples() const;
+
   /// Performs a layout transition.
   ///
   void changeLayout(VkImageLayout newLayout, bool defer);
@@ -83,6 +89,12 @@ class ImageVK final : public Image {
                     uint32_t firstLevel, uint32_t levelCount);
 
  private:
+  const PxFormat format_{};
+  const Size2 size_{0};
+  const uint32_t layers_ = 0;
+  const uint32_t levels_ = 0;
+  const Samples samples_{};
+
   const bool owned_ = true;
 
   VkImageType type_ = VK_IMAGE_TYPE_2D;

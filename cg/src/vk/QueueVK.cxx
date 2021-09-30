@@ -426,11 +426,11 @@ void CmdBufferVK::encode(const GrEncoder& encoder) {
       auto i = d->tableIndex;
       auto j = d->allocIndex;
 
-      if (i >= gst->config_.dcTables.size() ||
-          j >= gst->config_.dcTables[i]->allocations())
+      if (i >= gst->config().dcTables.size() ||
+          j >= gst->config().dcTables[i]->allocations())
         throw invalid_argument("setDcTable() index out of range");
 
-      auto ds = static_cast<DcTableVK*>(gst->config_.dcTables[i])->ds(j);
+      auto ds = static_cast<DcTableVK*>(gst->config().dcTables[i])->ds(j);
       vkCmdBindDescriptorSets(handle_, VK_PIPELINE_BIND_POINT_GRAPHICS,
                               plLay, i, 1, &ds, 0, nullptr);
     }
@@ -717,11 +717,11 @@ void CmdBufferVK::encode(const CpEncoder& encoder) {
         auto i = d->tableIndex;
         auto j = d->allocIndex;
 
-        if (i >= cst->config_.dcTables.size() ||
-            j >= cst->config_.dcTables[i]->allocations())
+        if (i >= cst->config().dcTables.size() ||
+            j >= cst->config().dcTables[i]->allocations())
           throw invalid_argument("setDcTable() index out of range");
 
-        auto ds = static_cast<DcTableVK*>(cst->config_.dcTables[i])->ds(j);
+        auto ds = static_cast<DcTableVK*>(cst->config().dcTables[i])->ds(j);
         vkCmdBindDescriptorSets(handle_, VK_PIPELINE_BIND_POINT_COMPUTE,
                                 plLay, i, 1, &ds, 0, nullptr);
       }

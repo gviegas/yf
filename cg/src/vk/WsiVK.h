@@ -8,7 +8,6 @@
 #ifndef YF_CG_WSIVK_H
 #define YF_CG_WSIVK_H
 
-#include <unordered_map>
 #include <unordered_set>
 
 #include "Wsi.h"
@@ -43,7 +42,6 @@ class WsiVK final : public Wsi {
   uint32_t minImgN_ = 0;
 
   std::vector<Image*> images_{};
-  std::unordered_map<Image*, uint32_t> indices_{};
   std::unordered_set<uint32_t> acquisitions_{};
   uint32_t acqLimit_ = 0;
   std::vector<VkSemaphore> acqSemaphores_{};

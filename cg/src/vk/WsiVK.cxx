@@ -373,11 +373,6 @@ void WsiVK::createSwapchain() {
                                   scInfo_.imageUsage, ih, nullptr,
                                   VK_IMAGE_LAYOUT_UNDEFINED, false));
 
-  // Map image objects to indices
-  indices_.clear();
-  for (uint32_t i = 0; i < images_.size(); i++)
-    indices_.emplace(images_[i], i);
-
   // Clear image acquisitions & set new limit
   acquisitions_.clear();
   acqLimit_ = 1 + images_.size() - minImgN_;

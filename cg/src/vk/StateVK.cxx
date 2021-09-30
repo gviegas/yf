@@ -158,11 +158,11 @@ GrStateVK::GrStateVK(const Config& config)
   // Define multisample state
   // TODO: compute this value during pass creation instead
   VkSampleCountFlagBits splCount = VK_SAMPLE_COUNT_1_BIT;
-  if (config.pass->colors_)
+  if (config.pass->colors())
     // XXX: assuming all colors have the same sample count
-    splCount = toSampleCountVK(config.pass->colors_->back().samples);
+    splCount = toSampleCountVK(config.pass->colors()->back().samples);
   else
-    splCount = toSampleCountVK(config.pass->depthStencil_->samples);
+    splCount = toSampleCountVK(config.pass->depthStencil()->samples);
 
   VkPipelineMultisampleStateCreateInfo msInfo;
   msInfo.sType = VK_STRUCTURE_TYPE_PIPELINE_MULTISAMPLE_STATE_CREATE_INFO;
@@ -220,7 +220,7 @@ GrStateVK::GrStateVK(const Config& config)
                           VK_COLOR_COMPONENT_A_BIT;
 
   vector<VkPipelineColorBlendAttachmentState>
-  cbdAtts(config.pass->colors_ ? config.pass->colors_->size() : 0, cbdAtt);
+  cbdAtts(config.pass->colors() ? config.pass->colors()->size() : 0, cbdAtt);
 
   VkPipelineColorBlendStateCreateInfo cbdInfo;
   cbdInfo.sType = VK_STRUCTURE_TYPE_PIPELINE_COLOR_BLEND_STATE_CREATE_INFO;

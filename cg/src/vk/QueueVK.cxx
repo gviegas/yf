@@ -398,7 +398,7 @@ void CmdBufferVK::encode(const GrEncoder& encoder) {
     info.pNext = nullptr;
     info.renderPass = static_cast<PassVK&>(tgt->pass()).renderPass();
     info.framebuffer = tgt->framebuffer();
-    info.renderArea = {{0, 0}, {tgt->size_.width, tgt->size_.height}};
+    info.renderArea = {{0, 0}, {tgt->size().width, tgt->size().height}};
     // TODO
     info.clearValueCount = 0;
     info.pClearValues = nullptr;
@@ -437,7 +437,7 @@ void CmdBufferVK::encode(const GrEncoder& encoder) {
   // Clear attachments
   auto clearAttachments = [&] {
     VkClearRect rect{
-      {{0, 0}, {tgt->size_.width, tgt->size_.height}}, 0, tgt->layers_};
+      {{0, 0}, {tgt->size().width, tgt->size().height}}, 0, tgt->layers()};
 
     vkCmdClearAttachments(handle_, clears.size(), clears.data(), 1, &rect);
     clears.clear();
@@ -558,7 +558,7 @@ void CmdBufferVK::encode(const GrEncoder& encoder) {
     if (!tgt)
       throw invalid_argument("clearColor() requires a target");
 
-    if (!tgt->colors_ || tgt->colors_->size() <= sub->colorIndex)
+    if (!tgt->colors() || tgt->colors()->size() <= sub->colorIndex)
       throw invalid_argument("clearColor() index out of range");
 
     VkClearValue val;
@@ -574,10 +574,10 @@ void CmdBufferVK::encode(const GrEncoder& encoder) {
     if (!tgt)
       throw invalid_argument("clearDepth() requires a target");
 
-    if (!tgt->depthStencil_)
+    if (!tgt->depthStencil())
       throw invalid_argument("clearDepth() requires a depth attachment");
 
-    if (aspectOfVK(tgt->pass().depthStencil_->format) !=
+    if (aspectOfVK(tgt->pass().depthStencil()->format) !=
         VK_IMAGE_ASPECT_DEPTH_BIT)
       throw invalid_argument("clearDepth() requires a depth format");
 
@@ -591,10 +591,10 @@ void CmdBufferVK::encode(const GrEncoder& encoder) {
     if (!tgt)
       throw invalid_argument("clearStencil() requires a target");
 
-    if (!tgt->depthStencil_)
+    if (!tgt->depthStencil())
       throw invalid_argument("clearStencil() requires a stencil attachment");
 
-    if (aspectOfVK(tgt->pass().depthStencil_->format) !=
+    if (aspectOfVK(tgt->pass().depthStencil()->format) !=
         VK_IMAGE_ASPECT_STENCIL_BIT)
       throw invalid_argument("clearStencil() requires a stencil format");
 

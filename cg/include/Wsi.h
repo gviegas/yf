@@ -41,7 +41,7 @@ class Wsi {
 
   /// Presents a previously acquired image.
   ///
-  virtual void present(Image* image) = 0;
+  virtual void present(Index imageIndex) = 0;
 
   /// The window object.
   ///

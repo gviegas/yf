@@ -775,8 +775,8 @@ void CmdBufferVK::encode(const TfEncoder& encoder) {
     auto src = static_cast<BufferVK*>(sub->src);
 
     if (sub->size == 0 ||
-        sub->dstOffset + sub->size > dst->size_ ||
-        sub->srcOffset + sub->size > src->size_)
+        sub->dstOffset + sub->size > dst->size() ||
+        sub->srcOffset + sub->size > src->size())
       throw invalid_argument("copy(buf, buf) invalid range");
 
     if (dst == src &&

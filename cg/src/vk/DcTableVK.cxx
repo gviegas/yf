@@ -162,7 +162,7 @@ void DcTableVK::write(uint32_t allocation, DcId id, uint32_t element,
 
   if (allocation >= sets_.size() || ent == entries_.end() || ent->id != id ||
       (ent->type != DcTypeUniform && ent->type != DcTypeStorage) ||
-      element >= ent->elements || offset + size > buffer.size_)
+      element >= ent->elements || offset + size > buffer.size())
     throw invalid_argument("DcTable write() [Buffer]");
 
   const auto& lim = deviceVK().physLimits();

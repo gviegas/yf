@@ -15,7 +15,7 @@
 using namespace CG_NS;
 using namespace std;
 
-BufferVK::BufferVK(uint64_t size, VkBufferUsageFlags usage) : Buffer(size) {
+BufferVK::BufferVK(uint64_t size, VkBufferUsageFlags usage) : size_(size) {
   if (size == 0)
     throw invalid_argument("BufferVK requires size > 0");
 
@@ -86,7 +86,11 @@ void BufferVK::write(uint64_t offset, uint64_t size, const void* data) {
   if (offset + size > size_ || !data)
     throw invalid_argument("Invalid BufferVK::write() argument(s)");
 
-  memcpy(reinterpret_cast<uint8_t*>(data_)+offset, data, size);
+  memcpy(reinterpret_cast<char*>(data_)+offset, data, size);
+}
+
+uint64_t BufferVK::size() const {
+  return size_;
 }
 
 VkBuffer BufferVK::handle() {

@@ -68,3 +68,11 @@ inline uint32_t texelSize(PxFormat format) {
 INTERNAL_NS_END
 
 Image::~Image() { }
+
+uint32_t Image::bitsPerTexel(PxFormat format) {
+  return texelSize(format) << 3;
+}
+
+uint32_t Image::bitsPerTexel() const {
+  return texelSize(format()) << 3;
+}

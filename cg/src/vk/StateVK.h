@@ -20,6 +20,8 @@ class GrStateVK final : public GrState {
   explicit GrStateVK(const Config& config);
   ~GrStateVK();
 
+  const Config& config() const;
+
   /// Getters.
   ///
   VkShaderStageFlags stgFlags() const;
@@ -27,6 +29,7 @@ class GrStateVK final : public GrState {
   VkPipeline pipeline();
 
  private:
+  const Config config_{};
   VkShaderStageFlags stgFlags_ = 0;
   VkPipelineLayout plLayout_ = VK_NULL_HANDLE;
   VkPipeline pipeline_ = VK_NULL_HANDLE;
@@ -37,12 +40,15 @@ class CpStateVK final : public CpState {
   explicit CpStateVK(const Config& config);
   ~CpStateVK();
 
+  const Config& config() const;
+
   /// Getters.
   ///
   VkPipelineLayout plLayout();
   VkPipeline pipeline();
 
  private:
+  const Config config_{};
   VkPipelineLayout plLayout_ = VK_NULL_HANDLE;
   VkPipeline pipeline_ = VK_NULL_HANDLE;
 };

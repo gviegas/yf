@@ -50,7 +50,7 @@ INTERNAL_NS_END
 //
 
 GrStateVK::GrStateVK(const Config& config)
-  : GrState(config), stgFlags_(0), plLayout_(plLayoutVK(config.dcTables)) {
+  : config_(config), stgFlags_(0), plLayout_(plLayoutVK(config.dcTables)) {
 
   auto dev = deviceVK().device();
   auto cache = deviceVK().cache();
@@ -284,6 +284,10 @@ GrStateVK::~GrStateVK() {
   vkDestroyPipelineLayout(dev, plLayout_, nullptr);
 }
 
+const GrState::Config& GrStateVK::config() const {
+  return config_;
+}
+
 VkShaderStageFlags GrStateVK::stgFlags() const {
   return stgFlags_;
 }
@@ -301,7 +305,7 @@ VkPipeline GrStateVK::pipeline() {
 //
 
 CpStateVK::CpStateVK(const Config& config)
-  : CpState(config), plLayout_(plLayoutVK(config.dcTables)) {
+  : config_(config), plLayout_(plLayoutVK(config.dcTables)) {
 
   if (!config.shader || config.shader->stage() != StageCompute)
     throw invalid_argument("CpStateVK requires a compute shader");
@@ -342,6 +346,10 @@ CpStateVK::~CpStateVK() {
   auto dev = deviceVK().device();
   vkDestroyPipeline(dev, pipeline_, nullptr);
   vkDestroyPipelineLayout(dev, plLayout_, nullptr);
+}
+
+const CpState::Config& CpStateVK::config() const {
+  return config_;
 }
 
 VkPipelineLayout CpStateVK::plLayout() {

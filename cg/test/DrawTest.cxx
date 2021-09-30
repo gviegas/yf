@@ -40,7 +40,7 @@ struct DrawTest : Test {
     assert(wsiImgs.size() > 0);
 
     // Create pass
-    vector<ColorAttach> passClrs{{wsiImgs[0]->format_, wsiImgs[0]->samples_,
+    vector<ColorAttach> passClrs{{wsiImgs[0]->format(), wsiImgs[0]->samples(),
                                   LoadOpLoad, StoreOpStore}};
     DepStenAttach passDs{PxFormatD16Unorm, Samples1, LoadOpLoad, StoreOpStore,
                          LoadOpDontCare, StoreOpDontCare};

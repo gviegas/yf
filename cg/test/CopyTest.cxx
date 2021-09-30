@@ -35,7 +35,7 @@ struct CopyTest : Test {
     auto wsiImgs = wsi->images();
 
     // Pass
-    vector<ColorAttach> passClrs{{wsiImgs[0]->format_, wsiImgs[0]->samples_,
+    vector<ColorAttach> passClrs{{wsiImgs[0]->format(), wsiImgs[0]->samples(),
                                   LoadOpLoad, StoreOpStore}};
     DepStenAttach passDs{PxFormatD16Unorm, Samples1, LoadOpDontCare,
                          StoreOpDontCare, LoadOpDontCare, StoreOpDontCare};
@@ -136,9 +136,9 @@ struct CopyTest : Test {
         wcout << "\n> buffer copied\n";
       } else if (key == WS_NS::KeyCodeI) {
         key = WS_NS::KeyCodeUnknown;
-        auto tmp = dev.image(img->format_, img->size_, 1, 1, Samples1);
+        auto tmp = dev.image(img->format(), img->size(), 1, 1, Samples1);
         TfEncoder enc;
-        enc.copy(tmp.get(), {0}, 0, 0, img.get(), {0}, 0, 0, img->size_, 1);
+        enc.copy(tmp.get(), {0}, 0, 0, img.get(), {0}, 0, 0, img->size(), 1);
         cb->encode(enc);
         cb->enqueue();
         que.submit();

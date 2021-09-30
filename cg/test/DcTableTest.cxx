@@ -18,14 +18,17 @@ struct DcTableTest : Test {
   DcTableTest() : Test(L"DcTable") { }
 
   Assertions run(const vector<string>&) {
-    struct DcTable_ : DcTable {
-      DcTable_(const vector<DcEntry>& entries) : DcTable(entries) { }
+    class DcTable_ : public DcTable {
+      vector<DcEntry> entries_;
+     public:
+      DcTable_(const vector<DcEntry>& entries) : entries_(entries) { }
       void allocate(uint32_t) { }
       uint32_t allocations() const { return 0; }
       void write(uint32_t, DcId, uint32_t, Buffer&, uint64_t, uint64_t) { }
       void write(uint32_t, DcId, uint32_t, Image&, uint32_t, uint32_t) { }
       void write(uint32_t, DcId, uint32_t, Image&, uint32_t, uint32_t,
                  Sampler&) { }
+      const vector<DcEntry>& entries() const { return entries_; }
     };
 
     Assertions a;
@@ -38,7 +41,7 @@ struct DcTableTest : Test {
     DcTable_ tab2(ents2);
 
     bool chk = true;
-    for (const auto& e : tab1.entries_) {
+    for (const auto& e : tab1.entries()) {
       if (e.id == 0 && (e.type != DcTypeImgSampler || e.elements != 8))
         chk = false;
       else if (e.id == 2 && (e.type != DcTypeUniform || e.elements != 1))
@@ -46,12 +49,12 @@ struct DcTableTest : Test {
       else if (e.id == 4 && (e.type != DcTypeStorage || e.elements != 1))
         chk = false;
     }
-    a.push_back({L"DcTable(ents1)", tab1.entries_.size() == 3 && chk});
+    a.push_back({L"DcTable(ents1)", tab1.entries().size() == 3 && chk});
 
     a.push_back({L"DcTable(ents2)",
-                 tab2.entries_.size() == 1 &&
-                 tab2.entries_[0].type == DcTypeImage &&
-                 tab2.entries_[0].elements == 32});
+                 tab2.entries().size() == 1 &&
+                 tab2.entries()[0].type == DcTypeImage &&
+                 tab2.entries()[0].elements == 32});
 
     return a;
   }

@@ -10,6 +10,4 @@
 using namespace CG_NS;
 using namespace std;
 
-DcTable::DcTable(const vector<DcEntry>& entries) : entries_(entries) { }
-
 DcTable::~DcTable() { }

@@ -43,7 +43,6 @@ class DcTable {
  public:
   using Ptr = std::unique_ptr<DcTable>;
 
-  explicit DcTable(const std::vector<DcEntry>& entries);
   virtual ~DcTable();
 
   /// Allocates a given number of resources.
@@ -70,9 +69,9 @@ class DcTable {
                      Image& image, uint32_t layer, uint32_t level,
                      Sampler& sampler) = 0;
 
-  /// The table entries.
+  /// Gets the list of table entries.
   ///
-  const std::vector<DcEntry> entries_;
+  virtual const std::vector<DcEntry>& entries() const = 0;
 };
 
 CG_NS_END

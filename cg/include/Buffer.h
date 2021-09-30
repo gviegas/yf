@@ -21,16 +21,15 @@ class Buffer {
  public:
   using Ptr = std::unique_ptr<Buffer>;
 
-  explicit Buffer(uint64_t size);
   virtual ~Buffer();
 
   /// Writes data to buffer.
   ///
   virtual void write(uint64_t offset, uint64_t size, const void* data) = 0;
 
-  /// The size of the buffer.
+  /// Gets the size of the buffer.
   ///
-  const uint64_t size_;
+  virtual uint64_t size() const = 0;
 };
 
 CG_NS_END

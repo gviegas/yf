@@ -211,12 +211,11 @@ class GrState {
     Winding winding;
   };
 
-  explicit GrState(const Config& config);
   virtual ~GrState() = 0;
 
-  /// The state configuration.
+  /// Gets the state configuration.
   ///
-  const Config config_;
+  virtual const Config& config() const = 0;
 };
 
 /// Compute state.
@@ -232,12 +231,11 @@ class CpState {
     std::vector<DcTable*> dcTables;
   };
 
-  explicit CpState(const Config& config);
   virtual ~CpState() = 0;
 
-  /// The state configuration.
+  /// Gets the state configuration.
   ///
-  const Config config_;
+  virtual const Config& config() const = 0;
 };
 
 CG_NS_END

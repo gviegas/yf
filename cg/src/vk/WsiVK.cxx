@@ -478,7 +478,7 @@ void WsiVK::present(Index imageIndex) {
   barrier.srcQueueFamilyIndex = VK_QUEUE_FAMILY_IGNORED;
   barrier.dstQueueFamilyIndex = VK_QUEUE_FAMILY_IGNORED;
   barrier.image = img->handle();
-  barrier.subresourceRange.aspectMask = aspectOfVK(img->format_);
+  barrier.subresourceRange.aspectMask = aspectOfVK(img->format());
   barrier.subresourceRange.baseMipLevel = 0;
   barrier.subresourceRange.levelCount = 1;
   barrier.subresourceRange.baseArrayLayer = 0;

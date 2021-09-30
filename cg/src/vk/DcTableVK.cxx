@@ -219,7 +219,7 @@ void DcTableVK::write(uint32_t allocation, DcId id, uint32_t element,
 
   if (allocation >= sets_.size() || ent == entries_.end() || ent->id != id ||
       (ent->type != DcTypeImage && ent->type != DcTypeImgSampler) ||
-      element >= ent->elements || layer >= image.layers_)
+      element >= ent->elements || layer >= image.layers())
     throw invalid_argument("DcTableVK write() [Image]");
 
   ImgRef& ref = imgRefs_[allocation].find(id)->second[element];

@@ -798,22 +798,22 @@ void CmdBufferVK::encode(const TfEncoder& encoder) {
 
     if (sub->size.width == 0 || sub->size.height == 0 || sub->layerCount == 0 ||
         sub->dstOffset.x + sub->size.width >
-          dst->size_.width >> sub->dstLevel ||
+          dst->size().width >> sub->dstLevel ||
         sub->dstOffset.y + sub->size.height >
-          dst->size_.height >> sub->dstLevel ||
+          dst->size().height >> sub->dstLevel ||
         sub->srcOffset.x + sub->size.width >
-          src->size_.width >> sub->srcLevel ||
+          src->size().width >> sub->srcLevel ||
         sub->srcOffset.y + sub->size.height >
-          src->size_.height >> sub->srcLevel ||
-        sub->dstLayer + sub->layerCount > dst->layers_ ||
-        sub->srcLayer + sub->layerCount > src->layers_ ||
-        sub->dstLevel >= dst->levels_ || sub->srcLevel >= src->levels_)
+          src->size().height >> sub->srcLevel ||
+        sub->dstLayer + sub->layerCount > dst->layers() ||
+        sub->srcLayer + sub->layerCount > src->layers() ||
+        sub->dstLevel >= dst->levels() || sub->srcLevel >= src->levels())
       throw invalid_argument("copy(img, img) invalid range");
 
-    if (dst->format_ != src->format_)
+    if (dst->format() != src->format())
       throw invalid_argument("copy(img, img) formats differ");
 
-    if (dst->samples_ != src->samples_)
+    if (dst->samples() != src->samples())
       throw invalid_argument("copy(img, img) samples differ");
 
     // XXX
@@ -821,12 +821,12 @@ void CmdBufferVK::encode(const TfEncoder& encoder) {
     src->changeLayout(VK_IMAGE_LAYOUT_GENERAL, true);
 
     VkImageCopy region;
-    region.srcSubresource.aspectMask = aspectOfVK(src->format_);
+    region.srcSubresource.aspectMask = aspectOfVK(src->format());
     region.srcSubresource.mipLevel = sub->srcLevel;
     region.srcSubresource.baseArrayLayer = sub->srcLayer;
     region.srcSubresource.layerCount = sub->layerCount;
     region.srcOffset = {sub->srcOffset.x, sub->srcOffset.y, 0};
-    region.dstSubresource.aspectMask = aspectOfVK(dst->format_);
+    region.dstSubresource.aspectMask = aspectOfVK(dst->format());
     region.dstSubresource.mipLevel = sub->dstLevel;
     region.dstSubresource.baseArrayLayer = sub->dstLayer;
     region.dstSubresource.layerCount = sub->layerCount;

@@ -21,8 +21,7 @@ using namespace std;
 
 PassVK::PassVK(const vector<ColorAttach>* colors,
                const vector<ColorAttach>* resolves,
-               const DepStenAttach* depthStencil)
-  : Pass(colors, resolves, depthStencil) {
+               const DepStenAttach* depthStencil) {
 
   const auto& lim = deviceVK().physLimits();
   if (colors && colors->size() > lim.maxColorAttachments)
@@ -57,12 +56,14 @@ PassVK::PassVK(const vector<ColorAttach>* colors,
       }
     };
 
+    colors_ = new auto(*colors);
     add(*colors);
 
     if (resolves) {
       if (colors->size() != resolves->size())
         throw invalid_argument("Pass color/resolve attachment mismatch");
 
+      resolves_ = new auto(*resolves);
       add(*resolves);
     }
   }
@@ -71,6 +72,8 @@ PassVK::PassVK(const vector<ColorAttach>* colors,
     auto aspect = aspectOfVK(depthStencil->format);
     if (!(aspect & (VK_IMAGE_ASPECT_DEPTH_BIT | VK_IMAGE_ASPECT_STENCIL_BIT)))
       throw invalid_argument("Invalid format for depth/stencil attachment");
+
+    depthStencil_ = new auto(*depthStencil);
 
     attachDescs.push_back({});
 
@@ -139,6 +142,9 @@ PassVK::~PassVK() {
   // TODO: notify
   auto dev = deviceVK().device();
   vkDestroyRenderPass(dev, renderPass_, nullptr);
+  delete colors_;
+  delete resolves_;
+  delete depthStencil_;
 }
 
 Target::Ptr PassVK::target(Size2 size, uint32_t layers,
@@ -148,6 +154,18 @@ Target::Ptr PassVK::target(Size2 size, uint32_t layers,
 
   return make_unique<TargetVK>(*this, size, layers, colors, resolves,
                                depthStencil);
+}
+
+const vector<ColorAttach>* PassVK::colors() const {
+  return colors_;
+}
+
+const vector<ColorAttach>* PassVK::resolves() const {
+  return resolves_;
+}
+
+const DepStenAttach* PassVK::depthStencil() const {
+  return depthStencil_;
 }
 
 VkRenderPass PassVK::renderPass() {
@@ -162,7 +180,7 @@ TargetVK::TargetVK(PassVK& pass, Size2 size, uint32_t layers,
                    const vector<AttachImg>* colors,
                    const vector<AttachImg>* resolves,
                    const AttachImg* depthStencil)
-  : Target(size, layers, colors, resolves, depthStencil), pass_(pass) {
+  : pass_(pass), size_(size), layers_(layers) {
 
   if (size == 0 || layers == 0)
     throw invalid_argument("TargetVK requires size > 0 and layers > 0");
@@ -184,31 +202,35 @@ TargetVK::TargetVK(PassVK& pass, Size2 size, uint32_t layers,
       }
     };
 
-    if (!pass_.colors_ || pass_.colors_->size() != colors->size())
+    if (!pass_.colors() || pass_.colors()->size() != colors->size())
       throw invalid_argument("Target not compatible with pass");
 
+    colors_ = new auto(*colors);
     add(*colors);
 
     if (resolves) {
-      if (!pass_.resolves_ || pass_.resolves_->size() != resolves->size())
+      if (!pass_.resolves() || pass_.resolves()->size() != resolves->size())
         throw invalid_argument("Target not compatible with pass");
 
+      resolves_ = new auto(*resolves);
       add(*resolves);
     }
 
-  } else if (pass_.colors_) {
+  } else if (pass_.colors()) {
     throw invalid_argument("Target not compatible with pass");
   }
 
   if (depthStencil_) {
-    if (!pass_.depthStencil_)
+    if (!pass_.depthStencil())
       throw invalid_argument("Target not compatible with pass");
+
+    depthStencil_ = new auto(*depthStencil);
 
     auto img = static_cast<ImageVK*>(depthStencil->image);
     views_.push_back(img->getView(depthStencil->layer, layers,
                                   depthStencil->level, 1));
 
-  } else if (pass_.depthStencil_) {
+  } else if (pass_.depthStencil()) {
     throw invalid_argument("Target not compatible with pass");
   }
 
@@ -238,10 +260,33 @@ TargetVK::~TargetVK() {
   // TODO: notify
   auto dev = deviceVK().device();
   vkDestroyFramebuffer(dev, framebuffer_, nullptr);
+  delete colors_;
+  delete resolves_;
+  delete depthStencil_;
 }
 
 Pass& TargetVK::pass() {
   return pass_;
+}
+
+Size2 TargetVK::size() const {
+  return size_;
+}
+
+uint32_t TargetVK::layers() const {
+  return layers_;
+}
+
+const vector<AttachImg>* TargetVK::colors() const {
+  return colors_;
+}
+
+const vector<AttachImg>* TargetVK::resolves() const {
+  return resolves_;
+}
+
+const AttachImg* TargetVK::depthStencil() const {
+  return depthStencil_;
 }
 
 VkFramebuffer TargetVK::framebuffer() {

@@ -32,11 +32,18 @@ class PassVK final : public Pass {
                      const std::vector<AttachImg>* resolves,
                      const AttachImg* depthStencil);
 
+  const std::vector<ColorAttach>* colors() const;
+  const std::vector<ColorAttach>* resolves() const;
+  const DepStenAttach* depthStencil() const;
+
   /// Getter.
   ///
   VkRenderPass renderPass();
 
  private:
+  std::vector<ColorAttach>* colors_{};
+  std::vector<ColorAttach>* resolves_{};
+  DepStenAttach* depthStencil_{};
   VkRenderPass renderPass_ = VK_NULL_HANDLE;
 };
 
@@ -50,6 +57,11 @@ class TargetVK final : public Target {
   ~TargetVK();
 
   Pass& pass();
+  Size2 size() const;
+  uint32_t layers() const;
+  const std::vector<AttachImg>* colors() const;
+  const std::vector<AttachImg>* resolves() const;
+  const AttachImg* depthStencil() const;
 
   /// Getter.
   ///
@@ -57,6 +69,11 @@ class TargetVK final : public Target {
 
  private:
   PassVK& pass_;
+  const Size2 size_{0};
+  const uint32_t layers_{};
+  std::vector<AttachImg>* colors_{};
+  std::vector<AttachImg>* resolves_{};
+  AttachImg* depthStencil_{};
   VkFramebuffer framebuffer_ = VK_NULL_HANDLE;
   std::vector<ImageVK::View::Ptr> views_{};
 };

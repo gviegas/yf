@@ -28,6 +28,7 @@ class QueueVK final : public Queue {
 
   CmdBuffer::Ptr cmdBuffer();
   void submit();
+  CapabilityMask capabilities() const;
 
   /// Called by `CmdBufferVK` to enqueue itself.
   ///

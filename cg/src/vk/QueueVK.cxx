@@ -27,7 +27,7 @@ using namespace std;
 //
 
 QueueVK::QueueVK(VkQueue handle, int32_t family)
-  : Queue(Graphics|Compute|Transfer), handle_(handle), family_(family) {
+  : handle_(handle), family_(family) {
 
   assert(handle != nullptr);
   assert(family > -1);
@@ -194,6 +194,10 @@ void QueueVK::submit() {
   }
 
   notifyAndClear(true);
+}
+
+Queue::CapabilityMask QueueVK::capabilities() const {
+  return Graphics|Compute|Transfer;
 }
 
 void QueueVK::enqueue(CmdBufferVK* cmdBuffer) {

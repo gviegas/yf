@@ -67,9 +67,4 @@ inline uint32_t texelSize(PxFormat format) {
 
 INTERNAL_NS_END
 
-Image::Image(PxFormat format, Size2 size, uint32_t layers, uint32_t levels,
-             Samples samples)
-  : format_(format), size_(size), layers_(layers), levels_(levels),
-    samples_(samples), bitsPerTexel_(texelSize(format) << 3) { }
-
 Image::~Image() { }

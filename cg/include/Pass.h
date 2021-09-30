@@ -68,25 +68,17 @@ class Pass;
 class Target {
  public:
   using Ptr = std::unique_ptr<Target>;
-  using ImgsPtr = std::unique_ptr<std::vector<AttachImg>>;
-  using ImgPtr = std::unique_ptr<AttachImg>;
-
-  Target(Size2 size, uint32_t layers, const std::vector<AttachImg>* colors,
-         const std::vector<AttachImg>* resolves, const AttachImg* depthStencil);
 
   virtual ~Target();
 
-  /// Gets the `Pass` object that created the target.
+  /// Getters.
   ///
   virtual Pass& pass() = 0;
-
-  /// Instance constants.
-  ///
-  const Size2 size_;
-  const uint32_t layers_;
-  const ImgsPtr colors_;
-  const ImgsPtr resolves_;
-  const ImgPtr depthStencil_;
+  virtual Size2 size() const = 0;
+  virtual uint32_t layers() const = 0;
+  virtual const std::vector<AttachImg>* colors() const = 0;
+  virtual const std::vector<AttachImg>* resolves() const = 0;
+  virtual const AttachImg* depthStencil() const = 0;
 };
 
 /// Render pass.
@@ -94,12 +86,6 @@ class Target {
 class Pass {
  public:
   using Ptr = std::unique_ptr<Pass>;
-  using ColorsPtr = std::unique_ptr<std::vector<ColorAttach>>;
-  using DepStenPtr = std::unique_ptr<DepStenAttach>;
-
-  Pass(const std::vector<ColorAttach>* colors,
-       const std::vector<ColorAttach>* resolves,
-       const DepStenAttach* depthStencil);
 
   virtual ~Pass();
 
@@ -110,11 +96,11 @@ class Pass {
                              const std::vector<AttachImg>* resolves,
                              const AttachImg* depthStencil) = 0;
 
-  /// Instance constants.
+  /// Getters.
   ///
-  const ColorsPtr colors_;
-  const ColorsPtr resolves_;
-  const DepStenPtr depthStencil_;
+  virtual const std::vector<ColorAttach>* colors() const = 0;
+  virtual const std::vector<ColorAttach>* resolves() const = 0;
+  virtual const DepStenAttach* depthStencil() const = 0;
 };
 
 CG_NS_END

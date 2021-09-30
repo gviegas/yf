@@ -18,16 +18,19 @@ struct BufferTest : Test {
   BufferTest() : Test(L"Buffer") { }
 
   Assertions run(const vector<string>&) {
-    struct Buffer_ : Buffer {
-      Buffer_(size_t sz) : Buffer(sz) { }
+    class Buffer_ : public Buffer {
+      uint64_t sz_;
+     public:
+      Buffer_(size_t sz) : sz_(sz) { }
       void write(uint64_t, uint64_t, const void*) { }
+      uint64_t size() const { return sz_; }
     };
 
     Assertions a;
 
-    Buffer_ buf(1<<12);
+    Buffer_ buf(1<<14);
 
-    a.push_back({L"Buffer(1<<12)", buf.size_ == (1<<12)});
+    a.push_back({L"Buffer(1<<14)", buf.size() == (1<<14)});
 
     return a;
   }

@@ -125,9 +125,9 @@ struct CopyTest : Test {
 
       if (key == WS_NS::KeyCodeB) {
         key = WS_NS::KeyCodeUnknown;
-        auto tmp = dev.buffer(buf->size_);
+        auto tmp = dev.buffer(buf->size());
         TfEncoder enc;
-        enc.copy(tmp.get(), 0, buf.get(), 0, buf->size_);
+        enc.copy(tmp.get(), 0, buf.get(), 0, buf->size());
         cb->encode(enc);
         cb->enqueue();
         que.submit();

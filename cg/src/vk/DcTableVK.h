@@ -21,6 +21,7 @@ class DcTableVK final : public DcTable {
  public:
   explicit DcTableVK(const std::vector<DcEntry>& entries);
   ~DcTableVK();
+
   void allocate(uint32_t n);
   uint32_t allocations() const;
 
@@ -34,12 +35,15 @@ class DcTableVK final : public DcTable {
              Image& image, uint32_t layer, uint32_t level,
              Sampler& sampler);
 
+  const std::vector<DcEntry>& entries() const;
+
   /// Getters.
   ///
   VkDescriptorSetLayout dsLayout();
   VkDescriptorSet ds(uint32_t index);
 
  private:
+  std::vector<DcEntry> entries_{};
   VkDescriptorSetLayout dsLayout_ = VK_NULL_HANDLE;
   VkDescriptorPool pool_ = VK_NULL_HANDLE;
   std::vector<VkDescriptorPoolSize> poolSizes_{};

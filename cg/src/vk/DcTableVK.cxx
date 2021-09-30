@@ -15,12 +15,11 @@
 using namespace CG_NS;
 using namespace std;
 
-DcTableVK::DcTableVK(const vector<DcEntry>& entries) : DcTable(entries) {
+DcTableVK::DcTableVK(const vector<DcEntry>& entries) : entries_(entries) {
   if (entries.empty())
     throw invalid_argument("DcTableVK requires entries to be non-empty");
 
-  sort(const_cast<vector<DcEntry>&>(entries_).begin(),
-       const_cast<vector<DcEntry>&>(entries_).end(),
+  sort(entries_.begin(), entries_.end(),
        [](auto& a, auto& b) { return a.id < b.id; });
 
   vector<VkDescriptorSetLayoutBinding> binds;
@@ -263,6 +262,10 @@ void DcTableVK::write(uint32_t allocation, DcId id, uint32_t element,
   }
 
   vkUpdateDescriptorSets(deviceVK().device(), 1, &wr, 0, nullptr);
+}
+
+const vector<DcEntry>& DcTableVK::entries() const {
+  return entries_;
 }
 
 void DcTableVK::resetImgRefs() {

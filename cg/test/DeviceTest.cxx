@@ -30,7 +30,7 @@ struct DeviceTest : Test {
     this_thread::sleep_for(chrono::seconds(1));
 
     a.push_back({L"device()", true});
-    a.push_back({L"dev.defaultQueue()", que.capabilities_ != 0});
+    a.push_back({L"dev.defaultQueue()", que.capabilities() != 0});
     a.push_back({L"dev.wsi(...)", wsi != nullptr});
 
     return a;

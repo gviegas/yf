@@ -18,22 +18,24 @@ struct QueueTest : Test {
   QueueTest() : Test(L"Queue") { }
 
   Assertions run(const vector<string>&) {
-    struct CmdBuffer_ : CmdBuffer {
-      CmdBuffer_(Queue& owner) : _queue(owner) { }
+    class CmdBuffer_ : public CmdBuffer {
+      Queue& queue_;
+     public:
+      CmdBuffer_(Queue& owner) : queue_(owner) { }
       void encode(const Encoder&) { }
       void enqueue() { }
       void reset() { }
       bool isPending() { return true; }
-      Queue& queue() { return _queue; }
-
-     private:
-      Queue& _queue;
+      Queue& queue() { return queue_; }
     };
 
-    struct Queue_ : Queue {
-      Queue_(CapabilityMask capab) : Queue(capab) { }
+    class Queue_ : public Queue {
+      CapabilityMask capab_;
+     public:
+      Queue_(CapabilityMask capab) : capab_(capab) { }
       CmdBuffer::Ptr cmdBuffer() { return make_unique<CmdBuffer_>(*this); }
       void submit() { }
+      CapabilityMask capabilities() const { return capab_; }
     };
 
     Assertions a;
@@ -43,8 +45,8 @@ struct QueueTest : Test {
     auto cb = q1.cmdBuffer();
 
     a.push_back({L"Queue q1(Graphics | Transfer)",
-                 q1.capabilities_ == (Queue::Graphics | Queue::Transfer)});
-    a.push_back({L"Queue q2(Compute)", q2.capabilities_ == Queue::Compute});
+                 q1.capabilities() == (Queue::Graphics | Queue::Transfer)});
+    a.push_back({L"Queue q2(Compute)", q2.capabilities() == Queue::Compute});
     a.push_back({L"cb = q1.cmdBuffer()", cb != nullptr});
     a.push_back({L"&cb->queue() == &q1", &cb->queue() == &q1});
     a.push_back({L"&cb->queue() == &q2", &cb->queue() != &q2});

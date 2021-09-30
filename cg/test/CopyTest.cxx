@@ -164,17 +164,14 @@ struct CopyTest : Test {
         break;
       }
 
-      Image* next = wsi->nextImage(false).first;
-      auto tgtIt = find_if(tgts.begin(), tgts.end(), [&](auto& tgt) {
-        return tgt->colors_->front().image == next;
-      });
+      const auto next = wsi->nextImage(false);
 
       // Encoder
       GrEncoder enc;
       enc.setState(state.get());
       enc.setViewport(vport);
       enc.setScissor(sciss);
-      enc.setTarget(tgtIt->get());
+      enc.setTarget(tgts[next.second].get());
       enc.setDcTable(0, 0);
       enc.setVertexBuffer(buf.get(), 0, 0);
       enc.setVertexBuffer(buf.get(), sizeof pos, 1);
@@ -185,7 +182,7 @@ struct CopyTest : Test {
       cb->encode(enc);
       cb->enqueue();
       que.submit();
-      wsi->present(next);
+      wsi->present(next.second);
     }
 
     return true;

@@ -115,13 +115,13 @@ struct DrawTest : Test {
     const auto tm = chrono::system_clock::now() + chrono::seconds(5);
     while (chrono::system_clock::now() < tm) {
       // Acquire next drawable image
-      Image* img;
-      while (!(img = wsi->nextImage().first)) { }
+      pair<Image*, Wsi::Index> img;
+      while (!(img = wsi->nextImage()).first) { }
 
       auto tgtIt = find_if(tgts.begin(), tgts.end(), [&](auto& tgt) {
-        return tgt->colors_->front().image == img;
+        return tgt->colors_->front().image == img.first;
       });
-      assert(tgtIt != tgts.end());
+      assert(tgtIt != tgts.end() && tgtIt == tgts.begin() + img.second);
 
       // Encode commands
       GrEncoder enc;
@@ -146,7 +146,7 @@ struct DrawTest : Test {
       que.submit();
 
       // Present image
-      wsi->present(img);
+      wsi->present(img.second);
     }
 
     return true;

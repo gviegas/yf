@@ -24,10 +24,9 @@ class ShaderVK final : public Shader {
   Stage stage() const;
   const std::string& entryPoint() const;
 
-  /// Getters.
+  /// Getter.
   ///
   VkShaderModule module();
-  const std::string& name() const;
 
  private:
   const Stage stage_{};

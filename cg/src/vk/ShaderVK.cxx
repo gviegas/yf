@@ -69,7 +69,3 @@ const std::string& ShaderVK::entryPoint() const {
 VkShaderModule ShaderVK::module() {
   return module_;
 }
-
-const string& ShaderVK::name() const {
-  return entryPoint_;
-}

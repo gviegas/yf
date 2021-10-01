@@ -31,6 +31,16 @@ class Wsi {
   virtual Image* operator[](Index index) = 0;
   virtual const Image* operator[](Index index) const = 0;
 
+  /// Gets the beginning of the swapchain.
+  ///
+  virtual Image* const* begin() = 0;
+  virtual const Image* const* begin() const = 0;
+
+  /// Gets the end of the swapchain.
+  ///
+  virtual Image* const* end() = 0;
+  virtual const Image* const* end() const = 0;
+
   /// Gets the list of all images in the swapchain.
   ///
   virtual const std::vector<Image*>& images() const = 0;

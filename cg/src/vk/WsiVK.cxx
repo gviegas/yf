@@ -424,8 +424,8 @@ const Image* const* WsiVK::end() const {
   return images_.data()+images_.size();
 }
 
-const vector<Image*>& WsiVK::images() const {
-  return images_;
+uint32_t WsiVK::size() const {
+  return images_.size();
 }
 
 uint32_t WsiVK::maxImages() const {

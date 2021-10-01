@@ -24,7 +24,6 @@ class Wsi {
   using Ptr = std::unique_ptr<Wsi>;
   using Index = uint32_t;
 
-  Wsi(WS_NS::Window* window);
   virtual ~Wsi();
 
   /// Gets the list of all images in the swapchain.
@@ -43,9 +42,9 @@ class Wsi {
   ///
   virtual void present(Index imageIndex) = 0;
 
-  /// The window object.
+  /// Gets the window object.
   ///
-  WS_NS::Window* const window_;
+  virtual WS_NS::Window& window() = 0;
 };
 
 CG_NS_END

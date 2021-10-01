@@ -24,7 +24,6 @@ class CmdBuffer {
  public:
   using Ptr = std::unique_ptr<CmdBuffer>;
 
-  CmdBuffer() = default;
   virtual ~CmdBuffer();
 
   /// Encodes the command buffer with the contents of an encoder object.
@@ -43,7 +42,7 @@ class CmdBuffer {
   ///
   virtual bool isPending() = 0;
 
-  /// The queue that owns the command buffer.
+  /// Gets the queue that owns the command buffer.
   ///
   virtual Queue& queue() = 0;
 };

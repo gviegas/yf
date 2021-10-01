@@ -23,10 +23,13 @@ struct WsiTest : Test {
   Assertions run(const vector<string>&) {
     class Wsi_ : public Wsi {
       WS_NS::Window* window_;
+      vector<Image*> images_{3, nullptr};
      public:
       Wsi_(WS_NS::Window* window) : window_(window) { }
-      const vector<Image*>& images() const { assert(false); }
-      uint32_t maxImages() const { return 0; }
+      Image* operator[](Index index) { return images_[index]; }
+      const Image* operator[](Index index) const { return images_[index]; }
+      const vector<Image*>& images() const { return images_; }
+      uint32_t maxImages() const { return 1; }
       pair<Image*, Index> nextImage(bool) { return {nullptr, UINT32_MAX}; }
       void present(Index) { }
       WS_NS::Window& window() { return *window_; }

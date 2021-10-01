@@ -26,6 +26,11 @@ class Wsi {
 
   virtual ~Wsi();
 
+  /// Gets the swapchain image for a givem index.
+  ///
+  virtual Image* operator[](Index index) = 0;
+  virtual const Image* operator[](Index index) const = 0;
+
   /// Gets the list of all images in the swapchain.
   ///
   virtual const std::vector<Image*>& images() const = 0;

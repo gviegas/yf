@@ -211,7 +211,7 @@ class GrState {
     Winding winding;
   };
 
-  virtual ~GrState() = 0;
+  virtual ~GrState();
 
   /// Gets the state configuration.
   ///
@@ -231,7 +231,7 @@ class CpState {
     std::vector<DcTable*> dcTables;
   };
 
-  virtual ~CpState() = 0;
+  virtual ~CpState();
 
   /// Gets the state configuration.
   ///

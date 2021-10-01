@@ -23,6 +23,7 @@ class WsiVK final : public Wsi {
   uint32_t maxImages() const;
   std::pair<Image*, Index> nextImage(bool nonblocking);
   void present(Index imageIndex);
+  WS_NS::Window& window();
 
   /// Checks whether a given physical device supports presentation.
   ///
@@ -35,6 +36,8 @@ class WsiVK final : public Wsi {
  private:
   static VkQueue queue_;
   static int32_t family_;
+
+  WS_NS::Window* window_{};
 
   VkSurfaceKHR surface_ = VK_NULL_HANDLE;
   VkSwapchainKHR swapchain_ = VK_NULL_HANDLE;

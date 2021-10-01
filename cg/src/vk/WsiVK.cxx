@@ -87,8 +87,8 @@ void WsiVK::setQueue(VkQueue queue, int32_t family) {
 VkQueue WsiVK::queue_ = nullptr;
 int32_t WsiVK::family_ = -1;
 
-WsiVK::WsiVK(WS_NS::Window* window) : Wsi(window) {
-  if (!window_)
+WsiVK::WsiVK(WS_NS::Window* window) : window_(window) {
+  if (!window)
     throw invalid_argument("WsiVK requires a valid window object");
   if (!queue_ || family_ < 0)
     throw UnsupportedExcept("Wsi not supported");
@@ -524,4 +524,8 @@ void WsiVK::present(Index imageIndex) {
   default:
     throw DeviceExcept("Could not present image");
   }
+}
+
+WS_NS::Window& WsiVK::window() {
+  return *window_;
 }

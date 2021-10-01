@@ -8,6 +8,7 @@
 #ifndef YF_CG_WSI_H
 #define YF_CG_WSI_H
 
+#include <cstdint>
 #include <utility>
 #include <memory>
 #include <vector>

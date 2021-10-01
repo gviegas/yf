@@ -89,7 +89,7 @@ class Pass {
 
   virtual ~Pass();
 
-  /// Creates a new target compatible with this pass.
+  /// Creates a new target compatible with the pass.
   ///
   virtual Target::Ptr target(Size2 size, uint32_t layers,
                              const std::vector<AttachImg>* colors,

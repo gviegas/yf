@@ -213,7 +213,7 @@ class GrState {
 
   virtual ~GrState();
 
-  /// Gets the state configuration.
+  /// Gets the state's configuration.
   ///
   virtual const Config& config() const = 0;
 };
@@ -233,7 +233,7 @@ class CpState {
 
   virtual ~CpState();
 
-  /// Gets the state configuration.
+  /// Gets the state's configuration.
   ///
   virtual const Config& config() const = 0;
 };

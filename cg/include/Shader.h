@@ -32,7 +32,7 @@ class Shader {
  public:
   using Ptr = std::unique_ptr<Shader>;
 
-  virtual ~Shader() = 0;
+  virtual ~Shader();
 
   /// Getters.
   ///

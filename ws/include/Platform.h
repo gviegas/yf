@@ -43,7 +43,7 @@ class Window;
 #if defined(__linux__)
 xcb_connection_t* connectionXCB();
 xcb_visualid_t visualIdXCB();
-xcb_window_t windowXCB(const Window* window);
+xcb_window_t windowXCB(const Window& window);
 
 #elif defined(__APPLE__)
 # error "Unimplemented"

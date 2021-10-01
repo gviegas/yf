@@ -127,11 +127,11 @@ xcb_visualid_t visualIdXCB() {
   return varsXCB().visualId;
 }
 
-xcb_window_t windowXCB(const Window* window) {
+xcb_window_t windowXCB(const Window& window) {
   if (curPfm != PlatformXCB)
     throw runtime_error("XCB is not the current platform");
 
-  return static_cast<const WindowXCB*>(window)->window();
+  return static_cast<const WindowXCB&>(window).window();
 }
 #else
 // TODO: other systems

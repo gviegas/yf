@@ -482,7 +482,7 @@ CpState::Ptr DeviceVK::state(const CpState::Config& config) {
   return make_unique<CpStateVK>(config);
 }
 
-Wsi::Ptr DeviceVK::wsi(WS_NS::Window* window) {
+Wsi::Ptr DeviceVK::wsi(WS_NS::Window& window) {
   return make_unique<WsiVK>(window);
 }
 

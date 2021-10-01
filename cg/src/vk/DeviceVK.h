@@ -45,7 +45,7 @@ class DeviceVK final : public Device {
   GrState::Ptr state(const GrState::Config& config);
   CpState::Ptr state(const CpState::Config& config);
 
-  Wsi::Ptr wsi(WS_NS::Window* window);
+  Wsi::Ptr wsi(WS_NS::Window& window);
 
   const Limits& limits() const;
 

@@ -36,11 +36,10 @@ struct DrawTest : Test {
     auto win = WS_NS::createWindow(480, 400, name_);
     Size2 winSz{win->width(), win->height()};
     auto wsi = dev.wsi(win.get());
-    auto wsiImgs = wsi->images();
-    assert(wsiImgs.size() > 0);
+    assert(wsi->size() > 0);
 
     // Create pass
-    vector<ColorAttach> passClrs{{wsiImgs[0]->format(), wsiImgs[0]->samples(),
+    vector<ColorAttach> passClrs{{(*wsi)[0]->format(), (*wsi)[0]->samples(),
                                   LoadOpLoad, StoreOpStore}};
     DepStenAttach passDs{PxFormatD16Unorm, Samples1, LoadOpLoad, StoreOpStore,
                          LoadOpDontCare, StoreOpDontCare};
@@ -53,7 +52,7 @@ struct DrawTest : Test {
     vector<AttachImg> clrImgs{{nullptr, 0, 0}};
     AttachImg dsImg{ds.get(), 0, 0};
     vector<Target::Ptr> tgts;
-    for (const auto& wi : wsiImgs) {
+    for (const auto& wi : *wsi) {
       clrImgs[0].image = wi;
       tgts.push_back(pass->target(winSz, 1, &clrImgs, nullptr, &dsImg));
     }

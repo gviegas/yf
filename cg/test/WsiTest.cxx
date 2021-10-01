@@ -42,7 +42,7 @@ struct WsiTest : Test {
       const Image* const* begin() const { return images_.data(); }
       Image* const* end() { return images_.data()+images_.size(); }
       const Image* const* end() const { return images_.data()+images_.size(); }
-      const vector<Image*>& images() const { return images_; }
+      uint32_t size() const { return images_.size(); }
       uint32_t maxImages() const { return 1; }
       pair<Image*, Index> nextImage(bool) { return {nullptr, UINT32_MAX}; }
       void present(Index) { }

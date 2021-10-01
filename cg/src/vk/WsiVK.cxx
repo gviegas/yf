@@ -398,6 +398,16 @@ void WsiVK::createSwapchain() {
   } while (--semN);
 }
 
+Image* WsiVK::operator[](Index index) {
+  assert(index < images_.size());
+  return images_[index];
+}
+
+const Image* WsiVK::operator[](Index index) const {
+  assert(index < images_.size());
+  return images_[index];
+}
+
 const vector<Image*>& WsiVK::images() const {
   return images_;
 }

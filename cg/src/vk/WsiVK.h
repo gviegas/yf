@@ -19,6 +19,9 @@ class WsiVK final : public Wsi {
  public:
   WsiVK(WS_NS::Window* window);
   ~WsiVK();
+
+  Image* operator[](Index index);
+  const Image* operator[](Index index) const;
   const std::vector<Image*>& images() const;
   uint32_t maxImages() const;
   std::pair<Image*, Index> nextImage(bool nonblocking);

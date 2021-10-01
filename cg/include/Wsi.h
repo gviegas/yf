@@ -41,9 +41,9 @@ class Wsi {
   virtual Image* const* end() = 0;
   virtual const Image* const* end() const = 0;
 
-  /// Gets the list of all images in the swapchain.
+  /// Gets the number of images in the swapchain.
   ///
-  virtual const std::vector<Image*>& images() const = 0;
+  virtual uint32_t size() const = 0;
 
   /// Gets the maximum number of images that can be acquired.
   ///

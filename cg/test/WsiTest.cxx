@@ -28,6 +28,10 @@ struct WsiTest : Test {
       Wsi_(WS_NS::Window* window) : window_(window) { }
       Image* operator[](Index index) { return images_[index]; }
       const Image* operator[](Index index) const { return images_[index]; }
+      Image* const* begin() { return images_.data(); }
+      const Image* const* begin() const { return images_.data(); }
+      Image* const* end() { return images_.data()+images_.size(); }
+      const Image* const* end() const { return images_.data()+images_.size(); }
       const vector<Image*>& images() const { return images_; }
       uint32_t maxImages() const { return 1; }
       pair<Image*, Index> nextImage(bool) { return {nullptr, UINT32_MAX}; }

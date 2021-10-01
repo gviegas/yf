@@ -141,7 +141,7 @@ void WsiVK::initSurface() {
       nullptr,
       0,
       WS_NS::connectionXCB(),
-      WS_NS::windowXCB(&window_)
+      WS_NS::windowXCB(window_)
     };
     res = vkCreateXcbSurfaceKHR(inst, &info, nullptr, &surface_);
     if (res != VK_SUCCESS)

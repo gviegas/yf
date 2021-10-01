@@ -428,7 +428,7 @@ uint32_t WsiVK::size() const {
   return images_.size();
 }
 
-uint32_t WsiVK::maxImages() const {
+uint32_t WsiVK::acquisitionLimit() const {
   return acqLimit_;
 }
 

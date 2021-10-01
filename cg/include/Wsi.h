@@ -47,7 +47,7 @@ class Wsi {
 
   /// Gets the maximum number of images that can be acquired.
   ///
-  virtual uint32_t maxImages() const = 0;
+  virtual uint32_t acquisitionLimit() const = 0;
 
   /// Gets the next writable image.
   ///

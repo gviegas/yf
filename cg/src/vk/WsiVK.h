@@ -27,7 +27,7 @@ class WsiVK final : public Wsi {
   Image* const* end();
   const Image* const* end() const;
   uint32_t size() const;
-  uint32_t maxImages() const;
+  uint32_t acquisitionLimit() const;
   std::pair<Image*, Index> nextImage(bool nonblocking);
   void present(Index imageIndex);
   WS_NS::Window& window();

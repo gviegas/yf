@@ -21,12 +21,15 @@ struct WsiTest : Test {
   WsiTest() : Test(L"Wsi") { }
 
   Assertions run(const vector<string>&) {
-    struct Wsi_ : Wsi {
-      Wsi_(WS_NS::Window* win) : Wsi(win) { }
+    class Wsi_ : public Wsi {
+      WS_NS::Window* window_;
+     public:
+      Wsi_(WS_NS::Window* window) : window_(window) { }
       const vector<Image*>& images() const { assert(false); }
       uint32_t maxImages() const { return 0; }
       pair<Image*, Index> nextImage(bool) { return {nullptr, UINT32_MAX}; }
       void present(Index) { }
+      WS_NS::Window& window() { return *window_; }
     };
 
     Assertions a;
@@ -35,12 +38,12 @@ struct WsiTest : Test {
                                                     WS_NS::Window::Hidden);
     Wsi_ wsi(win.get());
 
-    wsi.window_->open();
+    wsi.window().open();
     this_thread::sleep_for(chrono::seconds(1));
-    wsi.window_->close();
+    wsi.window().close();
     this_thread::sleep_for(chrono::milliseconds(500));
 
-    a.push_back({L"Wsi(...)", wsi.window_ == win.get()});
+    a.push_back({L"Wsi(...)", &wsi.window() == win.get()});
 
     return a;
   }

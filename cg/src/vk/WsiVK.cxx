@@ -87,9 +87,7 @@ void WsiVK::setQueue(VkQueue queue, int32_t family) {
 VkQueue WsiVK::queue_ = nullptr;
 int32_t WsiVK::family_ = -1;
 
-WsiVK::WsiVK(WS_NS::Window* window) : window_(window) {
-  if (!window)
-    throw invalid_argument("WsiVK requires a valid window object");
+WsiVK::WsiVK(WS_NS::Window& window) : window_(window) {
   if (!queue_ || family_ < 0)
     throw UnsupportedExcept("Wsi not supported");
 
@@ -143,7 +141,7 @@ void WsiVK::initSurface() {
       nullptr,
       0,
       WS_NS::connectionXCB(),
-      WS_NS::windowXCB(window_)
+      WS_NS::windowXCB(&window_)
     };
     res = vkCreateXcbSurfaceKHR(inst, &info, nullptr, &surface_);
     if (res != VK_SUCCESS)
@@ -236,7 +234,7 @@ void WsiVK::querySurface() {
   }
 
   // Ensure correct dimensions
-  VkExtent2D extent{window_->width(), window_->height()};
+  VkExtent2D extent{window_.width(), window_.height()};
   if (capab.currentExtent.width == 0xFFFFFFFF) {
     extent.width = clamp(extent.width, capab.minImageExtent.width,
                          capab.maxImageExtent.width);
@@ -553,5 +551,5 @@ void WsiVK::present(Index imageIndex) {
 }
 
 WS_NS::Window& WsiVK::window() {
-  return *window_;
+  return window_;
 }

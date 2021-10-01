@@ -17,7 +17,7 @@ CG_NS_BEGIN
 
 class WsiVK final : public Wsi {
  public:
-  WsiVK(WS_NS::Window* window);
+  WsiVK(WS_NS::Window& window);
   ~WsiVK();
 
   Image* operator[](Index index);
@@ -44,7 +44,7 @@ class WsiVK final : public Wsi {
   static VkQueue queue_;
   static int32_t family_;
 
-  WS_NS::Window* window_{};
+  WS_NS::Window& window_;
 
   VkSurfaceKHR surface_ = VK_NULL_HANDLE;
   VkSwapchainKHR swapchain_ = VK_NULL_HANDLE;

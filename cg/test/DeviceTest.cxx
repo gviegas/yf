@@ -25,7 +25,7 @@ struct DeviceTest : Test {
     auto& dev = device();
     auto& que = dev.defaultQueue();
     auto win = WS_NS::createWindow(400, 400, name_, WS_NS::Window::Resizable);
-    auto wsi = dev.wsi(win.get());
+    auto wsi = dev.wsi(*win);
 
     this_thread::sleep_for(chrono::seconds(1));
 

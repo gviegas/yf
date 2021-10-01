@@ -35,7 +35,7 @@ struct DrawTest : Test {
     // Create wsi
     auto win = WS_NS::createWindow(480, 400, name_);
     Size2 winSz{win->width(), win->height()};
-    auto wsi = dev.wsi(win.get());
+    auto wsi = dev.wsi(*win);
     assert(wsi->size() > 0);
 
     // Create pass

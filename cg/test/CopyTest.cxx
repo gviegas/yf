@@ -31,7 +31,7 @@ struct CopyTest : Test {
     // Wsi
     auto win = WS_NS::createWindow(480, 400, name_);
     Size2 winSz{win->width(), win->height()};
-    auto wsi = dev.wsi(win.get());
+    auto wsi = dev.wsi(*win);
 
     // Pass
     vector<ColorAttach> passClrs{{(*wsi)[0]->format(), (*wsi)[0]->samples(),

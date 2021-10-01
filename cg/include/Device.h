@@ -66,7 +66,7 @@ class Device {
 
   /// Creates a new wsi object.
   ///
-  virtual Wsi::Ptr wsi(WS_NS::Window* window) = 0;
+  virtual Wsi::Ptr wsi(WS_NS::Window& window) = 0;
 
   /// Gets limits.
   ///

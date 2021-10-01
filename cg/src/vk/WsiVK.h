@@ -22,6 +22,10 @@ class WsiVK final : public Wsi {
 
   Image* operator[](Index index);
   const Image* operator[](Index index) const;
+  Image* const* begin();
+  const Image* const* begin() const;
+  Image* const* end();
+  const Image* const* end() const;
   const std::vector<Image*>& images() const;
   uint32_t maxImages() const;
   std::pair<Image*, Index> nextImage(bool nonblocking);

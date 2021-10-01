@@ -408,6 +408,22 @@ const Image* WsiVK::operator[](Index index) const {
   return images_[index];
 }
 
+Image* const* WsiVK::begin() {
+  return images_.data();
+}
+
+const Image* const* WsiVK::begin() const {
+  return images_.data();
+}
+
+Image* const* WsiVK::end() {
+  return images_.data()+images_.size();
+}
+
+const Image* const* WsiVK::end() const {
+  return images_.data()+images_.size();
+}
+
 const vector<Image*>& WsiVK::images() const {
   return images_;
 }

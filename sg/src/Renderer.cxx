@@ -171,9 +171,9 @@ void Renderer::render(Scene& scene, CG_NS::Target& target) {
   // Encode common commands
   CG_NS::GrEncoder enc;
   enc.setTarget(&target);
-  enc.setViewport({0.0f, 0.0f, static_cast<float>(target.size_.width),
-                   static_cast<float>(target.size_.height), 0.0f, 1.0f});
-  enc.setScissor({{0}, target.size_});
+  enc.setViewport({0.0f, 0.0f, static_cast<float>(target.size().width),
+                   static_cast<float>(target.size().height), 0.0f, 1.0f});
+  enc.setScissor({{0}, target.size()});
   enc.setDcTable(GlobalTable, 0);
   enc.clearColor(scene.color());
   enc.clearDepth(1.0f);
@@ -598,7 +598,7 @@ void Renderer::prepare() {
 
   // TODO: improve resizing
   // TODO: also consider shrinking if buffer grows too much
-  if (unifLen > unifBuffer_->size_)
+  if (unifLen > unifBuffer_->size())
     unifBuffer_ = dev.buffer(unifLen);
 }
 

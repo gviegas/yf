@@ -12,6 +12,7 @@
 #include <vector>
 #include <unordered_map>
 #include <type_traits>
+#include <stdexcept>
 
 #include "DataGLTF.h"
 #include "Model.h"
@@ -80,7 +81,7 @@ class Symbol {
         if (c == '\\') {
           ifs_.get(c);
           if (c != '"' && c != '\\') {
-            // TODO: other escape sequences
+            // TODO: Other escape sequences
             type_ = Err;
             break;
           }
@@ -710,7 +711,7 @@ class GLTF {
     if (beg == ifstream::pos_type(-1))
       throw FileExcept("Could not tell position of glTF file");
 
-    // TODO: endian
+    // TODO: Endian
     uint32_t magic;
     if (!ifs.read(reinterpret_cast<char*>(&magic), sizeof magic))
       throw FileExcept("Could not read from glTF file");
@@ -1877,7 +1878,7 @@ void loadMesh(Mesh::Data& dst, unordered_map<int32_t, ifstream>& bufferMap,
   if (mesh.primitives.empty())
     throw runtime_error("Invalid glTF primitives");
 
-  // TODO: multiple primitives & other primitive topologies
+  // TODO: Multiple primitives & other primitive topologies
   if (mesh.primitives.size() > 1 ||
       mesh.primitives.front().mode != GLTF::Mesh::Primitive::Triangles)
     throw UnsupportedExcept("Unsupported glTF mesh");
@@ -1912,7 +1913,7 @@ void loadMesh(Mesh::Data& dst, unordered_map<int32_t, ifstream>& bufferMap,
 
   unordered_map<int32_t, vector<Desc>> descMap{};
 
-  // TODO: validate glTF data
+  // TODO: Validate glTF data
   for (const auto& prim : mesh.primitives) {
     for (const auto& att : prim.attributes) {
 
@@ -1942,14 +1943,14 @@ void loadMesh(Mesh::Data& dst, unordered_map<int32_t, ifstream>& bufferMap,
     ifstream* ifs;
 
     if (buffer.uri.empty()) {
-      // embedded (.glb)
+      // Embedded (.glb)
       if (dm.first != 0)
         throw UnsupportedExcept("Unsupported glTF buffer");
 
       ifs = &const_cast<GLTF&>(gltf).bin();
 
     } else {
-      // external (.bin)
+      // External (.bin)
       auto it = bufferMap.find(dm.first);
       if (it == bufferMap.end()) {
         const auto pathname = gltf.directory() + '/' + buffer.uri;
@@ -2021,14 +2022,14 @@ Skin* loadSkin(unordered_map<int32_t, ifstream>& bufferMap,
     ifstream* ifs;
 
     if (buffer.uri.empty()) {
-      // embedded (.glb)
+      // Embedded (.glb)
       if (view.buffer != 0)
         throw UnsupportedExcept("Unsupported glTF buffer");
 
       ifs = &const_cast<GLTF&>(gltf).bin();
 
     } else {
-      // external (.bin)
+      // External (.bin)
       auto it = bufferMap.find(view.buffer);
       if (it == bufferMap.end()) {
         const auto pathname = gltf.directory() + '/' + buffer.uri;
@@ -2054,7 +2055,7 @@ Skin* loadSkin(unordered_map<int32_t, ifstream>& bufferMap,
     }
   }
 
-  // XXX: joints NOT set
+  // XXX: Joints NOT set
   return new Skin(skin.joints.size(), inverseBind);
 }
 
@@ -2085,7 +2086,7 @@ Material* loadMaterial(unordered_map<int32_t, Texture*>& textureMap,
       const auto& buffer = gltf.buffers()[view.buffer];
 
       if (buffer.uri.empty()) {
-        // embedded (.glb)
+        // Embedded (.glb)
         if (view.buffer != 0)
           throw UnsupportedExcept("Unsupported glTF buffer");
 
@@ -2097,13 +2098,13 @@ Material* loadMaterial(unordered_map<int32_t, Texture*>& textureMap,
         return textureMap.emplace(info.index, tex).first->second;
 
       } else {
-        // TODO: external (.bin)
+        // TODO: External (.bin)
         throw runtime_error("Image loading from glTF .bin unimplemented");
       }
     }
 
     // Image provided through an URI
-    // TODO: base64
+    // TODO: Base64
     const string pathname = gltf.directory() + '/' + image.uri;
     auto tex = new Texture(pathname);
     return textureMap.emplace(info.index, tex).first->second;
@@ -2202,14 +2203,14 @@ Animation* loadAnimation(unordered_map<int32_t, Node*>& nodeMap,
       ifstream* ifs;
 
       if (buffer.uri.empty()) {
-        // embedded (.glb)
+        // Embedded (.glb)
         if (view.buffer != 0)
           throw UnsupportedExcept("Unsupported glTF buffer");
 
         ifs = &const_cast<GLTF&>(gltf).bin();
 
       } else {
-        // external (.bin)
+        // External (.bin)
         auto bufIt = bufferMap.find(view.buffer);
         if (bufIt == bufferMap.end()) {
           const auto& pathname = gltf.directory() + '/' + buffer.uri;
@@ -2249,14 +2250,14 @@ Animation* loadAnimation(unordered_map<int32_t, Node*>& nodeMap,
       ifstream* ifs;
 
       if (buffer.uri.empty()) {
-        // embedded (.glb)
+        // Embedded (.glb)
         if (view.buffer != 0)
           throw UnsupportedExcept("Unsupported glTF buffer");
 
         ifs = &const_cast<GLTF&>(gltf).bin();
 
       } else {
-        // external (.bin)
+        // External (.bin)
         auto bufIt = bufferMap.find(view.buffer);
         if (bufIt == bufferMap.end()) {
           const auto& pathname = gltf.directory() + '/' + buffer.uri;
@@ -2276,7 +2277,7 @@ Animation* loadAnimation(unordered_map<int32_t, Node*>& nodeMap,
 
       switch (action.type) {
       case Animation::T: {
-        // TODO: support for other data types
+        // TODO: Support for other data types
         if (acc.componentType != GLTF::Accessor::Float || acc.type != "VEC3")
           throw UnsupportedExcept("Unsupported glTF data type");
 
@@ -2289,7 +2290,7 @@ Animation* loadAnimation(unordered_map<int32_t, Node*>& nodeMap,
       } break;
 
       case Animation::R: {
-        // TODO: support for other data types
+        // TODO: Support for other data types
         if (acc.componentType != GLTF::Accessor::Float || acc.type != "VEC4")
           throw UnsupportedExcept("Unsupported glTF data type");
 
@@ -2307,7 +2308,7 @@ Animation* loadAnimation(unordered_map<int32_t, Node*>& nodeMap,
       } break;
 
       case Animation::S: {
-        // TODO: support for other data types
+        // TODO: Support for other data types
         if (acc.componentType != GLTF::Accessor::Float || acc.type != "VEC3")
           throw UnsupportedExcept("Unsupported glTF data type");
 
@@ -2367,7 +2368,7 @@ void loadContents(Collection& collection, const GLTF& gltf) {
   }
 
   // Insert loaded textures into collection
-  // TODO: load textures that are not referenced by materials
+  // TODO: Load textures that are not referenced by materials
   //const auto texOff = collection.textures().size();
   for (auto& tx : textureMap)
     collection.textures().push_back(unique_ptr<Texture>(tx.second));
@@ -2391,7 +2392,7 @@ void loadContents(Collection& collection, const GLTF& gltf) {
       auto mdl = static_cast<Model*>(collection.nodes().back().get());
 
       mdl->setMesh(collection.meshes()[meshOff+nd.mesh].get());
-      // TODO: support for multiple primitives
+      // TODO: Support for multiple primitives
       const auto matl = gltf.meshes()[nd.mesh].primitives[0].material;
       if (matl > -1)
         mdl->setMaterial(collection.materials()[matlOff+matl].get());

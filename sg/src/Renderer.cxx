@@ -104,7 +104,7 @@ constexpr uint64_t MaterialPadding = 4;
 constexpr uint64_t MaterialLength = Vec4f::dataSize() + 16 +
                                     Vec3f::dataSize() + MaterialPadding;
 
-// TODO: consider allowing custom length values
+// TODO: Consider allowing custom length values
 constexpr uint64_t UniformLength = 1ULL << 20;
 
 /// Check uniform flags.
@@ -261,7 +261,7 @@ void Renderer::render(Scene& scene, CG_NS::Target& target) {
 
         auto matl = kv.second[0]->material();
         if (!matl)
-          // TODO: consider using default material instead
+          // TODO: Consider using default material instead
           throw runtime_error("Cannot render models with no material set");
 
         // Update instance-specific uniform buffer
@@ -535,7 +535,7 @@ void Renderer::prepare() {
   uint64_t unifLen = GlobalLength + glbPadding_;
 
   // Set models
-  // TODO: check limits and catch errors
+  // TODO: Check limits and catch errors
   uint32_t mdlN = 0;
   uint32_t mdl2N = 0;
   uint32_t mdl4N = 0;
@@ -596,8 +596,8 @@ void Renderer::prepare() {
 
   unifLen = (unifLen & ~255) + 256;
 
-  // TODO: improve resizing
-  // TODO: also consider shrinking if buffer grows too much
+  // TODO: Improve resizing
+  // TODO: Consider shrinking if buffer grows too much
   if (unifLen > unifBuffer_->size())
     unifBuffer_ = dev.buffer(unifLen);
 }

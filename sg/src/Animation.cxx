@@ -59,7 +59,7 @@ class Animation::Impl {
         return pair<size_t, size_t>(input.size()-1, input.size()-1);
 
       size_t beg = 0;
-      size_t end = input.size() - 1; // XXX: non-empty input
+      size_t end = input.size() - 1; // XXX: Non-empty input
       size_t cur = (beg + end) >> 1;
 
       while (beg < end) {

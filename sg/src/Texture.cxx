@@ -43,7 +43,7 @@ Texture::Impl& Texture::impl() {
   return *impl_;
 }
 
-// TODO: consider allowing custom layers value
+// TODO: Consider allowing custom layers value
 constexpr uint32_t Layers = 16;
 
 Texture::Impl::Resources Texture::Impl::resources_{};
@@ -89,7 +89,7 @@ Texture::Impl::Impl(const Data& data)
   CG_NS::Image& image = *resource.image;
   CG_NS::Size2 size = data.size;
   const unsigned char* bytes = data.data.get();
-  // TODO: check if this works as expected
+  // TODO: Check if this works as expected
   for (uint32_t i = 0; i < data.levels; i++) {
     image.write({0}, size, layer_, i, bytes);
     bytes += (image.bitsPerTexel() >> 3) * size.width * size.height;

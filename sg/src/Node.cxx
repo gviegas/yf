@@ -7,6 +7,7 @@
 
 #include <cstddef>
 #include <deque>
+#include <stdexcept>
 
 #include "Node.h"
 #include "yf/Except.h"

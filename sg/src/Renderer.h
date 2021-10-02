@@ -87,7 +87,7 @@ class Renderer {
     }
   };
 
-  // TODO: resources for different kinds of models (e.g., points primitives)
+  // TODO: Resources for different kinds of models (e.g., points primitives)
   Resource resource_{};
   Resource resource2_{};
   Resource resource4_{};

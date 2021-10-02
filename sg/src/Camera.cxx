@@ -9,9 +9,9 @@
 #include <cfloat>
 #include <cmath>
 #include <algorithm>
+#include <stdexcept>
 
 #include "Camera.h"
-#include "yf/Except.h"
 
 using namespace SG_NS;
 using namespace std;

@@ -12,6 +12,7 @@
 #include <cassert>
 #include <atomic>
 #include <algorithm>
+#include <stdexcept>
 
 #include "DataPNG.h"
 #include "yf/Except.h"
@@ -393,7 +394,7 @@ class PNG {
 
     // Palette indices
     if (ihdr_.colorType == 3) {
-      // XXX: needs testing
+      // XXX: Needs testing
       for (uint32_t i = 0; i < ihdr_.height; i++) {
         const auto scanline = &cdata[1+i*sclnSize_];
         uint32_t byteOff = 0;
@@ -412,7 +413,7 @@ class PNG {
 
     // 1/2/4 bit depth greyscale
     } else if (ihdr_.bitDepth < 8) {
-      // XXX: needs testing
+      // XXX: Needs testing
       for (uint32_t i = 0; i < ihdr_.height; i++) {
         const auto scanline = &cdata[1+i*sclnSize_];
         uint32_t byteOff = 0;
@@ -491,7 +492,7 @@ class PNG {
       break;
     }
 
-    // XXX: should never happen
+    // XXX: Should never happen
     return CG_NS::PxFormatUndefined;
   }
 
@@ -523,12 +524,12 @@ class PNG {
 
   IHDR ihdr_{};
   vector<uint8_t> plte_{};
-  vector<uint8_t> idat_{}; // XXX: concatenation of chunks
+  vector<uint8_t> idat_{}; // XXX: Concatenation of chunks
 
   uint32_t components_ = 0;
   uint32_t bpp_ = 0;
   uint32_t Bpp_ = 0;
-  uint32_t sclnSize_ = 0; // XXX: including filter byte
+  uint32_t sclnSize_ = 0; // XXX: Including filter byte
 
   /// Initializes PNG data from file stream.
   ///
@@ -609,7 +610,7 @@ class PNG {
         break;
 
       } else if (!(buffer[typeOff] & 32)) {
-        // XXX: cannot ignore critical chunks
+        // XXX: Cannot ignore critical chunks
         throw UnsupportedExcept("Unsupported PNG file");
       }
     }
@@ -663,7 +664,7 @@ class PNG {
     Bpp_ = max(bpp_ >> 3, 1U);
 
     if (bpp_ & 7) {
-      // XXX: scanlines must begin at byte boundaries
+      // XXX: Scanlines must begin at byte boundaries
       const div_t d = div(ihdr_.width * bpp_, 8);
       sclnSize_ = 1 + d.quot + (d.rem != 0);
     } else {

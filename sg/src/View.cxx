@@ -25,7 +25,7 @@ using namespace std;
 
 class View::Impl {
  public:
-  Impl(WS_NS::Window* window) : wsi_(CG_NS::device().wsi(window)) {
+  Impl(WS_NS::Window* window) : wsi_(CG_NS::device().wsi(*window)) {
     initTargets();
   }
 
@@ -66,12 +66,12 @@ class View::Impl {
 
     auto nextTgt = targets_[nextImg.second].get();
 
-    // TODO: this should only be done on loop() start and window resize
-    scene->camera().adjust(static_cast<float>(nextTgt->size_.width) /
-                           static_cast<float>(nextTgt->size_.height));
+    // TODO: This should only be done on `loop()` start and window resize
+    scene->camera().adjust(static_cast<float>(nextTgt->size().width) /
+                           static_cast<float>(nextTgt->size().height));
 
     renderer_.render(*scene, *nextTgt);
-    // TODO: catch broken swapchain errors
+    // TODO: Catch broken swapchain errors
     wsi_->present(nextImg.second);
   }
 
@@ -98,21 +98,20 @@ class View::Impl {
     }
 
     auto& dev = CG_NS::device();
-    const auto& imgs = wsi_->images();
-    const CG_NS::Size2 size{wsi_->window_->width(), wsi_->window_->height()};
+    const CG_NS::Size2 size{wsi_->window().width(), wsi_->window().height()};
 
     // Create depth/stencil image
     depthStencil_ = dev.image(CG_NS::PxFormatD16Unorm, size, 1, 1,
-                              imgs[0]->samples_);
+                              (*wsi_)[0]->samples());
 
     // Create pass
-    const vector<CG_NS::ColorAttach> clrAtts{{imgs[0]->format_,
-                                              imgs[0]->samples_,
+    const vector<CG_NS::ColorAttach> clrAtts{{(*wsi_)[0]->format(),
+                                              (*wsi_)[0]->samples(),
                                               CG_NS::LoadOpDontCare,
                                               CG_NS::StoreOpStore}};
 
-    const CG_NS::DepStenAttach dsAtt{depthStencil_->format_,
-                                     depthStencil_->samples_,
+    const CG_NS::DepStenAttach dsAtt{depthStencil_->format(),
+                                     depthStencil_->samples(),
                                      CG_NS::LoadOpDontCare,
                                      CG_NS::StoreOpStore,
                                      CG_NS::LoadOpDontCare,
@@ -124,7 +123,7 @@ class View::Impl {
     vector<CG_NS::AttachImg> clrs{{nullptr, 0, 0}};
     const CG_NS::AttachImg ds{depthStencil_.get(), 0, 0};
 
-    for (const auto& img : imgs) {
+    for (const auto& img : *wsi_) {
       clrs[0].image = img;
       targets_.push_back(pass_->target(size, 1, &clrs, nullptr, &ds));
     }

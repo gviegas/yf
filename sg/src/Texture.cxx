@@ -66,8 +66,8 @@ Texture::Impl::Impl(const Data& data)
     it = res.first;
 
   } else if (it->second.layers.remaining == 0) {
-    if (!setLayerCount(it->second, it->second.image->layers_ << 1) &&
-        !setLayerCount(it->second, it->second.image->layers_ + 1))
+    if (!setLayerCount(it->second, it->second.image->layers() << 1) &&
+        !setLayerCount(it->second, it->second.image->layers() + 1))
       throw NoMemoryExcept("Failed to allocate space for texture object");
   }
 
@@ -88,11 +88,11 @@ Texture::Impl::Impl(const Data& data)
   // Copy the data
   CG_NS::Image& image = *resource.image;
   CG_NS::Size2 size = data.size;
-  uint8_t* bytes = data.data.get();
+  const unsigned char* bytes = data.data.get();
   // TODO: check if this works as expected
   for (uint32_t i = 0; i < data.levels; i++) {
     image.write({0}, size, layer_, i, bytes);
-    bytes += (image.bitsPerTexel_ >> 3) * size.width * size.height;
+    bytes += (image.bitsPerTexel() >> 3) * size.width * size.height;
     size.width = max(1U, size.width >> 1);
     size.height = max(1U, size.height >> 1);
   }
@@ -129,7 +129,7 @@ void Texture::Impl::copy(CG_NS::DcTable& dcTable, uint32_t allocation,
 }
 
 bool Texture::Impl::setLayerCount(Resource& resource, uint32_t newCount) {
-  const auto oldCount = resource.image->layers_;
+  const auto oldCount = resource.image->layers();
   if (newCount == oldCount)
     return true;
 
@@ -138,18 +138,18 @@ bool Texture::Impl::setLayerCount(Resource& resource, uint32_t newCount) {
   // Try to create a new image
   CG_NS::Image::Ptr newImg;
   try {
-    newImg = dev.image(resource.image->format_, resource.image->size_,
-                       newCount, resource.image->levels_,
-                       resource.image->samples_);
+    newImg = dev.image(resource.image->format(), resource.image->size(),
+                       newCount, resource.image->levels(),
+                       resource.image->samples());
   } catch (DeviceExcept&) {
     return false;
   }
 
   // Copy data to new image
   CG_NS::TfEncoder enc;
-  const auto cpyCount = min(newCount, resource.image->layers_);
-  const auto cpySize = resource.image->size_;
-  for (uint32_t i = 0; i < resource.image->levels_; i++)
+  const auto cpyCount = min(newCount, resource.image->layers());
+  const auto cpySize = resource.image->size();
+  for (uint32_t i = 0; i < resource.image->levels(); i++)
     enc.copy(newImg.get(), {0}, 0, i, resource.image.get(), {0}, 0, i,
              {cpySize.width >> i, cpySize.height >> i}, cpyCount);
 

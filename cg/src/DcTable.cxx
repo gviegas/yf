@@ -8,6 +8,5 @@
 #include "DcTable.h"
 
 using namespace CG_NS;
-using namespace std;
 
 DcTable::~DcTable() { }

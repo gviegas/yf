@@ -53,7 +53,7 @@ ShaderVK::ShaderVK(Stage stage, const string& codeFile,
 }
 
 ShaderVK::~ShaderVK() {
-  // TODO: notify
+  // TODO: Notify
   auto dev = deviceVK().device();
   vkDestroyShaderModule(dev, module_, nullptr);
 }

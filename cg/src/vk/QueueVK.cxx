@@ -6,8 +6,8 @@
 //
 
 #include <cstdlib>
-#include <cassert>
 #include <stdexcept>
+#include <cassert>
 
 #include "QueueVK.h"
 #include "DeviceVK.h"
@@ -38,7 +38,7 @@ QueueVK::QueueVK(VkQueue handle, int32_t family)
 QueueVK::~QueueVK() {
   deinitPool(poolPrio_);
   if (!pools_.empty()) {
-    // XXX: no command buffer shall outlive its queue
+    // XXX: No command buffer shall outlive its queue
     assert(false);
     abort();
   }
@@ -203,7 +203,7 @@ Queue::CapabilityMask QueueVK::capabilities() const {
 void QueueVK::enqueue(CmdBufferVK* cmdBuffer) {
   assert(pending_.find(cmdBuffer) == pending_.end());
 
-  // TODO: lock
+  // TODO: Lock
   pending_.insert(cmdBuffer);
 }
 
@@ -211,7 +211,7 @@ void QueueVK::unmake(CmdBufferVK* cmdBuffer) noexcept {
   assert(pools_.find(cmdBuffer) != pools_.end());
 
   if (cmdBuffer->isPending()) {
-    // TODO: gate command buffer destruction
+    // TODO: Gate command buffer destruction
     assert(false);
     abort();
   }
@@ -304,7 +304,7 @@ void CmdBufferVK::encode(const Encoder& encoder) {
     VkCommandBufferBeginInfo info;
     info.sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_BEGIN_INFO;
     info.pNext = nullptr;
-    // TODO: consider reusing the command buffer instead
+    // TODO: Consider reusing the command buffer instead
     info.flags = VK_COMMAND_BUFFER_USAGE_ONE_TIME_SUBMIT_BIT;
     info.pInheritanceInfo = nullptr;
 
@@ -461,7 +461,7 @@ void CmdBufferVK::encode(const GrEncoder& encoder) {
 
   // Set viewport
   auto setViewport = [&](const ViewportCmd* sub) {
-    // TODO: support for multiple viewports
+    // TODO: Support for multiple viewports
     if (sub->viewportIndex != 0)
       throw UnsupportedExcept("Multiple viewports not supported");
 
@@ -475,7 +475,7 @@ void CmdBufferVK::encode(const GrEncoder& encoder) {
 
   // Set scissor
   auto setScissor = [&](const ScissorCmd* sub) {
-    // TODO: support for multiple viewports
+    // TODO: Support for multiple viewports
     if (sub->viewportIndex != 0)
       throw UnsupportedExcept("Multiple viewports not supported");
 
@@ -536,7 +536,7 @@ void CmdBufferVK::encode(const GrEncoder& encoder) {
     if (!clears.empty())
       clearAttachments();
 
-    // TODO: check limits
+    // TODO: Check limits
     vkCmdDraw(handle_, sub->vertexCount, sub->instanceCount,
               sub->vertexStart, sub->baseInstance);
   };
@@ -552,7 +552,7 @@ void CmdBufferVK::encode(const GrEncoder& encoder) {
     if (!clears.empty())
       clearAttachments();
 
-    // TODO: check limits
+    // TODO: Check limits
     vkCmdDrawIndexed(handle_, sub->vertexCount, sub->instanceCount,
                      sub->indexStart, sub->vertexOffset, sub->baseInstance);
   };
@@ -608,7 +608,7 @@ void CmdBufferVK::encode(const GrEncoder& encoder) {
   };
 
   // Synchronize
-  // TODO: improve
+  // TODO: Improve
   auto sync = [&](const SyncCmd*) {
     VkMemoryBarrier barrier;
     barrier.sType = VK_STRUCTURE_TYPE_MEMORY_BARRIER;
@@ -729,12 +729,12 @@ void CmdBufferVK::encode(const CpEncoder& encoder) {
       dtbs.clear();
     }
 
-    // TODO: check limits
+    // TODO: Check limits
     vkCmdDispatch(handle_, sub->size.width, sub->size.height, sub->size.depth);
   };
 
   // Synchronize
-  // TODO: improve
+  // TODO: Improve
   auto sync = [&](const SyncCmd*) {
     VkMemoryBarrier barrier;
     barrier.sType = VK_STRUCTURE_TYPE_MEMORY_BARRIER;

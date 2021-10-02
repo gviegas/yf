@@ -6,6 +6,7 @@
 //
 
 #include <cstring>
+#include <stdexcept>
 
 #include "BufferVK.h"
 #include "MemoryVK.h"
@@ -76,7 +77,7 @@ BufferVK::BufferVK(uint64_t size, VkBufferUsageFlags usage) : size_(size) {
 }
 
 BufferVK::~BufferVK() {
-  // TODO: notify
+  // TODO: Notify
   auto dev = deviceVK().device();
   vkDestroyBuffer(dev, handle_, nullptr);
   deallocateVK(memory_);

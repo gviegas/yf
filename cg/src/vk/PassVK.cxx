@@ -45,7 +45,7 @@ PassVK::PassVK(const vector<ColorAttach>* colors,
         desc.storeOp = toStoreOpVK(attach.storeOp);
         desc.stencilLoadOp = VK_ATTACHMENT_LOAD_OP_DONT_CARE;
         desc.stencilStoreOp = VK_ATTACHMENT_STORE_OP_DONT_CARE;
-        // XXX: won't work if an image view is used in more than one pass
+        // FIXME: Won't work if an image view is used in more than one pass
         desc.initialLayout = VK_IMAGE_LAYOUT_UNDEFINED;
         desc.finalLayout = VK_IMAGE_LAYOUT_GENERAL;
 
@@ -83,7 +83,7 @@ PassVK::PassVK(const vector<ColorAttach>* colors,
     desc.storeOp = toStoreOpVK(depthStencil->depStoreOp);
     desc.stencilLoadOp = toLoadOpVK(depthStencil->stenLoadOp);
     desc.stencilStoreOp = toStoreOpVK(depthStencil->stenStoreOp);
-    // XXX: won't work if an image view is used in more than one pass
+    // FIXME: Won't work if an image view is used in more than one pass
     desc.initialLayout = VK_IMAGE_LAYOUT_UNDEFINED;
     desc.finalLayout = VK_IMAGE_LAYOUT_GENERAL;
 
@@ -141,7 +141,7 @@ PassVK::~PassVK() {
   delete resolves_;
   delete depthStencil_;
 
-  // TODO: notify
+  // TODO: Notify
   auto dev = deviceVK().device();
   vkDestroyRenderPass(dev, renderPass_, nullptr);
 }
@@ -190,7 +190,7 @@ TargetVK::TargetVK(PassVK& pass, Size2 size, uint32_t layers,
       layers > lim.maxFramebufferLayers)
     throw invalid_argument("TargetVK limit");
 
-  // TODO: consider relaxing compatibility requirements
+  // TODO: Consider relaxing compatibility requirements
 
   // Define attachments
   if (colors) {
@@ -260,7 +260,7 @@ TargetVK::~TargetVK() {
   delete resolves_;
   delete depthStencil_;
 
-  // TODO: notify
+  // TODO: Notify
   auto dev = deviceVK().device();
   vkDestroyFramebuffer(dev, framebuffer_, nullptr);
 }

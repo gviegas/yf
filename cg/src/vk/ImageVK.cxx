@@ -42,7 +42,7 @@ ImageVK::ImageVK(PxFormat format, Size2 size, uint32_t layers, uint32_t levels,
     throw invalid_argument("ImageVK requires a valid format");
 
   // Convert to sample count
-  VkSampleCountFlagBits smpl = toSampleCountVK(samples);
+  VkSampleCountFlagBits spl = toSampleCountVK(samples);
 
   // Set image type
   if (size.height > 1) {
@@ -77,8 +77,8 @@ ImageVK::ImageVK(PxFormat format, Size2 size, uint32_t layers, uint32_t levels,
     if (feat & VK_FORMAT_FEATURE_DEPTH_STENCIL_ATTACHMENT_BIT)
       usage_ |= VK_IMAGE_USAGE_DEPTH_STENCIL_ATTACHMENT_BIT;
 
-    // XXX: this check assumes that multisample storage is not supported,
-    // since it could spoil additional capabilities query otherwise
+    // XXX: This check assumes that multisample storage is not supported,
+    // since it could spoil the query for additional capabilities
     if (samples == Samples1 && (feat & VK_FORMAT_FEATURE_STORAGE_IMAGE_BIT))
       usage_ |= VK_IMAGE_USAGE_STORAGE_BIT;
 
@@ -91,7 +91,7 @@ ImageVK::ImageVK(PxFormat format, Size2 size, uint32_t layers, uint32_t levels,
       if (feat & VK_FORMAT_FEATURE_TRANSFER_DST_BIT)
         usage_ |= VK_IMAGE_USAGE_TRANSFER_DST_BIT;
     } else {
-      // XXX: not in v1.0
+      // XXX: Not in v1.0
       usage_ |= VK_IMAGE_USAGE_TRANSFER_SRC_BIT |
                 VK_IMAGE_USAGE_TRANSFER_DST_BIT;
     }
@@ -111,7 +111,7 @@ ImageVK::ImageVK(PxFormat format, Size2 size, uint32_t layers, uint32_t levels,
           prop.maxExtent.height < size.height ||
           prop.maxMipLevels < levels ||
           prop.maxArrayLayers < layers ||
-          !(prop.sampleCounts & smpl))
+          !(prop.sampleCounts & spl))
         return false;
 
       tiling_ = tiling;
@@ -153,7 +153,7 @@ ImageVK::ImageVK(PxFormat format, Size2 size, uint32_t layers, uint32_t levels,
   info.extent = {size.width, size.height, 1};
   info.mipLevels = levels;
   info.arrayLayers = layers;
-  info.samples = smpl;
+  info.samples = spl;
   info.tiling = tiling_;
   info.usage = usage_;
   info.sharingMode = VK_SHARING_MODE_EXCLUSIVE;
@@ -217,7 +217,7 @@ ImageVK::ImageVK(PxFormat format, Size2 size, uint32_t layers, uint32_t levels,
 }
 
 ImageVK::~ImageVK() {
-  // TODO: notify
+  // TODO: Notify
   if (owned_) {
     auto dev = deviceVK().device();
     vkDestroyImage(dev, handle_, nullptr);
@@ -257,7 +257,7 @@ void ImageVK::write(Offset2 offset, Size2 size, uint32_t layer, uint32_t level,
 
     auto dev = deviceVK().device();
     VkSubresourceLayout layout;
-    // TODO: consider getting all required layouts once on creation
+    // TODO: Consider getting all required layouts once on creation
     vkGetImageSubresourceLayout(dev, handle_, &subres, &layout);
 
     // Write data to image memory
@@ -305,13 +305,13 @@ void ImageVK::write(Offset2 offset, Size2 size, uint32_t layer, uint32_t level,
       off += offset.y * (size_.width >> level) * txSz + offset.x * txSz;
     uint64_t sz = (size.width >> level) * (size.height >> level) * txSz;
 
-    // TODO: might want to check if write area falls inside the level bounds
+    // TODO: Consider checking if write area falls inside the level bounds
 
     // Write data to staging buffer
     buf->write(off, sz, data);
 
     // Get priority buffer into which the transfer will be encoded
-    // TODO: improve staging buffer management
+    // TODO: Improve staging buffer management
     auto& queue = static_cast<QueueVK&>(deviceVK().defaultQueue());
     auto cbuf = queue.getPriority(VK_PIPELINE_STAGE_ALL_COMMANDS_BIT,
                                   [&](bool) { staging_.clear(); });
@@ -391,7 +391,7 @@ void ImageVK::changeLayout(const VkImageMemoryBarrier& barrier, bool defer) {
 void ImageVK::changeLayout(bool defer) {
   nextLayout_ = barrier_.newLayout;
 
-  // TODO: improve this
+  // TODO: Needs improvement
   VkPipelineStageFlags srcMask = VK_PIPELINE_STAGE_TOP_OF_PIPE_BIT;
   VkPipelineStageFlags dstMask = VK_PIPELINE_STAGE_ALL_COMMANDS_BIT;
 
@@ -547,7 +547,8 @@ SamplerVK::SamplerVK(const Sampler& sampler) : sampler_(sampler) {
 }
 
 SamplerVK::~SamplerVK() {
-  // XXX: like the image view above, assume the driver does reference counting
+  // XXX: Like the image view above, this assumes that the driver does
+  // reference counting for non-dispatchable handlers
   vkDestroySampler(deviceVK().device(), handle_, nullptr);
 }
 

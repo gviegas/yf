@@ -22,7 +22,7 @@ INTERNAL_NS_BEGIN
 inline VkPipelineLayout plLayoutVK(const vector<DcTable*>& dcTables) {
   vector<VkDescriptorSetLayout> dsLays;
   for (const auto dtb : dcTables)
-    // XXX: assuming non-null
+    // XXX: Assuming non-null
     dsLays.push_back(static_cast<DcTableVK*>(dtb)->dsLayout());
 
   VkPipelineLayoutCreateInfo info;
@@ -65,7 +65,7 @@ GrStateVK::GrStateVK(const Config& config)
   vector<VkPipelineShaderStageCreateInfo> stgInfos;
 
   for (const auto shd : config.shaders) {
-    // XXX: assuming non-null
+    // XXX: Assuming non-null
     stgInfos.push_back({});
     auto& info = stgInfos.back();
     info.sType = VK_STRUCTURE_TYPE_PIPELINE_SHADER_STAGE_CREATE_INFO;
@@ -88,13 +88,13 @@ GrStateVK::GrStateVK(const Config& config)
     deinit();
     throw invalid_argument("GrStateVK requires a vertex shader");
   }
-  // TODO: check other invalid stage combinations
+  // TODO: Check other invalid stage combinations
 
   // Define vertex input state
   vector<VkVertexInputBindingDescription> vxBinds;
   vector<VkVertexInputAttributeDescription> vxAttrs;
 
-  // TODO: validate
+  // TODO: Validate
   for (uint32_t bind = 0; bind < config.vxInputs.size(); bind++) {
     const auto& in = config.vxInputs[bind];
     vxBinds.push_back({bind, in.stride, toInputRateVK(in.stepFunction)});
@@ -124,7 +124,7 @@ GrStateVK::GrStateVK(const Config& config)
   tesInfo.sType = VK_STRUCTURE_TYPE_PIPELINE_TESSELLATION_STATE_CREATE_INFO;
   tesInfo.pNext = nullptr;
   tesInfo.flags = 0;
-  // TODO: take from `config`
+  // TODO: Take from `config`
   tesInfo.patchControlPoints = 16;
 
   // Define viewport state
@@ -132,7 +132,7 @@ GrStateVK::GrStateVK(const Config& config)
   vpInfo.sType = VK_STRUCTURE_TYPE_PIPELINE_VIEWPORT_STATE_CREATE_INFO;
   vpInfo.pNext = nullptr;
   vpInfo.flags = 0;
-  // TODO: take from `config`
+  // TODO: Take from `config`
   vpInfo.viewportCount = 1;
   vpInfo.pViewports = nullptr; // dynamic
   vpInfo.scissorCount = 1;
@@ -152,14 +152,14 @@ GrStateVK::GrStateVK(const Config& config)
   rzInfo.depthBiasConstantFactor = 0.0f;
   rzInfo.depthBiasClamp = 0.0f;
   rzInfo.depthBiasSlopeFactor = 0.0f;
-  // TODO: take from `config`
+  // TODO: Take from `config`
   rzInfo.lineWidth = 1.0f;
 
   // Define multisample state
-  // TODO: compute this value during pass creation instead
+  // TODO: Compute this value during pass creation instead
   VkSampleCountFlagBits splCount = VK_SAMPLE_COUNT_1_BIT;
   if (config.pass->colors())
-    // XXX: assuming all colors have the same sample count
+    // XXX: Assuming that all colors have the same sample count
     splCount = toSampleCountVK(config.pass->colors()->back().samples);
   else
     splCount = toSampleCountVK(config.pass->depthStencil()->samples);
@@ -185,7 +185,7 @@ GrStateVK::GrStateVK(const Config& config)
   depInfo.depthCompareOp = VK_COMPARE_OP_LESS_OR_EQUAL;
   depInfo.depthBoundsTestEnable = false;
 
-  // TODO: stencil
+  // TODO: Stencil
   depInfo.stencilTestEnable = false;
   depInfo.front.failOp = VK_STENCIL_OP_KEEP;
   depInfo.front.passOp = VK_STENCIL_OP_KEEP;
@@ -236,7 +236,7 @@ GrStateVK::GrStateVK(const Config& config)
   cbdInfo.blendConstants[3] = 1.0f;
 
   // Define dynamic state
-  // TODO: other dynamic states
+  // TODO: Other dynamic states
   vector<VkDynamicState> dynStates{VK_DYNAMIC_STATE_VIEWPORT,
                                    VK_DYNAMIC_STATE_SCISSOR};
 
@@ -278,7 +278,7 @@ GrStateVK::GrStateVK(const Config& config)
 }
 
 GrStateVK::~GrStateVK() {
-  // TODO: notify
+  // TODO: Notify
   auto dev = deviceVK().device();
   vkDestroyPipeline(dev, pipeline_, nullptr);
   vkDestroyPipelineLayout(dev, plLayout_, nullptr);
@@ -342,7 +342,7 @@ CpStateVK::CpStateVK(const Config& config)
 }
 
 CpStateVK::~CpStateVK() {
-  // TODO: notify
+  // TODO: Notify
   auto dev = deviceVK().device();
   vkDestroyPipeline(dev, pipeline_, nullptr);
   vkDestroyPipelineLayout(dev, plLayout_, nullptr);

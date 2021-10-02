@@ -6,6 +6,7 @@
 //
 
 #include <algorithm>
+#include <stdexcept>
 
 #include "DcTableVK.h"
 #include "BufferVK.h"
@@ -80,14 +81,14 @@ DcTableVK::DcTableVK(const vector<DcEntry>& entries) : entries_(entries) {
 }
 
 DcTableVK::~DcTableVK() {
-  // TODO: notify
+  // TODO: Notify
   auto dev = deviceVK().device();
   vkDestroyDescriptorPool(dev, pool_, nullptr);
   vkDestroyDescriptorSetLayout(dev, dsLayout_, nullptr);
 }
 
 void DcTableVK::allocate(uint32_t n) {
-  // XXX: since currently held resources will only be freed after (and if)
+  // XXX: Since currently held resources will only be freed after (and if)
   // the new allocation succeeds, one may need to call `allocate(0)` first
 
   if (n == sets_.size())
@@ -285,7 +286,7 @@ void DcTableVK::resetImgRefs() {
         it->second.push_back({nullptr, nullptr});
     }
 
-    // TODO: do this once
+    // TODO: Do this once
     if (imgRefs_[0].empty()) {
       imgRefs_.clear();
       return;

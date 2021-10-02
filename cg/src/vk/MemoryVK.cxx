@@ -5,8 +5,6 @@
 // Copyright © 2020-2021 Gustavo C. Viegas.
 //
 
-#include <stdexcept>
-
 #include "MemoryVK.h"
 #include "DeviceVK.h"
 #include "yf/Except.h"

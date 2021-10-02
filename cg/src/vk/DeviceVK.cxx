@@ -5,10 +5,10 @@
 // Copyright © 2020-2021 Gustavo C. Viegas.
 //
 
-#include <cassert>
 #include <unordered_set>
 #include <string>
 #include <algorithm>
+#include <cassert>
 
 #include "DeviceVK.h"
 #include "VK.h"
@@ -39,7 +39,7 @@ DeviceVK::~DeviceVK() {
   if (device_ != nullptr) {
     vkDeviceWaitIdle(device_);
     vkDestroyPipelineCache(device_, cache_, nullptr);
-    // TODO: ensure that all VK objects were disposed of prior to this point
+    // TODO: Ensure that all VK objects were disposed of prior to this point
     delete queue_;
     vkDestroyDevice(device_, nullptr);
   }
@@ -328,7 +328,7 @@ void DeviceVK::initDevice(int32_t queueFamily, int32_t presFamily) {
 void DeviceVK::setFeatures() {
   assert(physicalDev_);
 
-  // TODO: other v1.0 features & features from new versions
+  // TODO: Other v1.0 features & features from new versions
 
   decltype(features_) feat;
   vkGetPhysicalDeviceFeatures(physicalDev_, &feat);

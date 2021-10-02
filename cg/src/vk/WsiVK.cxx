@@ -6,6 +6,7 @@
 //
 
 #include <algorithm>
+#include <stdexcept>
 #include <cassert>
 
 #include "WsiVK.h"
@@ -465,11 +466,11 @@ pair<Image*, Wsi::Index> WsiVK::nextImage(bool nonblocking) {
 
   case VK_SUBOPTIMAL_KHR:
   case VK_ERROR_OUT_OF_DATE_KHR:
-    // TODO: notify and recreate swapchain
+    // TODO: Notify and recreate swapchain
     throw runtime_error("Broken swapchain handling not implemented");
 
   case VK_ERROR_SURFACE_LOST_KHR:
-    // TODO: notify and (try to) recreate surface and swapchain
+    // TODO: Notify and (try to) recreate surface and swapchain
     throw runtime_error("Lost surface handling not implemented");
 
 //  case VK_ERROR_FULL_SCREEN_EXCLUSIVE_MODE_LOST_EXT:
@@ -508,7 +509,7 @@ void WsiVK::present(Index imageIndex) {
   barrier.subresourceRange.baseArrayLayer = 0;
   barrier.subresourceRange.layerCount = 1;
 
-  // XXX: the following assumes that all work has been submitted for execution
+  // XXX: The following assumes that all work has been submitted for execution
   // and there's nothing pending in the priority buffer (this will have to be
   // amended eventually)
 
@@ -528,7 +529,7 @@ void WsiVK::present(Index imageIndex) {
 
   auto res = vkQueuePresentKHR(queue_, &info);
 
-  // XXX: may want to change layout back to general
+  // XXX: May want to change layout back to general
 
   switch (res) {
   case VK_SUCCESS:
@@ -536,11 +537,11 @@ void WsiVK::present(Index imageIndex) {
 
   case VK_SUBOPTIMAL_KHR:
   case VK_ERROR_OUT_OF_DATE_KHR:
-    // TODO: notify and recreate swapchain
+    // TODO: Notify and recreate swapchain
     throw runtime_error("Broken swapchain handling not implemented");
 
   case VK_ERROR_SURFACE_LOST_KHR:
-    // TODO: notify and (try to) recreate surface and swapchain
+    // TODO: Notify and (try to) recreate surface and swapchain
     throw runtime_error("Lost surface handling not implemented");
 
 //  case VK_ERROR_FULL_SCREEN_EXCLUSIVE_MODE_LOST_EXT:

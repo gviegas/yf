@@ -25,7 +25,7 @@ InteractiveTest::InteractiveTest(wstring&& name, uint32_t width,
   : Test(move(name)),
     window_(WS_NS::createWindow(width, height, name, WS_NS::Window::Resizable |
                                                      WS_NS::Window::Hidden)),
-    view_(window_.get()), scene_{}, object_{} { }
+    view_(*window_), scene_{}, object_{} { }
 
 void InteractiveTest::setScene(Scene* scene) {
   scene_ = scene;
@@ -221,13 +221,13 @@ void InteractiveTest::onKey(WS_NS::KeyCode key, WS_NS::KeyState state,
     input.moveB = b;
     break;
   case WS_NS::KeyCodeA:
-    input.moveL= b;
+    input.moveL = b;
     break;
   case WS_NS::KeyCodeD:
     input.moveR = b;
     break;
   case WS_NS::KeyCodeR:
-    input.moveU= b;
+    input.moveU = b;
     break;
   case WS_NS::KeyCodeF:
     input.moveD = b;

@@ -24,7 +24,7 @@ struct ViewTest : Test {
     auto win = WS_NS::createWindow(400, 240, name_);
     Scene scn;
 
-    View view(win.get());
+    View view(*win);
 
     for (uint32_t fps : {24, 30, 60}) {
       chrono::nanoseconds elapsed{};

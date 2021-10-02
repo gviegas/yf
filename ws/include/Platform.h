@@ -10,7 +10,7 @@
 
 #include "yf/ws/Defs.h"
 
-#if defined(__linux__) // TODO: other unix systems
+#if defined(__linux__) // TODO: Other unix systems
 # include <xcb/xcb.h>
 #elif defined(__APPLE__)
 # error "Unimplemented"

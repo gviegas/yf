@@ -134,7 +134,7 @@ WindowXCB::WindowXCB(uint32_t width, uint32_t height, const wstring& title,
 
 WindowXCB::~WindowXCB() {
   winMap.erase(window_);
-  // XXX: this must happen before deinitXCB()
+  // XXX: This must happen before `deinitXCB()`
   destroyWindowXCB(varsXCB().connection, window_);
 }
 

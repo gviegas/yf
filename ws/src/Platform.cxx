@@ -8,7 +8,7 @@
 #include "Platform.h"
 #include "yf/Except.h"
 
-#if defined(__linux__) // TODO: other unix systems
+#if defined(__linux__) // TODO: Other unix systems
 //# include "unix/WindowWL.h"
 //# include "unix/EventWL.h"
 # include "unix/WindowXCB.h"
@@ -52,7 +52,7 @@ void dispatchDummy() {
     throw runtime_error("Unexpected");
   }
 #else
-// TODO: other systems
+// TODO: Other systems
 # error "Unimplemented"
 #endif // defined(__linux__)
 
@@ -76,12 +76,12 @@ Platform platform() {
   if (curPfm == PlatformNone) {
 #if defined(__linux__)
     if (getenv("WAYLAND_DISPLAY"))
-      // TODO: replace with `initWL` when implemented
+      // TODO: Replace with `initWL` when implemented
       initXCB();
     else if (getenv("DISPLAY"))
       initXCB();
 #else
-// TODO: other systems
+// TODO: Other systems
 # error "Unimplemented"
 #endif // defined(__linux__)
   }
@@ -101,7 +101,7 @@ Window::Ptr createWindow(uint32_t width, uint32_t height, const wstring& title,
     throw runtime_error("Unexpected");
   }
 #else
-// TODO: other systems
+// TODO: Other systems
 # error "Unimplemented"
 #endif // defined(__linux__)
 
@@ -134,7 +134,7 @@ xcb_window_t windowXCB(const Window& window) {
   return static_cast<const WindowXCB&>(window).window();
 }
 #else
-// TODO: other systems
+// TODO: Other systems
 #endif // defined(__linux__)
 
 WS_NS_END

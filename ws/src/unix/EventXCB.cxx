@@ -73,7 +73,7 @@ void WS_NS::dispatchXCB() {
       break;
     case XCB_BUTTON_INDEX_4:
     case XCB_BUTTON_INDEX_5:
-      // TODO: scroll
+      // TODO: Scroll
     default:
       btn = ButtonUnknown;
     }
@@ -126,7 +126,7 @@ void WS_NS::dispatchXCB() {
   auto config = [&] {
     auto ev = reinterpret_cast<xcb_configure_notify_event_t*>(event);
     delegate().wdResize_(WindowXCB::fromId(ev->event), ev->width, ev->height);
-    // TODO: notify window object
+    // TODO: Notify window object
   };
 
   // Handle CLIENT_MESSAGE

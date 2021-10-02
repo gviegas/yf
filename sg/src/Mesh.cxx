@@ -84,8 +84,8 @@ Mesh::Impl::Impl(const Data& data) {
     uint64_t off = copy(sz, dt);
 
     if (off == UINT64_MAX) {
-      if (!resizeBuffer(max(sz, buffer_->size_ << 1)) &&
-          (sz >= buffer_->size_ || !resizeBuffer(sz)))
+      if (!resizeBuffer(max(sz, buffer_->size() << 1)) &&
+          (sz >= buffer_->size() || !resizeBuffer(sz)))
         throw NoMemoryExcept("Failed to allocate space for mesh object");
 
       off = copy(sz, dt);
@@ -109,8 +109,8 @@ Mesh::Impl::Impl(const Data& data) {
     ixData_.offset = copy(sz, dt);
 
     if (ixData_.offset == UINT64_MAX) {
-      if (!resizeBuffer(max(sz, buffer_->size_ << 1)) &&
-          (sz >= buffer_->size_ || !resizeBuffer(sz)))
+      if (!resizeBuffer(max(sz, buffer_->size() << 1)) &&
+          (sz >= buffer_->size() || !resizeBuffer(sz)))
         throw NoMemoryExcept("Failed to allocate space for mesh object");
 
       ixData_.offset = copy(sz, dt);
@@ -236,7 +236,7 @@ void Mesh::Impl::encode(CG_NS::GrEncoder& encoder, uint32_t baseInstance,
 }
 
 bool Mesh::Impl::resizeBuffer(uint64_t newSize) {
-  const auto oldSize = buffer_->size_;
+  const auto oldSize = buffer_->size();
   if (newSize == oldSize)
     return true;
 
@@ -253,7 +253,7 @@ bool Mesh::Impl::resizeBuffer(uint64_t newSize) {
 
   // Copy data to new buffer
   CG_NS::TfEncoder enc;
-  enc.copy(newBuf.get(), 0, buffer_.get(), 0, buffer_->size_);
+  enc.copy(newBuf.get(), 0, buffer_.get(), 0, buffer_->size());
   auto& que = dev.queue(CG_NS::Queue::Transfer);
   auto cb = que.cmdBuffer();
   cb->encode(enc);

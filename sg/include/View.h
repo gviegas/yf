@@ -25,7 +25,7 @@ class Scene;
 ///
 class View {
  public:
-  View(WS_NS::Window* window);
+  View(WS_NS::Window& window);
   ~View();
 
   using UpdateFn = std::function<bool (std::chrono::nanoseconds elapsedTime)>;

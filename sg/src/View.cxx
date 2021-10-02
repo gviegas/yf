@@ -25,7 +25,7 @@ using namespace std;
 
 class View::Impl {
  public:
-  Impl(WS_NS::Window* window) : wsi_(CG_NS::device().wsi(*window)) {
+  Impl(WS_NS::Window& window) : wsi_(CG_NS::device().wsi(window)) {
     initTargets();
   }
 
@@ -132,7 +132,7 @@ class View::Impl {
 
 Renderer View::Impl::renderer_{};
 
-View::View(WS_NS::Window* window) : impl_(make_unique<Impl>(window)) { }
+View::View(WS_NS::Window& window) : impl_(make_unique<Impl>(window)) { }
 
 View::~View() { }
 

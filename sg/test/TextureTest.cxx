@@ -26,10 +26,10 @@ struct TextureTest : Test {
       wcout << "\n#Resources#\n";
       for (const auto& kv : Texture::Impl::resources_) {
         const auto& r = kv.second;
-        wcout << "#image: " << r.image->format_ << ", "
-              << r.image->size_.width << "x" << r.image->size_.height << ", "
-              << r.image->layers_ << ", " << r.image->levels_ << ", "
-              << r.image->samples_ << endl << "#layers: [ ";
+        wcout << "#image: " << r.image->format() << ", "
+              << r.image->size().width << "x" << r.image->size().height << ", "
+              << r.image->layers() << ", " << r.image->levels() << ", "
+              << r.image->samples() << endl << "#layers: [ ";
         for (const auto& u : r.layers.unused)
           wcout << u << " ";
         wcout << "], " << r.layers.remaining << ", " << r.layers.current

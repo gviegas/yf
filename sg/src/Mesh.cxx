@@ -174,11 +174,13 @@ Mesh::Impl::~Impl() {
     }
   };
 
-  for (const auto& vd : vxData_)
-    yield(vd.second.offset, vd.second.count * vd.second.stride);
+  for (const auto& p : primitives_) {
+    for (const auto& vd : p.vxData)
+      yield(vd.second.offset, vd.second.count * vd.second.stride);
 
-  if (ixData_.offset != UINT64_MAX)
-    yield(ixData_.offset, ixData_.count * ixData_.stride);
+    if (p.ixData.offset != UINT64_MAX)
+      yield(p.ixData.offset, p.ixData.count * p.ixData.stride);
+  }
 
   // TODO: Consider shrinking the buffer, or provide a way to do so
 }

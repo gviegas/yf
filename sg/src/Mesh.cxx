@@ -49,7 +49,7 @@ CG_NS::Buffer::Ptr Mesh::Impl::buffer_{CG_NS::device().buffer(Length)};
 list<Mesh::Impl::Segment> Mesh::Impl::segments_{{0, Length}};
 
 Mesh::Impl::Impl(const Data& data) {
-  if (data.data.empty() || data.vxAccessors.empty())
+  if (data.data.empty() || data.primitives.empty())
     throw invalid_argument("Invalid mesh data");
 
   // Find a segment that can contain data of a given size, copy data to
@@ -73,53 +73,62 @@ Mesh::Impl::Impl(const Data& data) {
     return UINT64_MAX;
   };
 
-  // Copy vertex data
-  for (const auto& va : data.vxAccessors) {
-    assert(va.second.dataIndex < data.data.size());
-    assert(va.second.elementN > 0);
-    assert(va.second.elementSize > 0);
+  // Copy data of each primitive
+  for (const auto& dp : data.primitives) {
+    assert(dp.vxAccessors.size() > 0);
 
-    const uint64_t sz = va.second.elementN * va.second.elementSize;
-    const void* dt = data.data[va.second.dataIndex].get()+va.second.dataOffset;
-    uint64_t off = copy(sz, dt);
+    primitives_.push_back({});
+    auto& prim = primitives_.back();
+    prim.topology = dp.topology;
 
-    if (off == UINT64_MAX) {
-      if (!resizeBuffer(max(sz, buffer_->size() << 1)) &&
-          (sz >= buffer_->size() || !resizeBuffer(sz)))
-        throw NoMemoryExcept("Failed to allocate space for mesh object");
+    // Copy vertex attribute data
+    for (const auto& va : dp.vxAccessors) {
+      assert(va.second.dataIndex < data.data.size());
+      assert(va.second.elementN > 0);
+      assert(va.second.elementSize > 0);
 
-      off = copy(sz, dt);
+      const uint64_t sz = va.second.elementN * va.second.elementSize;
+      const void* dt = &data.data[va.second.dataIndex][va.second.dataOffset];
+      uint64_t off = copy(sz, dt);
 
-      assert(off != UINT64_MAX);
+      if (off == UINT64_MAX) {
+        if (!resizeBuffer(max(sz, buffer_->size() << 1)) &&
+            (sz >= buffer_->size() || !resizeBuffer(sz)))
+          throw NoMemoryExcept("Failed to allocate space for Mesh");
+
+        off = copy(sz, dt);
+
+        assert(off != UINT64_MAX);
+      }
+
+      prim.vxData.emplace(va.first, DataEntry{off, va.second.elementN,
+                                              va.second.elementSize});
     }
 
-    vxData_.emplace(va.first, DataEntry{off, va.second.elementN,
-                                        va.second.elementSize});
-  }
+    // Copy index data
+    const auto& ia = dp.ixAccessor;
+    if (ia.dataIndex != UINT32_MAX) {
+      assert(ia.dataIndex < data.data.size());
+      assert(ia.elementN > 0);
+      assert(ia.elementSize > 0);
 
-  // Copy index data
-  if (data.ixAccessor.dataIndex != UINT32_MAX) {
-    assert(data.ixAccessor.dataIndex < data.data.size());
-    assert(data.ixAccessor.elementN > 0);
-    assert(data.ixAccessor.elementSize > 0);
+      const uint64_t sz = ia.elementN * ia.elementSize;
+      const void* dt = &data.data[ia.dataIndex][ia.dataOffset];
+      prim.ixData.offset = copy(sz, dt);
 
-    const uint64_t sz = data.ixAccessor.elementN * data.ixAccessor.elementSize;
-    const void* dt = data.data[data.ixAccessor.dataIndex].get()+
-                     data.ixAccessor.dataOffset;
-    ixData_.offset = copy(sz, dt);
+      if (prim.ixData.offset == UINT64_MAX) {
+        if (!resizeBuffer(max(sz, buffer_->size() << 1)) &&
+            (sz >= buffer_->size() || !resizeBuffer(sz)))
+          throw NoMemoryExcept("Failed to allocate space for Mesh");
+      }
 
-    if (ixData_.offset == UINT64_MAX) {
-      if (!resizeBuffer(max(sz, buffer_->size() << 1)) &&
-          (sz >= buffer_->size() || !resizeBuffer(sz)))
-        throw NoMemoryExcept("Failed to allocate space for mesh object");
+      prim.ixData.offset = copy(sz, dt);
 
-      ixData_.offset = copy(sz, dt);
-
-      assert(ixData_.offset != UINT64_MAX);
+      assert(prim.ixData.offset != UINT64_MAX);
     }
 
-    ixData_.count = data.ixAccessor.elementN;
-    ixData_.stride = data.ixAccessor.elementSize;
+    prim.ixData.count = ia.elementN;
+    prim.ixData.stride = ia.elementSize;
   }
 }
 

@@ -88,9 +88,19 @@ struct Mesh::Data {
     uint32_t elementSize = UINT32_MAX;
   };
 
-  std::vector<std::unique_ptr<uint8_t[]>> data{};
-  std::unordered_map<VxType, Accessor> vxAccessors{};
-  Accessor ixAccessor{};
+  /// Primitive.
+  ///
+  /// Mesh data defines one or more primitives for rendering.
+  /// Each `Primitive` corresponds to a separate drawing command.
+  ///
+  struct Primitive {
+    CG_NS::Topology topology = CG_NS::TopologyTriangle;
+    std::unordered_map<VxType, Accessor> vxAccessors{};
+    Accessor ixAccessor{};
+  };
+
+  std::vector<std::unique_ptr<char[]>> data{};
+  std::vector<Primitive> primitives{};
 
   Data() = default;
   Data(const Data&) = delete;

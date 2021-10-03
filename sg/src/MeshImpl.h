@@ -174,13 +174,20 @@ class Mesh::Impl {
   /// Description of data in `buffer_` memory.
   ///
   struct DataEntry {
-    uint64_t offset;
-    uint32_t count;
-    uint32_t stride;
+    uint64_t offset = UINT64_MAX;
+    uint32_t count = UINT32_MAX;
+    uint32_t stride = UINT32_MAX;
   };
 
-  std::unordered_map<VxType, DataEntry> vxData_{};
-  DataEntry ixData_{UINT64_MAX, UINT32_MAX, UINT32_MAX};
+  /// Mesh primitive.
+  ///
+  struct Primitive {
+    CG_NS::Topology topology = CG_NS::TopologyTriangle;
+    std::unordered_map<VxType, DataEntry> vxData{};
+    DataEntry ixData{};
+  };
+
+  std::vector<Primitive> primitives_{};
 
   bool resizeBuffer(uint64_t);
 };

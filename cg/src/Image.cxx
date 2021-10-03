@@ -5,15 +5,16 @@
 // Copyright © 2020-2021 Gustavo C. Viegas.
 //
 
+#include <stdexcept>
+
 #include "Image.h"
 
 using namespace CG_NS;
+using namespace std;
 
-INTERNAL_NS_BEGIN
+Image::~Image() { }
 
-/// Computes the number of bytes in a pixel format's texel block.
-///
-inline uint32_t texelSize(PxFormat format) {
+uint32_t Image::texelSize(PxFormat format) {
   switch (format) {
   case PxFormatR8Unorm:
   case PxFormatR8Uint:
@@ -61,18 +62,10 @@ inline uint32_t texelSize(PxFormat format) {
     return 8;
 
   default:
-    return 0;
+    throw invalid_argument(__func__);
   }
 }
 
-INTERNAL_NS_END
-
-Image::~Image() { }
-
-uint32_t Image::bitsPerTexel(PxFormat format) {
-  return texelSize(format) << 3;
-}
-
-uint32_t Image::bitsPerTexel() const {
-  return texelSize(format()) << 3;
+uint32_t Image::texelSize() const {
+  return texelSize(format());
 }

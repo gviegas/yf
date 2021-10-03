@@ -100,10 +100,10 @@ class Image {
   virtual uint32_t levels() const = 0;
   virtual Samples samples() const = 0;
 
-  /// Gets the number of bits per texel in the `PxFormat`.
+  /// Gets the number of bytes in a single texel of the `PxFormat`.
   ///
-  static uint32_t bitsPerTexel(PxFormat format);
-  uint32_t bitsPerTexel() const;
+  static uint32_t texelSize(PxFormat format);
+  uint32_t texelSize() const;
 };
 
 /// Wrap modes.

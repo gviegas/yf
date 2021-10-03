@@ -88,11 +88,13 @@ Texture::Impl::Impl(const Data& data)
   // Copy the data
   CG_NS::Image& image = *resource.image;
   CG_NS::Size2 size = data.size;
+  const uint32_t txSz = image.texelSize();
   const unsigned char* bytes = data.data.get();
+
   // TODO: Check if this works as expected
   for (uint32_t i = 0; i < data.levels; i++) {
     image.write({0}, size, layer_, i, bytes);
-    bytes += (image.bitsPerTexel() >> 3) * size.width * size.height;
+    bytes += size.width * size.height * txSz;
     size.width = max(1U, size.width >> 1);
     size.height = max(1U, size.height >> 1);
   }

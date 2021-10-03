@@ -186,7 +186,11 @@ Mesh::Impl::~Impl() {
 }
 
 bool Mesh::Impl::canBind(VxType type) const {
-  return vxData_.find(type) != vxData_.end();
+  for (const auto& p : primitives_) {
+    if (p.vxData.find(type) == p.vxData.end())
+      return false;
+  }
+  return true;
 }
 
 bool Mesh::Impl::isIndexed() const {

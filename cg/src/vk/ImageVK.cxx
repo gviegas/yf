@@ -235,6 +235,8 @@ void ImageVK::write(Offset2 offset, Size2 size, uint32_t layer, uint32_t level,
       !data)
     throw invalid_argument("ImageVK write()");
 
+  const auto txSz = texelSize();
+
   if (tiling_ == VK_IMAGE_TILING_LINEAR) {
     // For linear tiling, just query subresource layout and then write
     // contents to memory (through `data_` pointer) directly
@@ -261,16 +263,16 @@ void ImageVK::write(Offset2 offset, Size2 size, uint32_t layer, uint32_t level,
     vkGetImageSubresourceLayout(dev, handle_, &subres, &layout);
 
     // Write data to image memory
-    const auto len = (bitsPerTexel() >> 3) * size.width;
+    uint64_t sz = size.width * txSz;
     auto src = reinterpret_cast<const char*>(data);
     auto dst = reinterpret_cast<char*>(data_);
     dst += layout.offset + layout.arrayPitch * layer;
-    dst += offset.y * layout.rowPitch + offset.x * (bitsPerTexel() >> 3);
+    dst += offset.y * layout.rowPitch + offset.x * txSz;
 
     for (uint32_t row = 0; row < size.height; row++) {
-      memcpy(dst, src, len);
+      memcpy(dst, src, sz);
       dst += layout.rowPitch;
-      src += len;
+      src += sz;
     }
 
   } else {
@@ -280,7 +282,6 @@ void ImageVK::write(Offset2 offset, Size2 size, uint32_t layer, uint32_t level,
     if (layout_ != VK_IMAGE_LAYOUT_GENERAL)
       changeLayout(VK_IMAGE_LAYOUT_GENERAL, true);
 
-    const uint32_t txSz = (bitsPerTexel() >> 3);
     auto stgIt = staging_.find(layer);
 
     // One staging buffer per layer

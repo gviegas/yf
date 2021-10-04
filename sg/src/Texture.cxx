@@ -89,7 +89,7 @@ Texture::Impl::Impl(const Data& data)
   CG_NS::Image& image = *resource.image;
   CG_NS::Size2 size = data.size;
   const uint32_t txSz = image.texelSize();
-  const unsigned char* bytes = data.data.get();
+  const char* bytes = data.data.get();
 
   // TODO: Check if this works as expected
   for (uint32_t i = 0; i < data.levels; i++) {

@@ -23,13 +23,13 @@ SG_NS_BEGIN
 /// Generic texture data for copying.
 ///
 struct Texture::Data {
-  std::unique_ptr<uint8_t[]> data;
+  std::unique_ptr<char[]> data;
   CG_NS::PxFormat format;
   CG_NS::Size2 size;
   uint32_t levels;
   CG_NS::Samples samples;
 
-  explicit Data(uint8_t* data = nullptr,
+  explicit Data(char* data = nullptr,
                 CG_NS::PxFormat format = CG_NS::PxFormatUndefined,
                 CG_NS::Size2 size = {0}, uint32_t levels = 1,
                 CG_NS::Samples samples = CG_NS::Samples1)

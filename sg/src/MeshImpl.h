@@ -132,8 +132,8 @@ class Mesh::Impl {
 
   /// Encodes a vertex buffer binding command for this mesh.
   ///
-  void encodeVertexBuffer(CG_NS::GrEncoder& encoder, VxType type,
-                          uint32_t inputIndex);
+  void encodeVertexBuffer(CG_NS::GrEncoder& encoder, uint32_t inputIndex,
+                          VxType type, uint32_t primitive);
 
   /// Encodes an index buffer binding command for this mesh.
   ///

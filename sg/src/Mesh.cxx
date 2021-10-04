@@ -201,11 +201,15 @@ bool Mesh::Impl::isIndexed() const {
   return false;
 }
 
-void Mesh::Impl::encodeVertexBuffer(CG_NS::GrEncoder& encoder, VxType type,
-                                    uint32_t inputIndex) {
+void Mesh::Impl::encodeVertexBuffer(CG_NS::GrEncoder& encoder,
+                                    uint32_t inputIndex, VxType type,
+                                    uint32_t primitive) {
 
-  const auto it = vxData_.find(type);
-  if (it == vxData_.end())
+  if (primitive >= primitives_.size())
+    throw invalid_argument("Mesh does not contain requested primitive");
+
+  const auto it = primitives_[primitive].vxData.find(type);
+  if (it == primitives_[primitive].vxData.end())
     throw invalid_argument("Mesh does not contain requested vertex type");
 
   encoder.setVertexBuffer(buffer_.get(), it->second.offset, inputIndex);

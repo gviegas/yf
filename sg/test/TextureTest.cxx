@@ -45,7 +45,7 @@ struct TextureTest : Test {
 
     print();
 
-    auto b = new uint8_t[1<<14];
+    auto b = new char[1<<14];
     Texture::Data data{b, CG_NS::PxFormatRgb8Unorm, {32}};
 
     Texture t1(data);

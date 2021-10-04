@@ -158,6 +158,9 @@ class Mesh::Impl {
   /// to `encodeDraw()`.
   ///
   void encode(CG_NS::GrEncoder& encoder, uint32_t baseInstance,
+              uint32_t instanceCount, uint32_t primitive);
+
+  void encode(CG_NS::GrEncoder& encoder, uint32_t baseInstance,
               uint32_t instanceCount);
 
 #ifndef YF_DEVEL

@@ -298,6 +298,13 @@ void Mesh::Impl::encodeDraw(CG_NS::GrEncoder& encoder, uint32_t baseInstance,
 }
 
 void Mesh::Impl::encode(CG_NS::GrEncoder& encoder, uint32_t baseInstance,
+                        uint32_t instanceCount, uint32_t primitive) {
+
+  encodeBindings(encoder, primitive);
+  encodeDraw(encoder, baseInstance, instanceCount, primitive);
+}
+
+void Mesh::Impl::encode(CG_NS::GrEncoder& encoder, uint32_t baseInstance,
                         uint32_t instanceCount) {
 
   uint32_t primitive = 0;

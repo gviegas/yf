@@ -185,6 +185,14 @@ Mesh::Impl::~Impl() {
   // TODO: Consider shrinking the buffer, or provide a way to do so
 }
 
+bool Mesh::Impl::canBind(VxType type, uint32_t primitive) const {
+  if (primitive >= primitives_.size())
+    throw invalid_argument("Mesh does not contain requested primitive");
+
+  const auto& vxData = primitives_[primitive].vxData;
+  return vxData.find(type) != vxData.end();
+}
+
 bool Mesh::Impl::canBind(VxType type) const {
   for (const auto& p : primitives_) {
     if (p.vxData.find(type) == p.vxData.end())

@@ -122,6 +122,7 @@ class Mesh::Impl {
   /// One must not attempt to encode a vertex buffer binding for a type
   /// which `canBind()` returns `false`.
   ///
+  bool canBind(VxType type, uint32_t primitive) const;
   bool canBind(VxType type) const;
 
   /// Checks whether or not this mesh contains an index buffer.

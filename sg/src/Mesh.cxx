@@ -215,12 +215,18 @@ void Mesh::Impl::encodeVertexBuffer(CG_NS::GrEncoder& encoder,
   encoder.setVertexBuffer(buffer_.get(), it->second.offset, inputIndex);
 }
 
-void Mesh::Impl::encodeIndexBuffer(CG_NS::GrEncoder& encoder) {
-  if (ixData_.offset == UINT64_MAX)
+void Mesh::Impl::encodeIndexBuffer(CG_NS::GrEncoder& encoder,
+                                   uint32_t primitive) {
+
+  if (primitive >= primitives_.size())
+    throw invalid_argument("Mesh does not contain requested primitive");
+
+  const auto& ixData = primitives_[primitive].ixData;
+  if (ixData.offset == UINT64_MAX)
     return;
 
   CG_NS::IndexType type;
-  switch (ixData_.stride) {
+  switch (ixData.stride) {
   case 2:
     type = CG_NS::IndexTypeU16;
     break;
@@ -231,7 +237,7 @@ void Mesh::Impl::encodeIndexBuffer(CG_NS::GrEncoder& encoder) {
     throw invalid_argument("Invalid stride for Mesh index buffer");
   }
 
-  encoder.setIndexBuffer(buffer_.get(), ixData_.offset, type);
+  encoder.setIndexBuffer(buffer_.get(), ixData.offset, type);
 }
 
 void Mesh::Impl::encodeBindings(CG_NS::GrEncoder& encoder) {

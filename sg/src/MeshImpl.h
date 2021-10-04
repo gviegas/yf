@@ -137,7 +137,7 @@ class Mesh::Impl {
 
   /// Encodes an index buffer binding command for this mesh.
   ///
-  void encodeIndexBuffer(CG_NS::GrEncoder& encoder);
+  void encodeIndexBuffer(CG_NS::GrEncoder& encoder, uint32_t primitive);
 
   /// Encodes all required buffer bindings for this mesh.
   ///

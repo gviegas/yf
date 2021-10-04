@@ -117,6 +117,10 @@ class Mesh::Impl {
   Impl& operator=(const Impl&) = delete;
   ~Impl();
 
+  /// Gets the number of primitives in the mesh.
+  ///
+  uint32_t primitiveCount() const;
+
   /// Checks whether or not a given vertex type can be bound by this mesh.
   ///
   /// One must not attempt to encode a vertex buffer binding for a type

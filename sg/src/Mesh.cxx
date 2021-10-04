@@ -185,6 +185,10 @@ Mesh::Impl::~Impl() {
   // TODO: Consider shrinking the buffer, or provide a way to do so
 }
 
+uint32_t Mesh::Impl::primitiveCount() const {
+  return primitives_.size();
+}
+
 bool Mesh::Impl::canBind(VxType type, uint32_t primitive) const {
   if (primitive >= primitives_.size())
     throw invalid_argument("Mesh does not contain requested primitive");

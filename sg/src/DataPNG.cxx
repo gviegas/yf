@@ -383,14 +383,14 @@ class PNG {
 
   /// Produces raw image data.
   ///
-  unique_ptr<uint8_t[]> imageData() const {
+  unique_ptr<char[]> imageData() const {
     vector<uint8_t> cdata{};
     decompress(cdata);
     unfilter(cdata);
 
     const size_t lnSize = ihdr_.width * (ihdr_.colorType == 3 ? 3 : Bpp_);
     const size_t size = lnSize * ihdr_.height;
-    auto idata = make_unique<uint8_t[]>(size);
+    auto idata = make_unique<char[]>(size);
 
     // Palette indices
     if (ihdr_.colorType == 3) {

@@ -47,8 +47,10 @@ struct MeshTest : Test {
     print();
 
     Mesh::Data data;
-    data.data.push_back(make_unique<uint8_t[]>(2048));
-    data.vxAccessors.emplace(VxTypePosition,
+    data.data.push_back(make_unique<char[]>(2048));
+    data.primitives.push_back({});
+    auto& prim = data.primitives.back();
+    prim.vxAccessors.emplace(VxTypePosition,
                              Mesh::Data::Accessor{0, 0, 24, 12});
 
     Mesh m1(data);
@@ -80,10 +82,10 @@ struct MeshTest : Test {
         m2->impl().canBind(VxTypeJoints0))
       bindChk = false;
 
-    data.ixAccessor.dataIndex = 0;
-    data.ixAccessor.dataOffset = 1024;
-    data.ixAccessor.elementN = 36;
-    data.ixAccessor.elementSize = 2;
+    prim.ixAccessor.dataIndex = 0;
+    prim.ixAccessor.dataOffset = 1024;
+    prim.ixAccessor.elementN = 36;
+    prim.ixAccessor.elementSize = 2;
 
     Mesh m3(data);
     print();
@@ -104,7 +106,7 @@ struct MeshTest : Test {
         (++segs.begin())->size != buf->size() - (3*24*12+36*2))
       dtorChk = false;
 
-    data.ixAccessor = {};
+    prim.ixAccessor = {};
     Mesh m4(data);
     print();
     if (segs.size() != 1 || segs.front().offset != (3*24*12+36*2) ||
@@ -116,7 +118,7 @@ struct MeshTest : Test {
     if (m4.impl().isIndexed())
       ibufChk = false;
 
-    data.vxAccessors.emplace(VxTypeTexCoord0,
+    prim.vxAccessors.emplace(VxTypeTexCoord0,
                              Mesh::Data::Accessor{0, 24*12, 24, 8});
     Mesh m5(data);
     print();

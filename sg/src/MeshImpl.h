@@ -148,7 +148,7 @@ class Mesh::Impl {
   /// Encodes a draw command for this mesh.
   ///
   void encodeDraw(CG_NS::GrEncoder& encoder, uint32_t baseInstance,
-                  uint32_t instanceCount);
+                  uint32_t instanceCount, uint32_t primitive);
 
   /// Encodes required bindings and a draw command for this mesh.
   ///

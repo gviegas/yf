@@ -267,13 +267,19 @@ void Mesh::Impl::encodeBindings(CG_NS::GrEncoder& encoder, uint32_t primitive) {
 }
 
 void Mesh::Impl::encodeDraw(CG_NS::GrEncoder& encoder, uint32_t baseInstance,
-                            uint32_t instanceCount) {
+                            uint32_t instanceCount, uint32_t primitive) {
 
-  if (ixData_.offset != UINT64_MAX)
-    encoder.drawIndexed(0, ixData_.count, 0, baseInstance, instanceCount);
+  if (primitive >= primitives_.size())
+    throw invalid_argument("Mesh does not contain requested primitive");
+
+  const auto& vxData = primitives_[primitive].vxData.begin()->second;
+  const auto& ixData = primitives_[primitive].ixData;
+
+  if (ixData.offset != UINT64_MAX)
+    encoder.drawIndexed(0, ixData.count, 0, baseInstance, instanceCount);
   else
-    // XXX: Assuming all vertex attributes have the same count
-    encoder.draw(0, vxData_.begin()->second.count, baseInstance, instanceCount);
+    // XXX: This assumes that all vertex attributes have the same `count`
+    encoder.draw(0, vxData.count, baseInstance, instanceCount);
 }
 
 void Mesh::Impl::encode(CG_NS::GrEncoder& encoder, uint32_t baseInstance,

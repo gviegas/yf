@@ -143,7 +143,7 @@ class Mesh::Impl {
   ///
   /// Input indices for vertex buffers are taken from the `VxType` enum.
   ///
-  void encodeBindings(CG_NS::GrEncoder& encoder);
+  void encodeBindings(CG_NS::GrEncoder& encoder, uint32_t primitive);
 
   /// Encodes a draw command for this mesh.
   ///

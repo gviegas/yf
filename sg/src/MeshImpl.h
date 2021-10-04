@@ -129,6 +129,7 @@ class Mesh::Impl {
   ///
   /// If `isIndexed()` returns `false`, index buffer binding can be skipped.
   ///
+  bool isIndexed(uint32_t primitive) const;
   bool isIndexed() const;
 
   /// Encodes a vertex buffer binding command for this mesh.

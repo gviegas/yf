@@ -201,6 +201,13 @@ bool Mesh::Impl::canBind(VxType type) const {
   return true;
 }
 
+bool Mesh::Impl::isIndexed(uint32_t primitive) const {
+  if (primitive >= primitives_.size())
+    throw invalid_argument("Mesh does not contain requested primitive");
+
+  return primitives_[primitive].ixData.offset != UINT64_MAX;
+}
+
 bool Mesh::Impl::isIndexed() const {
   for (const auto& p : primitives_) {
     if (p.ixData.offset != UINT64_MAX)

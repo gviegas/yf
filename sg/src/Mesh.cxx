@@ -73,7 +73,7 @@ Mesh::Impl::Impl(const Data& data) {
     return UINT64_MAX;
   };
 
-  // Copy data of each primitive
+  // Copy primitives
   for (const auto& dp : data.primitives) {
     assert(dp.vxAccessors.size() > 0);
 
@@ -81,7 +81,7 @@ Mesh::Impl::Impl(const Data& data) {
     auto& prim = primitives_.back();
     prim.topology = dp.topology;
 
-    // Copy vertex attribute data
+    // Copy vertex attributes
     for (const auto& va : dp.vxAccessors) {
       assert(va.second.dataIndex < data.data.size());
       assert(va.second.elementN > 0);
@@ -105,7 +105,7 @@ Mesh::Impl::Impl(const Data& data) {
                                               va.second.elementSize});
     }
 
-    // Copy index data
+    // Copy vertex indices
     const auto& ia = dp.ixAccessor;
     if (ia.dataIndex != UINT32_MAX) {
       assert(ia.dataIndex < data.data.size());
@@ -120,15 +120,15 @@ Mesh::Impl::Impl(const Data& data) {
         if (!resizeBuffer(max(sz, buffer_->size() << 1)) &&
             (sz >= buffer_->size() || !resizeBuffer(sz)))
           throw NoMemoryExcept("Failed to allocate space for Mesh");
+
+        prim.ixData.offset = copy(sz, dt);
+
+        assert(prim.ixData.offset != UINT64_MAX);
       }
 
-      prim.ixData.offset = copy(sz, dt);
-
-      assert(prim.ixData.offset != UINT64_MAX);
+      prim.ixData.count = ia.elementN;
+      prim.ixData.stride = ia.elementSize;
     }
-
-    prim.ixData.count = ia.elementN;
-    prim.ixData.stride = ia.elementSize;
   }
 }
 

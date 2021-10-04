@@ -285,8 +285,11 @@ void Mesh::Impl::encodeDraw(CG_NS::GrEncoder& encoder, uint32_t baseInstance,
 void Mesh::Impl::encode(CG_NS::GrEncoder& encoder, uint32_t baseInstance,
                         uint32_t instanceCount) {
 
-  encodeBindings(encoder);
-  encodeDraw(encoder, baseInstance, instanceCount);
+  uint32_t primitive = 0;
+  do {
+    encodeBindings(encoder, primitive);
+    encodeDraw(encoder, baseInstance, instanceCount, primitive);
+  } while (++primitive < primitives_.size());
 }
 
 bool Mesh::Impl::resizeBuffer(uint64_t newSize) {

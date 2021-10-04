@@ -1874,58 +1874,62 @@ void loadMesh(Mesh::Data& dst, unordered_map<int32_t, ifstream>& bufferMap,
   assert(index < gltf.meshes().size());
 
   const auto& mesh = gltf.meshes()[index];
-
   if (mesh.primitives.empty())
     throw runtime_error("Invalid glTF primitives");
 
-  // TODO: Multiple primitives & other primitive topologies
-  if (mesh.primitives.size() > 1 ||
-      mesh.primitives.front().mode != GLTF::Mesh::Primitive::Triangles)
-    throw UnsupportedExcept("Unsupported glTF mesh");
-
   // Convert from primitive's attribute string to `VxType` value
-  auto typeOfAttribute = [](const string& attr) -> VxType {
-    if (attr == "POSITION")
-      return VxTypePosition;
-    if (attr == "TANGENT")
-      return VxTypeTangent;
-    if (attr == "NORMAL")
-      return VxTypeNormal;
-    if (attr == "TEXCOORD_0")
-      return VxTypeTexCoord0;
-    if (attr == "TEXCOORD_1")
-      return VxTypeTexCoord1;
-    if (attr == "COLOR_0")
-      return VxTypeColor0;
-    if (attr == "JOINTS_0")
-      return VxTypeJoints0;
-    if (attr == "WEIGHTS_0")
-      return VxTypeWeights0;
+  auto typeOfAttribute = [](const string& att) -> VxType {
+    if (att == "POSITION")   return VxTypePosition;
+    if (att == "TANGENT")    return VxTypeTangent;
+    if (att == "NORMAL")     return VxTypeNormal;
+    if (att == "TEXCOORD_0") return VxTypeTexCoord0;
+    if (att == "TEXCOORD_1") return VxTypeTexCoord1;
+    if (att == "COLOR_0")    return VxTypeColor0;
+    if (att == "JOINTS_0")   return VxTypeJoints0;
+    if (att == "WEIGHTS_0")  return VxTypeWeights0;
     throw UnsupportedExcept("Unsupported glTF primitive");
+  };
+
+  // Convert from primitives's mode to CG `Topology` value
+  auto toTopology = [](int32_t mode) -> CG_NS::Topology {
+    switch (mode) {
+    case GLTF::Mesh::Primitive::Points:        return CG_NS::TopologyPoint;
+    case GLTF::Mesh::Primitive::Lines:         return CG_NS::TopologyLine;
+    case GLTF::Mesh::Primitive::Triangles:     return CG_NS::TopologyTriangle;
+    case GLTF::Mesh::Primitive::LineStrip:     return CG_NS::TopologyLnStrip;
+    case GLTF::Mesh::Primitive::TriangleStrip: return CG_NS::TopologyTriStrip;
+    case GLTF::Mesh::Primitive::TriangleFan:   return CG_NS::TopologyTriFan;
+    default: throw UnsupportedExcept("Unsupported glTF primitive mode");
+    }
   };
 
   // Description of data in a given buffer
   struct Desc {
-    int32_t type;
     const GLTF::Accessor& accessor;
     const GLTF::BufferView& bufferView;
+
+    Mesh::Data::Accessor& dst;
   };
 
   unordered_map<int32_t, vector<Desc>> descMap{};
 
   // TODO: Validate glTF data
   for (const auto& prim : mesh.primitives) {
-    for (const auto& att : prim.attributes) {
+    dst.primitives.push_back({toTopology(prim.mode), {}, {}});
+    auto& dstPrim = dst.primitives.back();
 
-      const auto type = typeOfAttribute(att.first);
+    for (const auto& att : prim.attributes) {
       const auto& acc = gltf.accessors()[att.second];
       const auto& view = gltf.bufferViews()[acc.bufferView];
 
+      auto dstIt = dstPrim.vxAccessors.emplace(typeOfAttribute(att.first),
+                                               Mesh::Data::Accessor{}).first;
+
       auto it = descMap.find(view.buffer);
       if (it == descMap.end())
-        descMap.emplace(view.buffer, vector<Desc>{{type, acc, view}});
+        descMap.emplace(view.buffer, vector<Desc>{{acc, view, dstIt->second}});
       else
-        it->second.push_back({type, acc, view});
+        it->second.push_back({acc, view, dstIt->second});
     }
 
     if (prim.indices >= 0) {
@@ -1934,7 +1938,7 @@ void loadMesh(Mesh::Data& dst, unordered_map<int32_t, ifstream>& bufferMap,
 
       auto it = descMap.find(view.buffer);
       assert(it != descMap.end());
-      it->second.push_back({-1, acc, view});
+      it->second.push_back({acc, view, dstPrim.ixAccessor});
     }
   }
 
@@ -1970,24 +1974,24 @@ void loadMesh(Mesh::Data& dst, unordered_map<int32_t, ifstream>& bufferMap,
       size_t size = dc.accessor.sizeOfComponentType() *
                     dc.accessor.sizeOfType();
 
-      const Mesh::Data::Accessor da{static_cast<uint32_t>(dst.data.size()),
-                                    0,
-                                    static_cast<uint32_t>(dc.accessor.count),
-                                    static_cast<uint32_t>(size)};
+      dc.dst = {static_cast<uint32_t>(dst.data.size()),
+                0,
+                static_cast<uint32_t>(dc.accessor.count),
+                static_cast<uint32_t>(size)};
 
-      size *= da.elementN;
-      dst.data.push_back(make_unique<uint8_t[]>(size));
-      auto dt = reinterpret_cast<char*>(dst.data.back().get());
+      size *= dc.dst.elementN;
+      dst.data.push_back(make_unique<char[]>(size));
+      auto dt = dst.data.back().get();
 
       if (!ifs->seekg(beg + dc.accessor.byteOffset + dc.bufferView.byteOffset))
         throw FileExcept("Could not seek glTF .glb/.bin file");
 
       if (dc.bufferView.byteStride > 0) {
         // interleaved
-        for (size_t i = 0; i < da.elementN; i++) {
+        for (size_t i = 0; i < dc.dst.elementN; i++) {
           if (!ifs->seekg(dc.bufferView.byteStride * i, ios_base::cur))
             throw FileExcept("Could not seek glTF .glb/.bin file");
-          if (!ifs->read(dt, da.elementSize))
+          if (!ifs->read(dt, dc.dst.elementSize))
             throw FileExcept("Could not read from glTF .glb/.bin file");
         }
       } else {
@@ -1995,11 +1999,6 @@ void loadMesh(Mesh::Data& dst, unordered_map<int32_t, ifstream>& bufferMap,
         if (!ifs->read(dt, size))
           throw FileExcept("Could not read from glTF .glb/.bin file");
       }
-
-      if (dc.type >= 0)
-        dst.vxAccessors.emplace(static_cast<VxType>(dc.type), da);
-      else
-        dst.ixAccessor = da;
     }
   }
 }

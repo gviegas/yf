@@ -61,7 +61,7 @@ Texture::Impl::Impl(const Data& data)
 
     auto res = resources_.emplace(key_, Resource{
       dev.image(data.format, data.size, Layers, data.levels, data.samples),
-      {vector<bool>(Layers, true), Layers, 0}});
+      {vector<uint32_t>(Layers, 0), Layers, 0}});
 
     it = res.first;
 
@@ -74,14 +74,14 @@ Texture::Impl::Impl(const Data& data)
   auto& resource = it->second;
 
   // Find an unused layer to copy this data to
-  vector<bool>& unused = resource.layers.unused;
+  vector<uint32_t>& refCounts = resource.layers.refCounts;
   uint32_t& current = resource.layers.current;
   do {
-    if (unused[current]) {
+    if (refCounts[current] == 0) {
       layer_ = current;
-      unused[current] = false;
+      refCounts[current]++;
     }
-    current = (current + 1) % unused.size();
+    current = (current + 1) % refCounts.size();
   } while (layer_ == UINT32_MAX);
   resource.layers.remaining--;
 

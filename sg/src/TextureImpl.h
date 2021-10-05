@@ -65,6 +65,8 @@ class Texture::Impl {
   ///
   CG_NS::Sampler& sampler();
   const CG_NS::Sampler& sampler() const;
+  TexCoordSet& coordSet();
+  TexCoordSet coordSet() const;
 
   /// Updates image data.
   ///

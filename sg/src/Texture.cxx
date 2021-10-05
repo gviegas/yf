@@ -112,6 +112,14 @@ Texture::Impl::~Impl() {
     resource.layers.current = layer_;
 }
 
+CG_NS::Sampler& Texture::Impl::sampler() {
+  return sampler_;
+}
+
+const CG_NS::Sampler& Texture::Impl::sampler() const {
+  return sampler_;
+}
+
 void Texture::Impl::updateImage(CG_NS::Offset2 offset, CG_NS::Size2 size,
                                 uint32_t level, const void* data) {
 

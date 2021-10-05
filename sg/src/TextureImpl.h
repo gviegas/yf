@@ -52,6 +52,11 @@ class Texture::Impl {
   Impl& operator=(const Impl&) = delete;
   ~Impl();
 
+  /// Getters.
+  ///
+  CG_NS::Sampler& sampler();
+  const CG_NS::Sampler& sampler() const;
+
   /// Updates image data.
   ///
   void updateImage(CG_NS::Offset2 offset, CG_NS::Size2 size, uint32_t level,

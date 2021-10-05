@@ -20,6 +20,13 @@
 
 SG_NS_BEGIN
 
+/// Texture coordinate sets.
+///
+enum TexCoordSet {
+  TexCoordSet0,
+  TexCoordSet1
+};
+
 /// Generic texture data for copying.
 ///
 struct Texture::Data {
@@ -29,14 +36,16 @@ struct Texture::Data {
   uint32_t levels;
   CG_NS::Samples samples;
   CG_NS::Sampler sampler;
+  TexCoordSet coordSet;
 
   explicit Data(char* data = nullptr,
                 CG_NS::PxFormat format = CG_NS::PxFormatUndefined,
                 CG_NS::Size2 size = {0}, uint32_t levels = 1,
                 CG_NS::Samples samples = CG_NS::Samples1,
-                const CG_NS::Sampler& sampler = {})
-    : data(data), format(format), size(size), levels(levels),
-      samples(samples), sampler(sampler) { }
+                const CG_NS::Sampler& sampler = {},
+                TexCoordSet coordSet = TexCoordSet0)
+    : data(data), format(format), size(size), levels(levels), samples(samples),
+      sampler(sampler), coordSet(coordSet) { }
 
   Data(const Data&) = delete;
   Data& operator=(const Data&) = delete;

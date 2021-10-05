@@ -116,7 +116,7 @@ class Texture::Impl {
   struct Resource {
     CG_NS::Image::Ptr image;
     struct {
-      std::vector<bool> unused;
+      std::vector<uint32_t> refCounts;
       uint32_t remaining;
       uint32_t current;
     } layers;

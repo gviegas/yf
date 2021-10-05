@@ -16,6 +16,7 @@
 
 #include "DataGLTF.h"
 #include "Model.h"
+#include "TextureImpl.h"
 #include "yf/Except.h"
 
 using namespace YF_NS;
@@ -2076,11 +2077,14 @@ Material* loadMaterial(unordered_map<int32_t, Texture*>& textureMap,
     if (it != textureMap.end())
       return it->second;
 
+    // FIXME: Don't load the same source image multiple times
+
     const auto& texture = gltf.textures()[info.index];
     const auto& image = gltf.images()[texture.source];
 
-    // Image provided through a buffer view
+    Texture::Ptr tex{};
     if (image.uri.empty()) {
+      // Image provided through a buffer view
       const auto& view = gltf.bufferViews()[image.bufferView];
       const auto& buffer = gltf.buffers()[view.buffer];
 
@@ -2093,20 +2097,75 @@ Material* loadMaterial(unordered_map<int32_t, Texture*>& textureMap,
         if (!ifs.seekg(view.byteOffset, ios_base::cur))
           throw FileExcept("Could not seek glTF .glb file");
 
-        auto tex = new Texture(ifs);
-        return textureMap.emplace(info.index, tex).first->second;
+        tex = make_unique<Texture>(ifs);
 
       } else {
         // TODO: External (.bin)
         throw runtime_error("Image loading from glTF .bin unimplemented");
       }
+
+    } else {
+      // Image provided through an URI
+      // TODO: Base64
+      const string pathname = gltf.directory() + '/' + image.uri;
+      tex = make_unique<Texture>(pathname);
     }
 
-    // Image provided through an URI
-    // TODO: Base64
-    const string pathname = gltf.directory() + '/' + image.uri;
-    auto tex = new Texture(pathname);
-    return textureMap.emplace(info.index, tex).first->second;
+    if (texture.sampler > -1) {
+      const auto& sampler = gltf.samplers()[texture.sampler];
+      auto& splr = tex->impl().sampler();
+
+      // Convert from sampler's wrap mode to CG `WrapMode` value
+      auto toWrapMode = [](int32_t wrap) -> CG_NS::WrapMode {
+        switch (wrap) {
+        case GLTF::Sampler::ClampToEdge:    return CG_NS::WrapModeClamp;
+        case GLTF::Sampler::MirroredRepeat: return CG_NS::WrapModeMirror;
+        case GLTF::Sampler::Repeat:         return CG_NS::WrapModeRepeat;
+        default: throw UnsupportedExcept("Unsupported sampler wrap mode");
+        }
+      };
+
+      splr.wrapU = toWrapMode(sampler.wrapS);
+      splr.wrapV = toWrapMode(sampler.wrapT);
+
+      switch (sampler.magFilter) {
+      case GLTF::Sampler::Undefined:
+      case GLTF::Sampler::Nearest:
+        splr.magFilter = CG_NS::FilterNearest;
+        break;
+      case GLTF::Sampler::Linear:
+        splr.magFilter = CG_NS::FilterLinear;
+        break;
+      default:
+        throw UnsupportedExcept("Unsupported sampler mag. filter");
+      }
+
+      switch (sampler.minFilter) {
+      case GLTF::Sampler::Undefined:
+      case GLTF::Sampler::Nearest:
+        splr.minFilter = CG_NS::FilterNearest;
+        break;
+      case GLTF::Sampler::Linear:
+        splr.minFilter = CG_NS::FilterLinear;
+        break;
+      case GLTF::Sampler::NearestMipmapNearest:
+        splr.minFilter = CG_NS::FilterNearestNearest;
+        break;
+      case GLTF::Sampler::LinearMipmapNearest:
+        splr.minFilter = CG_NS::FilterLinearNearest;
+        break;
+      case GLTF::Sampler::NearestMipmapLinear:
+        splr.minFilter = CG_NS::FilterNearestLinear;
+        break;
+      case GLTF::Sampler::LinearMipmapLinear:
+        splr.minFilter = CG_NS::FilterLinearLinear;
+        break;
+      default:
+        throw UnsupportedExcept("Unsupported sampler min. filter");
+      }
+    }
+
+    return textureMap.emplace(info.index, tex.release()).first->second;
   };
 
   auto matl = make_unique<Material>();

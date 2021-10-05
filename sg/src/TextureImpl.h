@@ -65,7 +65,7 @@ class Texture::Impl {
   /// Copies image data to a descriptor table.
   ///
   void copy(CG_NS::DcTable& dcTable, uint32_t allocation, CG_NS::DcId id,
-            uint32_t element, uint32_t level, CG_NS::Sampler* sampler);
+            uint32_t element, uint32_t level);
 
 #ifndef YF_DEVEL
  private:

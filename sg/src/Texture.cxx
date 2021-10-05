@@ -128,14 +128,10 @@ void Texture::Impl::updateImage(CG_NS::Offset2 offset, CG_NS::Size2 size,
 }
 
 void Texture::Impl::copy(CG_NS::DcTable& dcTable, uint32_t allocation,
-                         CG_NS::DcId id, uint32_t element, uint32_t level,
-                         CG_NS::Sampler* sampler) {
+                         CG_NS::DcId id, uint32_t element, uint32_t level) {
 
   auto& image = *resources_.find(key_)->second.image;
-  if (sampler)
-    dcTable.write(allocation, id, element, image, layer_, level, *sampler);
-  else
-    dcTable.write(allocation, id, element, image, layer_, level);
+  dcTable.write(allocation, id, element, image, layer_, level, sampler_);
 }
 
 bool Texture::Impl::setLayerCount(Resource& resource, uint32_t newCount) {

@@ -320,8 +320,7 @@ void Renderer::render(Scene& scene, CG_NS::Target& target) {
 
         for (auto& tp : texs) {
           if (tp.first)
-            tp.first->impl().copy(*resource->table, alloc, tp.second,
-                                  0, 0, nullptr);
+            tp.first->impl().copy(*resource->table, alloc, tp.second, 0, 0);
         }
 
         beg = off;

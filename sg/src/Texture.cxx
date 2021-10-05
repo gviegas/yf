@@ -50,7 +50,7 @@ Texture::Impl::Resources Texture::Impl::resources_{};
 
 Texture::Impl::Impl(const Data& data)
   : key_(data.format, data.size, data.levels, data.samples),
-    layer_(UINT32_MAX), sampler_(data.sampler) {
+    layer_(UINT32_MAX), sampler_(data.sampler), coordSet_(data.coordSet) {
 
   auto it = resources_.find(key_);
 

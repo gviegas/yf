@@ -126,6 +126,7 @@ class Texture::Impl {
   Key key_{};
   uint32_t layer_ = UINT32_MAX;
   CG_NS::Sampler sampler_{};
+  TexCoordSet coordSet_ = TexCoordSet0;
 
   bool setLayerCount(Resource&, uint32_t);
 };

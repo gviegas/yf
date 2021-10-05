@@ -28,13 +28,15 @@ struct Texture::Data {
   CG_NS::Size2 size;
   uint32_t levels;
   CG_NS::Samples samples;
+  CG_NS::Sampler sampler;
 
   explicit Data(char* data = nullptr,
                 CG_NS::PxFormat format = CG_NS::PxFormatUndefined,
                 CG_NS::Size2 size = {0}, uint32_t levels = 1,
-                CG_NS::Samples samples = CG_NS::Samples1)
+                CG_NS::Samples samples = CG_NS::Samples1,
+                const CG_NS::Sampler& sampler = {})
     : data(data), format(format), size(size), levels(levels),
-      samples(samples) { }
+      samples(samples), sampler(sampler) { }
 
   Data(const Data&) = delete;
   Data& operator=(const Data&) = delete;

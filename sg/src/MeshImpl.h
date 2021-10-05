@@ -125,7 +125,7 @@ class Mesh::Impl {
   ///
   CG_NS::Topology topology(uint32_t primitive) const;
 
-  /// Checks whether or not a given vertex type can be bound by this mesh.
+  /// Checks whether or not a given vertex type can be bound by the mesh.
   ///
   /// One must not attempt to encode a vertex buffer binding for a type
   /// which `canBind()` returns `false`.
@@ -133,34 +133,34 @@ class Mesh::Impl {
   bool canBind(VxType type, uint32_t primitive) const;
   bool canBind(VxType type) const;
 
-  /// Checks whether or not this mesh contains an index buffer.
+  /// Checks whether or not the mesh contains an index buffer.
   ///
   /// If `isIndexed()` returns `false`, index buffer binding can be skipped.
   ///
   bool isIndexed(uint32_t primitive) const;
   bool isIndexed() const;
 
-  /// Encodes a vertex buffer binding command for this mesh.
+  /// Encodes a vertex buffer binding command.
   ///
   void encodeVertexBuffer(CG_NS::GrEncoder& encoder, uint32_t inputIndex,
                           VxType type, uint32_t primitive);
 
-  /// Encodes an index buffer binding command for this mesh.
+  /// Encodes an index buffer binding command.
   ///
   void encodeIndexBuffer(CG_NS::GrEncoder& encoder, uint32_t primitive);
 
-  /// Encodes all required buffer bindings for this mesh.
+  /// Encodes all required buffer bindings.
   ///
   /// Input indices for vertex buffers are taken from the `VxType` enum.
   ///
   void encodeBindings(CG_NS::GrEncoder& encoder, uint32_t primitive);
 
-  /// Encodes a draw command for this mesh.
+  /// Encodes a draw command.
   ///
   void encodeDraw(CG_NS::GrEncoder& encoder, uint32_t baseInstance,
                   uint32_t instanceCount, uint32_t primitive);
 
-  /// Encodes required bindings and a draw command for this mesh.
+  /// Encodes required bindings and draw command(s).
   ///
   /// This is equivalent to a call to `encodeBindings()` followed by a call
   /// to `encodeDraw()`.
@@ -177,8 +177,8 @@ class Mesh::Impl {
   /// Range of `buffer_` memory available for use.
   ///
   struct Segment {
-    uint64_t offset;
-    uint64_t size;
+    uint64_t offset = UINT64_MAX;
+    uint64_t size = UINT64_MAX;
   };
 
   static CG_NS::Buffer::Ptr buffer_;

@@ -178,14 +178,14 @@ bool Texture::Impl::setLayerCount(Resource& resource, uint32_t newCount) {
 
   // Update resource
   if (newCount > oldCount) {
-    resource.layers.unused.resize(newCount, true);
+    resource.layers.refCounts.resize(newCount, 0);
     resource.layers.remaining += newCount - oldCount;
   } else {
     for (auto i = oldCount-1; i >= newCount; i--) {
-      if (!resource.layers.unused[i])
+      if (resource.layers.refCounts[i] != 0)
         throw runtime_error("Bad texture layer count");
     }
-    resource.layers.unused.resize(newCount);
+    resource.layers.refCounts.resize(newCount);
     resource.layers.remaining -= oldCount - newCount;
     resource.layers.current %= newCount;
   }

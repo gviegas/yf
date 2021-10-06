@@ -10,11 +10,10 @@
 #include "Test.h"
 #include "TextureImpl.h"
 
-using namespace TEST_NS;
 using namespace SG_NS;
 using namespace std;
 
-INTERNAL_NS_BEGIN
+TEST_NS_BEGIN
 
 struct TextureTest : Test {
   TextureTest() : Test(L"Texture") { }
@@ -188,10 +187,6 @@ struct TextureTest : Test {
     return a;
   }
 };
-
-INTERNAL_NS_END
-
-TEST_NS_BEGIN
 
 Test* textureTest() {
   static TextureTest test;

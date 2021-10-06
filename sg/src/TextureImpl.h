@@ -18,6 +18,11 @@
 
 #include "Texture.h"
 
+#ifdef YF_DEVEL
+# include "../test/Test.h"
+TEST_NS_BEGIN struct TextureTest; TEST_NS_END
+#endif
+
 SG_NS_BEGIN
 
 /// Texture coordinate sets.
@@ -78,9 +83,7 @@ class Texture::Impl {
   void copy(CG_NS::DcTable& dcTable, uint32_t allocation, CG_NS::DcId id,
             uint32_t element, uint32_t level);
 
-#ifndef YF_DEVEL
  private:
-#endif
   /// Key for the resource map.
   ///
   struct Key {
@@ -131,6 +134,10 @@ class Texture::Impl {
   TexCoordSet coordSet_ = TexCoordSet0;
 
   bool setLayerCount(Resource&, uint32_t);
+
+#ifdef YF_DEVEL
+  friend TEST_NS::TextureTest;
+#endif
 };
 
 SG_NS_END

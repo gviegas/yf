@@ -23,15 +23,15 @@ struct TextureTest : Test {
     Assertions a;
 
     auto print = [] {
-      wcout << "\n#Resources#\n";
+      wcout << "\nResources\n";
       for (const auto& kv : Texture::Impl::resources_) {
         const auto& r = kv.second;
-        wcout << "#image: " << r.image->format() << ", "
+        wcout << " image: " << r.image->format() << ", "
               << r.image->size().width << "x" << r.image->size().height << ", "
               << r.image->layers() << ", " << r.image->levels() << ", "
-              << r.image->samples() << endl << "#layers: [ ";
-        for (const auto& u : r.layers.unused)
-          wcout << u << " ";
+              << r.image->samples() << endl << " layers: [ ";
+        for (const auto& c : r.layers.refCounts)
+          wcout << c << " ";
         wcout << "], " << r.layers.remaining << ", " << r.layers.current
               << endl;
       }
@@ -54,7 +54,7 @@ struct TextureTest : Test {
       ctorChk = false;
     } else {
       auto& e = r.find(t1.impl().key_)->second;
-      if (e.layers.remaining+1 != e.layers.unused.size())
+      if (e.layers.remaining+1 != e.layers.refCounts.size())
         ctorChk = false;
     }
 
@@ -64,7 +64,7 @@ struct TextureTest : Test {
       ctorChk = false;
     } else {
       auto& e = r.find(t2.impl().key_)->second;
-      if (e.layers.remaining+2 != e.layers.unused.size())
+      if (e.layers.remaining+2 != e.layers.refCounts.size())
         ctorChk = false;
     }
 
@@ -74,7 +74,7 @@ struct TextureTest : Test {
       ctorChk = false;
     } else {
       auto& e = r.find(t3->impl().key_)->second;
-      if (e.layers.remaining+3 != e.layers.unused.size())
+      if (e.layers.remaining+3 != e.layers.refCounts.size())
         ctorChk = false;
     }
 
@@ -85,10 +85,10 @@ struct TextureTest : Test {
       ctorChk = false;
     } else {
       auto& e = r.find(t1.impl().key_)->second;
-      if (e.layers.remaining+3 != e.layers.unused.size())
+      if (e.layers.remaining+3 != e.layers.refCounts.size())
         ctorChk = false;
       auto& f = r.find(t4->impl().key_)->second;
-      if (f.layers.remaining+1 != f.layers.unused.size())
+      if (f.layers.remaining+1 != f.layers.refCounts.size())
         ctorChk = false;
     }
 
@@ -98,10 +98,10 @@ struct TextureTest : Test {
       ctorChk = false;
     } else {
       auto& e = r.find(t1.impl().key_)->second;
-      if (e.layers.remaining+3 != e.layers.unused.size())
+      if (e.layers.remaining+3 != e.layers.refCounts.size())
         ctorChk = false;
       auto& f = r.find(t5->impl().key_)->second;
-      if (f.layers.remaining+2 != f.layers.unused.size())
+      if (f.layers.remaining+2 != f.layers.refCounts.size())
         ctorChk = false;
     }
 
@@ -112,13 +112,13 @@ struct TextureTest : Test {
       ctorChk = false;
     } else {
       auto& e = r.find(t1.impl().key_)->second;
-      if (e.layers.remaining+3 != e.layers.unused.size())
+      if (e.layers.remaining+3 != e.layers.refCounts.size())
         ctorChk = false;
       auto& f = r.find(t4->impl().key_)->second;
-      if (f.layers.remaining+2 != f.layers.unused.size())
+      if (f.layers.remaining+2 != f.layers.refCounts.size())
         ctorChk = false;
       auto& g = r.find(t6.impl().key_)->second;
-      if (g.layers.remaining+1 != g.layers.unused.size())
+      if (g.layers.remaining+1 != g.layers.refCounts.size())
         ctorChk = false;
     }
 
@@ -128,13 +128,13 @@ struct TextureTest : Test {
       dtorChk = false;
     } else {
       auto& e = r.find(t1.impl().key_)->second;
-      if (e.layers.remaining+2 != e.layers.unused.size())
+      if (e.layers.remaining+2 != e.layers.refCounts.size())
         dtorChk = false;
       auto& f = r.find(t4->impl().key_)->second;
-      if (f.layers.remaining+2 != f.layers.unused.size())
+      if (f.layers.remaining+2 != f.layers.refCounts.size())
         dtorChk = false;
       auto& g = r.find(t6.impl().key_)->second;
-      if (g.layers.remaining+1 != g.layers.unused.size())
+      if (g.layers.remaining+1 != g.layers.refCounts.size())
         dtorChk = false;
     }
 
@@ -144,13 +144,13 @@ struct TextureTest : Test {
       dtorChk = false;
     } else {
       auto& e = r.find(t1.impl().key_)->second;
-      if (e.layers.remaining+2 != e.layers.unused.size())
+      if (e.layers.remaining+2 != e.layers.refCounts.size())
         dtorChk = false;
       auto& f = r.find(t5->impl().key_)->second;
-      if (f.layers.remaining+1 != f.layers.unused.size())
+      if (f.layers.remaining+1 != f.layers.refCounts.size())
         dtorChk = false;
       auto& g = r.find(t6.impl().key_)->second;
-      if (g.layers.remaining+1 != g.layers.unused.size())
+      if (g.layers.remaining+1 != g.layers.refCounts.size())
         dtorChk = false;
     }
 
@@ -160,10 +160,10 @@ struct TextureTest : Test {
       dtorChk = false;
     } else {
       auto& e = r.find(t1.impl().key_)->second;
-      if (e.layers.remaining+2 != e.layers.unused.size())
+      if (e.layers.remaining+2 != e.layers.refCounts.size())
         dtorChk = false;
       auto& g = r.find(t6.impl().key_)->second;
-      if (g.layers.remaining+1 != g.layers.unused.size())
+      if (g.layers.remaining+1 != g.layers.refCounts.size())
         dtorChk = false;
     }
 
@@ -175,10 +175,10 @@ struct TextureTest : Test {
       dtorChk = false;
     } else {
       auto& e = r.find(t7.impl().key_)->second;
-      if (e.layers.remaining+3 != e.layers.unused.size())
+      if (e.layers.remaining+3 != e.layers.refCounts.size())
         dtorChk = false;
       auto& g = r.find(t6.impl().key_)->second;
-      if (g.layers.remaining+1 != g.layers.unused.size())
+      if (g.layers.remaining+1 != g.layers.refCounts.size())
         dtorChk = false;
     }
 

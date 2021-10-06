@@ -17,6 +17,13 @@
 
 SG_NS_BEGIN
 
+/// Texture coordinate sets.
+///
+enum TexCoordSet {
+  TexCoordSet0,
+  TexCoordSet1
+};
+
 /// Texture resource.
 ///
 class Texture {

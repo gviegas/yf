@@ -25,13 +25,6 @@ TEST_NS_BEGIN struct TextureTest; TEST_NS_END
 
 SG_NS_BEGIN
 
-/// Texture coordinate sets.
-///
-enum TexCoordSet {
-  TexCoordSet0,
-  TexCoordSet1
-};
-
 /// Generic texture data for copying.
 ///
 struct Texture::Data {

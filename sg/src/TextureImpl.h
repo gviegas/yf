@@ -13,7 +13,6 @@
 #include <vector>
 #include <unordered_map>
 
-#include "yf/cg/Image.h"
 #include "yf/cg/DcTable.h"
 
 #include "Texture.h"
@@ -24,23 +23,6 @@ TEST_NS_BEGIN struct TextureTest; TEST_NS_END
 #endif
 
 SG_NS_BEGIN
-
-/// Generic texture data for copying.
-///
-struct Texture::Data {
-  std::unique_ptr<char[]> data{};
-  CG_NS::PxFormat format = CG_NS::PxFormatUndefined;
-  CG_NS::Size2 size{0};
-  uint32_t levels = 1;
-  CG_NS::Samples samples = CG_NS::Samples1;
-  CG_NS::Sampler sampler{};
-  TexCoordSet coordSet = TexCoordSet0;
-
-  Data() = default;
-  Data(const Data&) = delete;
-  Data& operator=(const Data&) = delete;
-  ~Data() = default;
-};
 
 /// Texture implementation details.
 ///

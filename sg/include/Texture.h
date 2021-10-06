@@ -13,6 +13,8 @@
 #include <string>
 #include <fstream>
 
+#include "yf/cg/Image.h"
+
 #include "yf/sg/Defs.h"
 
 SG_NS_BEGIN
@@ -32,12 +34,28 @@ class Texture {
 
   Texture(const std::string& pathname);
   Texture(std::ifstream& stream);
+
+  /// Texture data for direct initialization.
+  ///
+  struct Data {
+    std::unique_ptr<char[]> data{};
+    CG_NS::PxFormat format = CG_NS::PxFormatUndefined;
+    CG_NS::Size2 size{0};
+    uint32_t levels = 1;
+    CG_NS::Samples samples = CG_NS::Samples1;
+    CG_NS::Sampler sampler{};
+    TexCoordSet coordSet = TexCoordSet0;
+
+    Data() = default;
+    Data(const Data&) = delete;
+    Data& operator=(const Data&) = delete;
+    ~Data() = default;
+  };
+
+  Texture(const Data& data);
   ~Texture();
 
   size_t hash() const;
-
-  struct Data;
-  Texture(const Data& data);
 
   class Impl;
   Impl& impl();

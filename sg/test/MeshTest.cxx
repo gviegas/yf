@@ -10,11 +10,10 @@
 #include "Test.h"
 #include "MeshImpl.h"
 
-using namespace TEST_NS;
 using namespace SG_NS;
 using namespace std;
 
-INTERNAL_NS_BEGIN
+TEST_NS_BEGIN
 
 struct MeshTest : Test {
   MeshTest() : Test(L"Mesh") { }
@@ -199,10 +198,6 @@ struct MeshTest : Test {
     return a;
   }
 };
-
-INTERNAL_NS_END
-
-TEST_NS_BEGIN
 
 Test* meshTest() {
   static MeshTest test;

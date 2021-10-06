@@ -16,7 +16,6 @@
 
 #include "DataGLTF.h"
 #include "Model.h"
-#include "TextureImpl.h"
 #include "yf/Except.h"
 
 using namespace YF_NS;
@@ -2113,7 +2112,7 @@ Material* loadMaterial(unordered_map<int32_t, Texture*>& textureMap,
 
     if (texture.sampler > -1) {
       const auto& sampler = gltf.samplers()[texture.sampler];
-      auto& splr = tex->impl().sampler();
+      auto& splr = tex->sampler();
 
       // Convert from sampler's wrap mode to CG `WrapMode` value
       auto toWrapMode = [](int32_t wrap) -> CG_NS::WrapMode {

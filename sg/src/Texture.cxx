@@ -35,6 +35,22 @@ Texture::Texture(const Data& data) : impl_(make_unique<Impl>(data)) { }
 
 Texture::~Texture() { }
 
+CG_NS::Sampler& Texture::sampler() {
+  return impl_->sampler();
+}
+
+const CG_NS::Sampler& Texture::sampler() const {
+  return impl_->sampler();
+}
+
+TexCoordSet& Texture::coordSet() {
+  return impl_->coordSet();
+}
+
+TexCoordSet Texture::coordSet() const {
+  return impl_->coordSet();
+}
+
 size_t Texture::hash() const {
   return std::hash<decltype(impl_)>()(impl_);
 }

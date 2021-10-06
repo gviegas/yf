@@ -55,6 +55,13 @@ class Texture {
   Texture(const Data& data);
   ~Texture();
 
+  /// Getters.
+  ///
+  CG_NS::Sampler& sampler();
+  const CG_NS::Sampler& sampler() const;
+  TexCoordSet& coordSet();
+  TexCoordSet coordSet() const;
+
   size_t hash() const;
 
   class Impl;

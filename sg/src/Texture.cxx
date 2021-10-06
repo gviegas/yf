@@ -103,13 +103,14 @@ Texture::Impl::Impl(const Data& data)
 Texture::Impl::~Impl() {
   auto& resource = resources_.find(key_)->second;
 
-  // Yield the layer used by this texture, destroying the resource if all of
-  // its layers become unused as a result
-  resource.layers.unused[layer_] = true;
-  if (++resource.layers.remaining == resource.layers.unused.size())
-    resources_.erase(key_);
-  else
-    resource.layers.current = layer_;
+  if (--resource.layers.refCounts[layer_] == 0) {
+    // Yield the layer used by the texture, destroying the resource if all of
+    // its layers become unused as a result
+    if (++resource.layers.remaining == resource.layers.refCounts.size())
+      resources_.erase(key_);
+    else
+      resource.layers.current = layer_;
+  }
 }
 
 CG_NS::Sampler& Texture::Impl::sampler() {

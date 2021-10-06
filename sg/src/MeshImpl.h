@@ -21,6 +21,11 @@
 
 #include "Mesh.h"
 
+#ifdef YF_DEVEL
+# include "../test/Test.h"
+TEST_NS_BEGIN struct MeshTest; TEST_NS_END
+#endif
+
 SG_NS_BEGIN
 
 /// Types of vertex attribute data (non-interleaved storage).
@@ -171,9 +176,7 @@ class Mesh::Impl {
   void encode(CG_NS::GrEncoder& encoder, uint32_t baseInstance,
               uint32_t instanceCount);
 
-#ifndef YF_DEVEL
  private:
-#endif
   /// Range of `buffer_` memory available for use.
   ///
   struct Segment {
@@ -203,6 +206,10 @@ class Mesh::Impl {
   std::vector<Primitive> primitives_{};
 
   bool resizeBuffer(uint64_t);
+
+#ifdef YF_DEVEL
+  friend TEST_NS::MeshTest;
+#endif
 };
 
 SG_NS_END

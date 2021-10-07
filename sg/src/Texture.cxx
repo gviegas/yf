@@ -33,6 +33,10 @@ Texture::Texture(ifstream& stream) {
 
 Texture::Texture(const Data& data) : impl_(make_unique<Impl>(data)) { }
 
+Texture::Texture(const Texture& texture, const CG_NS::Sampler& sampler,
+                 TexCoordSet coordSet)
+  : impl_(make_unique<Impl>(*texture.impl_, sampler, coordSet)) { }
+
 Texture::~Texture() { }
 
 CG_NS::Sampler& Texture::sampler() {

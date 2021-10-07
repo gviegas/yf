@@ -53,6 +53,10 @@ class Texture {
   };
 
   Texture(const Data& data);
+
+  Texture(const Texture& texture, const CG_NS::Sampler& sampler,
+          TexCoordSet coordSet);
+
   ~Texture();
 
   /// Getters.

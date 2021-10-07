@@ -93,29 +93,32 @@ struct MaterialTest : Test {
 
     Material::Pbrmr mr{{}, {0.5f}, {}, 0.2f, 0.4f};
 
-    Material ml2{mr, {}, {}, {}};
+    Material ml2{};
+    ml2.pbrmr() = {{}, {0.5f}, {}, 0.2f, 0.4f};
     print(ml2);
 
-    a.push_back({L"Material(m)", isEqPbrmr(ml2.pbrmr(), mr) &&
-                                 isEqNormal(ml2.normal(), {}) &&
-                                 isEqOcclusion(ml2.occlusion(), {}) &&
-                                 isEqEmissive(ml2.emissive(), {})});
+    a.push_back({L"Material()", isEqPbrmr(ml2.pbrmr(), mr) &&
+                                isEqNormal(ml2.normal(), {}) &&
+                                isEqOcclusion(ml2.occlusion(), {}) &&
+                                isEqEmissive(ml2.emissive(), {})});
 
     Material::Occlusion occ{{}, 0.5f};
     Material::Emissive emsv{{}, {0.1f, 0.2f, 0.3f}};
 
-    Material ml3{{}, {}, occ, emsv};
+    Material ml3{};
+    ml3.occlusion() = {{}, 0.5f};
+    ml3.emissive() = {{}, {0.1f, 0.2f, 0.3f}};
     print(ml3);
 
-    a.push_back({L"Material(o,e)", isEqPbrmr(ml3.pbrmr(), {}) &&
-                                   isEqNormal(ml3.normal(), {}) &&
-                                   isEqOcclusion(ml3.occlusion(), occ) &&
-                                   isEqEmissive(ml3.emissive(), emsv)});
+    a.push_back({L"Material()", isEqPbrmr(ml3.pbrmr(), {}) &&
+                                isEqNormal(ml3.normal(), {}) &&
+                                isEqOcclusion(ml3.occlusion(), occ) &&
+                                isEqEmissive(ml3.emissive(), emsv)});
 
     Material::Normal norm{{}, 0.01f};
 
-    ml3.pbrmr() = mr;
-    ml3.normal() = norm;
+    ml3.pbrmr() = {{}, {0.5f}, {}, 0.2f, 0.4f};
+    ml3.normal() = {{}, 0.01f};
     print(ml3);
     a.push_back({L"modifiers", isEqPbrmr(ml3.pbrmr(), mr) &&
                                isEqNormal(ml3.normal(), norm) &&

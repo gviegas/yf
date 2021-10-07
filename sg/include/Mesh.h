@@ -9,6 +9,7 @@
 #define YF_SG_MESH_H
 
 #include <cstddef>
+#include <cstdint>
 #include <memory>
 #include <string>
 #include <fstream>
@@ -16,6 +17,25 @@
 #include "yf/sg/Defs.h"
 
 SG_NS_BEGIN
+
+/// Vertex data semantics.
+///
+enum VxData : uint32_t {
+  // Vextex attributes
+  VxDataPosition  = 0x01,
+  VxDataTangent   = 0x02,
+  VxDataNormal    = 0x04,
+  VxDataTexCoord0 = 0x08,
+  VxDataTexCoord1 = 0x10,
+  VxDataColor0    = 0x20,
+  VxDataJoints0   = 0x40,
+  VxDataWeights0  = 0x80,
+
+  // Vertex indices
+  VxDataIndices = 0x100,
+
+  VxDataUndefined = 0
+};
 
 /// Primitive.
 ///

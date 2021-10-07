@@ -87,21 +87,21 @@ struct Mesh::Data {
   /// The `Accessor` describes the location and layout of a specific data type.
   ///
   struct Accessor {
+    VxData semantic = VxDataUndefined;
     uint32_t dataIndex = UINT32_MAX;
     uint64_t dataOffset = UINT64_MAX;
     uint32_t elementN = UINT32_MAX;
     uint32_t elementSize = UINT32_MAX;
   };
 
-  /// Primitive.
+  /// Primitive data.
   ///
   /// Mesh data defines one or more primitives for rendering.
-  /// Each `Primitive` corresponds to a separate drawing command.
+  /// Each `Primitive` corresponds to a separate draw command.
   ///
   struct Primitive {
     CG_NS::Topology topology = CG_NS::TopologyTriangle;
-    std::unordered_map<VxType, Accessor> vxAccessors{};
-    Accessor ixAccessor{};
+    std::vector<Accessor> accessors{};
   };
 
   std::vector<std::unique_ptr<char[]>> data{};

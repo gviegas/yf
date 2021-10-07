@@ -21,8 +21,9 @@ struct CameraTest : InteractiveTest {
     Camera cam{{0.0f, 0.0f, 10.0f}, {}, 640.0f / 480.0f};
 
     Mesh mesh("tmp/cube.glb");
-    Texture tex("tmp/cube.png");
-    Material matl({&tex, {1.0f, 1.0f, 1.0f, 1.0f}, {}, 1.0f, 1.0f});
+    Material matl;
+    matl.pbrmr() = {make_unique<Texture>("tmp/cube.png"),
+                    {1.0f, 1.0f, 1.0f, 1.0f}, {}, 1.0f, 1.0f};
     Model mdl{};
     mdl.setMesh(&mesh);
     mdl.setMaterial(&matl);

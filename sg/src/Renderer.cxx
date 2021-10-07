@@ -312,11 +312,11 @@ void Renderer::render(Scene& scene, CG_NS::Target& target) {
 
         // Update material
         pair<Texture*, CG_NS::DcId> texs[]{
-          {matl->pbrmr().colorTex, ColorImgSampler},
-          {matl->pbrmr().metalRoughTex, MetalRoughImgSampler},
-          {matl->normal().texture, NormalImgSampler},
-          {matl->occlusion().texture, OcclusionImgSampler},
-          {matl->emissive().texture, EmissiveImgSampler}};
+          {matl->pbrmr().colorTex.get(), ColorImgSampler},
+          {matl->pbrmr().metalRoughTex.get(), MetalRoughImgSampler},
+          {matl->normal().texture.get(), NormalImgSampler},
+          {matl->occlusion().texture.get(), OcclusionImgSampler},
+          {matl->emissive().texture.get(), EmissiveImgSampler}};
 
         for (auto& tp : texs) {
           if (tp.first)

@@ -17,6 +17,23 @@
 
 SG_NS_BEGIN
 
+/// Primitive.
+///
+class Primitive {
+ public:
+  using Ptr = std::unique_ptr<Primitive>;
+
+  struct Data;
+  Primitive(const Data& data);
+  ~Primitive();
+
+  class Impl;
+  Impl& impl();
+
+ private:
+  std::unique_ptr<Impl> impl_;
+};
+
 /// Mesh resource.
 ///
 class Mesh {

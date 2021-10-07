@@ -26,9 +26,9 @@ class Material {
   /// PBR metallic-roughness.
   ///
   struct Pbrmr {
-    Texture* colorTex{};
+    Texture::Ptr colorTex{};
     Vec4f colorFac{1.0f, 1.0f, 1.0f, 1.0f};
-    Texture* metalRoughTex{};
+    Texture::Ptr metalRoughTex{};
     float metallic = 1.0f;
     float roughness = 1.0f;
   };
@@ -36,21 +36,21 @@ class Material {
   /// Normal map.
   ///
   struct Normal {
-    Texture* texture{};
+    Texture::Ptr texture{};
     float scale = 1.0f;
   };
 
   /// Occlusion map.
   ///
   struct Occlusion {
-    Texture* texture{};
+    Texture::Ptr texture{};
     float strength = 1.0f;
   };
 
   /// Emissive map.
   ///
   struct Emissive {
-    Texture* texture{};
+    Texture::Ptr texture{};
     Vec3f factor{};
   };
 

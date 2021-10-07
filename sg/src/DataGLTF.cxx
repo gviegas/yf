@@ -2068,13 +2068,15 @@ Material* loadMaterial(unordered_map<int32_t, Texture*>& textureMap,
   const auto& material = gltf.materials()[index];
 
   // Get texture
-  auto getTexture = [&](const GLTF::Material::TextureInfo& info) -> Texture* {
+  auto getTexture = [&](const GLTF::Material::TextureInfo& info) {
     if (info.index < 0)
-      return {};
+      return Texture::Ptr{};
+
+    // TODO: `Sampler` and `TexCoordSet`.
 
     auto it = textureMap.find(info.index);
     if (it != textureMap.end())
-      return it->second;
+      return make_unique<Texture>(*it->second, CG_NS::Sampler{}, TexCoordSet0);
 
     // FIXME: Don't load the same source image multiple times
 
@@ -2164,7 +2166,8 @@ Material* loadMaterial(unordered_map<int32_t, Texture*>& textureMap,
       }
     }
 
-    return textureMap.emplace(info.index, tex.release()).first->second;
+    textureMap.emplace(info.index, new Texture(*tex, {}, TexCoordSet0));
+    return tex;
   };
 
   auto matl = make_unique<Material>();

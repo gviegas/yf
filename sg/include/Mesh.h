@@ -14,6 +14,8 @@
 #include <string>
 #include <fstream>
 
+#include "yf/cg/State.h"
+
 #include "yf/sg/Defs.h"
 
 SG_NS_BEGIN
@@ -62,12 +64,47 @@ class Mesh {
 
   Mesh(const std::string& pathname, size_t index = 0);
   Mesh(std::ifstream& stream, size_t index = 0);
+
+  /// Mesh data for direct initialization.
+  ///
+  struct Data {
+    /// Data accessor.
+    ///
+    /// Mesh data can be provided in any number of (CPU) `data` buffers.
+    /// The `Accessor` describes the semantic, location and layout of a
+    /// specific data type.
+    ///
+    struct Accessor {
+      VxData semantic = VxDataUndefined;
+      uint32_t dataIndex = UINT32_MAX;
+      uint64_t dataOffset = UINT64_MAX;
+      uint32_t elementN = UINT32_MAX;
+      uint32_t elementSize = UINT32_MAX;
+    };
+
+    /// Primitive data.
+    ///
+    /// Mesh data defines one or more primitives for rendering.
+    /// Each `Primitive` corresponds to a separate draw command.
+    ///
+    struct Primitive {
+      CG_NS::Topology topology = CG_NS::TopologyTriangle;
+      std::vector<Accessor> accessors{};
+    };
+
+    std::vector<std::unique_ptr<char[]>> data{};
+    std::vector<Primitive> primitives{};
+
+    Data() = default;
+    Data(const Data&) = delete;
+    Data& operator=(const Data&) = delete;
+    ~Data() = default;
+  };
+
+  Mesh(const Data& data);
   ~Mesh();
 
   size_t hash() const;
-
-  struct Data;
-  Mesh(const Data& data);
 
   class Impl;
   Impl& impl();

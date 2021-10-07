@@ -12,11 +12,6 @@ using namespace std;
 
 class Material::Impl {
  public:
-  Impl(const Pbrmr& pbrmr, const Normal& normal, const Occlusion& occlusion,
-       const Emissive& emissive)
-    : pbrmr_(pbrmr), normal_(normal), occlusion_(occlusion),
-      emissive_(emissive) { }
-
   Impl() = default;
   Impl(const Impl&) = default;
   Impl& operator=(const Impl&) = default;
@@ -27,12 +22,6 @@ class Material::Impl {
   Occlusion occlusion_{};
   Emissive emissive_{};
 };
-
-Material::Material(const Pbrmr& pbrmr, const Normal& normal,
-                   const Occlusion& occlusion, const Emissive& emissive)
-  : impl_(make_unique<Impl>(pbrmr, normal, occlusion, emissive)) { }
-
-Material::Material(const Pbrmr& pbrmr) : Material(pbrmr, {}, {}, {}) { }
 
 Material::Material() : impl_(make_unique<Impl>()) { }
 

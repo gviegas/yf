@@ -116,6 +116,16 @@ Texture::Impl::Impl(const Data& data)
   }
 }
 
+Texture::Impl::Impl(const Impl& impl, const CG_NS::Sampler sampler,
+                    TexCoordSet coordSet)
+  : key_(impl.key_), layer_(impl.layer_), sampler_(sampler),
+    coordSet_(coordSet) {
+
+  // Shared
+  auto& resource = resources_.find(key_)->second;
+  resource.layers.refCounts[layer_]++;
+}
+
 Texture::Impl::~Impl() {
   auto& resource = resources_.find(key_)->second;
 

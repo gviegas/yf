@@ -29,6 +29,7 @@ SG_NS_BEGIN
 class Texture::Impl {
  public:
   Impl(const Data& data);
+  Impl(const Impl& impl, const CG_NS::Sampler sampler, TexCoordSet coordSet);
   Impl(const Impl&) = delete;
   Impl& operator=(const Impl&) = delete;
   ~Impl();

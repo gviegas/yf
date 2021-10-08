@@ -133,6 +133,23 @@ void Primitive::Impl::encodeBindings(CG_NS::GrEncoder& encoder) {
   }
 }
 
+void Primitive::Impl::encodeDraw(CG_NS::GrEncoder& encoder,
+                                 uint32_t baseInstance,
+                                 uint32_t instanceCount) {
+
+  assert(dataMask_ & VxDataPosition);
+
+  if (dataMask_ & VxDataIndices) {
+    encoder.drawIndexed(0, indices_.count, 0, baseInstance, instanceCount);
+    return;
+  }
+
+  auto it = find_if(attributes_.begin(), attributes_.end(),
+                    [](auto& att) { return att.first == VxDataPosition; });
+
+  encoder.draw(0, it->second.count, baseInstance, instanceCount);
+}
+
 void Primitive::Impl::yieldEntry(const DataEntry& dataEntry) {
   if (dataEntry.offset == UINT64_MAX)
     return;

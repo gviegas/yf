@@ -117,6 +117,11 @@ class Primitive::Impl {
   ///
   void encodeBindings(CG_NS::GrEncoder& encoder);
 
+  /// Encodes draw command.
+  ///
+  void encodeDraw(CG_NS::GrEncoder& encoder, uint32_t baseInstance,
+                  uint32_t instanceCount);
+
  private:
   /// Range of `buffer_` memory available for use.
   ///

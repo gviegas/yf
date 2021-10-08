@@ -68,6 +68,7 @@ void Primitive::Impl::setData(VxData semantic, uint32_t elementN,
   }
 
   *entry = {UINT64_MAX, elementN, elementSize};
+  dataMask_ &= ~semantic;
   const uint64_t size = elementN * elementSize;
 
   // Try to copy data to buffer
@@ -101,6 +102,8 @@ void Primitive::Impl::setData(VxData semantic, uint32_t elementN,
 
     assert(entry->offset != UINT64_MAX);
   }
+
+  dataMask_ |= semantic;
 }
 
 void Primitive::Impl::yieldEntry(const DataEntry& dataEntry) {

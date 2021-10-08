@@ -78,6 +78,21 @@ inline CG_NS::VxInput vxInputFor(VxType type) {
   return {{{type, format, 0}}, stride, CG_NS::VxStepFnVertex};
 }
 
+/// Produces the vertex input binding of a given semantic.
+///
+inline uint32_t vxInputIndexFor(VxData semantic) {
+  uint32_t bit = semantic, index = 0;
+  while ((bit >>= 1) != 0)
+    index++;
+  return index;
+}
+
+/// Produces the vertex ID of a given semantic.
+///
+inline CG_NS::VxId vxIdFor(VxData semantic) {
+  return vxInputIndexFor(semantic);
+}
+
 /// Primitive implementation details.
 ///
 class Primitive::Impl {

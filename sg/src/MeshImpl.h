@@ -119,6 +119,7 @@ class Primitive::Impl {
   CG_NS::Topology topology_ = CG_NS::TopologyTriangle;
   std::vector<std::pair<VxData, DataEntry>> attributes_{};
   DataEntry indices_{};
+  VxDataMask dataMask_ = 0;
 
   void yieldEntry(const DataEntry&);
   bool resizeBuffer(uint64_t);

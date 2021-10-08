@@ -39,6 +39,8 @@ enum VxData : uint32_t {
   VxDataUndefined = 0
 };
 
+using VxDataMask = uint32_t;
+
 /// Primitive.
 ///
 class Primitive {

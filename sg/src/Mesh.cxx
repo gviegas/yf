@@ -77,6 +77,62 @@ void Primitive::Impl::yieldEntry(const DataEntry& dataEntry) {
   }
 }
 
+bool Primitive::Impl::resizeBuffer(uint64_t newSize) {
+  const uint64_t oldSize = buffer_->size();
+  if (newSize == oldSize)
+    return true;
+
+  auto& dev = CG_NS::device();
+
+  // Try to create a new buffer
+  // XXX: This restricts the size to half the available memory
+  CG_NS::Buffer::Ptr newBuf;
+  try {
+    buffer_ = dev.buffer(newSize);
+  } catch (DeviceExcept&) {
+    return false;
+  }
+
+  // Copy data to new buffer
+  // TODO: Consider copying only used ranges
+  CG_NS::TfEncoder enc;
+  enc.copy(newBuf.get(), 0, buffer_.get(), 0, buffer_->size());
+  auto& que = dev.queue(CG_NS::Queue::Transfer);
+  auto cb = que.cmdBuffer();
+  cb->encode(enc);
+  cb->enqueue();
+  que.submit();
+
+  buffer_.reset(newBuf.release());
+
+  // Update segment list
+  if (newSize > oldSize) {
+    if (segments_.empty()) {
+      segments_.push_front({oldSize, newSize - oldSize});
+    } else {
+      auto& back = segments_.back();
+      if (back.offset + back.size == oldSize)
+        back.size = newSize - back.offset;
+      else
+        segments_.push_back({oldSize, newSize - oldSize});
+    }
+  } else {
+    if (segments_.empty())
+      throw runtime_error("Bad buffer resize");
+
+    auto& back = segments_.back();
+    if (back.offset + back.size != oldSize || back.offset > newSize)
+      throw runtime_error("Bad buffer resize");
+
+    if (back.offset == newSize)
+      segments_.pop_back();
+    else
+      back.size = newSize - back.offset;
+  }
+
+  return true;
+}
+
 //
 // Mesh
 //

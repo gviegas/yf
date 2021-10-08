@@ -142,6 +142,9 @@ void Primitive::Impl::encodeDraw(CG_NS::GrEncoder& encoder,
                                  uint32_t instanceCount) {
 
   assert(dataMask_ & VxDataPosition);
+  assert(none_of(attributes_.begin(), attributes_.end(), [&](auto& att) {
+    return dataMask_ & att.first && vxCount_ != att.second.count;
+  }));
 
   if (dataMask_ & VxDataIndices) {
     encoder.drawIndexed(0, indices_.count, 0, baseInstance, instanceCount);

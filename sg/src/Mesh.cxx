@@ -59,7 +59,7 @@ void Primitive::Impl::setData(VxData semantic, uint32_t elementN,
     entry = &indices_;
   }
 
-  entry->offset = UINT64_MAX;
+  *entry = {UINT64_MAX, elementN, elementSize};
   const uint64_t size = elementN * elementSize;
 
   // Try to copy data to buffer

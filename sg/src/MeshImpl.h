@@ -142,6 +142,7 @@ class Primitive::Impl {
   };
 
   CG_NS::Topology topology_ = CG_NS::TopologyTriangle;
+  uint32_t vxCount_ = 0;
   std::vector<std::pair<VxData, DataEntry>> attributes_{};
   DataEntry indices_{};
   VxDataMask dataMask_ = 0;

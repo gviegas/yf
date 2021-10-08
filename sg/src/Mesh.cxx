@@ -38,6 +38,65 @@ Primitive::Impl::~Impl() {
     yieldEntry(indices_);
 }
 
+void Primitive::Impl::setData(VxData semantic, uint32_t elementN,
+                              uint32_t elementSize, const void* data) {
+
+  DataEntry* entry;
+
+  if (semantic != VxDataIndices) {
+    auto it = find_if(attributes_.begin(), attributes_.end(),
+                      [&](auto& att) { return att.first == semantic; });
+
+    if (it != attributes_.end()) {
+      yieldEntry(it->second);
+      entry = &it->second;
+    } else {
+      attributes_.push_back({semantic, {}});
+      entry = &attributes_.back().second;
+    }
+
+  } else {
+    if (indices_.offset != UINT64_MAX)
+      yieldEntry(indices_);
+    entry = &indices_;
+  }
+
+  entry->offset = UINT64_MAX;
+  const uint64_t size = elementN * elementSize;
+
+  // Try to copy data to buffer
+  auto copy = [&] {
+    for (auto s = segments_.begin(); s != segments_.end(); s++) {
+      if (s->size < size)
+        continue;
+
+      entry->offset = s->offset;
+      buffer_->write(entry->offset, size, data);
+      s->offset += size;
+      s->size -= size;
+
+      if (s->size == 0)
+        segments_.erase(s);
+
+      break;
+    }
+  };
+
+  copy();
+
+  if (entry->offset == UINT64_MAX) {
+    // Copy failed, resize the buffer and try again
+    const uint64_t bufSize = buffer_->size();
+    if (!resizeBuffer(max(size, bufSize << 1)) &&
+        (size >= bufSize || !resizeBuffer(size)))
+      throw NoMemoryExcept("Failed to allocate space for Primitive");
+
+    copy();
+
+    assert(entry->offset != UINT64_MAX);
+  }
+}
+
 void Primitive::Impl::yieldEntry(const DataEntry& dataEntry) {
   const uint64_t offset = dataEntry.offset;
   const uint64_t size = dataEntry.count * dataEntry.stride;

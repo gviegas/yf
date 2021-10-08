@@ -511,14 +511,14 @@ void Renderer::prepare() {
 
       const vector<CG_NS::DcTable*> tab{glbTable_.get(), resource.table.get()};
 
-      const vector<CG_NS::VxInput> inp{vxInputFor(VxTypePosition),
-                                       vxInputFor(VxTypeTangent),
-                                       vxInputFor(VxTypeNormal),
-                                       vxInputFor(VxTypeTexCoord0),
-                                       vxInputFor(VxTypeTexCoord1),
-                                       vxInputFor(VxTypeColor0),
-                                       vxInputFor(VxTypeJoints0),
-                                       vxInputFor(VxTypeWeights0)};
+      const vector<CG_NS::VxInput> inp{vxInputFor(VxDataPosition),
+                                       vxInputFor(VxDataTangent),
+                                       vxInputFor(VxDataNormal),
+                                       vxInputFor(VxDataTexCoord0),
+                                       vxInputFor(VxDataTexCoord1),
+                                       vxInputFor(VxDataColor0),
+                                       vxInputFor(VxDataJoints0),
+                                       vxInputFor(VxDataWeights0)};
 
       resource.state = dev.state({prevPass_, shd, tab, inp,
                                   CG_NS::TopologyTriangle,

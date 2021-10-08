@@ -82,7 +82,7 @@ inline CG_NS::VxInput vxInputFor(VxType type) {
 ///
 class Primitive::Impl {
  public:
-  Impl(CG_NS::Topology topology);
+  Impl() = default;
   Impl(const Impl&) = delete;
   Impl& operator=(const Impl&) = delete;
   ~Impl();
@@ -111,6 +111,7 @@ class Primitive::Impl {
     uint32_t stride = UINT32_MAX;
   };
 
+  CG_NS::Topology topology_ = CG_NS::TopologyTriangle;
   std::vector<std::pair<VxData, DataEntry>> attributes_{};
   DataEntry indices_{};
 

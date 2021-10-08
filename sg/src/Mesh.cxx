@@ -20,9 +20,15 @@ using namespace std;
 // Primitive
 //
 
-Primitive::Primitive() : impl_(make_unique<Impl>(CG_NS::TopologyTriangle)) { }
+Primitive::Primitive() : impl_(make_unique<Impl>()) { }
 
 Primitive::~Primitive() { }
+
+// TODO: Consider allowing custom buffer size values
+constexpr uint64_t Size = 1ULL << 21;
+
+CG_NS::Buffer::Ptr Primitive::Impl::buffer_{CG_NS::device().buffer(Size)};
+list<Primitive::Impl::Segment> Primitive::Impl::segments_{{0, Size}};
 
 //
 // Mesh

@@ -16,6 +16,18 @@
 using namespace SG_NS;
 using namespace std;
 
+//
+// Primitive
+//
+
+Primitive::Primitive() : impl_(make_unique<Impl>(CG_NS::TopologyTriangle)) { }
+
+Primitive::~Primitive() { }
+
+//
+// Mesh
+//
+
 Mesh::Mesh(const string& pathname, size_t index) {
   // TODO: Consider checking the type of the file.
   Data data;

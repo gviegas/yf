@@ -37,6 +37,14 @@ Primitive::Impl::~Impl() {
   yieldEntry(indices_);
 }
 
+CG_NS::Topology& Primitive::Impl::topology() {
+  return topology_;
+}
+
+CG_NS::Topology Primitive::Impl::topology() const {
+  return topology_;
+}
+
 void Primitive::Impl::setData(VxData semantic, uint32_t elementN,
                               uint32_t elementSize, const void* data) {
 

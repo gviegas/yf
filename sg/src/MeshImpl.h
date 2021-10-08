@@ -87,6 +87,11 @@ class Primitive::Impl {
   Impl& operator=(const Impl&) = delete;
   ~Impl();
 
+  /// Getters.
+  ///
+  CG_NS::Topology& topology();
+  CG_NS::Topology topology() const;
+
   /// Sets primitive data.
   ///
   void setData(VxData semantic, uint32_t elementN, uint32_t elementSize,

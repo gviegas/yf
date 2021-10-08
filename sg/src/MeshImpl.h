@@ -115,6 +115,7 @@ class Primitive::Impl {
   std::vector<std::pair<VxData, DataEntry>> attributes_{};
   DataEntry indices_{};
 
+  void yieldEntry(const DataEntry&);
   bool resizeBuffer(uint64_t);
 };
 

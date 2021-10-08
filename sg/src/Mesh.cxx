@@ -30,6 +30,53 @@ constexpr uint64_t Size = 1ULL << 21;
 CG_NS::Buffer::Ptr Primitive::Impl::buffer_{CG_NS::device().buffer(Size)};
 list<Primitive::Impl::Segment> Primitive::Impl::segments_{{0, Size}};
 
+void Primitive::Impl::yieldEntry(const DataEntry& dataEntry) {
+  const uint64_t offset = dataEntry.offset;
+  const uint64_t size = dataEntry.count * dataEntry.stride;
+  const uint64_t end = offset + size;
+
+  if (segments_.empty()) {
+    segments_.push_back({offset, size});
+    return;
+  }
+
+  auto next = segments_.begin();
+  decltype(next) prev;
+  for (; next != segments_.end() && next->offset < end; next++)
+    prev = next;
+
+  // Merge segments if they are contiguous, insert new segment otherwise
+  if (next == segments_.begin()) {
+    if (end == next->offset) {
+      next->offset = offset;
+      next->size += size;
+    } else {
+      segments_.push_front({offset, size});
+    }
+
+  } else if (next == segments_.end()) {
+    const auto prevEnd = prev->offset + prev->size;
+    if (prevEnd == offset)
+      prev->size += size;
+    else
+      segments_.push_back({offset, size});
+
+  } else {
+    const auto prevEnd = prev->offset + prev->size;
+    if (prevEnd == offset && end == next->offset) {
+      prev->size += size + next->size;
+      segments_.erase(next);
+    } else if (prevEnd == offset) {
+      prev->size += size;
+    } else if (end == next->offset) {
+      next->offset = offset;
+      next->size += size;
+    } else {
+      segments_.insert(next, {offset, size});
+    }
+  }
+}
+
 //
 // Mesh
 //

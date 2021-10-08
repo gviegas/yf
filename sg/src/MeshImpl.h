@@ -41,43 +41,6 @@ enum VxType {
   VxTypeWeights0  = 7
 };
 
-/// Produces a vertex input object for a given vertex attribute type.
-///
-/// `Renderer` creates graphics states using these inputs, thus mesh data
-/// must be provided accordingly.
-///
-inline CG_NS::VxInput vxInputFor(VxType type) {
-  CG_NS::VxFormat format;
-  uint32_t stride;
-
-  switch (type) {
-  case VxTypePosition:
-  case VxTypeNormal:
-    format = CG_NS::VxFormatFlt3;
-    stride = sizeof(float[3]);
-    break;
-  case VxTypeTangent:
-  case VxTypeColor0:
-  case VxTypeWeights0:
-    format = CG_NS::VxFormatFlt4;
-    stride = sizeof(float[4]);
-    break;
-  case VxTypeTexCoord0:
-  case VxTypeTexCoord1:
-    format = CG_NS::VxFormatFlt2;
-    stride = sizeof(float[2]);
-    break;
-  case VxTypeJoints0:
-    format = CG_NS::VxFormatUbyte4;
-    stride = 4;
-    break;
-  default:
-    throw std::invalid_argument("Invalid VxType value");
-  }
-
-  return {{{type, format, 0}}, stride, CG_NS::VxStepFnVertex};
-}
-
 /// Produces the vertex input binding of a given semantic.
 ///
 inline uint32_t vxInputIndexFor(VxData semantic) {
@@ -91,6 +54,43 @@ inline uint32_t vxInputIndexFor(VxData semantic) {
 ///
 inline CG_NS::VxId vxIdFor(VxData semantic) {
   return vxInputIndexFor(semantic);
+}
+
+/// Produces the vertex input object of a given semantic.
+///
+/// `Renderer` creates graphics states using these inputs, thus mesh data
+/// must be provided accordingly.
+///
+inline CG_NS::VxInput vxInputFor(VxData semantic) {
+  CG_NS::VxFormat format;
+  uint32_t stride;
+
+  switch (semantic) {
+  case VxDataPosition:
+  case VxDataNormal:
+    format = CG_NS::VxFormatFlt3;
+    stride = sizeof(float[3]);
+    break;
+  case VxDataTangent:
+  case VxDataColor0:
+  case VxDataWeights0:
+    format = CG_NS::VxFormatFlt4;
+    stride = sizeof(float[4]);
+    break;
+  case VxDataTexCoord0:
+  case VxDataTexCoord1:
+    format = CG_NS::VxFormatFlt2;
+    stride = sizeof(float[2]);
+    break;
+  case VxDataJoints0:
+    format = CG_NS::VxFormatUbyte4;
+    stride = 4;
+    break;
+  default:
+    throw std::invalid_argument("Invalid VxData value");
+  }
+
+  return {{{vxIdFor(semantic), format, 0}}, stride, CG_NS::VxStepFnVertex};
 }
 
 /// Primitive implementation details.

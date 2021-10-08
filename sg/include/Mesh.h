@@ -50,6 +50,10 @@ class Primitive {
   Primitive();
   ~Primitive();
 
+  /// Getter.
+  ///
+  CG_NS::Topology topology() const;
+
   class Impl;
   Impl& impl();
 

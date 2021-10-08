@@ -24,6 +24,10 @@ Primitive::Primitive() : impl_(make_unique<Impl>()) { }
 
 Primitive::~Primitive() { }
 
+CG_NS::Topology Primitive::topology() const {
+  return impl_->topology();
+}
+
 // TODO: Consider allowing custom buffer size values
 constexpr uint64_t Size = 1ULL << 21;
 

@@ -34,8 +34,7 @@ Primitive::Impl::~Impl() {
   for (const auto& de : attributes_)
     yieldEntry(de.second);
 
-  if (indices_.offset != UINT64_MAX)
-    yieldEntry(indices_);
+  yieldEntry(indices_);
 }
 
 void Primitive::Impl::setData(VxData semantic, uint32_t elementN,
@@ -56,8 +55,7 @@ void Primitive::Impl::setData(VxData semantic, uint32_t elementN,
     }
 
   } else {
-    if (indices_.offset != UINT64_MAX)
-      yieldEntry(indices_);
+    yieldEntry(indices_);
     entry = &indices_;
   }
 
@@ -98,6 +96,9 @@ void Primitive::Impl::setData(VxData semantic, uint32_t elementN,
 }
 
 void Primitive::Impl::yieldEntry(const DataEntry& dataEntry) {
+  if (dataEntry.offset == UINT64_MAX)
+    return;
+
   const uint64_t offset = dataEntry.offset;
   const uint64_t size = dataEntry.count * dataEntry.stride;
   const uint64_t end = offset + size;

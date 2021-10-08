@@ -91,6 +91,7 @@ class Primitive::Impl {
   ///
   CG_NS::Topology& topology();
   CG_NS::Topology topology() const;
+  VxDataMask dataMask() const;
 
   /// Sets primitive data.
   ///

@@ -45,6 +45,10 @@ CG_NS::Topology Primitive::Impl::topology() const {
   return topology_;
 }
 
+VxDataMask Primitive::Impl::dataMask() const {
+  return dataMask_;
+}
+
 void Primitive::Impl::setData(VxData semantic, uint32_t elementN,
                               uint32_t elementSize, const void* data) {
 

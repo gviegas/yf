@@ -30,6 +30,14 @@ constexpr uint64_t Size = 1ULL << 21;
 CG_NS::Buffer::Ptr Primitive::Impl::buffer_{CG_NS::device().buffer(Size)};
 list<Primitive::Impl::Segment> Primitive::Impl::segments_{{0, Size}};
 
+Primitive::Impl::~Impl() {
+  for (const auto& de : attributes_)
+    yieldEntry(de.second);
+
+  if (indices_.offset != UINT64_MAX)
+    yieldEntry(indices_);
+}
+
 void Primitive::Impl::yieldEntry(const DataEntry& dataEntry) {
   const uint64_t offset = dataEntry.offset;
   const uint64_t size = dataEntry.count * dataEntry.stride;

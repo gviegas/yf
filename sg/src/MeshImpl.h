@@ -28,19 +28,6 @@ TEST_NS_BEGIN struct MeshTest; TEST_NS_END
 
 SG_NS_BEGIN
 
-/// Types of vertex attribute data (non-interleaved storage).
-///
-enum VxType {
-  VxTypePosition  = 0,
-  VxTypeTangent   = 1,
-  VxTypeNormal    = 2,
-  VxTypeTexCoord0 = 3,
-  VxTypeTexCoord1 = 4,
-  VxTypeColor0    = 5,
-  VxTypeJoints0   = 6,
-  VxTypeWeights0  = 7
-};
-
 /// Produces the vertex input binding of a given semantic.
 ///
 inline uint32_t vxInputIndexFor(VxData semantic) {

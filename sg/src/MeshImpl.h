@@ -78,6 +78,45 @@ inline CG_NS::VxInput vxInputFor(VxType type) {
   return {{{type, format, 0}}, stride, CG_NS::VxStepFnVertex};
 }
 
+/// Primitive implementation details.
+///
+class Primitive::Impl {
+ public:
+  Impl(CG_NS::Topology topology);
+  Impl(const Impl&) = delete;
+  Impl& operator=(const Impl&) = delete;
+  ~Impl();
+
+  /// Sets primitive data.
+  ///
+  void setData(VxData semantic, uint32_t elementN, uint32_t elementSize,
+               const void* data);
+
+ private:
+  /// Range of `buffer_` memory available for use.
+  ///
+  struct Segment {
+    uint64_t offset = UINT64_MAX;
+    uint64_t size = UINT64_MAX;
+  };
+
+  static CG_NS::Buffer::Ptr buffer_;
+  static std::list<Segment> segments_;
+
+  /// Description of data in `buffer_` memory.
+  ///
+  struct DataEntry {
+    uint64_t offset = UINT64_MAX;
+    uint32_t count = UINT32_MAX;
+    uint32_t stride = UINT32_MAX;
+  };
+
+  std::vector<std::pair<VxData, DataEntry>> attributes_{};
+  DataEntry indices_{};
+
+  bool resizeBuffer(uint64_t);
+};
+
 /// Mesh implementation details.
 ///
 class Mesh::Impl {

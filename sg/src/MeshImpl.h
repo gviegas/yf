@@ -113,6 +113,10 @@ class Primitive::Impl {
   void setData(VxData semantic, uint32_t elementN, uint32_t elementSize,
                const void* data);
 
+  /// Encodes vertex/index buffer bindings.
+  ///
+  void encodeBindings(CG_NS::GrEncoder& encoder);
+
  private:
   /// Range of `buffer_` memory available for use.
   ///

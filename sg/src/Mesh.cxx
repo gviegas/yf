@@ -110,6 +110,29 @@ void Primitive::Impl::setData(VxData semantic, uint32_t elementN,
   dataMask_ |= semantic;
 }
 
+void Primitive::Impl::encodeBindings(CG_NS::GrEncoder& encoder) {
+  for (const auto& att : attributes_) {
+    if (dataMask_ & att.first)
+      encoder.setVertexBuffer(buffer_.get(), att.second.offset,
+                              vxInputIndexFor(att.first));
+  }
+
+  if (dataMask_ & VxDataIndices) {
+    switch (indices_.stride) {
+    case 2:
+      encoder.setIndexBuffer(buffer_.get(), indices_.offset,
+                             CG_NS::IndexTypeU16);
+      break;
+    case 4:
+      encoder.setIndexBuffer(buffer_.get(), indices_.offset,
+                             CG_NS::IndexTypeU32);
+      break;
+    default:
+      throw UnsupportedExcept("Unsupported type for index buffer");
+    }
+  }
+}
+
 void Primitive::Impl::yieldEntry(const DataEntry& dataEntry) {
   if (dataEntry.offset == UINT64_MAX)
     return;

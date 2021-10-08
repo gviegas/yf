@@ -52,9 +52,11 @@ VxDataMask Primitive::Impl::dataMask() const {
 void Primitive::Impl::setData(VxData semantic, uint32_t elementN,
                               uint32_t elementSize, const void* data) {
 
+  uint32_t vxCount;
   DataEntry* entry;
 
   if (semantic != VxDataIndices) {
+    vxCount = elementN;
     auto it = find_if(attributes_.begin(), attributes_.end(),
                       [&](auto& att) { return att.first == semantic; });
 
@@ -69,6 +71,7 @@ void Primitive::Impl::setData(VxData semantic, uint32_t elementN,
   } else {
     yieldEntry(indices_);
     entry = &indices_;
+    vxCount = vxCount_;
   }
 
   *entry = {UINT64_MAX, elementN, elementSize};
@@ -107,6 +110,7 @@ void Primitive::Impl::setData(VxData semantic, uint32_t elementN,
     assert(entry->offset != UINT64_MAX);
   }
 
+  vxCount_ = vxCount;
   dataMask_ |= semantic;
 }
 

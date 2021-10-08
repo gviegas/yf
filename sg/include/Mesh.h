@@ -45,8 +45,7 @@ class Primitive {
  public:
   using Ptr = std::unique_ptr<Primitive>;
 
-  struct Data;
-  Primitive(const Data& data);
+  Primitive();
   ~Primitive();
 
   class Impl;

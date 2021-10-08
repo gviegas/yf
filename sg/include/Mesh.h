@@ -50,9 +50,10 @@ class Primitive {
   Primitive();
   ~Primitive();
 
-  /// Getter.
+  /// Getters.
   ///
   CG_NS::Topology topology() const;
+  VxDataMask dataMask() const;
 
   class Impl;
   Impl& impl();

@@ -28,6 +28,10 @@ CG_NS::Topology Primitive::topology() const {
   return impl_->topology();
 }
 
+VxDataMask Primitive::dataMask() const {
+  return impl_->dataMask();
+}
+
 // TODO: Consider allowing custom buffer size values
 constexpr uint64_t Size = 1ULL << 21;
 

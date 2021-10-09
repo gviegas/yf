@@ -32,6 +32,10 @@ VxDataMask Primitive::dataMask() const {
   return impl_->dataMask();
 }
 
+Primitive::Impl& Primitive::impl() {
+  return *impl_;
+}
+
 // TODO: Consider allowing custom buffer size values
 constexpr uint64_t Size = 1ULL << 21;
 

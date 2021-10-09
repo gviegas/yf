@@ -112,8 +112,10 @@ class Mesh {
 
   /// Gets a given primitive.
   ///
-  Primitive* operator[](uint32_t index);
-  const Primitive* operator[](uint32_t index) const;
+  Primitive& primitive(uint32_t index);
+  const Primitive& primitive(uint32_t index) const;
+  Primitive& operator[](uint32_t index);
+  const Primitive& operator[](uint32_t index) const;
 
   /// Gets the number of primitives in the mesh.
   ///

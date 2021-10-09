@@ -292,14 +292,22 @@ Mesh::Mesh(const Data& data) : impl_(make_unique<Impl>(data)) { }
 
 Mesh::~Mesh() { }
 
-Primitive* Mesh::operator[](uint32_t index) {
+Primitive& Mesh::primitive(uint32_t index) {
   assert(index < impl_->primitives_.size());
-  return impl_->primitives_[index].get();
+  return *impl_->primitives_[index];
 }
 
-const Primitive* Mesh::operator[](uint32_t index) const {
+const Primitive& Mesh::primitive(uint32_t index) const {
   assert(index < impl_->primitives_.size());
-  return impl_->primitives_[index].get();
+  return *impl_->primitives_[index];
+}
+
+Primitive& Mesh::operator[](uint32_t index) {
+  return primitive(index);
+}
+
+const Primitive& Mesh::operator[](uint32_t index) const {
+  return primitive(index);
 }
 
 uint32_t Mesh::primitiveCount() const {

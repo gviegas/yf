@@ -349,7 +349,7 @@ void Renderer::render(Scene& scene, CG_NS::Target& target) {
         uint32_t chkMask = 0;
 
         // TODO: Multiple primitives
-        const VxDataMask dataMask = (*mesh)[0]->dataMask();
+        const VxDataMask dataMask = mesh->primitive(0).dataMask();
         if (dataMask & VxDataTangent)
           chkMask |= TangentBit;
         if (dataMask & VxDataNormal)
@@ -385,7 +385,7 @@ void Renderer::render(Scene& scene, CG_NS::Target& target) {
 
         // Encode commands for this mesh
         // TODO: Multiple primitives
-        auto& prim = (*mesh)[0]->impl();
+        auto& prim = mesh->primitive(0).impl();
         prim.encodeBindings(enc);
         prim.encodeDraw(enc, 0, n);
 

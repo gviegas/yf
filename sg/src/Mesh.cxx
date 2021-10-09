@@ -297,6 +297,10 @@ Mesh::Mesh(const Data& data) : impl_(make_unique<Impl>(data)) { }
 
 Mesh::~Mesh() { }
 
+uint32_t Mesh::primitiveCount() const {
+  return impl_->primitiveCount();
+}
+
 size_t Mesh::hash() const {
   return std::hash<decltype(impl_)>()(impl_);
 }

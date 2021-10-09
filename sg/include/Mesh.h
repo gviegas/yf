@@ -110,6 +110,10 @@ class Mesh {
   Mesh(const Data& data);
   ~Mesh();
 
+  /// Gets the number of primitives in the mesh.
+  ///
+  uint32_t primitiveCount() const;
+
   size_t hash() const;
 
   class Impl;

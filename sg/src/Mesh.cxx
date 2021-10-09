@@ -298,7 +298,7 @@ Mesh::Mesh(const Data& data) : impl_(make_unique<Impl>(data)) { }
 Mesh::~Mesh() { }
 
 uint32_t Mesh::primitiveCount() const {
-  return impl_->primitiveCount();
+  return impl_->primitives_.size();
 }
 
 size_t Mesh::hash() const {
@@ -326,7 +326,3 @@ Mesh::Impl::Impl(const Data& data) {
 }
 
 Mesh::Impl::~Impl() { }
-
-uint32_t Mesh::Impl::primitiveCount() const {
-  return primitives_.size();
-}

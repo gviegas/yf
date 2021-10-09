@@ -147,12 +147,10 @@ class Mesh::Impl {
   Impl& operator=(const Impl&) = delete;
   ~Impl();
 
-  /// Gets the number of primitives in the mesh.
-  ///
-  uint32_t primitiveCount() const;
-
  private:
   std::vector<Primitive::Ptr> primitives_{};
+
+  friend Mesh;
 };
 
 SG_NS_END

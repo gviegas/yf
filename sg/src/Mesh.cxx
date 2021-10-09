@@ -324,7 +324,7 @@ Mesh::Impl::Impl(const Data& data) {
     throw invalid_argument("Invalid Mesh data");
 
   for (const auto& dp : data.primitives) {
-    primitives_.push_back({});
+    primitives_.push_back(make_unique<Primitive>());
     auto& prim = primitives_.back()->impl();
 
     prim.topology() = dp.topology;

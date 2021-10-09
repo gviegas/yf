@@ -302,12 +302,22 @@ Mesh::Impl& Mesh::impl() {
 }
 
 Mesh::Impl::Impl(const Data& data) {
-  // TODO
+  if (data.data.empty() || data.primitives.empty())
+    throw invalid_argument("Invalid Mesh data");
+
+  for (const auto& dp : data.primitives) {
+    primitives_.push_back({});
+    auto& prim = primitives_.back()->impl();
+
+    prim.topology() = dp.topology;
+
+    for (const auto& acc : dp.accessors)
+      prim.setData(acc.semantic, acc.elementN, acc.elementSize,
+                   &data.data[acc.dataIndex][acc.dataOffset]);
+  }
 }
 
-Mesh::Impl::~Impl() {
-  // TODO
-}
+Mesh::Impl::~Impl() { }
 
 uint32_t Mesh::Impl::primitiveCount() const {
   return primitives_.size();

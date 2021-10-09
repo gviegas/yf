@@ -136,6 +136,10 @@ class Primitive::Impl {
 
   void yieldEntry(const DataEntry&);
   bool resizeBuffer(uint64_t);
+
+#ifdef YF_DEVEL
+  friend TEST_NS::MeshTest;
+#endif
 };
 
 /// Mesh implementation details.

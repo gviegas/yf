@@ -152,7 +152,7 @@ class Mesh::Impl {
   uint32_t primitiveCount() const;
 
  private:
-  // TODO
+  std::vector<Primitive::Ptr> primitives_{};
 };
 
 SG_NS_END

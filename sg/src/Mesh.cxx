@@ -310,5 +310,5 @@ Mesh::Impl::~Impl() {
 }
 
 uint32_t Mesh::Impl::primitiveCount() const {
-  // TODO
+  return primitives_.size();
 }

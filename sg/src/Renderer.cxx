@@ -348,18 +348,19 @@ void Renderer::render(Scene& scene, CG_NS::Target& target) {
         // Update check list
         uint32_t chkMask = 0;
 
-        if (mesh->impl().canBind(VxTypeTangent))
+        // TODO: Multiple primitives
+        const VxDataMask dataMask = (*mesh)[0]->dataMask();
+        if (dataMask & VxDataTangent)
           chkMask |= TangentBit;
-        if (mesh->impl().canBind(VxTypeNormal))
+        if (dataMask & VxDataNormal)
           chkMask |= NormalBit;
-        if (mesh->impl().canBind(VxTypeTexCoord0))
+        if (dataMask & VxDataTexCoord0)
           chkMask |= TexCoord0Bit;
-        if (mesh->impl().canBind(VxTypeTexCoord1))
+        if (dataMask & VxDataTexCoord1)
           chkMask |= TexCoord1Bit;
-        if (mesh->impl().canBind(VxTypeColor0))
+        if (dataMask & VxDataColor0)
           chkMask |= Color0Bit;
-        if (mesh->impl().canBind(VxTypeJoints0) &&
-            mesh->impl().canBind(VxTypeWeights0))
+        if (dataMask & VxDataJoints0 && dataMask & VxDataWeights0)
           chkMask |= SkinBit;
         if (matl->pbrmr().colorTex)
           chkMask |= ColorTexBit;
@@ -383,7 +384,10 @@ void Renderer::render(Scene& scene, CG_NS::Target& target) {
         off += chkPadding_;
 
         // Encode commands for this mesh
-        mesh->impl().encode(enc, 0, n);
+        // TODO: Multiple primitives
+        auto& prim = (*mesh)[0]->impl();
+        prim.encodeBindings(enc);
+        prim.encodeDraw(enc, 0, n);
 
         if (kv.second.empty())
           completed.push_back(kv.first);

@@ -158,15 +158,10 @@ void Primitive::Impl::encodeDraw(CG_NS::GrEncoder& encoder,
     return dataMask_ & att.first && vxCount_ != att.second.count;
   }));
 
-  if (dataMask_ & VxDataIndices) {
+  if (dataMask_ & VxDataIndices)
     encoder.drawIndexed(0, indices_.count, 0, baseInstance, instanceCount);
-    return;
-  }
-
-  auto it = find_if(attributes_.begin(), attributes_.end(),
-                    [](auto& att) { return att.first == VxDataPosition; });
-
-  encoder.draw(0, it->second.count, baseInstance, instanceCount);
+  else
+    encoder.draw(0, vxCount_, baseInstance, instanceCount);
 }
 
 void Primitive::Impl::yieldEntry(const DataEntry& dataEntry) {

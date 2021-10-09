@@ -1877,16 +1877,16 @@ void loadMesh(Mesh::Data& dst, unordered_map<int32_t, ifstream>& bufferMap,
   if (mesh.primitives.empty())
     throw runtime_error("Invalid glTF primitives");
 
-  // Convert from primitive's attribute string to `VxType` value
-  auto typeOfAttribute = [](const string& att) -> VxType {
-    if (att == "POSITION")   return VxTypePosition;
-    if (att == "TANGENT")    return VxTypeTangent;
-    if (att == "NORMAL")     return VxTypeNormal;
-    if (att == "TEXCOORD_0") return VxTypeTexCoord0;
-    if (att == "TEXCOORD_1") return VxTypeTexCoord1;
-    if (att == "COLOR_0")    return VxTypeColor0;
-    if (att == "JOINTS_0")   return VxTypeJoints0;
-    if (att == "WEIGHTS_0")  return VxTypeWeights0;
+  // Convert from primitive's attribute string to `VxData` value
+  auto typeOfAttribute = [](const string& att) -> VxData {
+    if (att == "POSITION")   return VxDataPosition;
+    if (att == "TANGENT")    return VxDataTangent;
+    if (att == "NORMAL")     return VxDataNormal;
+    if (att == "TEXCOORD_0") return VxDataTexCoord0;
+    if (att == "TEXCOORD_1") return VxDataTexCoord1;
+    if (att == "COLOR_0")    return VxDataColor0;
+    if (att == "JOINTS_0")   return VxDataJoints0;
+    if (att == "WEIGHTS_0")  return VxDataWeights0;
     throw UnsupportedExcept("Unsupported glTF primitive");
   };
 
@@ -1908,37 +1908,40 @@ void loadMesh(Mesh::Data& dst, unordered_map<int32_t, ifstream>& bufferMap,
     const GLTF::Accessor& accessor;
     const GLTF::BufferView& bufferView;
 
-    Mesh::Data::Accessor& dst;
+    uint32_t dstPrimitive;
+    uint32_t dstAccessor;
   };
 
   unordered_map<int32_t, vector<Desc>> descMap{};
 
   // TODO: Validate glTF data
   for (const auto& prim : mesh.primitives) {
-    dst.primitives.push_back({toTopology(prim.mode), {}, {}});
-    auto& dstPrim = dst.primitives.back();
+    const uint32_t dstPrim = dst.primitives.size();
+    dst.primitives.push_back({toTopology(prim.mode), {}});
 
     for (const auto& att : prim.attributes) {
       const auto& acc = gltf.accessors()[att.second];
       const auto& view = gltf.bufferViews()[acc.bufferView];
-
-      auto dstIt = dstPrim.vxAccessors.emplace(typeOfAttribute(att.first),
-                                               Mesh::Data::Accessor{}).first;
+      const uint32_t dstAcc = dst.primitives.back().accessors.size();
+      dst.primitives.back().accessors.push_back({typeOfAttribute(att.first)});
 
       auto it = descMap.find(view.buffer);
       if (it == descMap.end())
-        descMap.emplace(view.buffer, vector<Desc>{{acc, view, dstIt->second}});
+        descMap.emplace(view.buffer,
+                        vector<Desc>{{acc, view, dstPrim, dstAcc}});
       else
-        it->second.push_back({acc, view, dstIt->second});
+        it->second.push_back({acc, view, dstPrim, dstAcc});
     }
 
     if (prim.indices >= 0) {
       const auto& acc = gltf.accessors()[prim.indices];
       const auto& view = gltf.bufferViews()[acc.bufferView];
+      const uint32_t dstAcc = dst.primitives.back().accessors.size();
+      dst.primitives.back().accessors.push_back({VxDataIndices});
 
       auto it = descMap.find(view.buffer);
       assert(it != descMap.end());
-      it->second.push_back({acc, view, dstPrim.ixAccessor});
+      it->second.push_back({acc, view, dstPrim, dstAcc});
     }
   }
 
@@ -1974,12 +1977,13 @@ void loadMesh(Mesh::Data& dst, unordered_map<int32_t, ifstream>& bufferMap,
       size_t size = dc.accessor.sizeOfComponentType() *
                     dc.accessor.sizeOfType();
 
-      dc.dst = {static_cast<uint32_t>(dst.data.size()),
-                0,
-                static_cast<uint32_t>(dc.accessor.count),
-                static_cast<uint32_t>(size)};
+      auto& dstAcc = dst.primitives[dc.dstPrimitive].accessors[dc.dstAccessor];
+      dstAcc.dataIndex = static_cast<uint32_t>(dst.data.size());
+      dstAcc.dataOffset = 0;
+      dstAcc.elementN = static_cast<uint32_t>(dc.accessor.count);
+      dstAcc.elementSize = static_cast<uint32_t>(size);
 
-      size *= dc.dst.elementN;
+      size *= dstAcc.elementN;
       dst.data.push_back(make_unique<char[]>(size));
       auto dt = dst.data.back().get();
 
@@ -1988,10 +1992,10 @@ void loadMesh(Mesh::Data& dst, unordered_map<int32_t, ifstream>& bufferMap,
 
       if (dc.bufferView.byteStride > 0) {
         // interleaved
-        for (size_t i = 0; i < dc.dst.elementN; i++) {
+        for (size_t i = 0; i < dstAcc.elementN; i++) {
           if (!ifs->seekg(dc.bufferView.byteStride * i, ios_base::cur))
             throw FileExcept("Could not seek glTF .glb/.bin file");
-          if (!ifs->read(dt, dc.dst.elementSize))
+          if (!ifs->read(dt, dstAcc.elementSize))
             throw FileExcept("Could not read from glTF .glb/.bin file");
         }
       } else {

@@ -13,9 +13,59 @@ using namespace std;
 class Material::Impl {
  public:
   Impl() = default;
-  Impl(const Impl&) = default;
-  Impl& operator=(const Impl&) = default;
   ~Impl() = default;
+
+  Impl(const Impl& other)
+    : pbrmr_{other.pbrmr_.colorTex
+              ? make_unique<Texture>(*other.pbrmr_.colorTex)
+              : nullptr,
+             other.pbrmr_.colorFac,
+             other.pbrmr_.metalRoughTex
+              ? make_unique<Texture>(*other.pbrmr_.metalRoughTex)
+              : nullptr,
+             other.pbrmr_.metallic,
+             other.pbrmr_.roughness},
+
+      normal_{other.normal_.texture
+               ? make_unique<Texture>(*other.normal_.texture)
+               : nullptr,
+              other.normal_.scale},
+
+      occlusion_{other.occlusion_.texture
+                  ? make_unique<Texture>(*other.occlusion_.texture)
+                  : nullptr,
+                 other.occlusion_.strength},
+
+      emissive_{other.emissive_.texture
+                 ? make_unique<Texture>(*other.emissive_.texture)
+                 : nullptr,
+                other.emissive_.factor} { }
+
+  Impl& operator=(const Impl& other) {
+    const pair<Texture::Ptr*, const Texture::Ptr*> texs[5] = {
+      make_pair(&pbrmr_.colorTex, &other.pbrmr_.colorTex),
+      make_pair(&pbrmr_.metalRoughTex, &other.pbrmr_.metalRoughTex),
+      make_pair(&normal_.texture, &other.normal_.texture),
+      make_pair(&occlusion_.texture, &other.occlusion_.texture),
+      make_pair(&emissive_.texture, &other.emissive_.texture)
+    };
+
+    for (auto& tx : texs) {
+      if (*tx.second)
+        *tx.first = make_unique<Texture>(**tx.second);
+      else
+        tx.first->release();
+    }
+
+    pbrmr_.colorFac = other.pbrmr_.colorFac;
+    pbrmr_.metallic = other.pbrmr_.metallic;
+    pbrmr_.roughness = other.pbrmr_.roughness;
+    normal_.scale = other.normal_.scale;
+    occlusion_.strength = other.occlusion_.strength;
+    emissive_.factor = other.emissive_.factor;
+
+    return *this;
+  }
 
   Pbrmr pbrmr_{};
   Normal normal_{};

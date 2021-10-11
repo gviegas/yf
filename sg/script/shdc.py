@@ -24,7 +24,7 @@ frag = [
 
 srcDir = 'tmp/shd/'
 dstDir = 'bin/'
-lang = '.glsl'
+lang = ''
 
 compiler = 'tmp/shdc'
 

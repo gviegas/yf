@@ -33,9 +33,17 @@ Texture::Texture(ifstream& stream) {
 
 Texture::Texture(const Data& data) : impl_(make_unique<Impl>(data)) { }
 
-Texture::Texture(const Texture& texture, const CG_NS::Sampler& sampler,
+Texture::Texture(const Texture& other, const CG_NS::Sampler& sampler,
                  TexCoordSet coordSet)
-  : impl_(make_unique<Impl>(*texture.impl_, sampler, coordSet)) { }
+  : impl_(make_unique<Impl>(*other.impl_, sampler, coordSet)) { }
+
+Texture::Texture(const Texture& other)
+  : impl_(make_unique<Impl>(*other.impl_)) { }
+
+Texture& Texture::operator=(const Texture& other) {
+  *impl_ = *other.impl_;
+  return *this;
+}
 
 Texture::~Texture() { }
 

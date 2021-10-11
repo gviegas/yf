@@ -54,9 +54,11 @@ class Texture {
 
   Texture(const Data& data);
 
-  Texture(const Texture& texture, const CG_NS::Sampler& sampler,
+  Texture(const Texture& other, const CG_NS::Sampler& sampler,
           TexCoordSet coordSet);
 
+  Texture(const Texture& other);
+  Texture& operator=(const Texture& other);
   ~Texture();
 
   /// Getters.

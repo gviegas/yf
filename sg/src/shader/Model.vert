@@ -1,6 +1,6 @@
 //
 // SG
-// Model.vert.glsl
+// Model.vert
 //
 // Copyright © 2021 Gustavo C. Viegas.
 //

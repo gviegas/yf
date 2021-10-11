@@ -1,6 +1,6 @@
 //
 // SG
-// Model.frag.glsl
+// Model.frag
 //
 // Copyright © 2021 Gustavo C. Viegas.
 //

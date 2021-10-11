@@ -110,8 +110,8 @@ constexpr uint64_t UniformLength = 1ULL << 20;
 /// Check uniform flags.
 ///
 enum CheckBits : uint32_t {
-  TangentBit       = 0x0001,
-  NormalBit        = 0x0002,
+  NormalBit        = 0x0001,
+  TangentBit       = 0x0002,
   TexCoord0Bit     = 0x0004,
   TexCoord1Bit     = 0x0008,
   Color0Bit        = 0x0010,
@@ -350,10 +350,10 @@ void Renderer::render(Scene& scene, CG_NS::Target& target) {
 
         // TODO: Multiple primitives
         const VxDataMask dataMask = mesh->primitive(0).dataMask();
-        if (dataMask & VxDataTangent)
-          chkMask |= TangentBit;
         if (dataMask & VxDataNormal)
           chkMask |= NormalBit;
+        if (dataMask & VxDataTangent)
+          chkMask |= TangentBit;
         if (dataMask & VxDataTexCoord0)
           chkMask |= TexCoord0Bit;
         if (dataMask & VxDataTexCoord1)
@@ -516,8 +516,8 @@ void Renderer::prepare() {
       const vector<CG_NS::DcTable*> tab{glbTable_.get(), resource.table.get()};
 
       const vector<CG_NS::VxInput> inp{vxInputFor(VxDataPosition),
-                                       vxInputFor(VxDataTangent),
                                        vxInputFor(VxDataNormal),
+                                       vxInputFor(VxDataTangent),
                                        vxInputFor(VxDataTexCoord0),
                                        vxInputFor(VxDataTexCoord1),
                                        vxInputFor(VxDataColor0),

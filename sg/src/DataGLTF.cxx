@@ -1880,8 +1880,8 @@ void loadMesh(Mesh::Data& dst, unordered_map<int32_t, ifstream>& bufferMap,
   // Convert from primitive's attribute string to `VxData` value
   auto typeOfAttribute = [](const string& att) -> VxData {
     if (att == "POSITION")   return VxDataPosition;
-    if (att == "TANGENT")    return VxDataTangent;
     if (att == "NORMAL")     return VxDataNormal;
+    if (att == "TANGENT")    return VxDataTangent;
     if (att == "TEXCOORD_0") return VxDataTexCoord0;
     if (att == "TEXCOORD_1") return VxDataTexCoord1;
     if (att == "COLOR_0")    return VxDataColor0;

@@ -25,8 +25,8 @@ SG_NS_BEGIN
 enum VxData : uint32_t {
   // Vextex attributes
   VxDataPosition  = 0x01,
-  VxDataTangent   = 0x02,
-  VxDataNormal    = 0x04,
+  VxDataNormal    = 0x02,
+  VxDataTangent   = 0x04,
   VxDataTexCoord0 = 0x08,
   VxDataTexCoord1 = 0x10,
   VxDataColor0    = 0x20,

@@ -55,6 +55,8 @@ class Material {
   };
 
   Material();
+  Material(const Material& other);
+  Material& operator=(const Material& other);
   ~Material();
 
   size_t hash() const;

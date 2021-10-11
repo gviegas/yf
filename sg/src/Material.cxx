@@ -75,6 +75,14 @@ class Material::Impl {
 
 Material::Material() : impl_(make_unique<Impl>()) { }
 
+Material::Material(const Material& other)
+  : impl_(make_unique<Impl>(*other.impl_)) { }
+
+Material& Material::operator=(const Material& other) {
+  *impl_ = *other.impl_;
+  return *this;
+}
+
 Material::~Material() { }
 
 size_t Material::hash() const {

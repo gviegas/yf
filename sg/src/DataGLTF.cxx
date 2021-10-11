@@ -338,11 +338,11 @@ class GLTF {
         TriangleFan = 6
       };
 
-      unordered_map<string, int32_t> attributes{};
+      vector<pair<string, int32_t>> attributes{};
       int32_t indices = -1;
       int32_t mode = Triangles;
       int32_t material = -1;
-      vector<unordered_map<string, int32_t>> targets{};
+      vector<vector<pair<string, int32_t>>> targets{};
     };
 
     vector<Primitive> primitives{};
@@ -1047,7 +1047,7 @@ class GLTF {
     assert(symbol.type() == Symbol::Str);
     assert(symbol.tokens() == "meshes");
 
-    auto parseDictionary = [&](unordered_map<string, int32_t>& dict) {
+    auto parseDictionary = [&](vector<pair<string, int32_t>>& dict) {
       string key{};
       int32_t value{};
 
@@ -1058,7 +1058,7 @@ class GLTF {
         if (symbol.next() != Symbol::Op || symbol.token() != ':')
           throw FileExcept("Invalid glTF file");
         parseNum(symbol, value);
-        dict.emplace(key, value);
+        dict.push_back({key, value});
 
         switch (symbol.next()) {
         case Symbol::Op:

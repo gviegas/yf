@@ -15,8 +15,8 @@
 # error "JOINT_N not defined"
 #endif
 
-const uint TangentBit   = 0x01;
-const uint NormalBit    = 0x02;
+const uint NormalBit    = 0x01;
+const uint TangentBit   = 0x02;
 const uint TexCoord0Bit = 0x04;
 const uint TexCoord1Bit = 0x08;
 const uint Color0Bit    = 0x10;
@@ -50,8 +50,8 @@ layout(set=1, binding=1) uniform Check {
 } check;
 
 layout(location=0) in vec3 position;
-layout(location=1) in vec4 tangent;
-layout(location=2) in vec3 normal;
+layout(location=1) in vec3 normal;
+layout(location=2) in vec4 tangent;
 layout(location=3) in vec2 texCoord0;
 layout(location=4) in vec2 texCoord1;
 layout(location=5) in vec4 color0;
@@ -60,8 +60,8 @@ layout(location=7) in vec4 weights0;
 
 layout(location=0) out Vertex {
   vec3 position;
-  vec4 tangent;
   vec3 normal;
+  vec4 tangent;
   vec2 texCoord0;
   vec2 texCoord1;
   vec4 color0;
@@ -102,16 +102,16 @@ vec3 getNormal() {
 void setVertex(vec4 pos) {
   vertex.position = pos.xyz / pos.w;
 
-  if ((check.mask & TangentBit) != 0)
-    vertex.tangent = tangent;
-  else
-    vertex.tangent = vec4(0.0);
-
   if ((check.mask & NormalBit) != 0)
     vertex.normal =
       normalize(vec3(instance[gl_InstanceIndex].nm * vec4(getNormal(), 0.0)));
   else
     vertex.normal = vec3(0.0);
+
+  if ((check.mask & TangentBit) != 0)
+    vertex.tangent = tangent;
+  else
+    vertex.tangent = vec4(0.0);
 
   if ((check.mask & TexCoord0Bit) != 0)
     vertex.texCoord0 = texCoord0;

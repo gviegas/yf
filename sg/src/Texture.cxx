@@ -120,14 +120,41 @@ Texture::Impl::Impl(const Data& data)
   }
 }
 
-Texture::Impl::Impl(const Impl& impl, const CG_NS::Sampler& sampler,
+Texture::Impl::Impl(const Impl& other, const CG_NS::Sampler& sampler,
                     TexCoordSet coordSet)
-  : key_(impl.key_), layer_(impl.layer_), sampler_(sampler),
+  : key_(other.key_), layer_(other.layer_), sampler_(sampler),
     coordSet_(coordSet) {
 
   // Shared
   auto& resource = resources_.find(key_)->second;
   resource.layers.refCounts[layer_]++;
+}
+
+Texture::Impl::Impl(const Impl& other)
+  : key_(other.key_), layer_(other.layer_), sampler_(other.sampler_),
+    coordSet_(other.coordSet_) {
+
+  // Shared
+  auto& resource = resources_.find(key_)->second;
+  resource.layers.refCounts[layer_]++;
+}
+
+Texture::Impl& Texture::Impl::operator=(const Impl& other) {
+  auto& otherRes = resources_.find(other.key_)->second;
+  otherRes.layers.refCounts[other.layer_]++;
+
+  if (key_ == other.key_) {
+    otherRes.layers.refCounts[layer_]--;
+  } else {
+    auto& thisRes = resources_.find(key_)->second;
+    thisRes.layers.refCounts[layer_]--;
+    key_ = other.key_;
+  }
+
+  layer_ = other.layer_;
+  sampler_ = other.sampler_;
+  coordSet_ = other.coordSet_;
+  return *this;
 }
 
 Texture::Impl::~Impl() {

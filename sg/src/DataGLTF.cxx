@@ -1871,7 +1871,8 @@ class GLTF {
 class DataLoad {
  public:
   DataLoad(const GLTF& gltf)
-    : gltf_(gltf), collection_(), buffers_(gltf.buffers().size()) {
+    : gltf_(gltf), collection_(), buffers_(gltf.buffers().size()),
+      images_(gltf.images().size()) {
 
     collection_.scenes().resize(gltf.scenes().size());
     collection_.nodes().resize(gltf.nodes().size());
@@ -1890,6 +1891,7 @@ class DataLoad {
   const GLTF& gltf_;
   Collection collection_{};
   vector<ifstream> buffers_{};
+  vector<Texture::Ptr> images_{};
 
   /// Seeks into buffer as specified by a `GLTF::BufferView`.
   ///

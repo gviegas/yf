@@ -15,7 +15,9 @@ class Collection::Impl {
  public:
   Impl() = default;
   Impl(const Impl&) = delete;
+  Impl(Impl&&) = default;
   Impl& operator=(const Impl&) = delete;
+  Impl& operator=(Impl&&) = default;
   ~Impl() = default;
 
   vector<Scene::Ptr> scenes_{};

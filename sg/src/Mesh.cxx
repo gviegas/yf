@@ -61,6 +61,10 @@ VxDataMask Primitive::Impl::dataMask() const {
   return dataMask_;
 }
 
+const Material* Primitive::Impl::material() const {
+  return material_.get();
+}
+
 void Primitive::Impl::setData(VxData semantic, uint32_t elementN,
                               uint32_t elementSize, const void* data) {
 

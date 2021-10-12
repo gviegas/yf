@@ -115,6 +115,14 @@ struct MaterialTest : Test {
                                 isEqOcclusion(ml3.occlusion(), occ) &&
                                 isEqEmissive(ml3.emissive(), emsv)});
 
+    Material ml4{ml3};
+    a.push_back({L"Material(other)", isEqPbrmr(ml3.pbrmr(), ml4.pbrmr()) &&
+                                     isEqNormal(ml3.normal(), ml4.normal()) &&
+                                     isEqOcclusion(ml3.occlusion(),
+                                                   ml4.occlusion()) &&
+                                     isEqEmissive(ml3.emissive(),
+                                                  ml4.emissive())});
+
     Material::Normal norm{{}, 0.01f};
 
     ml3.pbrmr() = {{}, {0.5f}, {}, 0.2f, 0.4f};
@@ -124,6 +132,19 @@ struct MaterialTest : Test {
                                isEqNormal(ml3.normal(), norm) &&
                                isEqOcclusion(ml3.occlusion(), occ) &&
                                isEqEmissive(ml3.emissive(), emsv)});
+
+    a.push_back({L"Material(other)", !isEqPbrmr(ml3.pbrmr(), ml4.pbrmr()) &&
+                                     !isEqNormal(ml3.normal(), ml4.normal()) &&
+                                     isEqOcclusion(ml3.occlusion(),
+                                                   ml4.occlusion()) &&
+                                     isEqEmissive(ml3.emissive(),
+                                                  ml4.emissive())});
+    ml4 = ml3;
+    a.push_back({L"operator=", isEqPbrmr(ml3.pbrmr(), ml4.pbrmr()) &&
+                               isEqNormal(ml3.normal(), ml4.normal()) &&
+                               isEqOcclusion(ml3.occlusion(),
+                                             ml4.occlusion()) &&
+                               isEqEmissive(ml3.emissive(), ml4.emissive())});
 
     return a;
   }

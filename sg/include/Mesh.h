@@ -23,7 +23,7 @@ SG_NS_BEGIN
 /// Vertex data semantics.
 ///
 enum VxData : uint32_t {
-  // Vextex attributes
+  // Vertex attributes
   VxDataPosition  = 0x01,
   VxDataNormal    = 0x02,
   VxDataTangent   = 0x04,

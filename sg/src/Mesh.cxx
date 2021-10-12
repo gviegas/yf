@@ -61,6 +61,10 @@ VxDataMask Primitive::Impl::dataMask() const {
   return dataMask_;
 }
 
+Material::Ptr& Primitive::Impl::material() {
+  return material_;
+}
+
 const Material* Primitive::Impl::material() const {
   return material_.get();
 }

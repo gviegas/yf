@@ -607,7 +607,7 @@ class GLTF {
   /// XXX: If the `GLTF` object does not own the file stream, one must ensure
   /// that it still exists before calling this method.
   ///
-  ifstream& bin() {
+  ifstream& bin() const {
     assert(buffers_.size() != 0 && buffers_[0].uri.empty());
 
     if (!ifs_->seekg(binOffset_))

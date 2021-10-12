@@ -17,6 +17,7 @@
 #include "yf/cg/State.h"
 
 #include "yf/sg/Defs.h"
+#include "yf/sg/Material.h"
 
 SG_NS_BEGIN
 
@@ -96,6 +97,7 @@ class Mesh {
     struct Primitive {
       CG_NS::Topology topology = CG_NS::TopologyTriangle;
       std::vector<Accessor> accessors{};
+      Material::Ptr material{};
     };
 
     std::vector<std::unique_ptr<char[]>> data{};

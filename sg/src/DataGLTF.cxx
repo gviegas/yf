@@ -1870,7 +1870,9 @@ class GLTF {
 ///
 class DataLoad {
  public:
-  DataLoad(const GLTF& gltf) : gltf_(gltf), collection_() {
+  DataLoad(const GLTF& gltf)
+    : gltf_(gltf), collection_(), buffers_(gltf.buffers().size()) {
+
     collection_.scenes().resize(gltf.scenes().size());
     collection_.nodes().resize(gltf.nodes().size());
     collection_.meshes().resize(gltf.meshes().size());
@@ -1887,6 +1889,7 @@ class DataLoad {
  private:
   const GLTF& gltf_;
   Collection collection_{};
+  vector<ifstream> buffers_{};
 };
 
 /// Loads a single mesh from a GLTF object.

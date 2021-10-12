@@ -1886,6 +1886,11 @@ class DataLoad {
   DataLoad& operator=(const DataLoad&) = delete;
   ~DataLoad() = default;
 
+ private:
+  const GLTF& gltf_;
+  Collection collection_{};
+  vector<ifstream> buffers_{};
+
   /// Seeks into buffer as specified by a `GLTF::BufferView`.
   ///
   ifstream& seekBufferView(int32_t bufferView, uint64_t offset = 0) {
@@ -1932,11 +1937,6 @@ class DataLoad {
     const auto& acc = gltf_.accessors()[accessor];
     return seekBufferView(acc.bufferView, acc.byteOffset);
   }
-
- private:
-  const GLTF& gltf_;
-  Collection collection_{};
-  vector<ifstream> buffers_{};
 };
 
 /// Loads a single mesh from a GLTF object.

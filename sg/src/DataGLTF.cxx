@@ -1866,6 +1866,29 @@ class GLTF {
 #endif
 };
 
+/// GLTF data load.
+///
+class DataLoad {
+ public:
+  DataLoad(const GLTF& gltf) : gltf_(gltf), collection_() {
+    collection_.scenes().resize(gltf.scenes().size());
+    collection_.nodes().resize(gltf.nodes().size());
+    collection_.meshes().resize(gltf.meshes().size());
+    collection_.skins().resize(gltf.skins().size());
+    collection_.textures().resize(gltf.textures().size());
+    collection_.materials().resize(gltf.materials().size());
+    collection_.animations().resize(gltf.animations().size());
+  }
+
+  DataLoad(const DataLoad&) = delete;
+  DataLoad& operator=(const DataLoad&) = delete;
+  ~DataLoad() = default;
+
+ private:
+  const GLTF& gltf_;
+  Collection collection_{};
+};
+
 /// Loads a single mesh from a GLTF object.
 ///
 void loadMesh(Mesh::Data& dst, unordered_map<int32_t, ifstream>& bufferMap,

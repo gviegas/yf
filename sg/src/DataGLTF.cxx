@@ -1924,6 +1924,15 @@ class DataLoad {
     return *ifs;
   }
 
+  /// Seeks into buffer as specified by a `GLTF::Accessor`.
+  ///
+  ifstream& seekAccessor(int32_t accessor) {
+    assert(accessor < static_cast<int32_t>(gltf_.accessors().size()));
+
+    const auto& acc = gltf_.accessors()[accessor];
+    return seekBufferView(acc.bufferView, acc.byteOffset);
+  }
+
  private:
   const GLTF& gltf_;
   Collection collection_{};

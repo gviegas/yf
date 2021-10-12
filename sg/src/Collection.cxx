@@ -35,6 +35,13 @@ Collection::Collection(const string& pathname) : Collection() {
 
 Collection::Collection() : impl_(make_unique<Impl>()) { }
 
+Collection::Collection(Collection&& other) : impl_(move(other.impl_)) { }
+
+Collection& Collection::operator=(Collection&& other) {
+  impl_ = move(other.impl_);
+  return *this;
+}
+
 Collection::~Collection() { }
 
 void Collection::load(const string& pathname) {

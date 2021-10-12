@@ -29,7 +29,9 @@ class Collection {
   Collection(const std::string& pathname);
   Collection();
   Collection(const Collection&) = delete;
+  Collection(Collection&&);
   Collection& operator=(const Collection&) = delete;
+  Collection& operator=(Collection&&);
   ~Collection();
 
   /// Loads collection from file.

@@ -1939,6 +1939,29 @@ class DataLoad {
     const auto& acc = gltf_.accessors()[accessor];
     return seekBufferView(acc.bufferView, acc.byteOffset);
   }
+
+  /// Loads an image.
+  ///
+  Texture& loadImage(int32_t image) {
+    assert(image < static_cast<int32_t>(gltf_.images().size()));
+
+    if (images_[image])
+      return *images_[image];
+
+    const auto& img = gltf_.images()[image];
+    if (img.uri.empty()) {
+      // Image provided through a buffer view
+      auto& ifs = seekBufferView(img.bufferView);
+      images_[image] = make_unique<Texture>(ifs);
+    } else {
+      // Image provided through an URI
+      // TODO: Base64
+      const auto pathname = gltf_.directory() + '/' + img.uri;
+      images_[image] = make_unique<Texture>(pathname);
+    }
+
+    return *images_[image];
+  }
 };
 
 /// Loads a single mesh from a GLTF object.

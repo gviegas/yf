@@ -1886,6 +1886,44 @@ class DataLoad {
   DataLoad& operator=(const DataLoad&) = delete;
   ~DataLoad() = default;
 
+  /// Seeks into buffer as specified by a `GLTF::BufferView`.
+  ///
+  ifstream& seekBufferView(int32_t bufferView, uint64_t offset = 0) {
+    assert(bufferView < static_cast<int32_t>(gltf_.bufferViews().size()));
+
+    const auto& view = gltf_.bufferViews()[bufferView];
+    const auto& buffer = gltf_.buffers()[view.buffer];
+    ifstream* ifs;
+
+    if (buffer.uri.empty()) {
+      // Embedded (.glb)
+      if (view.buffer != 0)
+        throw UnsupportedExcept("Unsupported glTF buffer");
+
+      ifs = &gltf_.bin();
+
+    } else {
+      // External (.bin)
+      ifs = &buffers_[view.buffer];
+
+      if (ifs->is_open()) {
+        if (!ifs->seekg(0))
+          throw FileExcept("Could not seek glTF .bin file");
+      } else {
+        const auto pathname = gltf_.directory() + '/' + buffer.uri;
+        ifs->open(pathname);
+        if (!ifs->is_open())
+          throw FileExcept("Could not open glTF .bin file");
+      }
+    }
+
+    offset += view.byteOffset;
+    if (offset > 0 && !ifs->seekg(offset, ios_base::cur))
+      throw FileExcept("Could not seek glTF .glb/.bin file");
+
+    return *ifs;
+  }
+
  private:
   const GLTF& gltf_;
   Collection collection_{};

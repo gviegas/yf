@@ -1872,7 +1872,7 @@ class DataLoad {
  public:
   DataLoad(const GLTF& gltf)
     : gltf_(gltf), collection_(), buffers_(gltf.buffers().size()),
-      images_(gltf.images().size()) {
+      images_(gltf.images().size()), joints_(gltf.nodes().size()) {
 
     collection_.scenes().resize(gltf.scenes().size());
     collection_.nodes().resize(gltf.nodes().size());
@@ -1881,6 +1881,11 @@ class DataLoad {
     collection_.textures().resize(gltf.textures().size());
     collection_.materials().resize(gltf.materials().size());
     collection_.animations().resize(gltf.animations().size());
+
+    for (const auto& sk : gltf_.skins()) {
+      for (const auto& jt : sk.joints)
+        joints_[jt] = true;
+    }
   }
 
   DataLoad(const DataLoad&) = delete;
@@ -2312,6 +2317,7 @@ class DataLoad {
   Collection collection_{};
   vector<ifstream> buffers_{};
   vector<Texture::Ptr> images_{};
+  vector<bool> joints_{};
 
   /// Seeks into buffer as specified by a `GLTF::BufferView`.
   ///

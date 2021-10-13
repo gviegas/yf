@@ -2157,6 +2157,156 @@ class DataLoad {
     return *collection_.skins()[skin];
   }
 
+  /// Loads an animation.
+  ///
+  Animation& loadAnimation(int32_t animation) {
+    assert(animation >= 0 &&
+           static_cast<size_t>(animation) < gltf_.animations().size());
+
+    if (collection_.animations()[animation])
+      return *collection_.animations()[animation];
+
+    const auto& anim = gltf_.animations()[animation];
+
+    // `GLTF::Accessor` to `Animation` input/output
+    vector<pair<int32_t, size_t>> accMap;
+
+    vector<Animation::Action> actions{};
+    vector<Animation::Timeline> inputs{};
+    vector<Animation::Translation> outT{};
+    vector<Animation::Rotation> outR{};
+    vector<Animation::Scale> outS{};
+
+    for (const auto& ch : anim.channels) {
+      actions.push_back({});
+      auto& action = actions.back();
+
+      // TODO
+      action.target = nullptr;
+
+      if (ch.target.path == "translation")
+        action.type = Animation::T;
+      else if (ch.target.path == "rotation")
+        action.type = Animation::R;
+      else if (ch.target.path == "scale")
+        action.type = Animation::S;
+      else
+        throw UnsupportedExcept("Unsupported glTF animation");
+
+      assert(ch.sampler >= 0 &&
+             static_cast<size_t>(ch.sampler) < gltf_.samplers().size());
+
+      const auto& sampler = anim.samplers[ch.sampler];
+
+      if (sampler.interpolation == "STEP")
+        action.method = Animation::Step;
+      else if (sampler.interpolation == "LINEAR")
+        action.method = Animation::Linear;
+      else if (sampler.interpolation == "CUBICSPLINE")
+        action.method = Animation::Cubic;
+      else
+        throw UnsupportedExcept("Unsupported glTF animation");
+
+      // Input
+      auto it = find_if(accMap.begin(), accMap.end(),
+                        [&](auto& p) { return p.first == sampler.input; });
+
+      if (it == accMap.end()) {
+        const auto& acc = gltf_.accessors()[sampler.input];
+        const auto& view = gltf_.bufferViews()[acc.bufferView];
+
+        if (acc.count == 0 || acc.componentType != GLTF::Accessor::Float ||
+            acc.type != "SCALAR" || view.byteStride != 0)
+          throw UnsupportedExcept("Unsupported glTF animation");
+
+        action.input = inputs.size();
+        accMap.push_back(make_pair(sampler.input, action.input));
+        inputs.push_back(Animation::Timeline(acc.count));
+        auto data = reinterpret_cast<char*>(inputs.back().data());
+        auto& ifs = seekAccessor(sampler.input);
+
+        if (!ifs.read(data, sizeof(float) * acc.count))
+          throw FileExcept("Could not read from .glb/.bin file");
+
+      } else {
+        action.input = it->second;
+      }
+
+      // Output
+      it = find_if(accMap.begin(), accMap.end(),
+                   [&](auto& p) { return p.first == sampler.output; });
+
+      if (it == accMap.end()) {
+        const auto& acc = gltf_.accessors()[sampler.output];
+        const auto& view = gltf_.bufferViews()[acc.bufferView];
+
+        if (acc.count == 0 || view.byteStride != 0)
+          throw UnsupportedExcept("Unsupported glTF animation");
+
+        char* data = nullptr;
+        size_t size = 0;
+        auto& ifs = seekAccessor(sampler.output);
+
+        switch (action.type) {
+        case Animation::T:
+          if (acc.componentType != GLTF::Accessor::Float || acc.type != "VEC3")
+            throw UnsupportedExcept("Unsupported glTF animation");
+          action.output = outT.size();
+          outT.push_back(Animation::Translation(acc.count));
+          data = reinterpret_cast<char*>(outT.back().data());
+          size = Vec3f::dataSize() * acc.count;
+          if (!ifs.read(data, size))
+            throw FileExcept("Could not read from .glb/.bin file");
+          break;
+
+        case Animation::R:
+          if (acc.componentType != GLTF::Accessor::Float || acc.type != "VEC4")
+            throw UnsupportedExcept("Unsupported glTF animation");
+          action.output = outR.size();
+          outR.push_back(Animation::Rotation(acc.count));
+          {
+            vector<Vec4f> tmp(acc.count);
+            data = reinterpret_cast<char*>(tmp.data());
+            size = Vec4f::dataSize() * acc.count;
+            if (!ifs.read(data, size))
+              throw FileExcept("Could not read from .glb/.bin file");
+            auto& r = outR.back();
+            for (const auto& v : tmp)
+              r.push_back(Qnionf(v));
+          }
+          break;
+
+        case Animation::S:
+          if (acc.componentType != GLTF::Accessor::Float || acc.type != "VEC3")
+            throw UnsupportedExcept("Unsupported glTF animation");
+          action.output = outS.size();
+          outS.push_back(Animation::Scale(acc.count));
+          data = reinterpret_cast<char*>(outS.back().data());
+          size = Vec3f::dataSize() * acc.count;
+          if (!ifs.read(data, size))
+            throw FileExcept("Could not read from .glb/.bin file");
+          break;
+        }
+
+        accMap.push_back(make_pair(sampler.output, action.output));
+
+      } else {
+        action.output = it->second;
+      }
+    }
+
+    auto& dst = collection_.animations()[animation];
+    dst = make_unique<Animation>(inputs, outT, outR, outS);
+    dst->actions() = actions;
+
+    // XXX
+    auto& name = dst->name();
+    for (const auto& c : anim.name)
+      name.push_back(c);
+
+    return *dst;
+  }
+
  private:
   const GLTF& gltf_;
   Collection collection_{};

@@ -1957,6 +1957,69 @@ class DataLoad {
     return *collection_.textures()[texture];
   }
 
+  /// Loads a material.
+  ///
+  Material& loadMaterial(int32_t material) {
+    assert(material < static_cast<int32_t>(gltf_.materials().size()));
+
+    if (collection_.materials()[material])
+      return *collection_.materials()[material];
+
+    // Get texture from info
+    auto getTexture = [&](const GLTF::Material::TextureInfo& info) {
+      if (info.index < 0)
+        return Texture::Ptr{};
+
+      TexCoordSet coordSet;
+      switch (info.texCoord) {
+      case 0:
+        coordSet = TexCoordSet0;
+        break;
+      case 1:
+        coordSet = TexCoordSet1;
+        break;
+      default:
+        throw UnsupportedExcept("Unsupported texture coord. set");
+      }
+
+      const auto& texture = loadTexture(info.index);
+      return make_unique<Texture>(texture, texture.sampler(), coordSet);
+    };
+
+    const auto& matl = gltf_.materials()[material];
+    auto& dst = *(collection_.materials()[material] = make_unique<Material>());
+
+    // PBRMR
+    const auto& pbrmr = matl.pbrMetallicRoughness;
+    dst.pbrmr().colorTex = getTexture(pbrmr.baseColorTexture);
+    dst.pbrmr().colorFac = {pbrmr.baseColorFactor[0],
+                            pbrmr.baseColorFactor[1],
+                            pbrmr.baseColorFactor[2],
+                            pbrmr.baseColorFactor[3]};
+    dst.pbrmr().metalRoughTex = getTexture(pbrmr.metallicRoughnessTexture);
+    dst.pbrmr().metallic = pbrmr.metallicFactor;
+    dst.pbrmr().roughness = pbrmr.roughnessFactor;
+
+    // Normal
+    const auto& normal = matl.normalTexture;
+    dst.normal().texture = getTexture(normal);
+    dst.normal().scale = normal.scale;
+
+    // Occlusion
+    const auto& occlusion = matl.occlusionTexture;
+    dst.occlusion().texture = getTexture(occlusion);
+    dst.occlusion().strength = occlusion.strength;
+
+    // Emissive
+    const auto& emissive = matl.emissiveTexture;
+    dst.emissive().texture = getTexture(emissive);
+    dst.emissive().factor = {matl.emissiveFactor[0],
+                             matl.emissiveFactor[1],
+                             matl.emissiveFactor[2]};
+
+    return dst;
+  }
+
  private:
   const GLTF& gltf_;
   Collection collection_{};

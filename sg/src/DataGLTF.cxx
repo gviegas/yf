@@ -2022,6 +2022,98 @@ class DataLoad {
     return dst;
   }
 
+  /// Loads a mesh.
+  ///
+  Mesh& loadMesh(int32_t mesh) {
+    assert(mesh >= 0 && static_cast<size_t>(mesh) < gltf_.meshes().size());
+
+    if (collection_.meshes()[mesh])
+      return *collection_.meshes()[mesh];
+
+    // Convert from primitive's attribute string to `VxData` value
+    auto toVxData = [](const string& att) -> VxData {
+      if (att == "POSITION")   return VxDataPosition;
+      if (att == "NORMAL")     return VxDataNormal;
+      if (att == "TANGENT")    return VxDataTangent;
+      if (att == "TEXCOORD_0") return VxDataTexCoord0;
+      if (att == "TEXCOORD_1") return VxDataTexCoord1;
+      if (att == "COLOR_0")    return VxDataColor0;
+      if (att == "JOINTS_0")   return VxDataJoints0;
+      if (att == "WEIGHTS_0")  return VxDataWeights0;
+      throw UnsupportedExcept("Unsupported glTF primitive");
+    };
+
+    // Convert from primitives's mode to CG `Topology` value
+    auto toTopology = [](int32_t mode) -> CG_NS::Topology {
+      switch (mode) {
+      case GLTF::Mesh::Primitive::Points:        return CG_NS::TopologyPoint;
+      case GLTF::Mesh::Primitive::Lines:         return CG_NS::TopologyLine;
+      case GLTF::Mesh::Primitive::Triangles:     return CG_NS::TopologyTriangle;
+      case GLTF::Mesh::Primitive::LineStrip:     return CG_NS::TopologyLnStrip;
+      case GLTF::Mesh::Primitive::TriangleStrip: return CG_NS::TopologyTriStrip;
+      case GLTF::Mesh::Primitive::TriangleFan:   return CG_NS::TopologyTriFan;
+      default: throw UnsupportedExcept("Unsupported glTF primitive");
+      }
+    };
+
+    Mesh::Data data{};
+
+    // Get vertex data from buffer and update data accessor
+    auto getData = [&](const GLTF::Accessor& acc,
+                       Mesh::Data::Accessor& accData) {
+
+      const auto& view = gltf_.bufferViews()[acc.bufferView];
+      auto& ifs = seekBufferView(acc.bufferView, acc.byteOffset);
+      auto size = acc.sizeOfComponentType() * acc.sizeOfType();
+
+      accData.dataIndex = data.data.size();
+      accData.dataOffset = 0;
+      accData.elementN = acc.count;
+      accData.elementSize = size;
+
+      size *= acc.count;
+      data.data.push_back(make_unique<char[]>(size));
+      auto dst = data.data.back().get();
+
+      if (view.byteStride == 0) {
+        // Non-interleaved
+        if (!ifs.read(dst, size))
+          throw FileExcept("Could not read from glTF .glb/.bin file");
+      } else {
+        // Interleaved
+        for (uint32_t i = 0; i < accData.elementN; i++) {
+          if (!ifs.seekg(view.byteStride * i, ios_base::cur))
+            throw FileExcept("Could not seek glTF .glb/.bin file");
+          if (!ifs.read(dst, accData.elementSize))
+            throw FileExcept("Could not read from glTF .glb/.bin file");
+        }
+      }
+    };
+
+    for (const auto& prim : gltf_.meshes()[mesh].primitives) {
+      data.primitives.push_back({toTopology(prim.mode)});
+      auto& primData = data.primitives.back();
+
+      for (const auto& att : prim.attributes) {
+        primData.accessors.push_back({toVxData(att.first)});
+        getData(gltf_.accessors()[att.second], primData.accessors.back());
+      }
+
+      if (prim.indices >= 0) {
+        primData.accessors.push_back({VxDataIndices});
+        getData(gltf_.accessors()[prim.indices], primData.accessors.back());
+      }
+
+      if (prim.material >= 0) {
+        const auto& material = loadMaterial(prim.material);
+        primData.material = make_unique<Material>(material);
+      }
+    }
+
+    collection_.meshes()[mesh] = make_unique<Mesh>(data);
+    return *collection_.meshes()[mesh];
+  }
+
  private:
   const GLTF& gltf_;
   Collection collection_{};

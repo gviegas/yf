@@ -2114,6 +2114,49 @@ class DataLoad {
     return *collection_.meshes()[mesh];
   }
 
+  /// Loads a skin.
+  ///
+  Skin& loadSkin(int32_t skin) {
+    assert(skin >= 0 && static_cast<size_t>(skin) < gltf_.skins().size());
+
+    if (collection_.skins()[skin])
+      return *collection_.skins()[skin];
+
+    const auto& sk = gltf_.skins()[skin];
+    vector<Mat4f> inverseBind{};
+
+    if (sk.inverseBindMatrices >= 0) {
+      const auto& acc = gltf_.accessors()[sk.inverseBindMatrices];
+      const auto& view = gltf_.bufferViews()[acc.bufferView];
+      if (acc.count == 0 || acc.componentType != GLTF::Accessor::Float ||
+          acc.type != "MAT4" || view.byteStride != 0)
+        throw UnsupportedExcept("Unsupported glTF skin");
+
+      inverseBind.resize(acc.count);
+      auto& ifs = seekAccessor(sk.inverseBindMatrices);
+
+#if 0
+      for (auto& m : inverseBind) {
+        auto dst = reinterpret_cast<char*>(m.data());
+        if (!ifs.read(dst, Mat4f::dataSize()))
+          throw FileExcept("Could not read from glTF .glb/.bin file");
+      }
+#else
+      static_assert(is_trivially_copyable<Mat4f>());
+      static_assert(sizeof(Mat4f) == Mat4f::dataSize());
+
+      auto dst = reinterpret_cast<char*>(inverseBind.data());
+      if (!ifs.read(dst, Mat4f::dataSize() * acc.count))
+        throw FileExcept("Could not read from glTF .glb/.bin file");
+#endif
+    }
+
+    collection_.skins()[skin] = make_unique<Skin>(sk.joints.size(),
+                                                  inverseBind);
+    // XXX: Joints NOT set
+    return *collection_.skins()[skin];
+  }
+
  private:
   const GLTF& gltf_;
   Collection collection_{};

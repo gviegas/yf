@@ -1890,7 +1890,8 @@ class DataLoad {
   /// Loads a texture.
   ///
   Texture& loadTexture(int32_t texture) {
-    assert(texture < static_cast<int32_t>(gltf_.textures().size()));
+    assert(texture >= 0 &&
+           static_cast<size_t>(texture) < gltf_.textures().size());
 
     if (collection_.textures()[texture])
       return *collection_.textures()[texture];
@@ -1960,7 +1961,8 @@ class DataLoad {
   /// Loads a material.
   ///
   Material& loadMaterial(int32_t material) {
-    assert(material < static_cast<int32_t>(gltf_.materials().size()));
+    assert(material >= 0 &&
+           static_cast<size_t>(material) < gltf_.materials().size());
 
     if (collection_.materials()[material])
       return *collection_.materials()[material];
@@ -2029,7 +2031,8 @@ class DataLoad {
   /// Seeks into buffer as specified by a `GLTF::BufferView`.
   ///
   ifstream& seekBufferView(int32_t bufferView, uint64_t offset = 0) {
-    assert(bufferView < static_cast<int32_t>(gltf_.bufferViews().size()));
+    assert(bufferView >= 0 &&
+           static_cast<size_t>(bufferView) < gltf_.bufferViews().size());
 
     const auto& view = gltf_.bufferViews()[bufferView];
     const auto& buffer = gltf_.buffers()[view.buffer];
@@ -2067,7 +2070,8 @@ class DataLoad {
   /// Seeks into buffer as specified by a `GLTF::Accessor`.
   ///
   ifstream& seekAccessor(int32_t accessor) {
-    assert(accessor < static_cast<int32_t>(gltf_.accessors().size()));
+    assert(accessor >= 0 &&
+           static_cast<size_t>(accessor) < gltf_.accessors().size());
 
     const auto& acc = gltf_.accessors()[accessor];
     return seekBufferView(acc.bufferView, acc.byteOffset);
@@ -2076,7 +2080,7 @@ class DataLoad {
   /// Loads an image.
   ///
   Texture& loadImage(int32_t image) {
-    assert(image < static_cast<int32_t>(gltf_.images().size()));
+    assert(image >= 0 && static_cast<size_t>(image) < gltf_.images().size());
 
     if (images_[image])
       return *images_[image];

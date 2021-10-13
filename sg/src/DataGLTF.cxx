@@ -1887,6 +1887,76 @@ class DataLoad {
   DataLoad& operator=(const DataLoad&) = delete;
   ~DataLoad() = default;
 
+  /// Loads a texture.
+  ///
+  Texture& loadTexture(int32_t texture) {
+    assert(texture < static_cast<int32_t>(gltf_.textures().size()));
+
+    if (collection_.textures()[texture])
+      return *collection_.textures()[texture];
+
+    const auto& tex = gltf_.textures()[texture];
+    CG_NS::Sampler splr{};
+
+    if (tex.sampler > -1) {
+      const auto& sampler = gltf_.samplers()[tex.sampler];
+
+      // Convert from sampler's wrap mode to CG `WrapMode` value
+      auto toWrapMode = [](int32_t wrap) -> CG_NS::WrapMode {
+        switch (wrap) {
+        case GLTF::Sampler::ClampToEdge:    return CG_NS::WrapModeClamp;
+        case GLTF::Sampler::MirroredRepeat: return CG_NS::WrapModeMirror;
+        case GLTF::Sampler::Repeat:         return CG_NS::WrapModeRepeat;
+        default: throw UnsupportedExcept("Unsupported sampler wrap mode");
+        }
+      };
+
+      splr.wrapU = toWrapMode(sampler.wrapS);
+      splr.wrapV = toWrapMode(sampler.wrapT);
+
+      switch (sampler.magFilter) {
+      case GLTF::Sampler::Undefined:
+      case GLTF::Sampler::Nearest:
+        splr.magFilter = CG_NS::FilterNearest;
+        break;
+      case GLTF::Sampler::Linear:
+        splr.magFilter = CG_NS::FilterLinear;
+        break;
+      default:
+        throw UnsupportedExcept("Unsupported sampler mag. filter");
+      }
+
+      switch (sampler.minFilter) {
+      case GLTF::Sampler::Undefined:
+      case GLTF::Sampler::Nearest:
+        splr.minFilter = CG_NS::FilterNearest;
+        break;
+      case GLTF::Sampler::Linear:
+        splr.minFilter = CG_NS::FilterLinear;
+        break;
+      case GLTF::Sampler::NearestMipmapNearest:
+        splr.minFilter = CG_NS::FilterNearestNearest;
+        break;
+      case GLTF::Sampler::LinearMipmapNearest:
+        splr.minFilter = CG_NS::FilterLinearNearest;
+        break;
+      case GLTF::Sampler::NearestMipmapLinear:
+        splr.minFilter = CG_NS::FilterNearestLinear;
+        break;
+      case GLTF::Sampler::LinearMipmapLinear:
+        splr.minFilter = CG_NS::FilterLinearLinear;
+        break;
+      default:
+        throw UnsupportedExcept("Unsupported sampler min. filter");
+      }
+    }
+
+    const auto& image = loadImage(tex.source);
+    collection_.textures()[texture] = make_unique<Texture>(image, splr,
+                                                           TexCoordSet0);
+    return *collection_.textures()[texture];
+  }
+
  private:
   const GLTF& gltf_;
   Collection collection_{};

@@ -2326,7 +2326,7 @@ class DataLoad {
         throw UnsupportedExcept("Unsupported glTF animation");
 
       assert(ch.sampler >= 0 &&
-             static_cast<size_t>(ch.sampler) < gltf_.samplers().size());
+             static_cast<size_t>(ch.sampler) < anim.samplers.size());
 
       const auto& sampler = anim.samplers[ch.sampler];
 

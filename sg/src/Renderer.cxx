@@ -433,7 +433,7 @@ void Renderer::processGraph(Scene& scene) {
     // Model
     if (typeid(node) == typeid(Model)) {
       auto& mdl = static_cast<Model&>(node);
-      const MdlKey key{mdl.mesh(), mdl.material()};
+      const MdlKey key{mdl.mesh()};
 
       auto it = models_.find(key);
       if (it == models_.end())

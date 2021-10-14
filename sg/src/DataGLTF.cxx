@@ -2251,8 +2251,8 @@ class DataLoad {
       actions.push_back({});
       auto& action = actions.back();
 
-      // TODO
-      action.target = nullptr;
+      // XXX: `loadNode()` calls this function
+      action.target = &loadNode(ch.target.node);
 
       if (ch.target.path == "translation")
         action.type = Animation::T;

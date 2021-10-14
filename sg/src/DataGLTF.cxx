@@ -2567,7 +2567,8 @@ void SG_NS::loadGLTF(Mesh::Data& dst, const string& pathname, size_t index) {
   if (index >= gltf.meshes().size())
     throw invalid_argument("loadGLTF() index out of bounds");
 
-  // TODO
+  DataLoad data(gltf);
+  data.getMeshData(dst, index);
 }
 
 void SG_NS::loadGLTF(Mesh::Data& dst, ifstream& stream, size_t index) {
@@ -2580,7 +2581,8 @@ void SG_NS::loadGLTF(Mesh::Data& dst, ifstream& stream, size_t index) {
   if (index >= gltf.meshes().size())
     throw invalid_argument("loadGLTF() index out of bounds");
 
-  // TODO
+  DataLoad data(gltf);
+  data.getMeshData(dst, index);
 }
 
 //

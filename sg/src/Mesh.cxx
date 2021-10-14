@@ -32,6 +32,10 @@ VxDataMask Primitive::dataMask() const {
   return impl_->dataMask();
 }
 
+const Material* Primitive::material() const {
+  return impl_->material().get();
+}
+
 Primitive::Impl& Primitive::impl() {
   return *impl_;
 }

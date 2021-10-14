@@ -55,6 +55,7 @@ class Primitive {
   ///
   CG_NS::Topology topology() const;
   VxDataMask dataMask() const;
+  const Material* material() const;
 
   class Impl;
   Impl& impl();

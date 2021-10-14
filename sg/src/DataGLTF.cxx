@@ -1892,6 +1892,15 @@ class DataLoad {
   DataLoad& operator=(const DataLoad&) = delete;
   ~DataLoad() = default;
 
+  /// Loads a node and its descendants.
+  ///
+  Node& loadGraph(int32_t rootNode) {
+    auto& node = loadNode(rootNode);
+    for (const auto& nd : gltf_.nodes()[rootNode].children)
+      node.insert(loadGraph(nd));
+    return node;
+  }
+
   /// Loads a node.
   ///
   Node& loadNode(int32_t node) {

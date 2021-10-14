@@ -1975,11 +1975,6 @@ class DataLoad {
       if (nd.skin >= 0)
         model.setSkin(&loadSkin(nd.skin));
 
-      // FIXME: Deprecated
-      if (gltf_.meshes()[nd.mesh].primitives[0].material >= 0)
-        model.setMaterial(&loadMaterial(gltf_.meshes()[nd.mesh]
-                                        .primitives[0].material));
-
     } else if (joints_[node]) {
       // Joint
       collection_.nodes()[node] = make_unique<Joint>();

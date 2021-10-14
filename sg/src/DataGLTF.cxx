@@ -2161,6 +2161,19 @@ class DataLoad {
     if (collection_.meshes()[mesh])
       return *collection_.meshes()[mesh];
 
+    Mesh::Data data{};
+    getMeshData(data, mesh);
+
+    collection_.meshes()[mesh] = make_unique<Mesh>(data);
+    return *collection_.meshes()[mesh];
+  }
+
+  /// Gets mesh data.
+  ///
+  void getMeshData(Mesh::Data& data, int32_t mesh) {
+    assert(mesh >= 0 && static_cast<size_t>(mesh) < gltf_.meshes().size());
+    assert(!collection_.meshes()[mesh]);
+
     // Convert from primitive's attribute string to `VxData` value
     auto toVxData = [](const string& att) -> VxData {
       if (att == "POSITION")   return VxDataPosition;
@@ -2186,8 +2199,6 @@ class DataLoad {
       default: throw UnsupportedExcept("Unsupported glTF primitive");
       }
     };
-
-    Mesh::Data data{};
 
     // Get vertex data from buffer and update data accessor
     auto getData = [&](const GLTF::Accessor& acc,
@@ -2240,9 +2251,6 @@ class DataLoad {
         primData.material = make_unique<Material>(material);
       }
     }
-
-    collection_.meshes()[mesh] = make_unique<Mesh>(data);
-    return *collection_.meshes()[mesh];
   }
 
   /// Loads a skin.

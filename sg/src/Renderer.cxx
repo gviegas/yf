@@ -259,7 +259,8 @@ void Renderer::render(Scene& scene, CG_NS::Target& target) {
         if (!mesh)
           throw runtime_error("Cannot render models with no mesh set");
 
-        auto matl = kv.second[0]->material();
+        // TODO: Multiple primitives
+        auto matl = mesh->primitive(0).material();
         if (!matl)
           // TODO: Consider using default material instead
           throw runtime_error("Cannot render models with no material set");

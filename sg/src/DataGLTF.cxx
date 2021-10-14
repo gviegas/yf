@@ -1892,6 +1892,28 @@ class DataLoad {
   DataLoad& operator=(const DataLoad&) = delete;
   ~DataLoad() = default;
 
+  /// Loads a scene.
+  ///
+  Scene& loadScene(int32_t scene) {
+    assert(scene >= 0 && static_cast<size_t>(scene) < gltf_.scenes().size());
+
+    if (collection_.scenes()[scene])
+      return *collection_.scenes()[scene];
+
+    collection_.scenes()[scene] = make_unique<Scene>();
+    auto& scn = *collection_.scenes()[scene];
+
+    for (const auto& nd : gltf_.scenes()[scene].nodes)
+      scn.insert(loadGraph(nd));
+
+    // XXX
+    auto& name = scn.name();
+    for (const auto& c : gltf_.scenes()[scene].name)
+      name.push_back(c);
+
+    return scn;
+  }
+
   /// Loads a node and its descendants.
   ///
   Node& loadGraph(int32_t rootNode) {

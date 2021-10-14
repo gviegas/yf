@@ -1892,6 +1892,71 @@ class DataLoad {
   DataLoad& operator=(const DataLoad&) = delete;
   ~DataLoad() = default;
 
+  /// Loads a node.
+  ///
+  Node& loadNode(int32_t node) {
+    assert(node >= 0 && static_cast<size_t>(node) < gltf_.nodes().size());
+
+    if (collection_.nodes()[node])
+      return *collection_.nodes()[node];
+
+    const auto& nd = gltf_.nodes()[node];
+
+    if (nd.mesh >= 0) {
+      // Model
+      if (joints_[node])
+        throw UnsupportedExcept("Unsupported glTF node");
+
+      collection_.nodes()[node] = make_unique<Model>();
+      auto& model = static_cast<Model&>(*collection_.nodes()[node]);
+      model.setMesh(&loadMesh(nd.mesh));
+
+      if (nd.skin >= 0)
+        model.setSkin(&loadSkin(nd.skin));
+
+      // FIXME: Deprecated
+      if (gltf_.meshes()[nd.mesh].primitives[0].material >= 0)
+        model.setMaterial(&loadMaterial(gltf_.meshes()[nd.mesh]
+                                        .primitives[0].material));
+
+    } else if (joints_[node]) {
+      // Joint
+      collection_.nodes()[node] = make_unique<Joint>();
+
+    } else {
+      // Node
+      collection_.nodes()[node] = make_unique<Node>();
+    }
+
+    auto& xform = collection_.nodes()[node]->transform();
+
+    if (nd.transform.size() == 16) {
+      xform[0] = {nd.transform[0], nd.transform[1],
+                  nd.transform[2], nd.transform[3]};
+      xform[1] = {nd.transform[4], nd.transform[5],
+                  nd.transform[6], nd.transform[7]};
+      xform[2] = {nd.transform[8], nd.transform[9],
+                  nd.transform[10], nd.transform[11]};
+      xform[3] = {nd.transform[12], nd.transform[13],
+                  nd.transform[14], nd.transform[15]};
+
+    } else {
+      auto t = translate(nd.transform[0], nd.transform[1], nd.transform[2]);
+      auto r = rotate(Qnionf({nd.transform[3], nd.transform[4],
+                              nd.transform[5], nd.transform[6]}));
+      auto s = scale(nd.transform[7], nd.transform[8], nd.transform[9]);
+
+      xform = t * r * s;
+    }
+
+    // XXX
+    auto& name = collection_.nodes()[node]->name();
+    for (const auto& c : nd.name)
+      name.push_back(c);
+
+    return *collection_.nodes()[node];
+  }
+
   /// Loads a texture.
   ///
   Texture& loadTexture(int32_t texture) {

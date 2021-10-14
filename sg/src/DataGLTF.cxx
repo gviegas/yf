@@ -2534,7 +2534,8 @@ void SG_NS::loadGLTF(Collection& collection, const string& pathname) {
   printGLTF(gltf);
 #endif
 
-  // TODO
+  DataLoad data(gltf);
+  collection = move(data.loadContents());
 }
 
 void SG_NS::loadGLTF(Collection& collection, ifstream& stream) {
@@ -2544,7 +2545,8 @@ void SG_NS::loadGLTF(Collection& collection, ifstream& stream) {
   printGLTF(gltf);
 #endif
 
-  // TODO
+  DataLoad data(gltf);
+  collection = move(data.loadContents());
 }
 
 void SG_NS::loadGLTF(Mesh::Data& dst, const string& pathname, size_t index) {

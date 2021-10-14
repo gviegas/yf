@@ -48,18 +48,10 @@ void Model::setSkin(Skin* skin) {
   impl_->skin_ = skin;
 }
 
-void Model::setMaterial(Material* material) {
-  impl_->material_ = material;
-}
-
 Mesh* Model::mesh() {
   return impl_->mesh_;
 }
 
 Skin* Model::skin() {
   return impl_->skin_;
-}
-
-Material* Model::material() {
-  return impl_->material_;
 }

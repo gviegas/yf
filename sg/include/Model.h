@@ -16,7 +16,6 @@ SG_NS_BEGIN
 
 class Mesh;
 class Skin;
-class Material;
 
 /// Model.
 ///
@@ -35,13 +34,11 @@ class Model : public Node {
   ///
   void setMesh(Mesh* mesh);
   void setSkin(Skin* skin);
-  void setMaterial(Material* material);
 
   /// Getters.
   ///
   Mesh* mesh();
   Skin* skin();
-  Material* material();
 
  private:
   class Impl;

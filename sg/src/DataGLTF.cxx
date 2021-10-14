@@ -2395,7 +2395,7 @@ class DataLoad {
           if (acc.componentType != GLTF::Accessor::Float || acc.type != "VEC4")
             throw UnsupportedExcept("Unsupported glTF animation");
           action.output = outR.size();
-          outR.push_back(Animation::Rotation(acc.count));
+          outR.push_back(Animation::Rotation{});
           {
             vector<Vec4f> tmp(acc.count);
             data = reinterpret_cast<char*>(tmp.data());

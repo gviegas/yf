@@ -1892,6 +1892,12 @@ class DataLoad {
   DataLoad& operator=(const DataLoad&) = delete;
   ~DataLoad() = default;
 
+  /// Gets the collection.
+  ///
+  Collection& collection() {
+    return collection_;
+  }
+
   /// Loads everything.
   ///
   Collection& loadContents() {

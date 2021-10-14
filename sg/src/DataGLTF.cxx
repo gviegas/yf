@@ -2200,7 +2200,7 @@ class DataLoad {
       data.data.push_back(make_unique<char[]>(size));
       auto dst = data.data.back().get();
 
-      if (view.byteStride == 0) {
+      if (view.byteStride <= 0) {
         // Non-interleaved
         if (!ifs.read(dst, size))
           throw FileExcept("Could not read from glTF .glb/.bin file");
@@ -2254,7 +2254,7 @@ class DataLoad {
       const auto& acc = gltf_.accessors()[sk.inverseBindMatrices];
       const auto& view = gltf_.bufferViews()[acc.bufferView];
       if (acc.count == 0 || acc.componentType != GLTF::Accessor::Float ||
-          acc.type != "MAT4" || view.byteStride != 0)
+          acc.type != "MAT4" || view.byteStride > 0)
         throw UnsupportedExcept("Unsupported glTF skin");
 
       inverseBind.resize(acc.count);
@@ -2348,7 +2348,7 @@ class DataLoad {
         const auto& view = gltf_.bufferViews()[acc.bufferView];
 
         if (acc.count == 0 || acc.componentType != GLTF::Accessor::Float ||
-            acc.type != "SCALAR" || view.byteStride != 0)
+            acc.type != "SCALAR" || view.byteStride > 0)
           throw UnsupportedExcept("Unsupported glTF animation");
 
         action.input = inputs.size();
@@ -2372,7 +2372,7 @@ class DataLoad {
         const auto& acc = gltf_.accessors()[sampler.output];
         const auto& view = gltf_.bufferViews()[acc.bufferView];
 
-        if (acc.count == 0 || view.byteStride != 0)
+        if (acc.count == 0 || view.byteStride > 0)
           throw UnsupportedExcept("Unsupported glTF animation");
 
         char* data = nullptr;

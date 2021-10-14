@@ -1892,6 +1892,30 @@ class DataLoad {
   DataLoad& operator=(const DataLoad&) = delete;
   ~DataLoad() = default;
 
+  /// Loads everything.
+  ///
+  Collection& loadContents() {
+    for (size_t i = 0; i < gltf_.scenes().size(); i++)
+      loadScene(i);
+
+    for (size_t i = 0; i < gltf_.nodes().size(); i++)
+      if (!collection_.nodes()[i])
+        loadGraph(i);
+
+    for (size_t i = 0; i < gltf_.textures().size(); i++)
+      loadTexture(i);
+    for (size_t i = 0; i < gltf_.materials().size(); i++)
+      loadMaterial(i);
+    for (size_t i = 0; i < gltf_.meshes().size(); i++)
+      loadMesh(i);
+    for (size_t i = 0; i < gltf_.skins().size(); i++)
+      loadSkin(i);
+    for (size_t i = 0; i < gltf_.animations().size(); i++)
+      loadAnimation(i);
+
+    return collection_;
+  }
+
   /// Loads a scene.
   ///
   Scene& loadScene(int32_t scene) {

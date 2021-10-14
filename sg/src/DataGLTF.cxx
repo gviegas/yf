@@ -2207,23 +2207,30 @@ class DataLoad {
 
 #if 0
       for (auto& m : inverseBind) {
-        auto dst = reinterpret_cast<char*>(m.data());
-        if (!ifs.read(dst, Mat4f::dataSize()))
+        auto data = reinterpret_cast<char*>(m.data());
+        if (!ifs.read(data, Mat4f::dataSize()))
           throw FileExcept("Could not read from glTF .glb/.bin file");
       }
 #else
       static_assert(is_trivially_copyable<Mat4f>());
       static_assert(sizeof(Mat4f) == Mat4f::dataSize());
 
-      auto dst = reinterpret_cast<char*>(inverseBind.data());
-      if (!ifs.read(dst, Mat4f::dataSize() * acc.count))
+      auto data = reinterpret_cast<char*>(inverseBind.data());
+      if (!ifs.read(data, Mat4f::dataSize() * acc.count))
         throw FileExcept("Could not read from glTF .glb/.bin file");
 #endif
     }
 
     collection_.skins()[skin] = make_unique<Skin>(sk.joints.size(),
                                                   inverseBind);
-    // XXX: Joints NOT set
+
+    // XXX: Joint hierarchy NOT set
+    uint32_t joint = 0;
+    for (const auto& jt : sk.joints) {
+      auto& node = static_cast<Joint&>(loadNode(jt));
+      collection_.skins()[skin]->setJoint(node, joint++);
+    }
+
     return *collection_.skins()[skin];
   }
 

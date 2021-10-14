@@ -22,11 +22,10 @@ class Model::Impl {
   Skin* skin_{};
 };
 
-Model::Model(Mesh& mesh, Skin& skin, Material& material)
-  : impl_(make_unique<Impl>(&mesh, &skin, &material)) { }
+Model::Model(Mesh& mesh, Skin& skin)
+  : impl_(make_unique<Impl>(&mesh, &skin)) { }
 
-Model::Model(Mesh& mesh, Material& material)
-  : impl_(make_unique<Impl>(&mesh, nullptr, &material)) { }
+Model::Model(Mesh& mesh) : impl_(make_unique<Impl>(&mesh, nullptr)) { }
 
 Model::Model() : impl_(make_unique<Impl>()) { }
 

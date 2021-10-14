@@ -15,14 +15,11 @@ using namespace std;
 
 class Model::Impl {
  public:
-  Impl(Mesh* mesh, Skin* skin, Material* material)
-    : mesh_(mesh), skin_(skin), material_(material) { }
-
+  Impl(Mesh* mesh, Skin* skin) : mesh_(mesh), skin_(skin) { }
   Impl() = default;
 
   Mesh* mesh_{};
   Skin* skin_{};
-  Material* material_{};
 };
 
 Model::Model(Mesh& mesh, Skin& skin, Material& material)

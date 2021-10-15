@@ -11,7 +11,7 @@
 #include <string>
 #include <fstream>
 
-#include "TextureImpl.h"
+#include "Texture.h"
 
 SG_NS_BEGIN
 

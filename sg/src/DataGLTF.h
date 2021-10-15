@@ -13,7 +13,7 @@
 #include <fstream>
 
 #include "Collection.h"
-#include "MeshImpl.h"
+#include "Mesh.h"
 
 SG_NS_BEGIN
 

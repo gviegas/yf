@@ -347,6 +347,9 @@ Mesh::Impl::Impl(const Data& data) {
     for (const auto& acc : dp.accessors)
       prim.setData(acc.semantic, acc.elementN, acc.elementSize,
                    &data.data[acc.dataIndex][acc.dataOffset]);
+
+    if (dp.material)
+      prim.material() = make_unique<Material>(*dp.material);
   }
 }
 

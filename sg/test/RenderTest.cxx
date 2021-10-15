@@ -25,27 +25,14 @@ struct RenderTest : InteractiveTest {
     // Resources
     Mesh mesh1{"tmp/cube.glb"};
     Mesh mesh2{"tmp/cube2.glb"};
-    Texture tex1{"tmp/cube.png"};
-    Texture tex2{"tmp/cube2.png"};
-    Material matl1;
-    matl1.pbrmr().colorTex = make_unique<Texture>(tex1, tex1.sampler(),
-                                                  tex1.coordSet());
-    matl1.pbrmr().metallic = 1.0f;
-    matl1.pbrmr().roughness = 0.2f;
-    Material matl2;
-    matl2.pbrmr().colorTex = make_unique<Texture>(tex2, tex2.sampler(),
-                                                  tex2.coordSet());
-    matl2.pbrmr().colorFac[3] = 0.25f;
-    matl2.pbrmr().metallic = 0.5f;
-    matl2.pbrmr().roughness = 1.0f;
 
     // Scene #1 contents
     const size_t instMdlN = 10;
-    vector<Model> mdls{instMdlN, {mesh1, matl1}};
-    mdls.push_back({mesh1, matl2});
-    mdls.push_back({mesh2, matl1});
-    mdls.push_back({mesh1, matl1});
-    mdls.push_back({mesh2, matl2});
+    vector<Model> mdls{instMdlN, {mesh1}};
+    mdls.push_back({mesh1});
+    mdls.push_back({mesh2});
+    mdls.push_back({mesh1});
+    mdls.push_back({mesh2});
 
     auto tf = -static_cast<float>(mdls.size());
     for (auto& mdl : mdls) {
@@ -63,8 +50,8 @@ struct RenderTest : InteractiveTest {
     scn1.color() = {0.01f, 0.02f, 0.1f, 1.0f};
 
     // Scene #2 contents
-    Model mdl1{mesh1, matl1};
-    Model mdl2{mesh2, matl2};
+    Model mdl1{mesh1};
+    Model mdl2{mesh2};
     Model mdl3{mdl1};
     Model mdl4{mdl2};
     mdl1.transform() = translate(-3.0f, 0.0f, 0.0f);

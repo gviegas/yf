@@ -20,6 +20,10 @@
 #include "Skin.h"
 #include "Camera.h"
 
+#ifdef YF_DEVEL
+# include <cstdio>
+#endif
+
 using namespace SG_NS;
 using namespace std;
 

@@ -42,7 +42,8 @@ class Material::Impl {
                 other.emissive_.factor},
 
       alphaMode_(other.alphaMode_),
-      alphaCutoff_(other.alphaCutoff_) { }
+      alphaCutoff_(other.alphaCutoff_),
+      doubleSided_(other.doubleSided_) { }
 
   Impl& operator=(const Impl& other) {
     const pair<Texture::Ptr*, const Texture::Ptr*> texs[5] = {
@@ -68,6 +69,7 @@ class Material::Impl {
     emissive_.factor = other.emissive_.factor;
     alphaMode_ = other.alphaMode_;
     alphaCutoff_ = other.alphaCutoff_;
+    doubleSided_ = other.doubleSided_;
 
     return *this;
   }
@@ -78,6 +80,7 @@ class Material::Impl {
   Emissive emissive_{};
   AlphaMode alphaMode_ = Opaque;
   float alphaCutoff_ = 0.5f;
+  bool doubleSided_ = false;
 };
 
 Material::Material() : impl_(make_unique<Impl>()) { }

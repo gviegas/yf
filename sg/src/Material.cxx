@@ -131,3 +131,11 @@ void Material::setAlphaMode(AlphaMode alphaMode) {
 Material::AlphaMode Material::alphaMode() const {
   return impl_->alphaMode_;
 }
+
+void Material::setAlphaCutoff(float alphaCutoff) {
+  impl_->alphaCutoff_ = alphaCutoff;
+}
+
+float Material::alphaCutoff() const {
+  return impl_->alphaCutoff_;
+}

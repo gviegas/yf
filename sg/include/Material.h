@@ -84,6 +84,9 @@ class Material {
   void setAlphaMode(AlphaMode alphaMode);
   AlphaMode alphaMode() const;
 
+  void setAlphaCutoff(float alphaCutoff);
+  float alphaCutoff() const;
+
  private:
   class Impl;
   std::unique_ptr<Impl> impl_;

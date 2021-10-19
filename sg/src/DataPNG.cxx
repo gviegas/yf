@@ -32,6 +32,10 @@ inline uint32_t htobe(uint32_t v) { return htobe16(v); }
 # error "Invalid platform"
 #endif
 
+#ifdef YF_DEVEL
+# include <cstdio>
+#endif
+
 using namespace YF_NS;
 using namespace SG_NS;
 using namespace std;
@@ -150,8 +154,8 @@ void inflate(const vector<uint8_t>& src, vector<uint8_t>& dst) {
     const auto bfinal = nextBit();
     const auto btype = nextBit() | (nextBit() << 1);
 
-    // No compression
     if (btype == 0) {
+      // No compression
       if (bitOff != 0) {
         byteOff++;
         bitOff = 0;
@@ -176,8 +180,8 @@ void inflate(const vector<uint8_t>& src, vector<uint8_t>& dst) {
       dataOff += len;
       byteOff += len;
 
-    // Compression
     } else {
+      // Compression
       ZTree literals{};
       ZTree distances{};
 

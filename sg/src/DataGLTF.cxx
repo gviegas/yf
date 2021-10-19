@@ -18,6 +18,10 @@
 #include "Model.h"
 #include "yf/Except.h"
 
+#ifdef YF_DEVEL
+# include <cstdio>
+#endif
+
 using namespace YF_NS;
 using namespace SG_NS;
 using namespace std;

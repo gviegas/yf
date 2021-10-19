@@ -142,3 +142,11 @@ void Material::setAlphaCutoff(float alphaCutoff) {
 float Material::alphaCutoff() const {
   return impl_->alphaCutoff_;
 }
+
+void Material::setDoubleSided(bool doubleSided) {
+  impl_->doubleSided_ = doubleSided;
+}
+
+bool Material::doubleSided() const {
+  return impl_->doubleSided_;
+}

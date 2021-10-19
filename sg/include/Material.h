@@ -87,6 +87,9 @@ class Material {
   void setAlphaCutoff(float alphaCutoff);
   float alphaCutoff() const;
 
+  void setDoubleSided(bool doubleSided);
+  bool doubleSided() const;
+
  private:
   class Impl;
   std::unique_ptr<Impl> impl_;

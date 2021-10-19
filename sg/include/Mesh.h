@@ -51,10 +51,16 @@ class Primitive {
   Primitive();
   ~Primitive();
 
-  /// Getters.
+  /// Primitive's topology.
   ///
   CG_NS::Topology topology() const;
+
+  /// `VxData` mask describing the Primitive's data.
+  ///
   VxDataMask dataMask() const;
+
+  /// Material properties.
+  ///
   const Material* material() const;
 
   class Impl;

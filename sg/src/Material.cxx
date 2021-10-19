@@ -120,3 +120,11 @@ Material::Emissive& Material::emissive() {
 const Material::Emissive& Material::emissive() const {
   return impl_->emissive_;
 }
+
+void Material::setAlphaMode(AlphaMode alphaMode) {
+  impl_->alphaMode_ = alphaMode;
+}
+
+Material::AlphaMode Material::alphaMode() const {
+  return impl_->alphaMode_;
+}

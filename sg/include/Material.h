@@ -67,7 +67,7 @@ class Material {
   Material& operator=(const Material& other);
   ~Material();
 
-  /// Getters.
+  /// Getters/setters.
   ///
   Pbrmr& pbrmr();
   const Pbrmr& pbrmr() const;
@@ -80,6 +80,9 @@ class Material {
 
   Emissive& emissive();
   const Emissive& emissive() const;
+
+  void setAlphaMode(AlphaMode alphaMode);
+  AlphaMode alphaMode() const;
 
  private:
   class Impl;

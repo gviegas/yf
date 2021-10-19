@@ -59,8 +59,6 @@ class Material {
   Material& operator=(const Material& other);
   ~Material();
 
-  size_t hash() const;
-
   /// Getters.
   ///
   Pbrmr& pbrmr();

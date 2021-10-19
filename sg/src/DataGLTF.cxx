@@ -2149,6 +2149,21 @@ class DataLoad {
                              matl.emissiveFactor[1],
                              matl.emissiveFactor[2]};
 
+    // Alpha mode/cutoff
+    if (matl.alphaMode == "OPAQUE") {
+      dst.setAlphaMode(Material::Opaque);
+    } else if (matl.alphaMode == "BLEND") {
+      dst.setAlphaMode(Material::Blend);
+    } else if (matl.alphaMode == "MASK") {
+      dst.setAlphaMode(Material::Mask);
+      dst.setAlphaCutoff(max(matl.alphaCutoff, 0.0f));
+    } else {
+      throw UnsupportedExcept("Unsupported material alpha mode");
+    }
+
+    // Double sided
+    dst.setDoubleSided(matl.doubleSided);
+
     return dst;
   }
 

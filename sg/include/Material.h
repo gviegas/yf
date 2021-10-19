@@ -67,26 +67,44 @@ class Material {
   Material& operator=(const Material& other);
   ~Material();
 
-  /// Getters/setters.
+  /// PBRMR.
   ///
   Pbrmr& pbrmr();
   const Pbrmr& pbrmr() const;
 
+  /// Normal.
+  ///
   Normal& normal();
   const Normal& normal() const;
 
+  /// Occlusion.
+  ///
   Occlusion& occlusion();
   const Occlusion& occlusion() const;
 
+  /// Emissive.
+  ///
   Emissive& emissive();
   const Emissive& emissive() const;
 
+  /// Alpha mode.
+  ///
+  /// default: `Opaque`
+  ///
   void setAlphaMode(AlphaMode alphaMode);
   AlphaMode alphaMode() const;
 
+  /// Alpha cutoff (`Mask` alpha mode only).
+  ///
+  /// default: `0.5f`
+  ///
   void setAlphaCutoff(float alphaCutoff);
   float alphaCutoff() const;
 
+  /// Double sided.
+  ///
+  /// default: `false`
+  ///
   void setDoubleSided(bool doubleSided);
   bool doubleSided() const;
 

@@ -54,6 +54,14 @@ class Material {
     Vec3f factor{};
   };
 
+  /// Alpha modes.
+  ///
+  enum AlphaMode {
+    Opaque,
+    Blend,
+    Mask
+  };
+
   Material();
   Material(const Material& other);
   Material& operator=(const Material& other);

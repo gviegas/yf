@@ -61,10 +61,13 @@ class Texture {
   Texture& operator=(const Texture& other);
   ~Texture();
 
-  /// Getters.
+  /// Sampler.
   ///
   CG_NS::Sampler& sampler();
   const CG_NS::Sampler& sampler() const;
+
+  /// Coordinate set.
+  ///
   TexCoordSet& coordSet();
   TexCoordSet coordSet() const;
 

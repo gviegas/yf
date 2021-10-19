@@ -41,7 +41,8 @@ class Material::Impl {
                  : nullptr,
                 other.emissive_.factor},
 
-      alphaMode_(other.alphaMode_) { }
+      alphaMode_(other.alphaMode_),
+      alphaCutoff_(other.alphaCutoff_) { }
 
   Impl& operator=(const Impl& other) {
     const pair<Texture::Ptr*, const Texture::Ptr*> texs[5] = {
@@ -66,6 +67,7 @@ class Material::Impl {
     occlusion_.strength = other.occlusion_.strength;
     emissive_.factor = other.emissive_.factor;
     alphaMode_ = other.alphaMode_;
+    alphaCutoff_ = other.alphaCutoff_;
 
     return *this;
   }
@@ -75,6 +77,7 @@ class Material::Impl {
   Occlusion occlusion_{};
   Emissive emissive_{};
   AlphaMode alphaMode_ = Opaque;
+  float alphaCutoff_ = 0.5f;
 };
 
 Material::Material() : impl_(make_unique<Impl>()) { }

@@ -30,14 +30,14 @@ class Model : public Node {
   Model& operator=(const Model& other);
   ~Model();
 
-  /// Setters.
+  /// Mesh.
   ///
   void setMesh(Mesh* mesh);
-  void setSkin(Skin* skin);
-
-  /// Getters.
-  ///
   Mesh* mesh();
+
+  /// Skin.
+  ///
+  void setSkin(Skin* skin);
   Skin* skin();
 
  private:

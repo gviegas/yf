@@ -44,12 +44,12 @@ void Model::setMesh(Mesh* mesh) {
   impl_->mesh_ = mesh;
 }
 
-void Model::setSkin(Skin* skin) {
-  impl_->skin_ = skin;
-}
-
 Mesh* Model::mesh() {
   return impl_->mesh_;
+}
+
+void Model::setSkin(Skin* skin) {
+  impl_->skin_ = skin;
 }
 
 Skin* Model::skin() {

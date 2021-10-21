@@ -8,10 +8,11 @@
 #ifndef YF_CG_UNITTESTS_H
 #define YF_CG_UNITTESTS_H
 
-#include <unordered_map>
 #include <string>
 #include <vector>
 #include <functional>
+#include <utility>
+#include <algorithm>
 #include <iostream>
 
 #include "Test.h"
@@ -34,28 +35,30 @@ Test* drawTest();
 Test* copyTest();
 
 using TestFn = std::function<Test* ()>;
-const std::unordered_map<std::string, std::vector<TestFn>> TIDs{
-  {"types", {typesTest}},
-  {"device", {deviceTest}},
-  {"queue", {queueTest}},
-  {"buffer", {bufferTest}},
-  {"image", {imageTest}},
-  {"shader", {shaderTest}},
-  {"dctable", {dcTableTest}},
-  {"pass", {passTest}},
-  {"state", {stateTest}},
-  {"encoder", {encoderTest}},
-  {"wsi", {wsiTest}},
-  {"limits", {limitsTest}},
-  {"draw", {drawTest}},
-  {"copy", {copyTest}},
-  {"all", {typesTest, deviceTest, queueTest, bufferTest, imageTest, shaderTest,
-           dcTableTest, passTest, stateTest, encoderTest, wsiTest, limitsTest,
-           drawTest, copyTest}}
+using TestID = std::pair<std::string, std::vector<TestFn>>;
+const std::vector<TestID> TIDs{
+  TestID("types", {typesTest}),
+  TestID("device", {deviceTest}),
+  TestID("queue", {queueTest}),
+  TestID("buffer", {bufferTest}),
+  TestID("image", {imageTest}),
+  TestID("shader", {shaderTest}),
+  TestID("dctable", {dcTableTest}),
+  TestID("pass", {passTest}),
+  TestID("state", {stateTest}),
+  TestID("encoder", {encoderTest}),
+  TestID("wsi", {wsiTest}),
+  TestID("limits", {limitsTest}),
+  TestID("draw", {drawTest}),
+  TestID("copy", {copyTest}),
+  TestID("all", {typesTest, deviceTest, queueTest, bufferTest, imageTest,
+                 shaderTest, dcTableTest, passTest, stateTest, encoderTest,
+                 wsiTest, limitsTest, drawTest, copyTest})
 };
 
 inline std::vector<Test*> unitTests(const std::string& id) {
-  auto it = TIDs.find(id);
+  auto it = std::find_if(TIDs.begin(), TIDs.end(),
+                         [&](auto& p) { return p.first == id; });
 
   if (it == TIDs.end()) {
     wprintf(L"\n! Unknown test `%s` requested", id.data());

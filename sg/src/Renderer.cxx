@@ -47,23 +47,23 @@ using Shader = pair<CG_NS::Stage, const char*>;
 
 constexpr char ShaderDir[] = "bin/";
 
-constexpr Shader MdlShaders[]{
-  {CG_NS::StageVertex, "Model.vert"}, {CG_NS::StageFragment, "Model.frag"}};
+constexpr Shader MdlShaders[]{{CG_NS::StageVertex, "Model.vert.bin"},
+                              {CG_NS::StageFragment, "Model.frag.bin"}};
 
-constexpr Shader Mdl2Shaders[]{
-  {CG_NS::StageVertex, "Model2.vert"}, MdlShaders[1]};
+constexpr Shader Mdl2Shaders[]{{CG_NS::StageVertex, "Model2.vert.bin"},
+                               MdlShaders[1]};
 
-constexpr Shader Mdl4Shaders[]{
-  {CG_NS::StageVertex, "Model4.vert"}, MdlShaders[1]};
+constexpr Shader Mdl4Shaders[]{{CG_NS::StageVertex, "Model4.vert.bin"},
+                               MdlShaders[1]};
 
-constexpr Shader Mdl8Shaders[]{
-  {CG_NS::StageVertex, "Model8.vert"}, MdlShaders[1]};
+constexpr Shader Mdl8Shaders[]{{CG_NS::StageVertex, "Model8.vert.bin"},
+                               MdlShaders[1]};
 
-constexpr Shader Mdl16Shaders[]{
-  {CG_NS::StageVertex, "Model16.vert"}, MdlShaders[1]};
+constexpr Shader Mdl16Shaders[]{{CG_NS::StageVertex, "Model16.vert.bin"},
+                                MdlShaders[1]};
 
-constexpr Shader Mdl32Shaders[]{
-  {CG_NS::StageVertex, "Model32.vert"}, MdlShaders[1]};
+constexpr Shader Mdl32Shaders[]{{CG_NS::StageVertex, "Model32.vert.bin"},
+                                MdlShaders[1]};
 
 /// Global uniform.
 ///

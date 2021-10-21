@@ -8,10 +8,11 @@
 #ifndef YF_WS_UNITTESTS_H
 #define YF_WS_UNITTESTS_H
 
-#include <unordered_map>
 #include <string>
 #include <vector>
 #include <functional>
+#include <utility>
+#include <algorithm>
 #include <iostream>
 
 #include "Test.h"
@@ -22,14 +23,16 @@ Test* windowTest();
 Test* eventTest();
 
 using TestFn = std::function<Test* ()>;
-const std::unordered_map<std::string, std::vector<TestFn>> TIDs{
-  {"window", {windowTest}},
-  {"event", {eventTest}},
-  {"all", {windowTest, eventTest}}
+using TestID = std::pair<std::string, std::vector<TestFn>>;
+const std::vector<TestID> TIDs{
+  TestID("window", {windowTest}),
+  TestID("event", {eventTest}),
+  TestID("all", {windowTest, eventTest})
 };
 
 inline std::vector<Test*> unitTests(const std::string& id) {
-  auto it = TIDs.find(id);
+  auto it = std::find_if(TIDs.begin(), TIDs.end(),
+                         [&](auto& p) { return p.first == id; });
 
   if (it == TIDs.end()) {
     wprintf(L"\n! Unknown test `%s` requested", id.data());

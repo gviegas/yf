@@ -25,13 +25,15 @@ frag = [
 srcDir = 'tmp/shd/'
 dstDir = 'bin/'
 lang = ''
+prefix = ''
+suffix = '.bin'
 
 compiler = 'tmp/shdc'
 
 def compile(src, type, out, extra):
-    subprocess.run([compiler, '-V', srcDir + src + type + lang,
-                   '-o', dstDir + (src if out == '' else out) + type]
-                   + extra)
+    i = srcDir + src + type + lang
+    o = dstDir + prefix + (src if out == '' else out) + type + suffix
+    subprocess.run([compiler, '-V', i, '-o', o] + extra)
 
 def compileVert():
     for src, out, extra in vert:

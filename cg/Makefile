@@ -1,2 +1,1 @@
-FILE_IN = Devel.mk
--include $(FILE_IN)
+-include Devel.mk

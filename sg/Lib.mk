@@ -50,11 +50,6 @@ $(LIB_FILE): $(OBJ)
 compile: $(OBJ)
 	@echo Done.
 
-.PHONY: clean-lib
-clean-lib:
-	rm -fv $(LIB_LINK) $(LIB_NAME) $(LIB_FILE) $(LIB_INC_DIR)*.h
-	rmdir -v --ignore-fail-on-non-empty $(LIB_INC_DIR)
-
 .PHONY: clean-obj
 clean-obj:
 	rm -fv $(OBJ)
@@ -63,8 +58,13 @@ clean-obj:
 clean-dep:
 	rm -fv $(DEP)
 
+.PHONY: clean-lib
+clean-lib:
+	rm -fv $(LIB_LINK) $(LIB_NAME) $(LIB_FILE) $(LIB_INC_DIR)*.h
+	rmdir -v --ignore-fail-on-non-empty $(LIB_INC_DIR)
+
 .PHONY: clean
-clean: clean-lib clean-obj clean-dep
+clean: clean-obj clean-dep clean-lib
 
 $(CACHE_DIR)%.o: $(SRC_DIR)%.cxx
 	$(CC) $(CC_FLAGS) $(LD_FLAGS) $(PP_FLAGS) -fPIC -c $< -o $@

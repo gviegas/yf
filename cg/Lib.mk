@@ -35,7 +35,7 @@ LD_FLAGS := -I $(VAR_DIR)include/ \
 	    -iquote $(INCLUDE_DIR) \
 	    -iquote $(SRC_DIR) \
 	    -iquote $(SUB_DIR) \
-	    -L $(VAR_DIR)lib/
+	    -L $(LIB_BIN_DIR)
 
 PP := $(CC) -E
 PP_FLAGS := -D YF -D YF_CG

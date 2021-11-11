@@ -23,7 +23,9 @@ SG_NS_BEGIN
 
 class Scene;
 class Node;
+class Mesh;
 class Primitive;
+class Skin;
 
 /// New renderer.
 ///
@@ -82,11 +84,12 @@ class NewRenderer {
     DrawableReqMask mask;
   };
 
-  std::vector<Node*> nodes_{};
+  std::vector<Node*> drawableNodes_{};
   std::vector<Drawable> blendDrawables_{};
   std::vector<Drawable> opaqueDrawables_{};
 
-  void processGraph(Node&);
+  void pushDrawables(Node& node, Mesh& mesh, Skin* skin);
+  void processGraph(Scene&);
 };
 
 SG_NS_END

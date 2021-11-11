@@ -40,9 +40,31 @@ void NewRenderer::pushDrawables(Node& node, Mesh& mesh, Skin* skin) {
   drawableNodes_.push_back(&node);
 
   for (size_t i = 0; i < mesh.primitiveCount(); i++) {
+    const auto topology = mesh[i].topology();
     const auto dataMask = mesh[i].dataMask();
     const auto material = mesh[i].material();
     DrawableReqMask mask = 0;
+
+    switch (topology) {
+    case CG_NS::TopologyTriangle:
+      mask |= RTriangle;
+      break;
+    case CG_NS::TopologyLine:
+      mask |= RLine;
+      break;
+    case CG_NS::TopologyPoint:
+      mask |= RPoint;
+      break;
+    case CG_NS::TopologyTriStrip:
+      mask |= RTriStrip;
+      break;
+    case CG_NS::TopologyLnStrip:
+      mask |= RLnStrip;
+      break;
+    case CG_NS::TopologyTriFan:
+      mask |= RTriFan;
+      break;
+    }
 
     if (dataMask & VxDataNormal)
       mask |= RNormal;

@@ -50,30 +50,32 @@ class NewRenderer {
 
   enum DrawableReq {
     // Has given vertex attributes
-    RNormal    = 0x01,
-    RTangent   = 0x02,
-    RTexCoord0 = 0x04,
-    RTexCoord1 = 0x08,
-    RColor0    = 0x10,
+    RNormal    = 1 << 0,
+    RTangent   = 1 << 1,
+    RTexCoord0 = 1 << 2,
+    RTexCoord1 = 1 << 3,
+    RColor0    = 1 << 4,
 
     // Has `Skin`, `Joints0` and `Weights0`
-    RSkin0 = 0x20,
-
-    // reserved = 0x40
-    // reserved = 0x80
+    RSkin0 = 1 << 5,
 
     // Has `Material`
-    RMaterial = 0x100,
-
-    // reserved = 0x200
-    // reserved = 0x400
+    RMaterial = 1 << 10,
 
     // Has given texture maps
-    RColorMap     =  0x800,
-    RPbrMap       = 0x1000,
-    RNormalMap    = 0x2000,
-    ROcclusionMap = 0x4000,
-    REmissiveMap  = 0x8000
+    RColorMap     = 1 << 14,
+    RPbrMap       = 1 << 15,
+    RNormalMap    = 1 << 16,
+    ROcclusionMap = 1 << 17,
+    REmissiveMap  = 1 << 18,
+
+    // Which topology
+    RPoint    = 1 << 24,
+    RLine     = 1 << 25,
+    RTriangle = 1 << 26,
+    RLnStrip  = 1 << 27,
+    RTriStrip = 1 << 28,
+    RTriFan   = 1 << 29
   };
 
   using DrawableReqMask = uint32_t;

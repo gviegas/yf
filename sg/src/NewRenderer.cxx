@@ -103,12 +103,12 @@ void NewRenderer::pushDrawables(Node& node, Mesh& mesh, Skin* skin) {
 
       if (material->alphaMode() == Material::Blend) {
         // TODO: Sort
-        blendDrawables_.push_back({nodeIndex, mesh[i], mask});
+        blendDrawables_.push_back({nodeIndex, mesh[i], mask, UINT32_MAX});
         continue;
       }
     }
 
-    opaqueDrawables_.push_back({nodeIndex, mesh[i], mask});
+    opaqueDrawables_.push_back({nodeIndex, mesh[i], mask, UINT32_MAX});
   }
 }
 

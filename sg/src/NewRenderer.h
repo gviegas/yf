@@ -84,11 +84,37 @@ class NewRenderer {
     size_t nodeIndex;
     Primitive& primitive;
     DrawableReqMask mask;
+    uint32_t stateIndex;
+  };
+
+  struct Shader {
+    CG_NS::Shader::Ptr shader;
+    uint32_t count;
+    DrawableReqMask mask;
+  };
+
+  struct Table {
+    CG_NS::DcTable::Ptr table;
+    uint32_t count;
+    DrawableReqMask mask;
+  };
+
+  struct State {
+    CG_NS::GrState::Ptr state;
+    uint32_t count;
+    DrawableReqMask mask;
+    uint32_t vertShaderIndex;
+    uint32_t fragShaderIndex;
+    uint32_t tableIndex;
   };
 
   std::vector<Node*> drawableNodes_{};
   std::vector<Drawable> blendDrawables_{};
   std::vector<Drawable> opaqueDrawables_{};
+  std::vector<Shader> vertShaders_{};
+  std::vector<Shader> fragShaders_{};
+  std::vector<Table> tables_{};
+  std::vector<State> states_{};
 
   void pushDrawables(Node& node, Mesh& mesh, Skin* skin);
   void processGraph(Scene&);

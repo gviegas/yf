@@ -176,8 +176,20 @@ bool NewRenderer::setTables(DrawableReqMask mask,
                             CG_NS::GrState::Config& config) {
   mask = mask & RTableMask;
 
-  // TODO
-  return false;
+  const auto tableIndex = getIndex(mask, tables_);
+
+  if (!tableIndex.second) {
+    // TODO
+    return false;
+  }
+
+  config.dcTables.push_back(mainTable_.get());
+
+  auto& table = tables_[tableIndex.first];
+  config.dcTables.push_back(table.table.get());
+  table.count++;
+
+  return true;
 }
 
 void NewRenderer::setInputs(DrawableReqMask mask,

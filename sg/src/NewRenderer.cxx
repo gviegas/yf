@@ -13,7 +13,7 @@
 #include "Node.h"
 #include "Scene.h"
 #include "Model.h"
-#include "Mesh.h"
+#include "MeshImpl.h"
 #include "Skin.h"
 #include "Material.h"
 
@@ -194,5 +194,20 @@ bool NewRenderer::setTables(DrawableReqMask mask,
 
 void NewRenderer::setInputs(DrawableReqMask mask,
                             CG_NS::GrState::Config& config) {
-  // TODO
+
+  config.vxInputs.push_back(vxInputFor(VxDataPosition));
+  if (mask & RNormal)
+    config.vxInputs.push_back(vxInputFor(VxDataNormal));
+  if (mask & RTangent)
+    config.vxInputs.push_back(vxInputFor(VxDataTangent));
+  if (mask & RTexCoord0)
+    config.vxInputs.push_back(vxInputFor(VxDataTexCoord0));
+  if (mask & RTexCoord1)
+    config.vxInputs.push_back(vxInputFor(VxDataTexCoord1));
+  if (mask & RColor0)
+    config.vxInputs.push_back(vxInputFor(VxDataColor0));
+  if (mask & RSkin0) {
+    config.vxInputs.push_back(vxInputFor(VxDataJoints0));
+    config.vxInputs.push_back(vxInputFor(VxDataWeights0));
+  }
 }

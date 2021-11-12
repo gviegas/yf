@@ -47,7 +47,6 @@ void NewRenderer::pushDrawables(Node& node, Mesh& mesh, Skin* skin) {
 
     switch (topology) {
     case CG_NS::TopologyTriangle:
-      mask |= RTriangle;
       break;
     case CG_NS::TopologyLine:
       mask |= RLine;
@@ -102,10 +101,14 @@ void NewRenderer::pushDrawables(Node& node, Mesh& mesh, Skin* skin) {
         mask |= REmissiveMap;
 
       if (material->alphaMode() == Material::Blend) {
+        mask |= RAlphaBlend;
         // TODO: Sort
         blendDrawables_.push_back({nodeIndex, mesh[i], mask, UINT32_MAX});
         continue;
       }
+
+      if (material->alphaMode() == Material::Mask)
+        mask |= RAlphaMask;
     }
 
     opaqueDrawables_.push_back({nodeIndex, mesh[i], mask, UINT32_MAX});

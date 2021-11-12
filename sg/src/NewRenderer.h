@@ -49,33 +49,45 @@ class NewRenderer {
   Scene* prevScene_{};
 
   enum DrawableReq {
-    // Has given vertex attributes
-    RNormal    = 1 << 0,
-    RTangent   = 1 << 1,
-    RTexCoord0 = 1 << 2,
-    RTexCoord1 = 1 << 3,
-    RColor0    = 1 << 4,
-
-    // Has `Skin`, `Joints0` and `Weights0`
-    RSkin0 = 1 << 5,
-
     // Has `Material`
-    RMaterial = 1 << 10,
+    RMaterial = 1 << 0,
 
     // Has given texture maps
-    RColorMap     = 1 << 14,
-    RPbrMap       = 1 << 15,
-    RNormalMap    = 1 << 16,
-    ROcclusionMap = 1 << 17,
-    REmissiveMap  = 1 << 18,
+    RColorMap     = 1 << 4,
+    RPbrMap       = 1 << 5,
+    RNormalMap    = 1 << 6,
+    ROcclusionMap = 1 << 7,
+    REmissiveMap  = 1 << 8,
 
-    // Which topology
+    // Table req. mask
+    RTableMask = 0xFFF,
+
+    // Which alpha mode (default is opaque)
+    RAlphaBlend = 1 << 12,
+    RAlphaMask  = 1 << 13,
+
+    // Has given vertex attributes
+    RNormal    = 1 << 14,
+    RTangent   = 1 << 15,
+    RTexCoord0 = 1 << 16,
+    RTexCoord1 = 1 << 17,
+    RColor0    = 1 << 18,
+
+    // Has `Skin`, `Joints0` and `Weights0`
+    RSkin0 = 1 << 19,
+
+    // Shader req. mask
+    RShaderMask = 0xFFFFFF,
+
+    // Which topology (default is triangle)
     RPoint    = 1 << 24,
     RLine     = 1 << 25,
-    RTriangle = 1 << 26,
-    RLnStrip  = 1 << 27,
-    RTriStrip = 1 << 28,
-    RTriFan   = 1 << 29
+    RLnStrip  = 1 << 26,
+    RTriStrip = 1 << 27,
+    RTriFan   = 1 << 28,
+
+    // State req. mask
+    RStateMask = 0xFFFFFFFF
   };
 
   using DrawableReqMask = uint32_t;

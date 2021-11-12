@@ -149,8 +149,27 @@ bool NewRenderer::setShaders(DrawableReqMask mask,
                              CG_NS::GrState::Config& config) {
   mask = mask & RShaderMask;
 
-  // TODO
-  return false;
+  const auto vertIndex = getIndex(mask, vertShaders_);
+  const auto fragIndex = getIndex(mask, fragShaders_);
+
+  if (!vertIndex.second) {
+    // TODO
+    return false;
+  }
+
+  if (!fragIndex.second) {
+    // TODO
+    return false;
+  }
+
+  auto& vertShader = vertShaders_[vertIndex.first];
+  auto& fragShader = fragShaders_[fragIndex.first];
+  config.shaders.push_back(vertShader.shader.get());
+  config.shaders.push_back(fragShader.shader.get());
+  vertShader.count++;
+  fragShader.count++;
+
+  return true;
 }
 
 bool NewRenderer::setTables(DrawableReqMask mask,

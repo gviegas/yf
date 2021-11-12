@@ -10,6 +10,7 @@
 
 #include <cstddef>
 #include <vector>
+#include <utility>
 
 #include "yf/cg/Pass.h"
 #include "yf/cg/Queue.h"
@@ -128,8 +129,39 @@ class NewRenderer {
   std::vector<Table> tables_{};
   std::vector<State> states_{};
 
-  void pushDrawables(Node& node, Mesh& mesh, Skin* skin);
+  void pushDrawables(Node&, Mesh&, Skin*);
   void processGraph(Scene&);
+
+  bool setShaders(DrawableReqMask, CG_NS::GrState::Config&);
+  bool setTables(DrawableReqMask, CG_NS::GrState::Config&);
+  void setInputs(DrawableReqMask, CG_NS::GrState::Config&);
+
+  template<class T>
+  std::pair<uint32_t, bool> getIndex(DrawableReqMask mask,
+                                     const std::vector<T>& container) {
+    if (mask == 0 || container.size() == 0)
+      return {0, false};
+
+    uint32_t beg = 0;
+    uint32_t end = container.size() - 1;
+    uint32_t cur = end >> 1;
+
+    while (beg < end) {
+      if (container[cur].mask < mask)
+        beg = cur + 1;
+      else if (container[cur].mask > mask)
+        end = cur - 1;
+      else
+        return {cur, true};
+      cur = (beg + end) >> 1;
+    }
+
+    if (container[cur].mask < mask)
+      return {cur + 1, false};
+    if (container[cur].mask > mask)
+      return {cur, false};
+    return {cur, true};
+  }
 };
 
 SG_NS_END

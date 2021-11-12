@@ -144,3 +144,24 @@ void NewRenderer::processGraph(Scene& scene) {
     }
   }, true);
 }
+
+bool NewRenderer::setShaders(DrawableReqMask mask,
+                             CG_NS::GrState::Config& config) {
+  mask = mask & RShaderMask;
+
+  // TODO
+  return false;
+}
+
+bool NewRenderer::setTables(DrawableReqMask mask,
+                            CG_NS::GrState::Config& config) {
+  mask = mask & RTableMask;
+
+  // TODO
+  return false;
+}
+
+void NewRenderer::setInputs(DrawableReqMask mask,
+                            CG_NS::GrState::Config& config) {
+  // TODO
+}

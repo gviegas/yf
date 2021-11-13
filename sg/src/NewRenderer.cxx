@@ -178,9 +178,41 @@ bool NewRenderer::setTables(DrawableReqMask mask,
 
   const auto tableIndex = getIndex(mask, tables_);
 
+  auto uniform = [](CG_NS::DcId id) {
+    return CG_NS::DcEntry{id, CG_NS::DcTypeUniform, 1};
+  };
+
+  auto imgSampler = [](CG_NS::DcId id) {
+    return CG_NS::DcEntry{id, CG_NS::DcTypeImgSampler, 1};
+  };
+
   if (!tableIndex.second) {
-    // TODO
-    return false;
+    vector<CG_NS::DcEntry> entries{uniform(0)};
+    CG_NS::DcId id = 1;
+
+    if (mask & RMaterial) {
+      entries.push_back(uniform(id++));
+      if (mask & RColorMap)
+        entries.push_back(imgSampler(id++));
+      if (mask & RPbrMap)
+        entries.push_back(imgSampler(id++));
+      if (mask & RNormalMap)
+        entries.push_back(imgSampler(id++));
+      if (mask & ROcclusionMap)
+        entries.push_back(imgSampler(id++));
+      if (mask & REmissiveMap)
+        entries.push_back(imgSampler(id++));
+    } else {
+      if (mask & RColorMap)
+        entries.push_back(imgSampler(id++));
+    }
+
+    try {
+      tables_.insert(tables_.begin() + tableIndex.first,
+                     {CG_NS::device().dcTable(entries), 0, mask});
+    } catch (...) {
+      return false;
+    }
   }
 
   config.dcTables.push_back(mainTable_.get());

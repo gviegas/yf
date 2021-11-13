@@ -35,6 +35,21 @@ NewRenderer::NewRenderer() {
   mainTable_->allocate(1);
 }
 
+void NewRenderer::render(Scene& scene, CG_NS::Target& target) {
+  if (&scene == prevScene_) {
+    // TODO
+  }
+
+  if (&target.pass() != prevPass_) {
+    // TODO
+    abort();
+  }
+
+  processGraph(scene);
+
+  // TODO...
+}
+
 void NewRenderer::pushDrawables(Node& node, Mesh& mesh, Skin* skin) {
   const size_t nodeIndex = drawableNodes_.size();
   drawableNodes_.push_back(&node);

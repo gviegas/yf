@@ -61,3 +61,25 @@ void getPbrmr(inout vec4 color, out vec3 f0, out vec3 f90, out float ar) {
   ar = roughness * roughness;
 }
 #endif
+
+/// PBR Specular-Glossiness.
+///
+#ifdef MATERIAL_PBRSG
+void getPbrsg(inout vec4 color, out vec3 f0, out vec3 f90, out float ar) {
+  vec3 specular = vec3(material_.pbrFac);
+  float glossiness = material_.pbrFac[3];
+
+#ifdef HAS_PBR_MAP
+  // TODO: Select correct coordinate set
+  vec4 specGloss = texture(pbrMap_, vertexIn_.texCoordSet0);
+  specular *= specGloss.rgb;
+  glossiness *= specGloss.a;
+#endif
+
+  color.rgb = color.rgb * (1.0 - max(specular.r, max(specular.g, specular.b)));
+  f0 = specular;
+  f90 = vec3(1.0);
+  ar = 1.0 - glossiness;
+  ar *= ar;
+}
+#endif

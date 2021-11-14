@@ -39,3 +39,25 @@ layout(location=2) out vec4 color2_;
 #ifdef HAS_COLOR_OUTPUT_3
 layout(location=3) out vec4 color3_;
 #endif
+
+/// PBR Metallic-Roughness.
+///
+#ifdef MATERIAL_PBRMR
+void getPbrmr(inout vec4 color, out vec3 f0, out vec3 f90, out float ar) {
+  float metallic = material_.pbrFac[0];
+  float roughness = material_.pbrFac[1];
+
+#ifdef HAS_PBR_MAP
+  // TODO: Select correct coordinate set
+  vec4 metalRough = texture(pbrMap_, vertexIn_.texCoorSet0);
+  metallic *= metalRough.b;
+  roughness *= metalRough.g;
+#endif
+
+  vec3 ior = vec3(0.04);
+  color.rgb = mix(color.rgb * (vec3(1.0) - ior), vec3(0.0), metallic);
+  f0 = mix(ior, color.rgb, metallic);
+  f90 = vec3(1.0);
+  ar = roughness * roughness;
+}
+#endif

@@ -83,3 +83,61 @@ void getPbrsg(inout vec4 color, out vec3 f0, out vec3 f90, out float ar) {
   ar *= ar;
 }
 #endif
+
+/// Lighting.
+///
+void applyLights(inout vec4 color, vec3 f0, vec3 f90, float ar,
+                 vec3 n, vec3 v, float ndotv) {
+
+  vec3 albedo = vec3(0.0);
+
+  for (uint i = 0; i < LIGHT_N; i++) {
+    if (light_.l[i].notUsed != 0)
+      break;
+
+    vec3 l;
+    float dist = 0.0001;
+    float atten = 1.0;
+
+    switch (light_.l[i].lightType) {
+    case LIGHT_POINT:
+      l = vec3(light_.l[i].position - vertexIn_.position);
+      dist = max(length(l), dist);
+      l /= dist;
+      atten = attenuation(dist, light_.l[i].range);
+      break;
+
+    case LIGHT_SPOT:
+      l = vec3(light_.l[i].position - vertexIn_.position);
+      dist = max(length(l), dist);
+      l /= dist;
+      atten = attenuation(dist, light_.l[i].range);
+      atten *= attenuation(light_.l[i].direction, l, light_.l[i].angularScale,
+                           light_.l[i].angularOffset);
+      break;
+
+    case LIGHT_DIRECT:
+      l = -light_.l[i].direction;
+      break;
+    }
+
+    float ndotl = max(dot(n, l), 0.0);
+
+    if (ndotl == 0.0 && ndotv == 0.0)
+      continue;
+
+    vec3 h = normalize(l + v);
+    float ndoth = max(dot(n, h), 0.0);
+    float vdoth = max(dot(v, h), 0.0);
+
+    vec3 F = fresnelF(f0, f90, vdoth);
+    vec3 diffuse = diffuseBRDF(color.rgb, F);
+    vec3 specular = specularBRDF(F, ndotv, ndotl, ndoth, ar * ar);
+
+    vec3 light = light_.l[i].color * light_.l[i].intensity * atten * ndotl;
+
+    albedo += (diffuse + specular) * light;
+  }
+
+  color.rgb = albedo;
+}

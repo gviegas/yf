@@ -141,3 +141,69 @@ void applyLights(inout vec4 color, vec3 f0, vec3 f90, float ar,
 
   color.rgb = albedo;
 }
+
+/// Gets fragment color.
+///
+vec4 getColor() {
+  vec4 color = material_.colorFac;
+
+#ifdef HAS_COLOR_MAP
+  // TODO: Select correct coordinate set
+  color *= texture(colorMap_, vertexIn_.texCoord0);
+#endif
+
+#ifdef HAS_COLOR0
+  color *= vertexIn_.color0;
+#endif
+
+#if defined(ALPHA_OPAQUE)
+  color.a = 1.0;
+#elif defined(ALPHA_MASK)
+  // TODO
+# error Unimplemented
+#endif
+
+#ifdef MATERIAL_UNLIT
+  return color;
+#endif
+
+  vec3 f0, f90;
+  float ar;
+#if defined(MATERIAL_PBRMR)
+  getPbrmr(color, f0, f90, ar);
+#elif defined(MATERIAL_PBRSG)
+  getPbrsg(color, f0, f90, ar);
+#elif defined(MATERIAL_UNLIT)
+#else
+# error MATERIAL_* not defined
+#endif
+
+  vec3 n;
+#ifdef HAS_NORMAL
+  n = normalize(vertexIn_.normal);
+#else
+  // TODO
+# error Unimplemented
+#endif
+
+  vec3 v = normalize(vertexIn_.eye);
+  float ndotv = max(dot(n, v), 0.0);
+  applyLights(color, f0, f90, ar, n, v, ndotv);
+
+#ifdef HAS_NORMAL_MAP
+  // TODO
+# error Unimplemented
+#endif
+
+#ifdef HAS_OCCLUSION_MAP
+  // TODO
+# error Unimplemented
+#endif
+
+#ifdef HAS_EMISSIVE_MAP
+  // TODO
+# error Unimplemented
+#endif
+
+  return color;
+}

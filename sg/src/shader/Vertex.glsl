@@ -57,7 +57,7 @@ vec4 getPosition() {
   vec4 pos = vec4(position_, 1.0);
 
 #ifdef HAS_SKIN
-  mat4 skin = instance_.i[i].joints[joints0_.x] * weigths0_.x +
+  mat4 skin = instance_.i[i].joints[joints0_.x] * weights0_.x +
               instance_.i[i].joints[joints0_.y] * weights0_.y +
               instance_.i[i].joints[joints0_.z] * weights0_.z +
               instance_.i[i].joints[joints0_.w] * weights0_.w;
@@ -75,10 +75,10 @@ vec3 getNormal() {
   vec3 norm = normal_;
 
 #ifdef HAS_SKIN
-  mat4 nskin = instance_.i[i].normJoints[joints0.x] * weights0_.x +
-               instance_.i[i].normJoints[joints0.y] * weights0_.y +
-               instance_.i[i].normJoints[joints0.z] * weights0_.z +
-               instance_.i[i].normJoints[joints0.w] * weights0_.w;
+  mat4 nskin = instance_.i[i].normJoints[joints0_.x] * weights0_.x +
+               instance_.i[i].normJoints[joints0_.y] * weights0_.y +
+               instance_.i[i].normJoints[joints0_.z] * weights0_.z +
+               instance_.i[i].normJoints[joints0_.w] * weights0_.w;
   norm = normalize(mat3(nskin) * norm);
 #endif
 

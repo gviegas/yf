@@ -77,7 +77,7 @@ void getPbr(inout vec4 color, out vec3 f0, out vec3 f90, out float ar) {
 
 #ifdef HAS_PBR_MAP
   // TODO: Select correct coordinate set
-  vec4 metalRough = texture(pbrMap_, vertexIn_.texCoorSet0);
+  vec4 metalRough = texture(pbrMap_, vertexIn_.texCoord0);
   metallic *= metalRough.b;
   roughness *= metalRough.g;
 #endif
@@ -99,7 +99,7 @@ void getPbr(inout vec4 color, out vec3 f0, out vec3 f90, out float ar) {
 
 #ifdef HAS_PBR_MAP
   // TODO: Select correct coordinate set
-  vec4 specGloss = texture(pbrMap_, vertexIn_.texCoordSet0);
+  vec4 specGloss = texture(pbrMap_, vertexIn_.texCoord0);
   specular *= specGloss.rgb;
   glossiness *= specGloss.a;
 #endif

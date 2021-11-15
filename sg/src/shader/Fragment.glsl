@@ -157,6 +157,18 @@ void adjustAlpha(inout vec4 color) {
 #endif
 }
 
+/// Gets fragment normal.
+///
+vec3 getNormal() {
+#ifdef HAS_NORMAL
+  vec3 n = normalize(vertexIn_.normal);
+  return n;
+#else
+  // TODO
+# error Unimplemented
+#endif
+}
+
 /// Gets fragment color.
 ///
 vec4 getColor() {
@@ -181,14 +193,7 @@ vec4 getColor() {
   float ar;
   getPbr(color, f0, f90, ar);
 
-  vec3 n;
-#ifdef HAS_NORMAL
-  n = normalize(vertexIn_.normal);
-#else
-  // TODO
-# error Unimplemented
-#endif
-
+  vec3 n = getNormal();
   vec3 v = normalize(vertexIn_.eye);
   float ndotv = max(dot(n, v), 0.0);
   applyLights(color, f0, f90, ar, n, v, ndotv);

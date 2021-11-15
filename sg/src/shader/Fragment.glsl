@@ -43,7 +43,7 @@ layout(location=3) out vec4 color3_;
 /// PBR Metallic-Roughness.
 ///
 #ifdef MATERIAL_PBRMR
-void getPbrmr(inout vec4 color, out vec3 f0, out vec3 f90, out float ar) {
+void getPbr(inout vec4 color, out vec3 f0, out vec3 f90, out float ar) {
   float metallic = material_.pbrFac[0];
   float roughness = material_.pbrFac[1];
 
@@ -65,7 +65,7 @@ void getPbrmr(inout vec4 color, out vec3 f0, out vec3 f90, out float ar) {
 /// PBR Specular-Glossiness.
 ///
 #ifdef MATERIAL_PBRSG
-void getPbrsg(inout vec4 color, out vec3 f0, out vec3 f90, out float ar) {
+void getPbr(inout vec4 color, out vec3 f0, out vec3 f90, out float ar) {
   vec3 specular = vec3(material_.pbrFac);
   float glossiness = material_.pbrFac[3];
 
@@ -82,6 +82,10 @@ void getPbrsg(inout vec4 color, out vec3 f0, out vec3 f90, out float ar) {
   ar = 1.0 - glossiness;
   ar *= ar;
 }
+#endif
+
+#ifdef MATERIAL_UNLIT
+void getPbr(inout vec4 color, out vec3 f0, out vec3 f90, out float ar) { }
 #endif
 
 /// Lighting.
@@ -169,14 +173,7 @@ vec4 getColor() {
 
   vec3 f0, f90;
   float ar;
-#if defined(MATERIAL_PBRMR)
-  getPbrmr(color, f0, f90, ar);
-#elif defined(MATERIAL_PBRSG)
-  getPbrsg(color, f0, f90, ar);
-#elif defined(MATERIAL_UNLIT)
-#else
-# error MATERIAL_* not defined
-#endif
+  getPbr(color, f0, f90, ar);
 
   vec3 n;
 #ifdef HAS_NORMAL

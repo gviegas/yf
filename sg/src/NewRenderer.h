@@ -50,8 +50,9 @@ class NewRenderer {
   Scene* prevScene_{};
 
   enum DrawableReq {
-    // Has `Material`
-    RMaterial = 1 << 0,
+    // Which material (default is PBRMR)
+    RPbrsg = 1 << 0,
+    RUnlit = 1 << 1,
 
     // Has given texture maps
     RColorMap     = 1 << 4,

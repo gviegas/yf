@@ -101,30 +101,31 @@ void NewRenderer::pushDrawables(Node& node, Mesh& mesh, Skin* skin) {
       throw runtime_error("Primitive has weight data but no joint data");
     }
 
-    if (material) {
-      mask |= RMaterial;
+    if (!material)
+      throw runtime_error("Cannot render primitives with no material set");
 
-      if (material->pbrmr().colorTex)
-        mask |= RColorMap;
-      if (material->pbrmr().metalRoughTex)
-        mask |= RPbrMap;
-      if (material->normal().texture)
-        mask |= RNormalMap;
-      if (material->occlusion().texture)
-        mask |= ROcclusionMap;
-      if (material->emissive().texture)
-        mask |= REmissiveMap;
+    // TODO: PBRSG and Unlit materials
 
-      if (material->alphaMode() == Material::Blend) {
-        mask |= RAlphaBlend;
-        // TODO: Sort
-        blendDrawables_.push_back({nodeIndex, mesh[i], mask, UINT32_MAX});
-        continue;
-      }
+    if (material->pbrmr().colorTex)
+      mask |= RColorMap;
+    if (material->pbrmr().metalRoughTex)
+      mask |= RPbrMap;
+    if (material->normal().texture)
+      mask |= RNormalMap;
+    if (material->occlusion().texture)
+      mask |= ROcclusionMap;
+    if (material->emissive().texture)
+      mask |= REmissiveMap;
 
-      if (material->alphaMode() == Material::Mask)
-        mask |= RAlphaMask;
+    if (material->alphaMode() == Material::Blend) {
+      mask |= RAlphaBlend;
+      // TODO: Sort
+      blendDrawables_.push_back({nodeIndex, mesh[i], mask, UINT32_MAX});
+      continue;
     }
+
+    if (material->alphaMode() == Material::Mask)
+      mask |= RAlphaMask;
 
     opaqueDrawables_.push_back({nodeIndex, mesh[i], mask, UINT32_MAX});
   }
@@ -202,13 +203,14 @@ bool NewRenderer::setTables(DrawableReqMask mask,
   };
 
   if (!tableIndex.second) {
-    vector<CG_NS::DcEntry> entries{uniform(0)};
-    CG_NS::DcId id = 1;
+    vector<CG_NS::DcEntry> entries{uniform(0), uniform(1)};
+    CG_NS::DcId id = 2;
 
-    if (mask & RMaterial) {
-      entries.push_back(uniform(id++));
-      if (mask & RColorMap)
-        entries.push_back(imgSampler(id++));
+    if (mask & RColorMap)
+      entries.push_back(imgSampler(id++));
+
+    if (!(mask & RUnlit)) {
+      // PBRMR or PBRSG
       if (mask & RPbrMap)
         entries.push_back(imgSampler(id++));
       if (mask & RNormalMap)
@@ -216,9 +218,6 @@ bool NewRenderer::setTables(DrawableReqMask mask,
       if (mask & ROcclusionMap)
         entries.push_back(imgSampler(id++));
       if (mask & REmissiveMap)
-        entries.push_back(imgSampler(id++));
-    } else {
-      if (mask & RColorMap)
         entries.push_back(imgSampler(id++));
     }
 

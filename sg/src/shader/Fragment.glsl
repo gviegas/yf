@@ -222,3 +222,13 @@ vec4 getFragment() {
 
   return color;
 }
+
+/// Writes final fragment to color output.
+///
+void writeColor0() {
+  color0_ = getFragment();
+}
+
+void writeColor1() { }
+void writeColor2() { }
+void writeColor3() { }

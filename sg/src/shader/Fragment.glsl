@@ -146,6 +146,17 @@ void applyLights(inout vec4 color, vec3 f0, vec3 f90, float ar,
   color.rgb = albedo;
 }
 
+/// Adjust alpha channel according to alpha mode.
+///
+void adjustAlpha(inout vec4 color) {
+#if defined(ALPHA_OPAQUE)
+  color.a = 1.0;
+#elif defined(ALPHA_MASK)
+  // TODO
+# error Unimplemented
+#endif
+}
+
 /// Gets fragment color.
 ///
 vec4 getColor() {
@@ -160,12 +171,7 @@ vec4 getColor() {
   color *= vertexIn_.color0;
 #endif
 
-#if defined(ALPHA_OPAQUE)
-  color.a = 1.0;
-#elif defined(ALPHA_MASK)
-  // TODO
-# error Unimplemented
-#endif
+  adjustAlpha(color);
 
 #ifdef MATERIAL_UNLIT
   return color;

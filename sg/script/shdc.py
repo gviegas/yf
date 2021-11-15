@@ -9,17 +9,81 @@
 
 import subprocess
 
-vert = [
-    ('Model', '',        ['-DINSTANCE_N=1',  '-DJOINT_N=64']),
-    ('Model', 'Model2',  ['-DINSTANCE_N=2',  '-DJOINT_N=64']),
-    ('Model', 'Model4',  ['-DINSTANCE_N=4',  '-DJOINT_N=64']),
-    ('Model', 'Model8',  ['-DINSTANCE_N=8',  '-DJOINT_N=64']),
-    ('Model', 'Model16', ['-DINSTANCE_N=16', '-DJOINT_N=64']),
-    ('Model', 'Model32', ['-DINSTANCE_N=32', '-DJOINT_N=64'])
+dPbrsg        = 1 << 0
+dUnlit        = 1 << 1
+dColorMap     = 1 << 4
+dPbrMap       = 1 << 5
+dNormalMap    = 1 << 6
+dOcclusionMap = 1 << 7
+dEmissiveMap  = 1 << 8
+dAlphaBlend   = 1 << 12
+dAlphaMask    = 1 << 13
+dNormal       = 1 << 14
+dTangent      = 1 << 15
+dTexCoord0    = 1 << 16
+dTexCoord1    = 1 << 17
+dColor0       = 1 << 18
+dSkin         = 1 << 19
+
+optDefs = {
+    dPbrsg        : 'MATERIAL_PBRSG',
+    dUnlit        : 'MATERIAL_UNLIT',
+    dColorMap     : 'HAS_COLOR_MAP',
+    dPbrMap       : 'HAS_PBR_MAP',
+    dNormalMap    : 'HAS_NORMAL_MAP',
+    dOcclusionMap : 'HAS_OCCLUSION_MAP',
+    dEmissiveMap  : 'HAS_EMISSIVE_MAP',
+    dAlphaBlend   : 'ALPHA_BLEND',
+    dAlphaMask    : 'ALPHA_MASK',
+    dNormal       : 'HAS_NORMAL',
+    dTangent      : 'HAS_TANGENT',
+    dTexCoord0    : 'HAS_TEXCOORD0',
+    dTexCoord1    : 'HAS_TEXCOORD1',
+    dColor0       : 'HAS_COLOR0',
+    dSkin         : 'HAS_SKIN'
+}
+
+optMask = 0xFFFFFF
+optLastBit = 23
+
+def defsForMask(mask):
+    defs = []
+    for i in range(optLastBit + 1):
+        bit = (1 << i) & mask
+        if bit != 0:
+            defs.append('-D' + optDefs[bit])
+    # defaults
+    if not mask & (dPbrsg | dUnlit):
+        defs.append('-DMATERIAL_PBRMR')
+    if not mask & (dAlphaBlend | dAlphaMask):
+        defs.append('-DALPHA_OPAQUE')
+    return defs
+
+def nameForMask(mask):
+    mask = mask & optMask
+    return hex(mask)[2:]
+
+vportN = 1
+instN  = 1
+jointN = 100
+lightN = 16
+
+baseDefs = [
+    '-DVPORT_N={}'.format(vportN),
+    '-DINST_N={}'.format(instN),
+    '-DJOINT_N={}'.format(jointN),
+    '-DLIGHT_N={}'.format(lightN)
 ]
 
+# TODO: Separate vert/frag shaders (filter by stage-specific bits)
+def shdForMask(mask):
+    return ('Main', nameForMask(mask), baseDefs + defsForMask(mask))
+
+vert = [
+    shdForMask(dNormal)
+]
 frag = [
-    ('Model', '', [])
+    shdForMask(dNormal)
 ]
 
 srcDir = 'tmp/shd/'

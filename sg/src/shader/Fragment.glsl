@@ -40,7 +40,35 @@ layout(location=2) out vec4 color2_;
 layout(location=3) out vec4 color3_;
 #endif
 
-/// PBR Metallic-Roughness.
+/// Gets fragment color.
+///
+vec4 getColor() {
+  vec4 color = material_.colorFac;
+
+#ifdef HAS_COLOR_MAP
+  // TODO: Select correct coordinate set
+  color *= texture(colorMap_, vertexIn_.texCoord0);
+#endif
+
+#ifdef HAS_COLOR0
+  color *= vertexIn_.color0;
+#endif
+
+  return color;
+}
+
+/// Adjust alpha channel according to alpha mode.
+///
+void adjustAlpha(inout vec4 color) {
+#if defined(ALPHA_OPAQUE)
+  color.a = 1.0;
+#elif defined(ALPHA_MASK)
+  // TODO
+# error Unimplemented
+#endif
+}
+
+/// Gets fragment PBR Metallic-Roughness.
 ///
 #ifdef MATERIAL_PBRMR
 void getPbr(inout vec4 color, out vec3 f0, out vec3 f90, out float ar) {
@@ -62,7 +90,7 @@ void getPbr(inout vec4 color, out vec3 f0, out vec3 f90, out float ar) {
 }
 #endif
 
-/// PBR Specular-Glossiness.
+/// Gets fragment PBR Specular-Glossiness.
 ///
 #ifdef MATERIAL_PBRSG
 void getPbr(inout vec4 color, out vec3 f0, out vec3 f90, out float ar) {
@@ -88,7 +116,19 @@ void getPbr(inout vec4 color, out vec3 f0, out vec3 f90, out float ar) {
 void getPbr(inout vec4 color, out vec3 f0, out vec3 f90, out float ar) { }
 #endif
 
-/// Lighting.
+/// Gets fragment normal.
+///
+vec3 getNormal() {
+#ifdef HAS_NORMAL
+  vec3 n = normalize(vertexIn_.normal);
+  return n;
+#else
+  // TODO
+# error Unimplemented
+#endif
+}
+
+/// Applies lighting.
 ///
 void applyLights(inout vec4 color, vec3 f0, vec3 f90, float ar,
                  vec3 n, vec3 v, float ndotv) {
@@ -146,43 +186,10 @@ void applyLights(inout vec4 color, vec3 f0, vec3 f90, float ar,
   color.rgb = albedo;
 }
 
-/// Adjust alpha channel according to alpha mode.
+/// Gets final fragment.
 ///
-void adjustAlpha(inout vec4 color) {
-#if defined(ALPHA_OPAQUE)
-  color.a = 1.0;
-#elif defined(ALPHA_MASK)
-  // TODO
-# error Unimplemented
-#endif
-}
-
-/// Gets fragment normal.
-///
-vec3 getNormal() {
-#ifdef HAS_NORMAL
-  vec3 n = normalize(vertexIn_.normal);
-  return n;
-#else
-  // TODO
-# error Unimplemented
-#endif
-}
-
-/// Gets fragment color.
-///
-vec4 getColor() {
-  vec4 color = material_.colorFac;
-
-#ifdef HAS_COLOR_MAP
-  // TODO: Select correct coordinate set
-  color *= texture(colorMap_, vertexIn_.texCoord0);
-#endif
-
-#ifdef HAS_COLOR0
-  color *= vertexIn_.color0;
-#endif
-
+vec4 getFragment() {
+  vec4 color = getColor();
   adjustAlpha(color);
 
 #ifdef MATERIAL_UNLIT

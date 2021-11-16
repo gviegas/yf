@@ -49,7 +49,7 @@ void NewRenderer::render(Scene& scene, CG_NS::Target& target) {
   scene_ = &scene;
   pass_ = &target.pass();
 
-  processGraph(scene);
+  processGraph();
 
   // TODO...
 }
@@ -135,20 +135,20 @@ void NewRenderer::pushDrawables(Node& node, Mesh& mesh, Skin* skin) {
   }
 }
 
-void NewRenderer::processGraph(Scene& scene) {
+void NewRenderer::processGraph() {
   drawableNodes_.clear();
   blendDrawables_.clear();
   opaqueDrawables_.clear();
 
-  if (scene.isLeaf())
+  if (scene_->isLeaf())
     return;
 
-  scene.worldTransform() = scene.transform();
-  scene.worldInverse() = invert(scene.worldTransform());
+  scene_->worldTransform() = scene_->transform();
+  scene_->worldInverse() = invert(scene_->worldTransform());
 
   const auto& mdlId = typeid(Model);
 
-  scene.traverse([&](Node& node) {
+  scene_->traverse([&](Node& node) {
     node.worldTransform() = node.parent()->worldTransform() * node.transform();
     node.worldInverse() = invert(node.worldTransform());
     node.worldNormal() = transpose(node.worldInverse());

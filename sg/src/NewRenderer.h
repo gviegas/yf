@@ -131,7 +131,7 @@ class NewRenderer {
   std::vector<State> states_{};
 
   void pushDrawables(Node&, Mesh&, Skin*);
-  void processGraph(Scene&);
+  void processGraph();
 
   bool setShaders(DrawableReqMask, CG_NS::GrState::Config&,
                   uint32_t& vertShaderIndex, uint32_t& fragShaderIndex);

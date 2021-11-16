@@ -181,7 +181,7 @@ bool NewRenderer::setShaders(DrawableReqMask mask,
 
   if (!vertIndex.second) {
     try {
-      const auto str = shaderPath("%x.vert.bin");
+      const auto str = shaderPath("%X.vert.bin");
       vertShaders_.insert(vertShaders_.begin() + vertIndex.first,
                           {CG_NS::device().shader(CG_NS::StageVertex, str),
                            0, mask});
@@ -192,7 +192,7 @@ bool NewRenderer::setShaders(DrawableReqMask mask,
 
   if (!fragIndex.second) {
     try {
-      const auto str = shaderPath("%x.frag.bin");
+      const auto str = shaderPath("%X.frag.bin");
       vertShaders_.insert(fragShaders_.begin() + fragIndex.first,
                           {CG_NS::device().shader(CG_NS::StageFragment, str),
                            0, mask});

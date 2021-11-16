@@ -23,6 +23,7 @@ using namespace std;
 
 constexpr uint64_t UnifBufferSize = 1 << 21;
 constexpr CG_NS::DcEntry GlobalUnif{0, CG_NS::DcTypeUniform, 1};
+constexpr CG_NS::DcEntry LightUnif{1, CG_NS::DcTypeUniform, 1};
 
 NewRenderer::NewRenderer() {
   auto& dev = CG_NS::device();
@@ -31,7 +32,7 @@ NewRenderer::NewRenderer() {
   unifBuffer_ = dev.buffer(UnifBufferSize);
 
   // This table will contain data common to all drawables
-  mainTable_ = dev.dcTable({GlobalUnif});
+  mainTable_ = dev.dcTable({GlobalUnif, LightUnif});
   mainTable_->allocate(1);
 }
 

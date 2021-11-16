@@ -6,6 +6,7 @@
 //
 
 #include <typeinfo>
+#include <cstdio>
 
 #include "yf/cg/Device.h"
 
@@ -168,14 +169,36 @@ bool NewRenderer::setShaders(DrawableReqMask mask,
   const auto vertIndex = getIndex(mask, vertShaders_);
   const auto fragIndex = getIndex(mask, fragShaders_);
 
+  auto shaderPath = [&](const char* format) {
+    const auto n = snprintf(nullptr, 0, format, mask);
+    if (n <= 0)
+      throw runtime_error("Could not create shader path string");
+    string str;
+    str.resize(n + 1);
+    snprintf(str.data(), str.size(), format, mask);
+    return str;
+  };
+
   if (!vertIndex.second) {
-    // TODO
-    return false;
+    try {
+      const auto str = shaderPath("%x.vert.bin");
+      vertShaders_.insert(vertShaders_.begin() + vertIndex.first,
+                          {CG_NS::device().shader(CG_NS::StageVertex, str),
+                           0, mask});
+    } catch (...) {
+      return false;
+    }
   }
 
   if (!fragIndex.second) {
-    // TODO
-    return false;
+    try {
+      const auto str = shaderPath("%x.frag.bin");
+      vertShaders_.insert(fragShaders_.begin() + fragIndex.first,
+                          {CG_NS::device().shader(CG_NS::StageFragment, str),
+                           0, mask});
+    } catch (...) {
+      return false;
+    }
   }
 
   auto& vertShader = vertShaders_[vertIndex.first];

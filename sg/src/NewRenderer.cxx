@@ -22,7 +22,6 @@ using namespace SG_NS;
 using namespace std;
 
 constexpr uint64_t UnifBufferSize = 1 << 21;
-
 constexpr CG_NS::DcEntry GlobalUnif{0, CG_NS::DcTypeUniform, 1};
 
 NewRenderer::NewRenderer() {
@@ -52,6 +51,36 @@ void NewRenderer::render(Scene& scene, CG_NS::Target& target) {
   processGraph();
 
   // TODO...
+}
+
+void NewRenderer::processGraph() {
+  drawableNodes_.clear();
+  blendDrawables_.clear();
+  opaqueDrawables_.clear();
+
+  if (scene_->isLeaf())
+    return;
+
+  scene_->worldTransform() = scene_->transform();
+  scene_->worldInverse() = invert(scene_->worldTransform());
+
+  const auto& mdlId = typeid(Model);
+
+  scene_->traverse([&](Node& node) {
+    node.worldTransform() = node.parent()->worldTransform() * node.transform();
+    node.worldInverse() = invert(node.worldTransform());
+    node.worldNormal() = transpose(node.worldInverse());
+
+    const auto& id = typeid(node);
+    if (id == mdlId) {
+      auto& mdl = static_cast<Model&>(node);
+
+      if (!mdl.mesh())
+        throw runtime_error("Cannot render models with no mesh set");
+
+      pushDrawables(node, *mdl.mesh(), mdl.skin());
+    }
+  }, true);
 }
 
 void NewRenderer::pushDrawables(Node& node, Mesh& mesh, Skin* skin) {
@@ -144,34 +173,38 @@ void NewRenderer::pushDrawables(Node& node, Mesh& mesh, Skin* skin) {
   }
 }
 
-void NewRenderer::processGraph() {
-  drawableNodes_.clear();
-  blendDrawables_.clear();
-  opaqueDrawables_.clear();
+bool NewRenderer::setState(Drawable& drawable) {
+  const auto stateIndex = getIndex(drawable.mask, states_);
 
-  if (scene_->isLeaf())
-    return;
+  if (!stateIndex.second) {
+    CG_NS::GrState::Config config;
+    config.pass = pass_;
 
-  scene_->worldTransform() = scene_->transform();
-  scene_->worldInverse() = invert(scene_->worldTransform());
+    uint32_t vertIndex, fragIndex, tableIndex;
+    if (!setShaders(drawable.mask, config, vertIndex, fragIndex) ||
+        !setTables(drawable.mask, config, tableIndex))
+      return false;
 
-  const auto& mdlId = typeid(Model);
+    setInputs(drawable.mask, config);
+    config.topology = drawable.primitive.topology();
+    config.polyMode = CG_NS::PolyModeFill;
+    config.cullMode = drawable.mask & RAlphaBlend ?
+                      CG_NS::CullModeNone : CG_NS::CullModeBack;
+    config.winding = CG_NS::WindingCounterCw;
 
-  scene_->traverse([&](Node& node) {
-    node.worldTransform() = node.parent()->worldTransform() * node.transform();
-    node.worldInverse() = invert(node.worldTransform());
-    node.worldNormal() = transpose(node.worldInverse());
-
-    const auto& id = typeid(node);
-    if (id == mdlId) {
-      auto& mdl = static_cast<Model&>(node);
-
-      if (!mdl.mesh())
-        throw runtime_error("Cannot render models with no mesh set");
-
-      pushDrawables(node, *mdl.mesh(), mdl.skin());
+    try {
+      states_.insert(states_.begin() + stateIndex.first,
+                     {CG_NS::device().state(config), 0, drawable.mask,
+                      vertIndex, fragIndex, tableIndex});
+    } catch (...) {
+      return false;
     }
-  }, true);
+  }
+
+  drawable.stateIndex = stateIndex.first;
+  states_[stateIndex.first].count++;
+
+  return true;
 }
 
 bool NewRenderer::setShaders(DrawableReqMask mask,
@@ -297,38 +330,4 @@ void NewRenderer::setInputs(DrawableReqMask mask,
     config.vxInputs.push_back(vxInputFor(VxDataJoints0));
     config.vxInputs.push_back(vxInputFor(VxDataWeights0));
   }
-}
-
-bool NewRenderer::setState(Drawable& drawable) {
-  const auto stateIndex = getIndex(drawable.mask, states_);
-
-  if (!stateIndex.second) {
-    CG_NS::GrState::Config config;
-    config.pass = pass_;
-
-    uint32_t vertIndex, fragIndex, tableIndex;
-    if (!setShaders(drawable.mask, config, vertIndex, fragIndex) ||
-        !setTables(drawable.mask, config, tableIndex))
-      return false;
-
-    setInputs(drawable.mask, config);
-    config.topology = drawable.primitive.topology();
-    config.polyMode = CG_NS::PolyModeFill;
-    config.cullMode = drawable.mask & RAlphaBlend ?
-                      CG_NS::CullModeNone : CG_NS::CullModeBack;
-    config.winding = CG_NS::WindingCounterCw;
-
-    try {
-      states_.insert(states_.begin() + stateIndex.first,
-                     {CG_NS::device().state(config), 0, drawable.mask,
-                      vertIndex, fragIndex, tableIndex});
-    } catch (...) {
-      return false;
-    }
-  }
-
-  drawable.stateIndex = stateIndex.first;
-  states_[stateIndex.first].count++;
-
-  return true;
 }

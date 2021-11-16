@@ -12,11 +12,12 @@
 #include <vector>
 #include <utility>
 
-#include "yf/cg/Pass.h"
 #include "yf/cg/Queue.h"
+#include "yf/cg/Pass.h"
 #include "yf/cg/Buffer.h"
 #include "yf/cg/DcTable.h"
 #include "yf/cg/State.h"
+#include "yf/cg/Encoder.h"
 
 #include "Defs.h"
 
@@ -48,6 +49,9 @@ class NewRenderer {
 
   Scene* scene_{};
   CG_NS::Pass* pass_{};
+
+  CG_NS::Viewport viewport_{0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 1.0f};
+  CG_NS::Scissor scissor_{{0}, {0}};
 
   enum DrawableReq {
     // Which material (default is PBRMR)

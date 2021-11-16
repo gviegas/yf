@@ -49,6 +49,10 @@ void NewRenderer::render(Scene& scene, CG_NS::Target& target) {
   scene_ = &scene;
   pass_ = &target.pass();
 
+  viewport_.width = target.size().width;
+  viewport_.height = target.size().height;
+  scissor_.size = target.size();
+
   processGraph();
 
   // TODO...

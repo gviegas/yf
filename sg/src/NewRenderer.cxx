@@ -7,12 +7,14 @@
 
 #include <typeinfo>
 #include <cstdio>
+#include <cstring>
 
 #include "yf/cg/Device.h"
 
 #include "NewRenderer.h"
 #include "Node.h"
 #include "Scene.h"
+#include "Camera.h"
 #include "Model.h"
 #include "MeshImpl.h"
 #include "Skin.h"
@@ -335,4 +337,32 @@ void NewRenderer::setInputs(DrawableReqMask mask,
     config.vxInputs.push_back(vxInputFor(VxDataJoints0));
     config.vxInputs.push_back(vxInputFor(VxDataWeights0));
   }
+}
+
+void NewRenderer::writeGlobal(uint64_t& offset) {
+  Global global;
+  const auto& cam = scene_->camera();
+
+  memcpy(global.v, cam.view().data(), sizeof global.v);
+  memcpy(global.p, cam.projection().data(), sizeof global.p);
+  memcpy(global.vp, cam.transform().data(), sizeof global.vp);
+  memcpy(global.o, ortho(1.0f, 1.0f, 0.0f, -1.0f).data(), sizeof global.o);
+
+  if (ViewportN > 1)
+    // TODO
+    throw runtime_error("Cannot render to multiple viewports");
+
+  global.vport[0].x = 0.0f;
+  global.vport[0].y = 0.0f;
+  global.vport[0].width = viewport_.width;
+  global.vport[0].height = viewport_.height;
+  global.vport[0].zNear = viewport_.zNear;
+  global.vport[0].zFar = viewport_.zFar;
+  global.vport[0].pad1 = 0.0f;
+
+  const uint64_t size = sizeof global;
+  unifBuffer_->write(offset, size, &global);
+  mainTable_->write(0, GlobalUnif.id, 0, *unifBuffer_, offset, size);
+  // TODO: Align
+  offset += size;
 }

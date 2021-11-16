@@ -138,6 +138,7 @@ class NewRenderer {
   bool setTables(DrawableReqMask, CG_NS::GrState::Config&,
                  uint32_t& tableIndex);
   void setInputs(DrawableReqMask, CG_NS::GrState::Config&);
+  bool setState(Drawable&);
 
   template<class T>
   std::pair<uint32_t, bool> getIndex(DrawableReqMask mask,

@@ -289,3 +289,37 @@ void NewRenderer::setInputs(DrawableReqMask mask,
     config.vxInputs.push_back(vxInputFor(VxDataWeights0));
   }
 }
+
+bool NewRenderer::setState(Drawable& drawable) {
+  const auto stateIndex = getIndex(drawable.mask, states_);
+
+  if (!stateIndex.second) {
+    CG_NS::GrState::Config config;
+    config.pass = pass_;
+
+    uint32_t vertIndex, fragIndex, tableIndex;
+    if (!setShaders(drawable.mask, config, vertIndex, fragIndex) ||
+        !setTables(drawable.mask, config, tableIndex))
+      return false;
+
+    setInputs(drawable.mask, config);
+    config.topology = drawable.primitive.topology();
+    config.polyMode = CG_NS::PolyModeFill;
+    config.cullMode = drawable.mask & RAlphaBlend ?
+                      CG_NS::CullModeNone : CG_NS::CullModeBack;
+    config.winding = CG_NS::WindingCounterCw;
+
+    try {
+      states_.insert(states_.begin() + stateIndex.first,
+                     {CG_NS::device().state(config), 0, drawable.mask,
+                      vertIndex, fragIndex, tableIndex});
+    } catch (...) {
+      return false;
+    }
+  }
+
+  drawable.stateIndex = stateIndex.first;
+  states_[stateIndex.first].count++;
+
+  return true;
+}

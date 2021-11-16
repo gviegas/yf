@@ -165,6 +165,106 @@ class NewRenderer {
       return {cur, false};
     return {cur, true};
   }
+
+  static constexpr uint32_t ViewportN = 1;
+
+  struct Viewport {
+    float x;
+    float y;
+    float width;
+    float height;
+    float zNear;
+    float zFar;
+
+    float pad1, pad2;
+  };
+
+  static_assert(sizeof(Viewport) == 32);
+
+  struct Global {
+    float v[16];
+    float p[16];
+    float vp[16];
+    float o[16];
+    Viewport vport[ViewportN];
+  };
+
+  static_assert(sizeof(Global) == 256 + sizeof(Viewport) * ViewportN);
+
+  static constexpr uint32_t LightN = 16;
+
+  struct LightSource {
+    int32_t notUsed;
+    int32_t lightType;
+    float intensity;
+    float range;
+    float color[3];
+    float angularScale;
+    float position[3];
+    float angularOffset;
+    float direction[3];
+
+    float pad1;
+  };
+
+  static_assert(sizeof(LightSource) == 64);
+
+  struct Light {
+    LightSource l[LightN];
+  };
+
+  static_assert(sizeof(Light) == sizeof(LightSource) * LightN);
+
+  static constexpr uint32_t InstanceN = 1;
+  static constexpr uint32_t JointN = 100;
+
+  struct PerInstanceWithSkin {
+    float m[16];
+    float mv[16];
+    float norm[16];
+    float joints[16 * JointN];
+    float normJoints[16 * JointN];
+  };
+
+  static_assert(sizeof(PerInstanceWithSkin) == 192 + 128 * JointN);
+
+  struct PerInstanceNoSkin {
+    float m[16];
+    float mv[16];
+    float norm[16];
+  };
+
+  static_assert(sizeof(PerInstanceNoSkin) == 192);
+
+  struct InstanceWithSkin {
+    PerInstanceWithSkin i[InstanceN];
+  };
+
+  static_assert(sizeof(InstanceWithSkin) ==
+                sizeof(PerInstanceWithSkin) * InstanceN);
+
+  struct InstanceNoSkin {
+    PerInstanceNoSkin i[InstanceN];
+  };
+
+  static_assert(sizeof(InstanceNoSkin) ==
+                sizeof(PerInstanceNoSkin) * InstanceN);
+
+  struct MaterialPbr {
+    float colorFac[4];
+    float pbrFac[4];
+    float emissiveFac[3];
+
+    float pad1;
+  };
+
+  static_assert(sizeof(MaterialPbr) == 48);
+
+  struct MaterialUnlit {
+    float colorFac[4];
+  };
+
+  static_assert(sizeof(MaterialUnlit) == 16);
 };
 
 SG_NS_END

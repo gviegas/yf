@@ -37,14 +37,17 @@ NewRenderer::NewRenderer() {
 }
 
 void NewRenderer::render(Scene& scene, CG_NS::Target& target) {
-  if (&scene == prevScene_) {
+  if (&scene == scene_) {
     // TODO
   }
 
-  if (&target.pass() != prevPass_) {
+  if (&target.pass() != pass_) {
     // TODO
     abort();
   }
+
+  scene_ = &scene;
+  pass_ = &target.pass();
 
   processGraph(scene);
 

@@ -46,8 +46,8 @@ class NewRenderer {
   CG_NS::Buffer::Ptr unifBuffer_{};
   CG_NS::DcTable::Ptr mainTable_{};
 
-  CG_NS::Pass* prevPass_{};
-  Scene* prevScene_{};
+  Scene* scene_{};
+  CG_NS::Pass* pass_{};
 
   enum DrawableReq {
     // Which material (default is PBRMR)

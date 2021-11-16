@@ -61,7 +61,7 @@ def defsForMask(mask):
 
 def nameForMask(mask):
     mask = mask & optMask
-    return hex(mask)[2:]
+    return hex(mask)[2:].upper()
 
 vportN = 1
 instN  = 1

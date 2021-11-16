@@ -163,7 +163,9 @@ void NewRenderer::processGraph(Scene& scene) {
 }
 
 bool NewRenderer::setShaders(DrawableReqMask mask,
-                             CG_NS::GrState::Config& config) {
+                             CG_NS::GrState::Config& config,
+                             uint32_t& vertShaderIndex,
+                             uint32_t& fragShaderIndex) {
   mask = mask & RShaderMask;
 
   const auto vertIndex = getIndex(mask, vertShaders_);
@@ -205,6 +207,8 @@ bool NewRenderer::setShaders(DrawableReqMask mask,
   auto& fragShader = fragShaders_[fragIndex.first];
   config.shaders.push_back(vertShader.shader.get());
   config.shaders.push_back(fragShader.shader.get());
+  vertShaderIndex = vertIndex.first;
+  fragShaderIndex = fragIndex.first;
   vertShader.count++;
   fragShader.count++;
 
@@ -212,10 +216,11 @@ bool NewRenderer::setShaders(DrawableReqMask mask,
 }
 
 bool NewRenderer::setTables(DrawableReqMask mask,
-                            CG_NS::GrState::Config& config) {
+                            CG_NS::GrState::Config& config,
+                            uint32_t& tableIndex) {
   mask = mask & RTableMask;
 
-  const auto tableIndex = getIndex(mask, tables_);
+  const auto index = getIndex(mask, tables_);
 
   auto uniform = [](CG_NS::DcId id) {
     return CG_NS::DcEntry{id, CG_NS::DcTypeUniform, 1};
@@ -225,7 +230,7 @@ bool NewRenderer::setTables(DrawableReqMask mask,
     return CG_NS::DcEntry{id, CG_NS::DcTypeImgSampler, 1};
   };
 
-  if (!tableIndex.second) {
+  if (!index.second) {
     vector<CG_NS::DcEntry> entries{uniform(0), uniform(1)};
     CG_NS::DcId id = 2;
 
@@ -245,7 +250,7 @@ bool NewRenderer::setTables(DrawableReqMask mask,
     }
 
     try {
-      tables_.insert(tables_.begin() + tableIndex.first,
+      tables_.insert(tables_.begin() + index.first,
                      {CG_NS::device().dcTable(entries), 0, mask});
     } catch (...) {
       return false;
@@ -254,8 +259,9 @@ bool NewRenderer::setTables(DrawableReqMask mask,
 
   config.dcTables.push_back(mainTable_.get());
 
-  auto& table = tables_[tableIndex.first];
+  auto& table = tables_[index.first];
   config.dcTables.push_back(table.table.get());
+  tableIndex = index.first;
   table.count++;
 
   return true;

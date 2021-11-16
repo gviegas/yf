@@ -121,17 +121,26 @@ void NewRenderer::pushDrawables(Node& node, Mesh& mesh, Skin* skin) {
     if (material->emissive().texture)
       mask |= REmissiveMap;
 
+    Drawable* drawable;
     if (material->alphaMode() == Material::Blend) {
       mask |= RAlphaBlend;
+
       // TODO: Sort
       blendDrawables_.push_back({nodeIndex, mesh[i], mask, UINT32_MAX});
-      continue;
+      drawable = &blendDrawables_.back();
+
+    } else {
+      if (material->alphaMode() == Material::Mask)
+        mask |= RAlphaMask;
+      // Opaque alpha mode otherwise
+
+      opaqueDrawables_.push_back({nodeIndex, mesh[i], mask, UINT32_MAX});
+      drawable = &opaqueDrawables_.back();
     }
 
-    if (material->alphaMode() == Material::Mask)
-      mask |= RAlphaMask;
-
-    opaqueDrawables_.push_back({nodeIndex, mesh[i], mask, UINT32_MAX});
+    if (!setState(*drawable))
+      // TODO
+      throw runtime_error("Could not set state for Drawable)");
   }
 }
 

@@ -280,8 +280,9 @@ class NewRenderer {
 
   void writeGlobal(uint64_t& offset);
   void writeLight(uint64_t& offset);
-  void writeInstance(uint64_t& offset, Drawable&, uint32_t allocation);
+  void writeInstanceWithSkin(uint64_t& offset, Drawable&, uint32_t allocation);
   void copySkin(PerInstanceWithSkin&, Drawable&);
+  void writeInstanceNoSkin(uint64_t& offset, Drawable&, uint32_t allocation);
   void writeMaterialPbr(uint64_t& offset, Drawable&, uint32_t allocation);
   void writeMaterialUnlit(uint64_t& offset, Drawable&, uint32_t allocation);
 };

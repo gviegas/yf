@@ -342,7 +342,6 @@ void NewRenderer::setInputs(DrawableReqMask mask,
 void NewRenderer::writeGlobal(uint64_t& offset) {
   Global global;
   const auto& cam = scene_->camera();
-
   memcpy(global.v, cam.view().data(), sizeof global.v);
   memcpy(global.p, cam.projection().data(), sizeof global.p);
   memcpy(global.vp, cam.transform().data(), sizeof global.vp);
@@ -381,17 +380,18 @@ void NewRenderer::writeLight(uint64_t& offset) {
 
 void NewRenderer::writeInstanceWithSkin(uint64_t& offset, Drawable& drawable,
                                         uint32_t allocation) {
+  assert(drawable.mask & RSkin0);
+
   // TODO
   if (InstanceN > 1)
     throw runtime_error("Cannot render multiple instances");
 
+  InstanceWithSkin inst;
   const auto& node = *drawableNodes_[drawable.nodeIndex];
   const auto& m = node.worldTransform();
   const auto& v = scene_->camera().view();
   const auto mv = v * m;
   const auto& norm = node.worldNormal();
-
-  InstanceWithSkin inst;
   memcpy(inst.i[0].m, m.data(), sizeof inst.i[0].m);
   memcpy(inst.i[0].mv, mv.data(), sizeof inst.i[0].mv);
   memcpy(inst.i[0].norm, norm.data(), sizeof inst.i[0].norm);
@@ -455,17 +455,18 @@ void NewRenderer::copyInstanceSkin(PerInstanceWithSkin& instance,
 
 void NewRenderer::writeInstanceNoSkin(uint64_t& offset, Drawable& drawable,
                                       uint32_t allocation) {
+  assert(!(drawable.mask & RSkin0));
+
   // TODO
   if (InstanceN > 1)
     throw runtime_error("Cannot render multiple instances");
 
+  InstanceNoSkin inst;
   const auto& node = *drawableNodes_[drawable.nodeIndex];
   const auto& m = node.worldTransform();
   const auto& v = scene_->camera().view();
   const auto mv = v * m;
   const auto& norm = node.worldNormal();
-
-  InstanceNoSkin inst;
   memcpy(inst.i[0].m, m.data(), sizeof inst.i[0].m);
   memcpy(inst.i[0].mv, mv.data(), sizeof inst.i[0].mv);
   memcpy(inst.i[0].norm, norm.data(), sizeof inst.i[0].norm);
@@ -484,7 +485,6 @@ void NewRenderer::writeMaterialPbr(uint64_t& offset, Drawable& drawable,
 
   MaterialPbr pbr;
   const auto& material = *drawable.primitive.material();
-  auto& table = *tables_[states_[drawable.stateIndex].tableIndex].table;
 
   if (drawable.mask & RPbrsg) {
     // TODO
@@ -504,6 +504,7 @@ void NewRenderer::writeMaterialPbr(uint64_t& offset, Drawable& drawable,
     pbr.pad1 = 0.0f;
   }
 
+  auto& table = *tables_[states_[drawable.stateIndex].tableIndex].table;
   const uint64_t size = sizeof pbr;
   unifBuffer_->write(offset, size, &pbr);
   table.write(allocation, MaterialUnif.id, 0, *unifBuffer_, offset, size);
@@ -517,14 +518,13 @@ void NewRenderer::writeMaterialUnlit(uint64_t& offset, Drawable& drawable,
 
   MaterialUnlit unlit;
   const auto& material = *drawable.primitive.material();
-  auto& table = *tables_[states_[drawable.stateIndex].tableIndex].table;
-
   // TODO: Unlit color data in 'sg::Material'
   memcpy(unlit.colorFac, Vec4f(1.0f).data(), sizeof unlit.colorFac);
   unlit.alphaCutoff = material.alphaCutoff();
   unlit.doubleSided = material.doubleSided();
   unlit.pad1 = unlit.pad2 = 0.0f;
 
+  auto& table = *tables_[states_[drawable.stateIndex].tableIndex].table;
   const uint64_t size = sizeof unlit;
   unifBuffer_->write(offset, size, &unlit);
   table.write(allocation, MaterialUnif.id, 0, *unifBuffer_, offset, size);

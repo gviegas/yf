@@ -11,11 +11,18 @@ layout(std140, column_major) uniform;
 ///
 layout(set=1, binding=1) uniform Material {
   vec4 colorFac;
+  float alphaCutoff;
+  int doubleSided;
 #ifndef MATERIAL_UNLIT
+  float normalFac;
+  float occlusionFac;
   vec4 pbrFac;
   vec3 emissiveFac;
 
   float pad1;
+#else
+
+  float pad1, pad2;
 #endif
 } material_;
 

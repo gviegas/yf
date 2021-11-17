@@ -256,19 +256,27 @@ class NewRenderer {
 
   struct MaterialPbr {
     float colorFac[4];
+    float alphaCutoff;
+    int32_t doubleSided;
+    float normalFac;
+    float occlusionFac;
     float pbrFac[4];
     float emissiveFac[3];
 
     float pad1;
   };
 
-  static_assert(sizeof(MaterialPbr) == 48);
+  static_assert(sizeof(MaterialPbr) == 64);
 
   struct MaterialUnlit {
     float colorFac[4];
+    float alphaCutoff;
+    int32_t doubleSided;
+
+    float pad1, pad2;
   };
 
-  static_assert(sizeof(MaterialUnlit) == 16);
+  static_assert(sizeof(MaterialUnlit) == 32);
 
   void writeGlobal(uint64_t& offset);
   void writeLight(uint64_t& offset);

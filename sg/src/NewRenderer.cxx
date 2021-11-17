@@ -480,7 +480,7 @@ void NewRenderer::writeMaterialPbr(uint64_t& offset, Drawable& drawable,
     throw runtime_error("Cannot render PBRSG materials");
   } else {
     const auto& pbrmr = material.pbrmr();
-    memcpy(&pbr.colorFac, pbrmr.colorFac.data(), sizeof pbr.colorFac);
+    memcpy(pbr.colorFac, pbrmr.colorFac.data(), sizeof pbr.colorFac);
     pbr.alphaCutoff = material.alphaCutoff();
     pbr.doubleSided = material.doubleSided();
     pbr.normalFac = material.normal().scale;
@@ -495,6 +495,27 @@ void NewRenderer::writeMaterialPbr(uint64_t& offset, Drawable& drawable,
 
   const uint64_t size = sizeof pbr;
   unifBuffer_->write(offset, size, &pbr);
+  table.write(allocation, MaterialUnif.id, 0, *unifBuffer_, offset, size);
+  // TODO: Align
+  offset += size;
+}
+
+void NewRenderer::writeMaterialUnlit(uint64_t& offset, Drawable& drawable,
+                                     uint32_t allocation) {
+  assert(drawable.mask & RUnlit);
+
+  MaterialUnlit unlit;
+  const auto& material = *drawable.primitive.material();
+  auto& table = *tables_[states_[drawable.stateIndex].tableIndex].table;
+
+  // TODO: Unlit color data in 'sg::Material'
+  memcpy(unlit.colorFac, Vec4f(1.0f).data(), sizeof unlit.colorFac);
+  unlit.alphaCutoff = material.alphaCutoff();
+  unlit.doubleSided = material.doubleSided();
+  unlit.pad1 = unlit.pad2 = 0.0f;
+
+  const uint64_t size = sizeof unlit;
+  unifBuffer_->write(offset, size, &unlit);
   table.write(allocation, MaterialUnif.id, 0, *unifBuffer_, offset, size);
   // TODO: Align
   offset += size;

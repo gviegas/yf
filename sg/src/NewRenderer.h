@@ -283,6 +283,7 @@ class NewRenderer {
   void writeInstance(uint64_t& offset, Drawable&, uint32_t allocation);
   void copySkin(PerInstanceWithSkin&, Drawable&);
   void writeMaterialPbr(uint64_t& offset, Drawable&, uint32_t allocation);
+  void writeMaterialUnlit(uint64_t& offset, Drawable&, uint32_t allocation);
 };
 
 SG_NS_END

@@ -377,3 +377,45 @@ void NewRenderer::writeLight(uint64_t& offset) {
   // TODO: Align
   offset += size;
 }
+
+void NewRenderer::writeInstance(uint64_t& offset, Drawable& drawable,
+                                uint32_t allocation) {
+  // TODO
+  if (InstanceN > 1)
+    throw runtime_error("Cannot render multiple instances");
+
+  auto& node = *drawableNodes_[drawable.nodeIndex];
+  auto& table = *tables_[states_[drawable.stateIndex].tableIndex].table;
+
+  const auto& m = node.worldTransform();
+  const auto& v = scene_->camera().view();
+  const auto mv = v * m;
+  const auto& norm = node.worldNormal();
+
+  if (drawable.mask & RSkin0) {
+    InstanceWithSkin inst;
+    memcpy(inst.i[0].m, m.data(), sizeof inst.i[0].m);
+    memcpy(inst.i[0].mv, mv.data(), sizeof inst.i[0].mv);
+    memcpy(inst.i[0].norm, norm.data(), sizeof inst.i[0].norm);
+
+    // TODO: Skin
+
+    const uint64_t size = sizeof inst;
+    unifBuffer_->write(offset, size, &inst);
+    table.write(allocation, InstanceUnif.id, 0, *unifBuffer_, offset, size);
+    // TODO: Align
+    offset += size;
+
+  } else {
+    InstanceNoSkin inst;
+    memcpy(inst.i[0].m, m.data(), sizeof inst.i[0].m);
+    memcpy(inst.i[0].mv, mv.data(), sizeof inst.i[0].mv);
+    memcpy(inst.i[0].norm, norm.data(), sizeof inst.i[0].norm);
+
+    const uint64_t size = sizeof inst;
+    unifBuffer_->write(offset, size, &inst);
+    table.write(allocation, InstanceUnif.id, 0, *unifBuffer_, offset, size);
+    // TODO: Align
+    offset += size;
+  }
+}

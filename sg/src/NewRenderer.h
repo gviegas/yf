@@ -272,6 +272,7 @@ class NewRenderer {
 
   void writeGlobal(uint64_t& offset);
   void writeLight(uint64_t& offset);
+  void writeInstance(uint64_t& offset, Drawable&, uint32_t allocation);
 };
 
 SG_NS_END

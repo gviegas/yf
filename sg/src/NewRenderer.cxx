@@ -395,7 +395,7 @@ void NewRenderer::writeInstanceWithSkin(uint64_t& offset, Drawable& drawable,
   memcpy(inst.i[0].m, m.data(), sizeof inst.i[0].m);
   memcpy(inst.i[0].mv, mv.data(), sizeof inst.i[0].mv);
   memcpy(inst.i[0].norm, norm.data(), sizeof inst.i[0].norm);
-  copySkin(inst.i[0], drawable);
+  copyInstanceSkin(inst.i[0], drawable);
 
   auto& table = *tables_[states_[drawable.stateIndex].tableIndex].table;
   const uint64_t size = sizeof inst;
@@ -405,7 +405,8 @@ void NewRenderer::writeInstanceWithSkin(uint64_t& offset, Drawable& drawable,
   offset += size;
 }
 
-void NewRenderer::copySkin(PerInstanceWithSkin& instance, Drawable& drawable) {
+void NewRenderer::copyInstanceSkin(PerInstanceWithSkin& instance,
+                                   Drawable& drawable) {
   auto& node = *drawableNodes_[drawable.nodeIndex];
 
   // TODO: Change this if other node types with skin are added

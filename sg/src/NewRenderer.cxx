@@ -466,3 +466,36 @@ void NewRenderer::copySkin(PerInstanceWithSkin& instance, Drawable& drawable) {
   }
 #endif
 }
+
+void NewRenderer::writeMaterialPbr(uint64_t& offset, Drawable& drawable,
+                                   uint32_t allocation) {
+  assert(!(drawable.mask & RUnlit));
+
+  MaterialPbr pbr;
+  const auto& material = *drawable.primitive.material();
+  auto& table = *tables_[states_[drawable.stateIndex].tableIndex].table;
+
+  if (drawable.mask & RPbrsg) {
+    // TODO
+    throw runtime_error("Cannot render PBRSG materials");
+  } else {
+    const auto& pbrmr = material.pbrmr();
+    memcpy(&pbr.colorFac, pbrmr.colorFac.data(), sizeof pbr.colorFac);
+    pbr.alphaCutoff = material.alphaCutoff();
+    pbr.doubleSided = material.doubleSided();
+    pbr.normalFac = material.normal().scale;
+    pbr.occlusionFac= material.occlusion().strength;
+    pbr.pbrFac[0] = pbrmr.metallic;
+    pbr.pbrFac[1] = pbrmr.roughness;
+    pbr.pbrFac[2] = pbr.pbrFac[3] = 0.0f;
+    memcpy(&pbr.emissiveFac, material.emissive().factor.data(),
+           sizeof pbr.emissiveFac);
+    pbr.pad1 = 0.0f;
+  }
+
+  const uint64_t size = sizeof pbr;
+  unifBuffer_->write(offset, size, &pbr);
+  table.write(allocation, MaterialUnif.id, 0, *unifBuffer_, offset, size);
+  // TODO: Align
+  offset += size;
+}

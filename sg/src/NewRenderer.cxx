@@ -8,6 +8,7 @@
 #include <typeinfo>
 #include <cstdio>
 #include <cstring>
+#include <cassert>
 
 #include "yf/cg/Device.h"
 
@@ -418,4 +419,51 @@ void NewRenderer::writeInstance(uint64_t& offset, Drawable& drawable,
     // TODO: Align
     offset += size;
   }
+}
+
+void NewRenderer::copySkin(PerInstanceWithSkin& instance, Drawable& drawable) {
+  auto& node = *drawableNodes_[drawable.nodeIndex];
+
+  // TODO: Change this if other node types with skin are added
+  assert(typeid(node) == typeid(Model));
+  auto& skin = *static_cast<Model&>(node).skin();
+
+  if (skin.joints().size() > JointN)
+    throw runtime_error("Cannot render drawable with this many joints");
+
+  const size_t n = 16;
+  const size_t size = sizeof(float[n]);
+  uint32_t index = 0;
+  float* joints = instance.joints;
+  float* normJoints = instance.normJoints;
+
+  if (skin.inverseBind().size() > 0) {
+    for (const auto& joint : skin.joints()) {
+      // TODO: Do this on `processGraph()` to avoid unnecessary computations
+      const Mat4f jointM = joint->worldTransform() * skin.inverseBind()[index];
+      memcpy(joints, jointM.data(), size);
+      memcpy(normJoints, transpose(invert(jointM)).data(), size);
+      joints += n;
+      normJoints += n;
+      index++;
+    }
+  } else {
+    for (const auto& joint : skin.joints()) {
+      memcpy(joints, joint->worldTransform().data(), size);
+      memcpy(normJoints, joint->worldNormal().data(), size);
+      joints += n;
+      normJoints += n;
+      index++;
+    }
+  }
+
+#if 0
+  const auto identity = Mat4f::identity();
+  for (auto i = index; i < JointN; i++) {
+    memcpy(joints, identity.data(), size);
+    memcpy(normJoints, identity.data(), size);
+    joints += n;
+    normJoints += n;
+  }
+#endif
 }

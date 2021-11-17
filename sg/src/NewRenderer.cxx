@@ -366,3 +366,15 @@ void NewRenderer::writeGlobal(uint64_t& offset) {
   // TODO: Align
   offset += size;
 }
+
+void NewRenderer::writeLight(uint64_t& offset) {
+  // TODO: Light nodes not implemented yet
+  Light light;
+  light.l[0].notUsed = 1;
+
+  const uint64_t size = sizeof light;
+  unifBuffer_->write(offset, size, &light);
+  mainTable_->write(0, LightUnif.id, 0, *unifBuffer_, offset, size);
+  // TODO: Align
+  offset += size;
+}

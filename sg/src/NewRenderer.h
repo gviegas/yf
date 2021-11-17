@@ -271,6 +271,7 @@ class NewRenderer {
   static_assert(sizeof(MaterialUnlit) == 16);
 
   void writeGlobal(uint64_t& offset);
+  void writeLight(uint64_t& offset);
 };
 
 SG_NS_END

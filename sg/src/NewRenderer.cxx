@@ -26,6 +26,9 @@ using namespace std;
 constexpr uint64_t UnifBufferSize = 1 << 21;
 constexpr CG_NS::DcEntry GlobalUnif{0, CG_NS::DcTypeUniform, 1};
 constexpr CG_NS::DcEntry LightUnif{1, CG_NS::DcTypeUniform, 1};
+constexpr CG_NS::DcEntry InstanceUnif{0, CG_NS::DcTypeUniform, 1};
+constexpr CG_NS::DcEntry MaterialUnif{1, CG_NS::DcTypeUniform, 1};
+constexpr CG_NS::DcId FirstImgSampler = MaterialUnif.id + 1;
 
 NewRenderer::NewRenderer() {
   auto& dev = CG_NS::device();
@@ -274,31 +277,27 @@ bool NewRenderer::setTables(DrawableReqMask mask,
 
   const auto index = getIndex(mask, tables_);
 
-  auto uniform = [](CG_NS::DcId id) {
-    return CG_NS::DcEntry{id, CG_NS::DcTypeUniform, 1};
-  };
-
-  auto imgSampler = [](CG_NS::DcId id) {
-    return CG_NS::DcEntry{id, CG_NS::DcTypeImgSampler, 1};
-  };
-
   if (!index.second) {
-    vector<CG_NS::DcEntry> entries{uniform(0), uniform(1)};
-    CG_NS::DcId id = 2;
+    vector<CG_NS::DcEntry> entries{InstanceUnif, MaterialUnif};
+
+    CG_NS::DcId id = FirstImgSampler;
+    auto imgSampler = [&] {
+      return CG_NS::DcEntry{id++, CG_NS::DcTypeImgSampler, 1};
+    };
 
     if (mask & RColorMap)
-      entries.push_back(imgSampler(id++));
+      entries.push_back(imgSampler());
 
     if (!(mask & RUnlit)) {
       // PBRMR or PBRSG
       if (mask & RPbrMap)
-        entries.push_back(imgSampler(id++));
+        entries.push_back(imgSampler());
       if (mask & RNormalMap)
-        entries.push_back(imgSampler(id++));
+        entries.push_back(imgSampler());
       if (mask & ROcclusionMap)
-        entries.push_back(imgSampler(id++));
+        entries.push_back(imgSampler());
       if (mask & REmissiveMap)
-        entries.push_back(imgSampler(id++));
+        entries.push_back(imgSampler());
     }
 
     try {

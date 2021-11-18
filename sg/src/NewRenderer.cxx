@@ -356,6 +356,53 @@ void NewRenderer::allocateTables() {
   }
 }
 
+void NewRenderer::allocateTablesSubset() {
+  uint32_t minimum = 0;
+  auto tableAlloc = tableAllocations_.begin();
+
+  for (auto& table : tables_) {
+    if (table.count == 0)
+      table.table->allocate(0);
+    else
+      minimum++;
+    *tableAlloc++ = table.count;
+  }
+
+  while (true) {
+    bool failed = false;
+    uint32_t limit = 0;
+
+    for (uint32_t i = 0; i < tables_.size(); i++) {
+      auto& table = tables_[i];
+      auto& tableAlloc = tableAllocations_[i];
+
+      if (table.count == 0)
+        continue;
+
+      if (tableAlloc == 1) {
+        limit++;
+        if (table.table->allocations() == 1)
+          continue;
+      }
+
+      try {
+        table.table->allocate(tableAlloc);
+      } catch (...) {
+        failed = true;
+      }
+    }
+
+    if (failed) {
+      if (limit == minimum)
+        throw runtime_error("Cannot allocate required tables");
+      for (auto& tableAlloc : tableAllocations_)
+        tableAlloc = max(1U, tableAlloc >> 1);
+      continue;
+    }
+    return;
+  }
+}
+
 void NewRenderer::writeGlobal(uint64_t& offset) {
   Global global;
   const auto& cam = scene_->camera();

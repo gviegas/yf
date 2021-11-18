@@ -173,6 +173,7 @@ class NewRenderer {
   std::vector<uint32_t> tableAllocations_{};
 
   void allocateTables();
+  void allocateTablesSubset();
 
   static constexpr uint32_t ViewportN = 1;
 

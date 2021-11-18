@@ -20,6 +20,7 @@
 #include "MeshImpl.h"
 #include "Skin.h"
 #include "Material.h"
+#include "TextureImpl.h"
 
 using namespace SG_NS;
 using namespace std;
@@ -530,4 +531,39 @@ void NewRenderer::writeMaterialUnlit(uint64_t& offset, Drawable& drawable,
   table.write(allocation, MaterialUnif.id, 0, *unifBuffer_, offset, size);
   // TODO: Align
   offset += size;
+}
+
+void NewRenderer::writeTextureMaps(Drawable& drawable, uint32_t allocation) {
+  const auto& material = *drawable.primitive.material();
+  auto& table = *tables_[states_[drawable.stateIndex].tableIndex].table;
+
+  // XXX: Order must be kept in sync with `setTables()`
+  CG_NS::DcId id = FirstImgSampler;
+  auto copy = [&](Texture& texture) {
+    texture.impl().copy(table, allocation, id++, 0, 0);
+  };
+
+  if (drawable.mask & RUnlit) {
+    // TODO
+    throw runtime_error("Cannot render Unlit materials");
+
+  } else {
+    if (drawable.mask & RPbrsg) {
+      // TODO
+      throw runtime_error("Cannot render PBRSG materials");
+
+    } else {
+      if (drawable.mask & RColorMap)
+        copy(*material.pbrmr().colorTex);
+      if (drawable.mask & RPbrMap)
+        copy(*material.pbrmr().metalRoughTex);
+    }
+
+    if (drawable.mask & RNormalMap)
+      copy(*material.normal().texture);
+    if (drawable.mask & ROcclusionMap)
+      copy(*material.occlusion().texture);
+    if (drawable.mask & REmissiveMap)
+      copy(*material.emissive().texture);
+  }
 }

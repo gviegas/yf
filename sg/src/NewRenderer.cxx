@@ -61,6 +61,7 @@ void NewRenderer::render(Scene& scene, CG_NS::Target& target) {
   scissor_.size = target.size();
 
   processGraph();
+  allocateTables();
 
   // TODO...
 }

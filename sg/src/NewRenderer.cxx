@@ -340,6 +340,19 @@ void NewRenderer::setInputs(DrawableReqMask mask,
   }
 }
 
+void NewRenderer::allocateTables() {
+  auto tableAlloc = tableAllocations_.begin();
+  for (auto& table : tables_) {
+    try {
+      table.table->allocate(table.count);
+      *tableAlloc++ = table.count;
+    } catch (...) {
+      // TODO
+      throw runtime_error("Could not allocate required tables");
+    }
+  }
+}
+
 void NewRenderer::writeGlobal(uint64_t& offset) {
   Global global;
   const auto& cam = scene_->camera();

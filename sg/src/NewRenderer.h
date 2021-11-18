@@ -170,6 +170,10 @@ class NewRenderer {
     return {cur, true};
   }
 
+  std::vector<uint32_t> tableAllocations_{};
+
+  void allocateTables();
+
   static constexpr uint32_t ViewportN = 1;
 
   struct Viewport {

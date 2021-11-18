@@ -446,8 +446,7 @@ void NewRenderer::writeGlobal(uint64_t& offset) {
   const uint64_t size = sizeof global;
   unifBuffer_->write(offset, size, &global);
   mainTable_->write(0, GlobalUnif.id, 0, *unifBuffer_, offset, size);
-  // TODO: Align
-  offset += size;
+  offset += size + globalPad_;
 }
 
 void NewRenderer::writeLight(uint64_t& offset) {
@@ -458,8 +457,7 @@ void NewRenderer::writeLight(uint64_t& offset) {
   const uint64_t size = sizeof light;
   unifBuffer_->write(offset, size, &light);
   mainTable_->write(0, LightUnif.id, 0, *unifBuffer_, offset, size);
-  // TODO: Align
-  offset += size;
+  offset += size + lightPad_;
 }
 
 void NewRenderer::writeInstanceWithSkin(uint64_t& offset, Drawable& drawable,
@@ -485,8 +483,7 @@ void NewRenderer::writeInstanceWithSkin(uint64_t& offset, Drawable& drawable,
   const uint64_t size = sizeof inst;
   unifBuffer_->write(offset, size, &inst);
   table.write(allocation, InstanceUnif.id, 0, *unifBuffer_, offset, size);
-  // TODO: Align
-  offset += size;
+  offset += size + instanceWithSkinPad_;
 }
 
 void NewRenderer::copyInstanceSkin(PerInstanceWithSkin& instance,
@@ -559,8 +556,7 @@ void NewRenderer::writeInstanceNoSkin(uint64_t& offset, Drawable& drawable,
   const uint64_t size = sizeof inst;
   unifBuffer_->write(offset, size, &inst);
   table.write(allocation, InstanceUnif.id, 0, *unifBuffer_, offset, size);
-  // TODO: Align
-  offset += size;
+  offset += size + instanceNoSkinPad_;
 }
 
 void NewRenderer::writeMaterialPbr(uint64_t& offset, Drawable& drawable,
@@ -592,8 +588,7 @@ void NewRenderer::writeMaterialPbr(uint64_t& offset, Drawable& drawable,
   const uint64_t size = sizeof pbr;
   unifBuffer_->write(offset, size, &pbr);
   table.write(allocation, MaterialUnif.id, 0, *unifBuffer_, offset, size);
-  // TODO: Align
-  offset += size;
+  offset += size + materialPbrPad_;
 }
 
 void NewRenderer::writeMaterialUnlit(uint64_t& offset, Drawable& drawable,
@@ -612,8 +607,7 @@ void NewRenderer::writeMaterialUnlit(uint64_t& offset, Drawable& drawable,
   const uint64_t size = sizeof unlit;
   unifBuffer_->write(offset, size, &unlit);
   table.write(allocation, MaterialUnif.id, 0, *unifBuffer_, offset, size);
-  // TODO: Align
-  offset += size;
+  offset += size + materialUnlitPad_;
 }
 
 void NewRenderer::writeTextureMaps(Drawable& drawable, uint32_t allocation) {

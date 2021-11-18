@@ -15,6 +15,7 @@
 #include "yf/cg/Queue.h"
 #include "yf/cg/Pass.h"
 #include "yf/cg/Buffer.h"
+#include "yf/cg/Shader.h"
 #include "yf/cg/DcTable.h"
 #include "yf/cg/State.h"
 #include "yf/cg/Encoder.h"

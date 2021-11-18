@@ -41,6 +41,24 @@ NewRenderer::NewRenderer() {
   // This table will contain data common to all drawables
   mainTable_ = dev.dcTable({GlobalUnif, LightUnif});
   mainTable_->allocate(1);
+
+  // Uniforms have device-imposed alignment requirements
+  const uint64_t alignedOff = dev.limits().minDcUniformWriteAlignedOffset;
+  if (alignedOff != 0) {
+    uint64_t mod;
+    if ((mod = sizeof(Global) % alignedOff))
+      globalPad_ = alignedOff - mod;
+    if ((mod = sizeof(Light) % alignedOff))
+      lightPad_ = alignedOff - mod;
+    if ((mod = sizeof(InstanceWithSkin) % alignedOff))
+      instanceWithSkinPad_ = alignedOff - mod;
+    if ((mod = sizeof(InstanceNoSkin) % alignedOff))
+      instanceNoSkinPad_ = alignedOff - mod;
+    if ((mod = sizeof(MaterialPbr) % alignedOff))
+      materialPbrPad_ = alignedOff - mod;
+    if ((mod = sizeof(MaterialUnlit) % alignedOff))
+      materialUnlitPad_ = alignedOff - mod;
+  }
 }
 
 void NewRenderer::render(Scene& scene, CG_NS::Target& target) {

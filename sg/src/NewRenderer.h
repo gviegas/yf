@@ -283,6 +283,13 @@ class NewRenderer {
 
   static_assert(sizeof(MaterialUnlit) == 32);
 
+  uint64_t globalPad_{};
+  uint64_t lightPad_{};
+  uint64_t instanceWithSkinPad_{};
+  uint64_t instanceNoSkinPad_{};
+  uint64_t materialPbrPad_{};
+  uint64_t materialUnlitPad_{};
+
   void writeGlobal(uint64_t& offset);
   void writeLight(uint64_t& offset);
   void writeInstanceWithSkin(uint64_t& offset, Drawable&, uint32_t allocation);

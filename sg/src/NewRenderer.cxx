@@ -341,6 +341,9 @@ void NewRenderer::setInputs(DrawableReqMask mask,
 }
 
 void NewRenderer::allocateTables() {
+  if (tableAllocations_.size() != tables_.size())
+    tableAllocations_.resize(tables_.size());
+
   auto tableAlloc = tableAllocations_.begin();
   for (auto& table : tables_) {
     try {

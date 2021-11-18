@@ -350,8 +350,9 @@ void NewRenderer::allocateTables() {
       table.table->allocate(table.count);
       *tableAlloc++ = table.count;
     } catch (...) {
-      // TODO
-      throw runtime_error("Could not allocate required tables");
+      // Try with fewer allocations
+      allocateTablesSubset();
+      return;
     }
   }
 }

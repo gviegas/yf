@@ -462,8 +462,11 @@ bool NewRenderer::checkUnifBuffer(uint64_t requiredSize) {
     newSize = (requiredSize & ~(UnifBufferSize - 1)) + UnifBufferSize;
     newSize = max(requiredSize, newSize);
   } else if (requiredSize < size) {
-    newSize = size >> 1;
-    if (newSize < requiredSize || newSize < UnifBufferSize)
+    if (requiredSize <= UnifBufferSize)
+      newSize = UnifBufferSize;
+    else
+      newSize = (requiredSize & ~(UnifBufferSize - 1)) + UnifBufferSize;
+    if (newSize > (size >> 1))
       return true;
   } else {
     return true;

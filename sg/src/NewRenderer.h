@@ -154,6 +154,7 @@ class NewRenderer {
   void allocateTablesSubset();
 
   uint64_t mainUnifSize();
+  uint64_t unifSize(const Table&);
   bool checkUnifBuffer(uint64_t requiredSize);
 
   static constexpr uint32_t ViewportN = 1;

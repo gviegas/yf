@@ -460,6 +460,10 @@ uint64_t NewRenderer::mainUnifSize() {
   return global + light;
 }
 
+uint64_t NewRenderer::unifSize(const Table& table) {
+  return table.unifSize * table.remaining;
+}
+
 bool NewRenderer::checkUnifBuffer(uint64_t requiredSize) {
   const uint64_t size = unifBuffer_->size();
   uint64_t newSize;

@@ -454,6 +454,12 @@ void NewRenderer::allocateTablesSubset() {
   }
 }
 
+uint64_t NewRenderer::mainUnifSize() {
+  const uint64_t global = sizeof(Global) + globalPad_;
+  const uint64_t light = sizeof(Light) + lightPad_;
+  return global + light;
+}
+
 bool NewRenderer::checkUnifBuffer(uint64_t requiredSize) {
   const uint64_t size = unifBuffer_->size();
   uint64_t newSize;

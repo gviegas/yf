@@ -81,6 +81,10 @@ void NewRenderer::render(Scene& scene, CG_NS::Target& target) {
   processGraph();
   allocateTables();
 
+  uint64_t offset = 0;
+  writeGlobal(offset);
+  writeLight(offset);
+
   // TODO...
 }
 

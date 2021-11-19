@@ -348,9 +348,19 @@ bool NewRenderer::setTables(DrawableReqMask mask,
         entries.push_back(imgSampler());
     }
 
+    uint64_t unifSize;
+    if (mask & RSkin0)
+      unifSize = sizeof(InstanceWithSkin) + instanceWithSkinPad_;
+    else
+      unifSize = sizeof(InstanceNoSkin) + instanceNoSkinPad_;
+    if (mask & RUnlit)
+      unifSize += sizeof(MaterialUnlit) + materialUnlitPad_;
+    else
+      unifSize += sizeof(MaterialPbr) + materialPbrPad_;
+
     try {
       tables_.insert(tables_.begin() + index.first,
-                     {CG_NS::device().dcTable(entries), 0, mask});
+                     {CG_NS::device().dcTable(entries), 0, mask, unifSize});
     } catch (...) {
       return false;
     }

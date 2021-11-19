@@ -116,6 +116,7 @@ class NewRenderer {
     CG_NS::DcTable::Ptr table;
     uint32_t count;
     DrawableReqMask mask;
+    uint64_t unifSize;
   };
 
   struct State {

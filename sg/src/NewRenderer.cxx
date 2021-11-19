@@ -397,16 +397,23 @@ void NewRenderer::setInputs(DrawableReqMask mask,
 }
 
 void NewRenderer::allocateTables() {
+  auto size = mainUnifSize();
+  bool failed = false;
+
   for (auto& table : tables_) {
     try {
       table.table->allocate(table.count);
       table.remaining = table.count;
+      size += unifSize(table);
     } catch (...) {
-      // Try with fewer allocations
-      allocateTablesSubset();
-      return;
+      failed = true;
+      break;
     }
   }
+
+  if (failed || !checkUnifBuffer(size))
+    // Try with fewer allocations
+    allocateTablesSubset();
 }
 
 void NewRenderer::allocateTablesSubset() {

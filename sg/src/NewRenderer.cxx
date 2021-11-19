@@ -428,19 +428,19 @@ void NewRenderer::allocateTablesSubset() {
   }
 
   while (true) {
+    auto size = mainUnifSize();
     bool failed = false;
     uint32_t limit = 0;
 
     for (auto& table : tables_) {
       if (table.count == 0)
         continue;
-
+      size += unifSize(table);
       if (table.remaining == 1) {
         limit++;
         if (table.table->allocations() == 1)
           continue;
       }
-
       try {
         table.table->allocate(table.remaining);
       } catch (...) {
@@ -448,7 +448,7 @@ void NewRenderer::allocateTablesSubset() {
       }
     }
 
-    if (failed) {
+    if (failed || !checkUnifBuffer(size)) {
       if (limit == minimum)
         throw runtime_error("Cannot allocate required tables");
       for (auto& table : tables_) {

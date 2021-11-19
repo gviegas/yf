@@ -10,6 +10,7 @@
 
 #include <cstddef>
 #include <vector>
+#include <deque>
 #include <utility>
 
 #include "yf/cg/Queue.h"
@@ -130,8 +131,8 @@ class NewRenderer {
   };
 
   std::vector<Node*> drawableNodes_{};
-  std::vector<Drawable> blendDrawables_{};
-  std::vector<Drawable> opaqueDrawables_{};
+  std::deque<Drawable> blendDrawables_{};
+  std::deque<Drawable> opaqueDrawables_{};
   std::vector<Shader> vertShaders_{};
   std::vector<Shader> fragShaders_{};
   std::vector<Table> tables_{};

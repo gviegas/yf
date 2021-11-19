@@ -153,6 +153,8 @@ class NewRenderer {
   void allocateTables();
   void allocateTablesSubset();
 
+  bool checkUnifBuffer(uint64_t requiredSize);
+
   static constexpr uint32_t ViewportN = 1;
 
   struct Viewport {

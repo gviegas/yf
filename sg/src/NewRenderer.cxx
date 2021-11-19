@@ -454,6 +454,30 @@ void NewRenderer::allocateTablesSubset() {
   }
 }
 
+bool NewRenderer::checkUnifBuffer(uint64_t requiredSize) {
+  const uint64_t size = unifBuffer_->size();
+  uint64_t newSize;
+
+  if (requiredSize > size) {
+    newSize = (requiredSize & ~(UnifBufferSize - 1)) + UnifBufferSize;
+    newSize = max(requiredSize, newSize);
+  } else if (requiredSize < size) {
+    newSize = size >> 1;
+    if (newSize < requiredSize || newSize < UnifBufferSize)
+      return true;
+  } else {
+    return true;
+  }
+
+  try {
+    unifBuffer_.reset();
+    unifBuffer_ = CG_NS::device().buffer(newSize);
+  } catch (...) {
+    return false;
+  }
+  return true;
+}
+
 void NewRenderer::writeGlobal(uint64_t& offset) {
   Global global;
   const auto& cam = scene_->camera();

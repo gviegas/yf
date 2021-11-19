@@ -498,6 +498,41 @@ bool NewRenderer::checkUnifBuffer(uint64_t requiredSize) {
   return true;
 }
 
+bool NewRenderer::renderDrawable(Drawable& drawable,
+                                 CG_NS::GrEncoder& encoder,
+                                 uint64_t& offset) {
+
+  auto& state = states_[drawable.stateIndex];
+  auto& table = tables_[state.tableIndex];
+
+  if (table.remaining == 0)
+    // Out of resources
+    return false;
+
+  const auto allocation = --table.remaining;
+
+  if (drawable.mask & RSkin0)
+    writeInstanceWithSkin(offset, drawable, allocation);
+  else
+    writeInstanceNoSkin(offset, drawable, allocation);
+
+  if (drawable.mask & RUnlit)
+    writeMaterialUnlit(offset, drawable, allocation);
+  else
+    writeMaterialPbr(offset, drawable, allocation);
+
+  encoder.setState(state.state.get());
+  encoder.setDcTable(1, allocation);
+  drawable.primitive.impl().encodeBindings(encoder);
+  drawable.primitive.impl().encodeDraw(encoder, 0, 1);
+
+  if (drawable.mask & RAlphaBlend)
+    // TODO: Improve this
+    encoder.synchronize();
+
+  return true;
+}
+
 void NewRenderer::writeGlobal(uint64_t& offset) {
   Global global;
   const auto& cam = scene_->camera();

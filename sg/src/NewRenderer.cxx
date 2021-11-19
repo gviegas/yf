@@ -505,7 +505,6 @@ bool NewRenderer::checkUnifBuffer(uint64_t requiredSize) {
 bool NewRenderer::renderDrawable(Drawable& drawable,
                                  CG_NS::GrEncoder& encoder,
                                  uint64_t& offset) {
-
   auto& state = states_[drawable.stateIndex];
   auto& table = tables_[state.tableIndex];
 
@@ -519,11 +518,11 @@ bool NewRenderer::renderDrawable(Drawable& drawable,
     writeInstanceWithSkin(offset, drawable, allocation);
   else
     writeInstanceNoSkin(offset, drawable, allocation);
-
   if (drawable.mask & RUnlit)
     writeMaterialUnlit(offset, drawable, allocation);
   else
     writeMaterialPbr(offset, drawable, allocation);
+  writeTextureMaps(drawable, allocation);
 
   encoder.setState(state.state.get());
   encoder.setDcTable(1, allocation);

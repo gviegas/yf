@@ -360,7 +360,7 @@ bool NewRenderer::setTables(DrawableReqMask mask,
 
     try {
       tables_.insert(tables_.begin() + index.first,
-                     {CG_NS::device().dcTable(entries), 0, mask, unifSize});
+                     {CG_NS::device().dcTable(entries), 0, mask, unifSize, 0});
     } catch (...) {
       return false;
     }
@@ -397,14 +397,10 @@ void NewRenderer::setInputs(DrawableReqMask mask,
 }
 
 void NewRenderer::allocateTables() {
-  if (tableAllocations_.size() != tables_.size())
-    tableAllocations_.resize(tables_.size());
-
-  auto tableAlloc = tableAllocations_.begin();
   for (auto& table : tables_) {
     try {
       table.table->allocate(table.count);
-      *tableAlloc++ = table.count;
+      table.remaining = table.count;
     } catch (...) {
       // Try with fewer allocations
       allocateTablesSubset();
@@ -415,35 +411,31 @@ void NewRenderer::allocateTables() {
 
 void NewRenderer::allocateTablesSubset() {
   uint32_t minimum = 0;
-  auto tableAlloc = tableAllocations_.begin();
 
   for (auto& table : tables_) {
     if (table.count == 0)
       table.table->allocate(0);
     else
       minimum++;
-    *tableAlloc++ = table.count;
+    table.remaining = table.count;
   }
 
   while (true) {
     bool failed = false;
     uint32_t limit = 0;
 
-    for (uint32_t i = 0; i < tables_.size(); i++) {
-      auto& table = tables_[i];
-      auto& tableAlloc = tableAllocations_[i];
-
+    for (auto& table : tables_) {
       if (table.count == 0)
         continue;
 
-      if (tableAlloc == 1) {
+      if (table.remaining == 1) {
         limit++;
         if (table.table->allocations() == 1)
           continue;
       }
 
       try {
-        table.table->allocate(tableAlloc);
+        table.table->allocate(table.remaining);
       } catch (...) {
         failed = true;
       }
@@ -452,8 +444,10 @@ void NewRenderer::allocateTablesSubset() {
     if (failed) {
       if (limit == minimum)
         throw runtime_error("Cannot allocate required tables");
-      for (auto& tableAlloc : tableAllocations_)
-        tableAlloc = max(1U, tableAlloc >> 1);
+      for (auto& table : tables_) {
+        if (table.remaining > 1)
+          table.remaining = max(1U, table.remaining >> 1);
+      }
       continue;
     }
     return;

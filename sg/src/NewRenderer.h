@@ -159,6 +159,7 @@ class NewRenderer {
   bool checkUnifBuffer(uint64_t requiredSize);
 
   bool renderOnce(CG_NS::Target&);
+  bool renderAgain(CG_NS::Target&);
   bool renderBlendDrawables(CG_NS::GrEncoder&, uint64_t& offset);
   bool renderOpaqueDrawables(CG_NS::GrEncoder&, uint64_t& offset);
   bool renderDrawable(Drawable&, CG_NS::GrEncoder&, uint64_t& offset);

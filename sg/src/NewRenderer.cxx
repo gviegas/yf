@@ -543,6 +543,30 @@ bool NewRenderer::renderOnce(CG_NS::Target& target) {
   return check;
 }
 
+bool NewRenderer::renderAgain(CG_NS::Target& target) {
+  CG_NS::GrEncoder encoder;
+  uint64_t offset = mainUnifSize();
+
+  willRenderAgain();
+
+  encoder.setViewport(viewport_);
+  encoder.setScissor(scissor_);
+  encoder.setTarget(&target);
+  encoder.setDcTable(0, 0);
+
+  bool check;
+  if (!renderBlendDrawables(encoder, offset) ||
+      !renderOpaqueDrawables(encoder, offset))
+    check = false;
+  else
+    check = true;
+
+  cmdBuffer_->encode(encoder);
+  cmdBuffer_->enqueue();
+  cmdBuffer_->queue().submit();
+  return check;
+}
+
 bool NewRenderer::renderBlendDrawables(CG_NS::GrEncoder& encoder,
                                        uint64_t& offset) {
   while (blendDrawables_.size() != 0) {

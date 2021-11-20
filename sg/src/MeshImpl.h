@@ -30,10 +30,13 @@ SG_NS_BEGIN
 
 /// Produces the vertex input binding of a given semantic.
 ///
-inline uint32_t vxInputIndexFor(VxData semantic) {
-  uint32_t bit = semantic, index = 0;
-  while ((bit >>= 1) != 0)
-    index++;
+inline uint32_t vxInputIndexFor(VxData semantic, VxDataMask mask) {
+  uint32_t bit = 1, index = 0;
+  while (bit != semantic) {
+    if (mask & bit)
+      index++;
+    bit <<= 1;
+  }
   return index;
 }
 

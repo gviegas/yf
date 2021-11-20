@@ -284,6 +284,7 @@ class NewRenderer {
   void writeMaterialUnlit(uint64_t& offset, Drawable&, uint32_t allocation);
   void writeTextureMaps(Drawable&, uint32_t allocation);
 
+  void didRenderUsing(State&);
   void willRenderAgain();
 };
 

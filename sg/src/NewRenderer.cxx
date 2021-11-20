@@ -768,6 +768,13 @@ void NewRenderer::writeTextureMaps(Drawable& drawable, uint32_t allocation) {
   }
 }
 
+void NewRenderer::didRenderUsing(State& state) {
+  state.count--;
+  vertShaders_[state.vertShaderIndex].count--;
+  fragShaders_[state.fragShaderIndex].count--;
+  tables_[state.tableIndex].count--;
+}
+
 void NewRenderer::willRenderAgain() {
   for (auto& table : tables_) {
     if (table.count > 0)

@@ -767,3 +767,10 @@ void NewRenderer::writeTextureMaps(Drawable& drawable, uint32_t allocation) {
       copy(*material.emissive().texture);
   }
 }
+
+void NewRenderer::willRenderAgain() {
+  for (auto& table : tables_) {
+    if (table.count > 0)
+      table.remaining = table.table->allocations();
+  }
+}

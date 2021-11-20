@@ -283,6 +283,8 @@ class NewRenderer {
   void writeMaterialPbr(uint64_t& offset, Drawable&, uint32_t allocation);
   void writeMaterialUnlit(uint64_t& offset, Drawable&, uint32_t allocation);
   void writeTextureMaps(Drawable&, uint32_t allocation);
+
+  void willRenderAgain();
 };
 
 SG_NS_END

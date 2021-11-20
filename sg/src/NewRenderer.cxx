@@ -523,6 +523,18 @@ bool NewRenderer::renderBlendDrawables(CG_NS::GrEncoder& encoder,
   return true;
 }
 
+bool NewRenderer::renderOpaqueDrawables(CG_NS::GrEncoder& encoder,
+                                        uint64_t& offset) {
+  auto n = opaqueDrawables_.size();
+  while (n-- != 0) {
+    auto& drawable = opaqueDrawables_.front();
+    if (!renderDrawable(drawable, encoder, offset))
+      opaqueDrawables_.push_back(drawable);
+    opaqueDrawables_.pop_front();
+  }
+  return opaqueDrawables_.size() == 0;
+}
+
 bool NewRenderer::renderDrawable(Drawable& drawable,
                                  CG_NS::GrEncoder& encoder,
                                  uint64_t& offset) {

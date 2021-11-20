@@ -85,6 +85,16 @@ void NewRenderer::render(Scene& scene, CG_NS::Target& target) {
   writeGlobal(offset);
   writeLight(offset);
 
+  CG_NS::GrEncoder encoder;
+  encoder.setTarget(&target);
+  encoder.setViewport(viewport_);
+  encoder.setScissor(scissor_);
+  encoder.clearColor(scene_->color());
+  if (pass_->depthStencil())
+    // TODO: Check format & clear stencil
+    encoder.clearDepth(1.0f);
+  encoder.setDcTable(0, 0);
+
   // TODO...
 }
 

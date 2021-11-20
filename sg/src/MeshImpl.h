@@ -40,7 +40,10 @@ inline uint32_t vxInputIndexFor(VxData semantic) {
 /// Produces the vertex ID of a given semantic.
 ///
 inline CG_NS::VxId vxIdFor(VxData semantic) {
-  return vxInputIndexFor(semantic);
+  uint32_t bit = semantic, index = 0;
+  while ((bit >>= 1) != 0)
+    index++;
+  return index;
 }
 
 /// Produces the vertex input object of a given semantic.

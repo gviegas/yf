@@ -543,6 +543,7 @@ bool NewRenderer::renderDrawable(Drawable& drawable,
     // TODO: Improve this
     encoder.synchronize();
 
+  didRenderUsing(state);
   return true;
 }
 

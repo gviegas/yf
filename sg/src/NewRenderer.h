@@ -158,6 +158,7 @@ class NewRenderer {
   uint64_t unifSize(const Table&);
   bool checkUnifBuffer(uint64_t requiredSize);
 
+  bool renderBlendDrawables(CG_NS::GrEncoder&, uint64_t& offset);
   bool renderDrawable(Drawable&, CG_NS::GrEncoder&, uint64_t& offset);
 
   static constexpr uint32_t ViewportN = 1;

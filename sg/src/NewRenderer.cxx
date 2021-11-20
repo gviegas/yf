@@ -512,6 +512,17 @@ bool NewRenderer::checkUnifBuffer(uint64_t requiredSize) {
   return true;
 }
 
+bool NewRenderer::renderBlendDrawables(CG_NS::GrEncoder& encoder,
+                                       uint64_t& offset) {
+  while (blendDrawables_.size() != 0) {
+    if (renderDrawable(blendDrawables_.front(), encoder, offset))
+      blendDrawables_.pop_front();
+    else
+      return false;
+  }
+  return true;
+}
+
 bool NewRenderer::renderDrawable(Drawable& drawable,
                                  CG_NS::GrEncoder& encoder,
                                  uint64_t& offset) {

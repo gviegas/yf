@@ -303,7 +303,7 @@ bool NewRenderer::setShaders(DrawableReqMask mask,
   if (!fragIndex.second) {
     try {
       const auto str = shaderPath("%s%X.frag.bin");
-      vertShaders_.insert(fragShaders_.begin() + fragIndex.first,
+      fragShaders_.insert(fragShaders_.begin() + fragIndex.first,
                           {CG_NS::device().shader(CG_NS::StageFragment, str),
                            0, mask});
     } catch (...) {

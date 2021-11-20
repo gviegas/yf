@@ -512,6 +512,37 @@ bool NewRenderer::checkUnifBuffer(uint64_t requiredSize) {
   return true;
 }
 
+bool NewRenderer::renderOnce(CG_NS::Target& target) {
+  CG_NS::GrEncoder encoder;
+  uint64_t offset = 0;
+
+  encoder.setViewport(viewport_);
+  encoder.setScissor(scissor_);
+
+  encoder.setTarget(&target);
+  // TODO: CG's method to clear attachments need to change
+  encoder.clearColor(scene_->color());
+  if (target.depthStencil())
+    // TODO: Check format & clear stencil
+    encoder.clearDepth(1.0f);
+
+  writeGlobal(offset);
+  writeLight(offset);
+  encoder.setDcTable(0, 0);
+
+  bool check;
+  if (!renderBlendDrawables(encoder, offset) ||
+      !renderOpaqueDrawables(encoder, offset))
+    check = false;
+  else
+    check = true;
+
+  cmdBuffer_->encode(encoder);
+  cmdBuffer_->enqueue();
+  cmdBuffer_->queue().submit();
+  return check;
+}
+
 bool NewRenderer::renderBlendDrawables(CG_NS::GrEncoder& encoder,
                                        uint64_t& offset) {
   while (blendDrawables_.size() != 0) {

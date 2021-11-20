@@ -25,6 +25,9 @@
 using namespace SG_NS;
 using namespace std;
 
+// TODO
+constexpr char ShaderPath[] = "bin/";
+
 constexpr uint64_t UnifBufferSize = 1 << 21;
 constexpr CG_NS::DcEntry GlobalUnif{0, CG_NS::DcTypeUniform, 1};
 constexpr CG_NS::DcEntry LightUnif{1, CG_NS::DcTypeUniform, 1};
@@ -277,18 +280,18 @@ bool NewRenderer::setShaders(DrawableReqMask mask,
   const auto fragIndex = getIndex(mask, fragShaders_);
 
   auto shaderPath = [&](const char* format) {
-    const auto n = snprintf(nullptr, 0, format, mask);
+    const auto n = snprintf(nullptr, 0, format, ShaderPath, mask);
     if (n <= 0)
       throw runtime_error("Could not create shader path string");
     string str;
     str.resize(n + 1);
-    snprintf(str.data(), str.size(), format, mask);
+    snprintf(str.data(), str.size(), format, ShaderPath, mask);
     return str;
   };
 
   if (!vertIndex.second) {
     try {
-      const auto str = shaderPath("%X.vert.bin");
+      const auto str = shaderPath("%s%X.vert.bin");
       vertShaders_.insert(vertShaders_.begin() + vertIndex.first,
                           {CG_NS::device().shader(CG_NS::StageVertex, str),
                            0, mask});
@@ -299,7 +302,7 @@ bool NewRenderer::setShaders(DrawableReqMask mask,
 
   if (!fragIndex.second) {
     try {
-      const auto str = shaderPath("%X.frag.bin");
+      const auto str = shaderPath("%s%X.frag.bin");
       vertShaders_.insert(fragShaders_.begin() + fragIndex.first,
                           {CG_NS::device().shader(CG_NS::StageFragment, str),
                            0, mask});

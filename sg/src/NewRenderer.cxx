@@ -66,7 +66,7 @@ void NewRenderer::render(Scene& scene, CG_NS::Target& target) {
     // TODO
   }
 
-  if (&target.pass() != pass_) {
+  if (pass_ && &target.pass() != pass_) {
     // TODO
     abort();
   }
@@ -202,7 +202,7 @@ void NewRenderer::pushDrawables(Node& node, Mesh& mesh, Skin* skin) {
 
     if (!setState(*drawable))
       // TODO
-      throw runtime_error("Could not set state for Drawable)");
+      throw runtime_error("Could not set state for Drawable");
   }
 }
 

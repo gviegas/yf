@@ -44,6 +44,8 @@ class NewRenderer {
   ///
   void render(Scene& scene, CG_NS::Target& target);
 
+  void print() const;
+
  private:
   CG_NS::CmdBuffer::Ptr cmdBuffer_{};
   CG_NS::Buffer::Ptr unifBuffer_{};

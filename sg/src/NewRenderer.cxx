@@ -84,9 +84,13 @@ void NewRenderer::render(Scene& scene, CG_NS::Target& target) {
   processGraph();
   allocateTables();
 
+  print();
+
   bool done = renderOnce(target);
   while (!done)
     done = renderAgain(target);
+
+  print();
 }
 
 void NewRenderer::processGraph() {
@@ -869,4 +873,83 @@ void NewRenderer::willRenderAgain() {
     if (table.count > 0)
       table.remaining = table.table->allocations();
   }
+}
+
+//
+// DEVEL
+//
+
+void NewRenderer::print() const {
+#ifdef YF_DEVEL
+  auto printDrawable = [](const Drawable& drawable) {
+    wprintf(L"   node index: %u\n"
+            L"   primitive: %p\n"
+            L"   mask: %Xh\n"
+            L"   state index: %u\n",
+            drawable.nodeIndex, (void*)&drawable.primitive, drawable.mask,
+            drawable.stateIndex);
+  };
+
+  auto printShader = [](const Shader& shader) {
+    wprintf(L"   shader: %p\n"
+            L"   count: %u\n"
+            L"   mask: %Xh\n",
+            (void*)shader.shader.get(), shader.count, shader.mask);
+  };
+
+
+  auto printTable = [](const Table& table) {
+    wprintf(L"   table: %p\n"
+            L"   count: %u\n"
+            L"   mask: %Xh\n"
+            L"   unif. size: %u\n"
+            L"   remaining: %u\n",
+            (void*)table.table.get(), table.count, table.mask, table.unifSize,
+            table.remaining);
+  };
+
+  auto printState = [](const State& state) {
+    wprintf(L"   state: %p\n"
+            L"   count: %u\n"
+            L"   mask: %Xh\n"
+            L"   vert. shader index: %u\n"
+            L"   frag. shader index: %u\n"
+            L"   table index: %u\n",
+            (void*)state.state.get(), state.count, state.mask,
+            state.vertShaderIndex, state.fragShaderIndex, state.tableIndex);
+  };
+
+  wprintf(L"\nNewRenderer\n"
+          L" unif. buffer size: %zu\n", unifBuffer_->size());
+  wprintf(L" blend drawables: #%zu\n", blendDrawables_.size());
+  for (uint32_t i = 0; i < blendDrawables_.size(); i++) {
+    wprintf(L"  [%u]:\n", i);
+    printDrawable(blendDrawables_[i]);
+  }
+  wprintf(L" opaque drawables: #%zu\n", opaqueDrawables_.size());
+  for (uint32_t i = 0; i < opaqueDrawables_.size(); i++) {
+    wprintf(L"  [%u]:\n", i);
+    printDrawable(opaqueDrawables_[i]);
+  }
+  wprintf(L" vert. shaders: #%zu\n", vertShaders_.size());
+  for (uint32_t i = 0; i < vertShaders_.size(); i++) {
+    wprintf(L"  [%u]:\n", i);
+    printShader(vertShaders_[i]);
+  }
+  wprintf(L" frag. shaders: #%zu\n", fragShaders_.size());
+  for (uint32_t i = 0; i < fragShaders_.size(); i++) {
+    wprintf(L"  [%u]:\n", i);
+    printShader(fragShaders_[i]);
+  }
+  wprintf(L" tables: #%zu\n", tables_.size());
+  for (uint32_t i = 0; i < tables_.size(); i++) {
+    wprintf(L"  [%u]:\n", i);
+    printTable(tables_[i]);
+  }
+  wprintf(L" states: #%zu\n", states_.size());
+  for (uint32_t i = 0; i < states_.size(); i++) {
+    wprintf(L"  [%u]:\n", i);
+    printState(states_[i]);
+  }
+#endif
 }

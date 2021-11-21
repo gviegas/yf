@@ -645,7 +645,26 @@ void NewRenderer::writeGlobal(uint64_t& offset) {
 void NewRenderer::writeLight(uint64_t& offset) {
   // TODO: Light nodes not implemented yet
   Light light;
-  light.l[0].notUsed = 1;
+  //light.l[0].notUsed = 1;
+
+  light.l[0].notUsed = 0;
+  light.l[0].lightType = 2;
+  light.l[0].intensity = 20.0f;
+  light.l[0].range = 50.0f;
+  light.l[0].color[0] = 1.0f;
+  light.l[0].color[1] = 1.0f;
+  light.l[0].color[2] = 1.0f;
+  light.l[0].angularScale = 0.0f;
+  light.l[0].position[0] = 0.0f;
+  light.l[0].position[1] = 5.0f;
+  light.l[0].position[2] = 5.0f;
+  light.l[0].angularOffset = 0.0f;
+  light.l[0].direction[0] = -0.5774f;
+  light.l[0].direction[1] = -0.5774f;
+  light.l[0].direction[2] = -0.5774f;
+  light.l[0].pad1 = 0.0f;
+  if (LightN > 1)
+    light.l[1].notUsed = 1;
 
   const uint64_t size = sizeof light;
   unifBuffer_->write(offset, size, &light);

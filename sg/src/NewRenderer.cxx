@@ -71,7 +71,7 @@ void NewRenderer::render(Scene& scene, CG_NS::Target& target) {
 
   if (pass_ && &target.pass() != pass_) {
     // TODO
-    abort();
+    throw runtime_error("Cannot render to different passes");
   }
 
   scene_ = &scene;

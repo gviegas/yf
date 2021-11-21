@@ -100,23 +100,22 @@ void NewRenderer::processGraph() {
   scene_->worldTransform() = scene_->transform();
   scene_->worldInverse() = invert(scene_->worldTransform());
 
-  const auto& mdlId = typeid(Model);
-
-  scene_->traverse([&](Node& node) {
+  auto processNode = [&](Node& node) {
     node.worldTransform() = node.parent()->worldTransform() * node.transform();
     node.worldInverse() = invert(node.worldTransform());
     node.worldNormal() = transpose(node.worldInverse());
 
     const auto& id = typeid(node);
+    const auto& mdlId = typeid(Model);
     if (id == mdlId) {
       auto& mdl = static_cast<Model&>(node);
-
       if (!mdl.mesh())
         throw runtime_error("Cannot render models with no mesh set");
-
       pushDrawables(node, *mdl.mesh(), mdl.skin());
     }
-  }, true);
+  };
+
+  scene_->traverse(processNode, true);
 }
 
 void NewRenderer::pushDrawables(Node& node, Mesh& mesh, Skin* skin) {

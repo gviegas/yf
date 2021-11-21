@@ -264,7 +264,11 @@ bool NewRenderer::setState(Drawable& drawable) {
   }
 
   drawable.stateIndex = stateIndex.first;
-  states_[stateIndex.first].count++;
+  auto& state = states_[stateIndex.first];
+  state.count++;
+  vertShaders_[state.vertShaderIndex].count++;
+  fragShaders_[state.fragShaderIndex].count++;
+  tables_[state.tableIndex].count++;
 
   return true;
 }
@@ -316,8 +320,6 @@ bool NewRenderer::setShaders(DrawableReqMask mask,
   config.shaders.push_back(fragShader.shader.get());
   vertShaderIndex = vertIndex.first;
   fragShaderIndex = fragIndex.first;
-  vertShader.count++;
-  fragShader.count++;
 
   return true;
 }
@@ -375,7 +377,6 @@ bool NewRenderer::setTables(DrawableReqMask mask,
   auto& table = tables_[index.first];
   config.dcTables.push_back(table.table.get());
   tableIndex = index.first;
-  table.count++;
 
   return true;
 }

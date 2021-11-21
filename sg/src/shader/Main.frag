@@ -9,7 +9,7 @@
 
 #extension GL_GOOGLE_include_directive : require
 
-#define FRAG_STAGE
+#define FRAGMENT_STAGE
 
 #include "BRDF.glsl"
 #include "Material.glsl"

@@ -5,8 +5,8 @@
 // Copyright © 2021 Gustavo C. Viegas.
 //
 
-#ifndef INST_N
-# error INST_N not defined
+#ifndef INSTANCE_N
+# error INSTANCE_N not defined
 #endif
 
 #if defined(HAS_SKIN) && !defined(JOINT_N)
@@ -31,5 +31,5 @@ struct PerInstance {
 /// Instance uniform data.
 ///
 layout(set=1, binding=0) uniform Instance {
-  PerInstance i[INST_N];
+  PerInstance i[INSTANCE_N];
 } instance_;

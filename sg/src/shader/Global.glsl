@@ -5,8 +5,8 @@
 // Copyright © 2021 Gustavo C. Viegas.
 //
 
-#ifndef VPORT_N
-# error VPORT_N not defined
+#ifndef VIEWPORT_N
+# error VIEWPORT_N not defined
 #endif
 
 layout(std140, column_major) uniform;
@@ -31,5 +31,5 @@ layout(set=0, binding=0) uniform Global {
   mat4 p;
   mat4 vp;
   mat4 o;
-  Viewport vport[VPORT_N];
+  Viewport vport[VIEWPORT_N];
 } global_;

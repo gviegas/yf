@@ -5,7 +5,7 @@
 // Copyright © 2021 Gustavo C. Viegas.
 //
 
-#ifndef VERT_STAGE
+#ifndef VERTEX_STAGE
 # error Invalid include
 #endif
 

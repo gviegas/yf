@@ -5,7 +5,7 @@
 // Copyright © 2021 Gustavo C. Viegas.
 //
 
-#ifndef FRAG_STAGE
+#ifndef FRAGMENT_STAGE
 # error Invalid include
 #endif
 

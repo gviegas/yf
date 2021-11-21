@@ -9,7 +9,7 @@
 
 #extension GL_GOOGLE_include_directive : require
 
-#define VERT_STAGE
+#define VERTEX_STAGE
 
 #include "Global.glsl"
 #include "Instance.glsl"

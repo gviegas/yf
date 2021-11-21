@@ -69,8 +69,8 @@ jointN = 100
 lightN = 16
 
 baseDefs = [
-    '-DVPORT_N={}'.format(vportN),
-    '-DINST_N={}'.format(instN),
+    '-DVIEWPORT_N={}'.format(vportN),
+    '-DINSTANCE_N={}'.format(instN),
     '-DJOINT_N={}'.format(jointN),
     '-DLIGHT_N={}'.format(lightN)
 ]

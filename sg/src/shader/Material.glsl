@@ -5,11 +5,13 @@
 // Copyright © 2021 Gustavo C. Viegas.
 //
 
+#define MATERIAL_BINDING 1
+
 layout(std140, column_major) uniform;
 
 /// Material uniform data.
 ///
-layout(set=1, binding=1) uniform Material {
+layout(set=1, binding=MATERIAL_BINDING) uniform Material {
   vec4 colorFac;
   float alphaCutoff;
   int doubleSided;
@@ -29,10 +31,10 @@ layout(set=1, binding=1) uniform Material {
 /// Texture maps.
 ///
 #ifdef HAS_COLOR_MAP
-# define COLOR_MAP_BINDING  0
+# define COLOR_MAP_BINDING MATERIAL_BINDING + 1
 layout(set=1, binding=COLOR_MAP_BINDING) uniform sampler2D colorMap_;
 #else
-# define COLOR_MAP_BINDING -1
+# define COLOR_MAP_BINDING MATERIAL_BINDING
 #endif
 
 #ifdef HAS_PBR_MAP

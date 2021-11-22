@@ -140,8 +140,7 @@ class NewRenderer {
   void pushDrawables(Node&, Mesh&, Skin*);
 
   bool setState(Drawable&);
-  bool setShaders(DrawableReqMask, CG_NS::GrState::Config&,
-                  uint32_t& vertShaderIndex, uint32_t& fragShaderIndex);
+  bool setShaders(DrawableReqMask, CG_NS::GrState::Config&);
   bool setTables(DrawableReqMask, CG_NS::GrState::Config&,
                  uint32_t& tableIndex);
   void setInputs(DrawableReqMask, CG_NS::GrState::Config&);

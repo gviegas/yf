@@ -219,8 +219,8 @@ bool NewRenderer::setState(Drawable& drawable) {
     CG_NS::GrState::Config config;
     config.pass = pass_;
 
-    uint32_t vertIndex, fragIndex, tableIndex;
-    if (!setShaders(drawable.mask, config, vertIndex, fragIndex) ||
+    uint32_t tableIndex;
+    if (!setShaders(drawable.mask, config) ||
         !setTables(drawable.mask, config, tableIndex))
       return false;
 
@@ -249,9 +249,7 @@ bool NewRenderer::setState(Drawable& drawable) {
 }
 
 bool NewRenderer::setShaders(DrawableReqMask mask,
-                             CG_NS::GrState::Config& config,
-                             uint32_t& vertShaderIndex,
-                             uint32_t& fragShaderIndex) {
+                             CG_NS::GrState::Config& config) {
   mask = mask & RShaderMask;
 
   const auto vertIndex = getIndex(mask, vertShaders_);
@@ -293,8 +291,6 @@ bool NewRenderer::setShaders(DrawableReqMask mask,
   auto& fragShader = fragShaders_[fragIndex.first];
   config.shaders.push_back(vertShader.shader.get());
   config.shaders.push_back(fragShader.shader.get());
-  vertShaderIndex = vertIndex.first;
-  fragShaderIndex = fragIndex.first;
 
   return true;
 }

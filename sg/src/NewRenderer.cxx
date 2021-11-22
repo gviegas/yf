@@ -625,7 +625,7 @@ bool NewRenderer::renderDrawable(Drawable& drawable,
     // TODO: Improve this
     encoder.synchronize();
 
-  didRenderUsing(state);
+  didRenderDrawable(drawable);
   return true;
 }
 
@@ -870,11 +870,11 @@ void NewRenderer::writeTextureMaps(Drawable& drawable, uint32_t allocation) {
   }
 }
 
-void NewRenderer::didRenderUsing(State& state) {
-  state.count--;
-  getVertShader(state.mask).count--;
-  getFragShader(state.mask).count--;
-  getTable(state.mask).count--;
+void NewRenderer::didRenderDrawable(Drawable& drawable) {
+  getState(drawable.mask).count--;
+  getVertShader(drawable.mask).count--;
+  getFragShader(drawable.mask).count--;
+  getTable(drawable.mask).count--;
 }
 
 void NewRenderer::willRenderAgain() {

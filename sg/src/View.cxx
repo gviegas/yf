@@ -18,7 +18,7 @@
 #include "View.h"
 #include "Scene.h"
 #include "Camera.h"
-#include "Renderer.h"
+#include "NewRenderer.h"
 
 using namespace SG_NS;
 using namespace std;
@@ -76,8 +76,7 @@ class View::Impl {
   }
 
  private:
-  static Renderer renderer_;
-
+  static NewRenderer renderer_;
   CG_NS::Wsi::Ptr wsi_{};
   CG_NS::Image::Ptr depthStencil_{};
   CG_NS::Pass::Ptr pass_{};
@@ -130,7 +129,7 @@ class View::Impl {
   }
 };
 
-Renderer View::Impl::renderer_{};
+NewRenderer View::Impl::renderer_{};
 
 View::View(WS_NS::Window& window) : impl_(make_unique<Impl>(window)) { }
 

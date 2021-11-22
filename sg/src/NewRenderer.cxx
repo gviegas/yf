@@ -213,7 +213,8 @@ void NewRenderer::pushDrawables(Node& node, Mesh& mesh, Skin* skin) {
 }
 
 bool NewRenderer::setState(Drawable& drawable) {
-  const auto stateIndex = getIndex(drawable.mask, states_);
+  const auto mask = drawable.mask & RStateMask;
+  const auto stateIndex = getIndex(mask, states_);
 
   if (!stateIndex.second) {
     CG_NS::GrState::Config config;
@@ -233,7 +234,7 @@ bool NewRenderer::setState(Drawable& drawable) {
 
     try {
       states_.insert(states_.begin() + stateIndex.first,
-                     {CG_NS::device().state(config), 0, drawable.mask});
+                     {CG_NS::device().state(config), 0, mask});
     } catch (...) {
       return false;
     }
@@ -251,7 +252,6 @@ bool NewRenderer::setState(Drawable& drawable) {
 bool NewRenderer::setShaders(DrawableReqMask mask,
                              CG_NS::GrState::Config& config) {
   mask = mask & RShaderMask;
-
   const auto vertIndex = getIndex(mask, vertShaders_);
   const auto fragIndex = getIndex(mask, fragShaders_);
 
@@ -298,7 +298,6 @@ bool NewRenderer::setShaders(DrawableReqMask mask,
 bool NewRenderer::setTables(DrawableReqMask mask,
                             CG_NS::GrState::Config& config) {
   mask = mask & RTableMask;
-
   const auto index = getIndex(mask, tables_);
 
   if (!index.second) {

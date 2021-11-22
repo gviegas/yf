@@ -420,6 +420,11 @@ NewRenderer::Shader& NewRenderer::getFragShader(DrawableReqMask mask) {
   return fragShaders_[getIndex(mask & RShaderMask, fragShaders_).first];
 }
 
+NewRenderer::Table& NewRenderer::getTable(DrawableReqMask mask) {
+  assert(getIndex(mask & RTableMask, tables_).second);
+  return tables_[getIndex(mask & RTableMask, tables_).first];
+}
+
 void NewRenderer::allocateTables() {
   auto size = mainUnifSize();
   bool failed = false;

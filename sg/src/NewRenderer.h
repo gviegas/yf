@@ -156,6 +156,7 @@ class NewRenderer {
   State& getState(DrawableReqMask);
   Shader& getVertShader(DrawableReqMask);
   Shader& getFragShader(DrawableReqMask);
+  Table& getTable(DrawableReqMask);
 
   void allocateTables();
   void allocateTablesSubset();

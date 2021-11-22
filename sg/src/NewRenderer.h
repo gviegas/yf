@@ -154,6 +154,8 @@ class NewRenderer {
     std::pair<uint32_t, bool> getIndex(DrawableReqMask, const std::vector<T>&);
 
   State& getState(DrawableReqMask);
+  Shader& getVertShader(DrawableReqMask);
+  Shader& getFragShader(DrawableReqMask);
 
   void allocateTables();
   void allocateTablesSubset();

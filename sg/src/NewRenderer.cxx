@@ -410,6 +410,16 @@ NewRenderer::State& NewRenderer::getState(DrawableReqMask mask) {
   return states_[getIndex(mask & RStateMask, states_).first];
 }
 
+NewRenderer::Shader& NewRenderer::getVertShader(DrawableReqMask mask) {
+  assert(getIndex(mask & RShaderMask, vertShaders_).second);
+  return vertShaders_[getIndex(mask & RShaderMask, vertShaders_).first];
+}
+
+NewRenderer::Shader& NewRenderer::getFragShader(DrawableReqMask mask) {
+  assert(getIndex(mask & RShaderMask, fragShaders_).second);
+  return fragShaders_[getIndex(mask & RShaderMask, fragShaders_).first];
+}
+
 void NewRenderer::allocateTables() {
   auto size = mainUnifSize();
   bool failed = false;

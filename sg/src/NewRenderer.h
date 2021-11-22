@@ -103,7 +103,7 @@ class NewRenderer {
   using DrawableReqMask = uint32_t;
 
   struct Drawable {
-    size_t nodeIndex;
+    Node& node;
     Primitive& primitive;
     DrawableReqMask mask;
   };

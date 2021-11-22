@@ -123,7 +123,6 @@ void NewRenderer::processGraph() {
 }
 
 void NewRenderer::pushDrawables(Node& node, Mesh& mesh, Skin* skin) {
-  const size_t nodeIndex = drawableNodes_.size();
   drawableNodes_.push_back(&node);
 
   for (size_t i = 0; i < mesh.primitiveCount(); i++) {
@@ -194,7 +193,7 @@ void NewRenderer::pushDrawables(Node& node, Mesh& mesh, Skin* skin) {
       mask |= RAlphaBlend;
 
       // TODO: Sort
-      blendDrawables_.push_back({nodeIndex, mesh[i], mask});
+      blendDrawables_.push_back({node, mesh[i], mask});
       drawable = &blendDrawables_.back();
 
     } else {
@@ -202,7 +201,7 @@ void NewRenderer::pushDrawables(Node& node, Mesh& mesh, Skin* skin) {
         mask |= RAlphaMask;
       // Opaque alpha mode otherwise
 
-      opaqueDrawables_.push_back({nodeIndex, mesh[i], mask});
+      opaqueDrawables_.push_back({node, mesh[i], mask});
       drawable = &opaqueDrawables_.back();
     }
 
@@ -694,11 +693,10 @@ void NewRenderer::writeInstanceWithSkin(uint64_t& offset, Drawable& drawable,
     throw runtime_error("Cannot render multiple instances");
 
   InstanceWithSkin inst;
-  const auto& node = *drawableNodes_[drawable.nodeIndex];
-  const auto& m = node.worldTransform();
+  const auto& m = drawable.node.worldTransform();
   const auto& v = scene_->camera().view();
   const auto mv = v * m;
-  const auto& norm = node.worldNormal();
+  const auto& norm = drawable.node.worldNormal();
   memcpy(inst.i[0].m, m.data(), sizeof inst.i[0].m);
   memcpy(inst.i[0].mv, mv.data(), sizeof inst.i[0].mv);
   memcpy(inst.i[0].norm, norm.data(), sizeof inst.i[0].norm);
@@ -713,11 +711,9 @@ void NewRenderer::writeInstanceWithSkin(uint64_t& offset, Drawable& drawable,
 
 void NewRenderer::copyInstanceSkin(PerInstanceWithSkin& instance,
                                    Drawable& drawable) {
-  auto& node = *drawableNodes_[drawable.nodeIndex];
-
   // TODO: Change this if other node types with skin are added
-  assert(typeid(node) == typeid(Model));
-  auto& skin = *static_cast<Model&>(node).skin();
+  assert(typeid(drawable.node) == typeid(Model));
+  auto& skin = *static_cast<Model&>(drawable.node).skin();
 
   if (skin.joints().size() > JointN)
     throw runtime_error("Cannot render drawable with this many joints");
@@ -768,11 +764,10 @@ void NewRenderer::writeInstanceNoSkin(uint64_t& offset, Drawable& drawable,
     throw runtime_error("Cannot render multiple instances");
 
   InstanceNoSkin inst;
-  const auto& node = *drawableNodes_[drawable.nodeIndex];
-  const auto& m = node.worldTransform();
+  const auto& m = drawable.node.worldTransform();
   const auto& v = scene_->camera().view();
   const auto mv = v * m;
-  const auto& norm = node.worldNormal();
+  const auto& norm = drawable.node.worldNormal();
   memcpy(inst.i[0].m, m.data(), sizeof inst.i[0].m);
   memcpy(inst.i[0].mv, mv.data(), sizeof inst.i[0].mv);
   memcpy(inst.i[0].norm, norm.data(), sizeof inst.i[0].norm);
@@ -891,10 +886,10 @@ void NewRenderer::willRenderAgain() {
 void NewRenderer::print() const {
 #ifdef YF_DEVEL
   auto printDrawable = [](const Drawable& drawable) {
-    wprintf(L"   node index: %u\n"
+    wprintf(L"   node: %p\n"
             L"   primitive: %p\n"
             L"   mask: %Xh\n",
-            drawable.nodeIndex, (void*)&drawable.primitive, drawable.mask);
+            (void*)&drawable.node, (void*)&drawable.primitive, drawable.mask);
   };
 
   auto printShader = [](const Shader& shader) {

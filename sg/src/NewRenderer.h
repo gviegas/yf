@@ -143,15 +143,17 @@ class NewRenderer {
   void processGraph();
   void pushDrawables(Node&, Mesh&, Skin*);
 
-  template<class T>
-    std::pair<uint32_t, bool> getIndex(DrawableReqMask, const std::vector<T>&);
-
   bool setState(Drawable&);
   bool setShaders(DrawableReqMask, CG_NS::GrState::Config&,
                   uint32_t& vertShaderIndex, uint32_t& fragShaderIndex);
   bool setTables(DrawableReqMask, CG_NS::GrState::Config&,
                  uint32_t& tableIndex);
   void setInputs(DrawableReqMask, CG_NS::GrState::Config&);
+
+  template<class T>
+    std::pair<uint32_t, bool> getIndex(DrawableReqMask, const std::vector<T>&);
+
+  State& getState(DrawableReqMask);
 
   void allocateTables();
   void allocateTablesSubset();

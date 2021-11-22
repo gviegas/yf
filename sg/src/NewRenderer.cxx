@@ -212,33 +212,6 @@ void NewRenderer::pushDrawables(Node& node, Mesh& mesh, Skin* skin) {
   }
 }
 
-template<class T>
-pair<uint32_t, bool> NewRenderer::getIndex(DrawableReqMask mask,
-                                           const vector<T>& container) {
-  if (mask == 0 || container.size() == 0)
-    return {0, false};
-
-  uint32_t beg = 0;
-  uint32_t end = container.size() - 1;
-  uint32_t cur = end >> 1;
-
-  while (beg < end) {
-    if (container[cur].mask < mask)
-      beg = cur + 1;
-    else if (container[cur].mask > mask)
-      end = cur - 1;
-    else
-      return {cur, true};
-    cur = (beg + end) >> 1;
-  }
-
-  if (container[cur].mask < mask)
-    return {cur + 1, false};
-  if (container[cur].mask > mask)
-    return {cur, false};
-  return {cur, true};
-}
-
 bool NewRenderer::setState(Drawable& drawable) {
   const auto stateIndex = getIndex(drawable.mask, states_);
 
@@ -403,6 +376,38 @@ void NewRenderer::setInputs(DrawableReqMask mask,
     config.vxInputs.push_back(vxInputFor(VxDataJoints0));
     config.vxInputs.push_back(vxInputFor(VxDataWeights0));
   }
+}
+
+template<class T>
+pair<uint32_t, bool> NewRenderer::getIndex(DrawableReqMask mask,
+                                           const vector<T>& container) {
+  if (mask == 0 || container.size() == 0)
+    return {0, false};
+
+  uint32_t beg = 0;
+  uint32_t end = container.size() - 1;
+  uint32_t cur = end >> 1;
+
+  while (beg < end) {
+    if (container[cur].mask < mask)
+      beg = cur + 1;
+    else if (container[cur].mask > mask)
+      end = cur - 1;
+    else
+      return {cur, true};
+    cur = (beg + end) >> 1;
+  }
+
+  if (container[cur].mask < mask)
+    return {cur + 1, false};
+  if (container[cur].mask > mask)
+    return {cur, false};
+  return {cur, true};
+}
+
+NewRenderer::State& NewRenderer::getState(DrawableReqMask mask) {
+  assert(getIndex(mask & RStateMask, states_).second);
+  return states_[getIndex(mask & RStateMask, states_).first];
 }
 
 void NewRenderer::allocateTables() {

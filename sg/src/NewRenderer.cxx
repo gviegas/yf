@@ -219,16 +219,16 @@ bool NewRenderer::setState(Drawable& drawable) {
     CG_NS::GrState::Config config;
     config.pass = pass_;
 
-    uint32_t tableIndex;
     if (!setShaders(drawable.mask, config) ||
-        !setTables(drawable.mask, config, tableIndex))
+        !setTables(drawable.mask, config))
       return false;
 
     setInputs(drawable.mask, config);
     config.topology = drawable.primitive.topology();
     config.polyMode = CG_NS::PolyModeFill;
-    config.cullMode = drawable.mask & RAlphaBlend ?
-                      CG_NS::CullModeNone : CG_NS::CullModeBack;
+    // FIXME: This should depend on material's doubleSided() instead
+    config.cullMode = drawable.mask & RAlphaBlend ? CG_NS::CullModeNone :
+                                                    CG_NS::CullModeBack;
     config.winding = CG_NS::WindingCounterCw;
 
     try {
@@ -296,8 +296,7 @@ bool NewRenderer::setShaders(DrawableReqMask mask,
 }
 
 bool NewRenderer::setTables(DrawableReqMask mask,
-                            CG_NS::GrState::Config& config,
-                            uint32_t& tableIndex) {
+                            CG_NS::GrState::Config& config) {
   mask = mask & RTableMask;
 
   const auto index = getIndex(mask, tables_);
@@ -344,10 +343,7 @@ bool NewRenderer::setTables(DrawableReqMask mask,
   }
 
   config.dcTables.push_back(mainTable_.get());
-
-  auto& table = tables_[index.first];
-  config.dcTables.push_back(table.table.get());
-  tableIndex = index.first;
+  config.dcTables.push_back(tables_[index.first].table.get());
 
   return true;
 }

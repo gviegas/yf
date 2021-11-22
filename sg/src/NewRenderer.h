@@ -141,8 +141,7 @@ class NewRenderer {
 
   bool setState(Drawable&);
   bool setShaders(DrawableReqMask, CG_NS::GrState::Config&);
-  bool setTables(DrawableReqMask, CG_NS::GrState::Config&,
-                 uint32_t& tableIndex);
+  bool setTables(DrawableReqMask, CG_NS::GrState::Config&);
   void setInputs(DrawableReqMask, CG_NS::GrState::Config&);
 
   template<class T>

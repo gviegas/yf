@@ -128,7 +128,6 @@ class NewRenderer {
     DrawableReqMask mask;
   };
 
-  std::vector<Node*> drawableNodes_{};
   std::deque<Drawable> blendDrawables_{};
   std::deque<Drawable> opaqueDrawables_{};
   std::vector<Shader> vertShaders_{};

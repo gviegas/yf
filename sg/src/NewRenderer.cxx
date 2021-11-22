@@ -94,7 +94,6 @@ void NewRenderer::render(Scene& scene, CG_NS::Target& target) {
 }
 
 void NewRenderer::processGraph() {
-  drawableNodes_.clear();
   blendDrawables_.clear();
   opaqueDrawables_.clear();
 
@@ -123,8 +122,6 @@ void NewRenderer::processGraph() {
 }
 
 void NewRenderer::pushDrawables(Node& node, Mesh& mesh, Skin* skin) {
-  drawableNodes_.push_back(&node);
-
   for (size_t i = 0; i < mesh.primitiveCount(); i++) {
     const auto topology = mesh[i].topology();
     const auto dataMask = mesh[i].dataMask();

@@ -25,14 +25,17 @@ struct RenderTest : InteractiveTest {
     // Resources
     Mesh mesh1{"tmp/cube.glb"};
     Mesh mesh2{"tmp/cube2.glb"};
+    Collection coll("tmp/animation.glb");
 
     // Scene #1 contents
-    const size_t instMdlN = 10;
-    vector<Model> mdls{instMdlN, {mesh1}};
-    mdls.push_back({mesh1});
-    mdls.push_back({mesh2});
-    mdls.push_back({mesh1});
-    mdls.push_back({mesh2});
+    vector<Model> mdls{10, {mesh1}};
+    for (auto& node : coll.nodes()) {
+      Model* mdl = dynamic_cast<Model*>(node.get());
+      if (mdl && mdl->skin()) {
+        mdls.push_back({*mdl->mesh(), *mdl->skin()});
+        break;
+      }
+    }
 
     auto tf = -static_cast<float>(mdls.size());
     for (auto& mdl : mdls) {

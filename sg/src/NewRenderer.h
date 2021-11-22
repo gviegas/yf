@@ -106,7 +106,6 @@ class NewRenderer {
     size_t nodeIndex;
     Primitive& primitive;
     DrawableReqMask mask;
-    uint32_t stateIndex;
   };
 
   struct Shader {

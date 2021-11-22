@@ -194,7 +194,7 @@ void NewRenderer::pushDrawables(Node& node, Mesh& mesh, Skin* skin) {
       mask |= RAlphaBlend;
 
       // TODO: Sort
-      blendDrawables_.push_back({nodeIndex, mesh[i], mask, UINT32_MAX});
+      blendDrawables_.push_back({nodeIndex, mesh[i], mask});
       drawable = &blendDrawables_.back();
 
     } else {
@@ -202,7 +202,7 @@ void NewRenderer::pushDrawables(Node& node, Mesh& mesh, Skin* skin) {
         mask |= RAlphaMask;
       // Opaque alpha mode otherwise
 
-      opaqueDrawables_.push_back({nodeIndex, mesh[i], mask, UINT32_MAX});
+      opaqueDrawables_.push_back({nodeIndex, mesh[i], mask});
       drawable = &opaqueDrawables_.back();
     }
 
@@ -240,7 +240,6 @@ bool NewRenderer::setState(Drawable& drawable) {
     }
   }
 
-  drawable.stateIndex = stateIndex.first;
   auto& state = states_[stateIndex.first];
   state.count++;
   vertShaders_[state.vertShaderIndex].count++;
@@ -608,7 +607,7 @@ bool NewRenderer::renderOpaqueDrawables(CG_NS::GrEncoder& encoder,
 bool NewRenderer::renderDrawable(Drawable& drawable,
                                  CG_NS::GrEncoder& encoder,
                                  uint64_t& offset) {
-  auto& state = states_[drawable.stateIndex];
+  auto& state = getState(drawable.mask);
   auto& table = tables_[state.tableIndex];
 
   if (table.remaining == 0)
@@ -715,7 +714,7 @@ void NewRenderer::writeInstanceWithSkin(uint64_t& offset, Drawable& drawable,
   memcpy(inst.i[0].norm, norm.data(), sizeof inst.i[0].norm);
   copyInstanceSkin(inst.i[0], drawable);
 
-  auto& table = *tables_[states_[drawable.stateIndex].tableIndex].table;
+  auto& table = *tables_[getState(drawable.mask).tableIndex].table;
   const uint64_t size = sizeof inst;
   unifBuffer_->write(offset, size, &inst);
   table.write(allocation, InstanceUnif.id, 0, *unifBuffer_, offset, size);
@@ -788,7 +787,7 @@ void NewRenderer::writeInstanceNoSkin(uint64_t& offset, Drawable& drawable,
   memcpy(inst.i[0].mv, mv.data(), sizeof inst.i[0].mv);
   memcpy(inst.i[0].norm, norm.data(), sizeof inst.i[0].norm);
 
-  auto& table = *tables_[states_[drawable.stateIndex].tableIndex].table;
+  auto& table = *tables_[getState(drawable.mask).tableIndex].table;
   const uint64_t size = sizeof inst;
   unifBuffer_->write(offset, size, &inst);
   table.write(allocation, InstanceUnif.id, 0, *unifBuffer_, offset, size);
@@ -820,7 +819,7 @@ void NewRenderer::writeMaterialPbr(uint64_t& offset, Drawable& drawable,
     pbr.pad1 = 0.0f;
   }
 
-  auto& table = *tables_[states_[drawable.stateIndex].tableIndex].table;
+  auto& table = *tables_[getState(drawable.mask).tableIndex].table;
   const uint64_t size = sizeof pbr;
   unifBuffer_->write(offset, size, &pbr);
   table.write(allocation, MaterialUnif.id, 0, *unifBuffer_, offset, size);
@@ -839,7 +838,7 @@ void NewRenderer::writeMaterialUnlit(uint64_t& offset, Drawable& drawable,
   unlit.doubleSided = material.doubleSided();
   unlit.pad1 = unlit.pad2 = 0.0f;
 
-  auto& table = *tables_[states_[drawable.stateIndex].tableIndex].table;
+  auto& table = *tables_[getState(drawable.mask).tableIndex].table;
   const uint64_t size = sizeof unlit;
   unifBuffer_->write(offset, size, &unlit);
   table.write(allocation, MaterialUnif.id, 0, *unifBuffer_, offset, size);
@@ -848,7 +847,7 @@ void NewRenderer::writeMaterialUnlit(uint64_t& offset, Drawable& drawable,
 
 void NewRenderer::writeTextureMaps(Drawable& drawable, uint32_t allocation) {
   const auto& material = *drawable.primitive.material();
-  auto& table = *tables_[states_[drawable.stateIndex].tableIndex].table;
+  auto& table = *tables_[getState(drawable.mask).tableIndex].table;
 
   // XXX: Order must be kept in sync with `setTables()`
   CG_NS::DcId id = FirstImgSampler;
@@ -904,10 +903,8 @@ void NewRenderer::print() const {
   auto printDrawable = [](const Drawable& drawable) {
     wprintf(L"   node index: %u\n"
             L"   primitive: %p\n"
-            L"   mask: %Xh\n"
-            L"   state index: %u\n",
-            drawable.nodeIndex, (void*)&drawable.primitive, drawable.mask,
-            drawable.stateIndex);
+            L"   mask: %Xh\n",
+            drawable.nodeIndex, (void*)&drawable.primitive, drawable.mask);
   };
 
   auto printShader = [](const Shader& shader) {

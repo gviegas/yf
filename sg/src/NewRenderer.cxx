@@ -233,8 +233,7 @@ bool NewRenderer::setState(Drawable& drawable) {
 
     try {
       states_.insert(states_.begin() + stateIndex.first,
-                     {CG_NS::device().state(config), 0, drawable.mask,
-                      vertIndex, fragIndex, tableIndex});
+                     {CG_NS::device().state(config), 0, drawable.mask});
     } catch (...) {
       return false;
     }
@@ -242,9 +241,9 @@ bool NewRenderer::setState(Drawable& drawable) {
 
   auto& state = states_[stateIndex.first];
   state.count++;
-  vertShaders_[state.vertShaderIndex].count++;
-  fragShaders_[state.fragShaderIndex].count++;
-  tables_[state.tableIndex].count++;
+  getVertShader(drawable.mask).count++;
+  getFragShader(drawable.mask).count++;
+  getTable(drawable.mask).count++;
 
   return true;
 }
@@ -608,7 +607,7 @@ bool NewRenderer::renderDrawable(Drawable& drawable,
                                  CG_NS::GrEncoder& encoder,
                                  uint64_t& offset) {
   auto& state = getState(drawable.mask);
-  auto& table = tables_[state.tableIndex];
+  auto& table = getTable(drawable.mask);
 
   if (table.remaining == 0)
     // Out of resources
@@ -714,7 +713,7 @@ void NewRenderer::writeInstanceWithSkin(uint64_t& offset, Drawable& drawable,
   memcpy(inst.i[0].norm, norm.data(), sizeof inst.i[0].norm);
   copyInstanceSkin(inst.i[0], drawable);
 
-  auto& table = *tables_[getState(drawable.mask).tableIndex].table;
+  auto& table = *getTable(drawable.mask).table;
   const uint64_t size = sizeof inst;
   unifBuffer_->write(offset, size, &inst);
   table.write(allocation, InstanceUnif.id, 0, *unifBuffer_, offset, size);
@@ -787,7 +786,7 @@ void NewRenderer::writeInstanceNoSkin(uint64_t& offset, Drawable& drawable,
   memcpy(inst.i[0].mv, mv.data(), sizeof inst.i[0].mv);
   memcpy(inst.i[0].norm, norm.data(), sizeof inst.i[0].norm);
 
-  auto& table = *tables_[getState(drawable.mask).tableIndex].table;
+  auto& table = *getTable(drawable.mask).table;
   const uint64_t size = sizeof inst;
   unifBuffer_->write(offset, size, &inst);
   table.write(allocation, InstanceUnif.id, 0, *unifBuffer_, offset, size);
@@ -819,7 +818,7 @@ void NewRenderer::writeMaterialPbr(uint64_t& offset, Drawable& drawable,
     pbr.pad1 = 0.0f;
   }
 
-  auto& table = *tables_[getState(drawable.mask).tableIndex].table;
+  auto& table = *getTable(drawable.mask).table;
   const uint64_t size = sizeof pbr;
   unifBuffer_->write(offset, size, &pbr);
   table.write(allocation, MaterialUnif.id, 0, *unifBuffer_, offset, size);
@@ -838,7 +837,7 @@ void NewRenderer::writeMaterialUnlit(uint64_t& offset, Drawable& drawable,
   unlit.doubleSided = material.doubleSided();
   unlit.pad1 = unlit.pad2 = 0.0f;
 
-  auto& table = *tables_[getState(drawable.mask).tableIndex].table;
+  auto& table = *getTable(drawable.mask).table;
   const uint64_t size = sizeof unlit;
   unifBuffer_->write(offset, size, &unlit);
   table.write(allocation, MaterialUnif.id, 0, *unifBuffer_, offset, size);
@@ -847,7 +846,7 @@ void NewRenderer::writeMaterialUnlit(uint64_t& offset, Drawable& drawable,
 
 void NewRenderer::writeTextureMaps(Drawable& drawable, uint32_t allocation) {
   const auto& material = *drawable.primitive.material();
-  auto& table = *tables_[getState(drawable.mask).tableIndex].table;
+  auto& table = *getTable(drawable.mask).table;
 
   // XXX: Order must be kept in sync with `setTables()`
   CG_NS::DcId id = FirstImgSampler;
@@ -882,9 +881,9 @@ void NewRenderer::writeTextureMaps(Drawable& drawable, uint32_t allocation) {
 
 void NewRenderer::didRenderUsing(State& state) {
   state.count--;
-  vertShaders_[state.vertShaderIndex].count--;
-  fragShaders_[state.fragShaderIndex].count--;
-  tables_[state.tableIndex].count--;
+  getVertShader(state.mask).count--;
+  getFragShader(state.mask).count--;
+  getTable(state.mask).count--;
 }
 
 void NewRenderer::willRenderAgain() {
@@ -928,12 +927,8 @@ void NewRenderer::print() const {
   auto printState = [](const State& state) {
     wprintf(L"   state: %p\n"
             L"   count: %u\n"
-            L"   mask: %Xh\n"
-            L"   vert. shader index: %u\n"
-            L"   frag. shader index: %u\n"
-            L"   table index: %u\n",
-            (void*)state.state.get(), state.count, state.mask,
-            state.vertShaderIndex, state.fragShaderIndex, state.tableIndex);
+            L"   mask: %Xh\n",
+            (void*)state.state.get(), state.count, state.mask);
   };
 
   wprintf(L"\nNewRenderer\n"

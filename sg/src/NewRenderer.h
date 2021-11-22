@@ -126,9 +126,6 @@ class NewRenderer {
     CG_NS::GrState::Ptr state;
     uint32_t count;
     DrawableReqMask mask;
-    uint32_t vertShaderIndex;
-    uint32_t fragShaderIndex;
-    uint32_t tableIndex;
   };
 
   std::vector<Node*> drawableNodes_{};

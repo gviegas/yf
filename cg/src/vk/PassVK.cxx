@@ -17,9 +17,9 @@ using namespace std;
 // PassVK
 //
 
-PassVK::PassVK(const vector<ColorAttach>* colors,
-               const vector<ColorAttach>* resolves,
-               const DepStenAttach* depthStencil) {
+PassVK::PassVK(const vector<AttachDesc>* colors,
+               const vector<AttachDesc>* resolves,
+               const AttachDesc* depthStencil) {
 
   const auto& lim = deviceVK().physLimits();
   if (colors && colors->size() > lim.maxColorAttachments)
@@ -30,7 +30,7 @@ PassVK::PassVK(const vector<ColorAttach>* colors,
 
   // Define attachments
   if (colors) {
-    auto add = [&](const vector<ColorAttach>& attachs) {
+    auto add = [&](const vector<AttachDesc>& attachs) {
       for (const auto& attach : attachs) {
         if (aspectOfVK(attach.format) != VK_IMAGE_ASPECT_COLOR_BIT)
           throw invalid_argument("Invalid format for color attachment");
@@ -41,8 +41,8 @@ PassVK::PassVK(const vector<ColorAttach>* colors,
         desc.flags = 0;
         desc.format = toFormatVK(attach.format);
         desc.samples = toSampleCountVK(attach.samples);
-        desc.loadOp = toLoadOpVK(attach.loadOp);
-        desc.storeOp = toStoreOpVK(attach.storeOp);
+        desc.loadOp = VK_ATTACHMENT_LOAD_OP_LOAD;
+        desc.storeOp = VK_ATTACHMENT_STORE_OP_STORE;
         desc.stencilLoadOp = VK_ATTACHMENT_LOAD_OP_DONT_CARE;
         desc.stencilStoreOp = VK_ATTACHMENT_STORE_OP_DONT_CARE;
         // FIXME: Won't work if an image view is used in more than one pass
@@ -79,10 +79,10 @@ PassVK::PassVK(const vector<ColorAttach>* colors,
     desc.flags = 0;
     desc.format = toFormatVK(depthStencil->format);
     desc.samples = toSampleCountVK(depthStencil->samples);
-    desc.loadOp = toLoadOpVK(depthStencil->depLoadOp);
-    desc.storeOp = toStoreOpVK(depthStencil->depStoreOp);
-    desc.stencilLoadOp = toLoadOpVK(depthStencil->stenLoadOp);
-    desc.stencilStoreOp = toStoreOpVK(depthStencil->stenStoreOp);
+    desc.loadOp = VK_ATTACHMENT_LOAD_OP_LOAD;
+    desc.storeOp = VK_ATTACHMENT_STORE_OP_STORE;
+    desc.stencilLoadOp = VK_ATTACHMENT_LOAD_OP_LOAD;
+    desc.stencilStoreOp = VK_ATTACHMENT_STORE_OP_STORE;
     // FIXME: Won't work if an image view is used in more than one pass
     desc.initialLayout = VK_IMAGE_LAYOUT_UNDEFINED;
     desc.finalLayout = VK_IMAGE_LAYOUT_GENERAL;
@@ -155,15 +155,15 @@ Target::Ptr PassVK::target(Size2 size, uint32_t layers,
                                depthStencil);
 }
 
-const vector<ColorAttach>* PassVK::colors() const {
+const vector<AttachDesc>* PassVK::colors() const {
   return colors_;
 }
 
-const vector<ColorAttach>* PassVK::resolves() const {
+const vector<AttachDesc>* PassVK::resolves() const {
   return resolves_;
 }
 
-const DepStenAttach* PassVK::depthStencil() const {
+const AttachDesc* PassVK::depthStencil() const {
   return depthStencil_;
 }
 

@@ -21,9 +21,9 @@ class TargetVK;
 
 class PassVK final : public Pass {
  public:
-  PassVK(const std::vector<ColorAttach>* colors,
-         const std::vector<ColorAttach>* resolves,
-         const DepStenAttach* depthStencil);
+  PassVK(const std::vector<AttachDesc>* colors,
+         const std::vector<AttachDesc>* resolves,
+         const AttachDesc* depthStencil);
 
   ~PassVK();
 
@@ -32,18 +32,18 @@ class PassVK final : public Pass {
                      const std::vector<AttachImg>* resolves,
                      const AttachImg* depthStencil);
 
-  const std::vector<ColorAttach>* colors() const;
-  const std::vector<ColorAttach>* resolves() const;
-  const DepStenAttach* depthStencil() const;
+  const std::vector<AttachDesc>* colors() const;
+  const std::vector<AttachDesc>* resolves() const;
+  const AttachDesc* depthStencil() const;
 
   /// Getter.
   ///
   VkRenderPass renderPass();
 
  private:
-  std::vector<ColorAttach>* colors_{};
-  std::vector<ColorAttach>* resolves_{};
-  DepStenAttach* depthStencil_{};
+  std::vector<AttachDesc>* colors_{};
+  std::vector<AttachDesc>* resolves_{};
+  AttachDesc* depthStencil_{};
   VkRenderPass renderPass_ = VK_NULL_HANDLE;
 };
 
@@ -77,29 +77,6 @@ class TargetVK final : public Target {
   VkFramebuffer framebuffer_ = VK_NULL_HANDLE;
   std::vector<ImageVK::View::Ptr> views_{};
 };
-
-/// Converts from a `LoadOP` value.
-///
-inline VkAttachmentLoadOp toLoadOpVK(LoadOp op) {
-  switch (op) {
-  case LoadOpLoad:     return VK_ATTACHMENT_LOAD_OP_LOAD;
-  //case LoadOpClear:    return VK_ATTACHMENT_LOAD_OP_CLEAR;
-  case LoadOpDontCare: return VK_ATTACHMENT_LOAD_OP_DONT_CARE;
-  default:
-    throw std::invalid_argument(__func__);
-  }
-}
-
-/// Converts from a `StoreOp` value.
-///
-inline VkAttachmentStoreOp toStoreOpVK(StoreOp op) {
-  switch (op) {
-  case StoreOpStore:    return VK_ATTACHMENT_STORE_OP_STORE;
-  case StoreOpDontCare: return VK_ATTACHMENT_STORE_OP_DONT_CARE;
-  default:
-    throw std::invalid_argument(__func__);
-  }
-}
 
 CG_NS_END
 

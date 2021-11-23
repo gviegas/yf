@@ -38,9 +38,9 @@ class DeviceVK final : public Device {
 
   DcTable::Ptr dcTable(const std::vector<DcEntry>& entries);
 
-  Pass::Ptr pass(const std::vector<ColorAttach>* colors,
-                 const std::vector<ColorAttach>* resolves,
-                 const DepStenAttach* depthStencil);
+  Pass::Ptr pass(const std::vector<AttachDesc>* colors,
+                 const std::vector<AttachDesc>* resolves,
+                 const AttachDesc* depthStencil);
 
   GrState::Ptr state(const GrState::Config& config);
   CpState::Ptr state(const CpState::Config& config);

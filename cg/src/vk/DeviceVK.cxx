@@ -467,9 +467,9 @@ DcTable::Ptr DeviceVK::dcTable(const vector<DcEntry>& entries) {
   return make_unique<DcTableVK>(entries);
 }
 
-Pass::Ptr DeviceVK::pass(const vector<ColorAttach>* colors,
-                         const vector<ColorAttach>* resolves,
-                         const DepStenAttach* depthStencil) {
+Pass::Ptr DeviceVK::pass(const vector<AttachDesc>* colors,
+                         const vector<AttachDesc>* resolves,
+                         const AttachDesc* depthStencil) {
 
   return make_unique<PassVK>(colors, resolves, depthStencil);
 }

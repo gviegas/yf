@@ -55,9 +55,9 @@ class Device {
 
   /// Creates a new pass object.
   ///
-  virtual Pass::Ptr pass(const std::vector<ColorAttach>* colors,
-                         const std::vector<ColorAttach>* resolves,
-                         const DepStenAttach* depthStencil) = 0;
+  virtual Pass::Ptr pass(const std::vector<AttachDesc>* colors,
+                         const std::vector<AttachDesc>* resolves,
+                         const AttachDesc* depthStencil) = 0;
 
   /// Creates a new state object.
   ///

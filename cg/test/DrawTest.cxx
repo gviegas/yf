@@ -39,10 +39,8 @@ struct DrawTest : Test {
     assert(wsi->size() > 0);
 
     // Create pass
-    vector<ColorAttach> passClrs{{(*wsi)[0]->format(), (*wsi)[0]->samples(),
-                                  LoadOpLoad, StoreOpStore}};
-    DepStenAttach passDs{PxFormatD16Unorm, Samples1, LoadOpLoad, StoreOpStore,
-                         LoadOpDontCare, StoreOpDontCare};
+    vector<AttachDesc> passClrs{{(*wsi)[0]->format(), (*wsi)[0]->samples()}};
+    AttachDesc passDs{PxFormatD16Unorm, Samples1};
     auto pass = dev.pass(&passClrs, nullptr, &passDs);
 
     // Create depth/stencil image

@@ -34,10 +34,8 @@ struct CopyTest : Test {
     auto wsi = dev.wsi(*win);
 
     // Pass
-    vector<ColorAttach> passClrs{{(*wsi)[0]->format(), (*wsi)[0]->samples(),
-                                  LoadOpLoad, StoreOpStore}};
-    DepStenAttach passDs{PxFormatD16Unorm, Samples1, LoadOpDontCare,
-                         StoreOpDontCare, LoadOpDontCare, StoreOpDontCare};
+    vector<AttachDesc> passClrs{{(*wsi)[0]->format(), (*wsi)[0]->samples()}};
+    AttachDesc passDs{PxFormatD16Unorm, Samples1};
     auto pass = dev.pass(&passClrs, nullptr, &passDs);
 
     // Depth image

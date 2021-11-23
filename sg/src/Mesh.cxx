@@ -141,8 +141,9 @@ void Primitive::Impl::setData(VxData semantic, uint32_t elementN,
 void Primitive::Impl::encodeBindings(CG_NS::GrEncoder& encoder) {
   for (const auto& att : attributes_) {
     if (dataMask_ & att.first)
+      // TODO: Cache the input indices
       encoder.setVertexBuffer(buffer_.get(), att.second.offset,
-                              vxInputIndexFor(att.first));
+                              vxInputIndexFor(att.first, dataMask_));
   }
 
   if (dataMask_ & VxDataIndices) {

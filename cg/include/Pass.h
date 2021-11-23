@@ -18,39 +18,11 @@
 
 CG_NS_BEGIN
 
-/// Initial operation for an attachment.
+/// Attachment description.
 ///
-enum LoadOp {
-  LoadOpLoad,
-  //LoadOpClear,
-  LoadOpDontCare
-};
-
-/// Final operation for an attachment.
-///
-enum StoreOp {
-  StoreOpStore,
-  StoreOpDontCare
-};
-
-/// Configuration for color attachments.
-///
-struct ColorAttach {
+struct AttachDesc {
   PxFormat format;
   Samples samples;
-  LoadOp loadOp;
-  StoreOp storeOp;
-};
-
-/// Configuration for depth/stencil attachments.
-///
-struct DepStenAttach {
-  PxFormat format;
-  Samples samples;
-  LoadOp depLoadOp;
-  StoreOp depStoreOp;
-  LoadOp stenLoadOp;
-  StoreOp stenStoreOp;
 };
 
 /// Attachment resource.
@@ -98,9 +70,9 @@ class Pass {
 
   /// Getters.
   ///
-  virtual const std::vector<ColorAttach>* colors() const = 0;
-  virtual const std::vector<ColorAttach>* resolves() const = 0;
-  virtual const DepStenAttach* depthStencil() const = 0;
+  virtual const std::vector<AttachDesc>* colors() const = 0;
+  virtual const std::vector<AttachDesc>* resolves() const = 0;
+  virtual const AttachDesc* depthStencil() const = 0;
 };
 
 CG_NS_END

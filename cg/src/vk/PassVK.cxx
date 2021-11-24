@@ -223,6 +223,29 @@ void PassVK::setSubpass(VkSubpassDescription& subpass,
   subpass.pPreserveAttachments = nullptr;
 }
 
+VkRenderPass PassVK::createRenderPass(
+  const vector<VkAttachmentDescription>& descs,
+  const VkSubpassDescription& subpass) {
+
+  VkRenderPassCreateInfo info;
+  info.sType = VK_STRUCTURE_TYPE_RENDER_PASS_CREATE_INFO;
+  info.pNext = nullptr;
+  info.flags = 0;
+  info.attachmentCount = descs.size();
+  info.pAttachments = descs.data();
+  info.subpassCount = 1;
+  info.pSubpasses = &subpass;
+  info.dependencyCount = 0;
+  info.pDependencies = nullptr;
+
+  VkRenderPass renderPass;
+  VkResult res = vkCreateRenderPass(deviceVK().device(), &info, nullptr,
+                                    &renderPass);
+  if (res != VK_SUCCESS)
+    throw DeviceExcept("Could not create render pass");
+  return renderPass;
+}
+
 Target::Ptr PassVK::target(Size2 size, uint32_t layers,
                            const vector<AttachImg>* colors,
                            const vector<AttachImg>* resolves,

@@ -61,6 +61,9 @@ class PassVK final : public Pass {
 
   void setSubpass(VkSubpassDescription&,
                   const std::vector<VkAttachmentReference>&);
+
+  VkRenderPass createRenderPass(const std::vector<VkAttachmentDescription>&,
+                                const VkSubpassDescription&);
 };
 
 class TargetVK final : public Target {

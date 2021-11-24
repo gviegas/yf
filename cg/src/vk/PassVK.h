@@ -119,6 +119,8 @@ class TargetVK final : public Target {
   AttachImg* depthStencil_{};
   VkFramebuffer framebuffer_ = VK_NULL_HANDLE;
   std::vector<ImageVK::View::Ptr> views_{};
+
+  void createColorViews(std::vector<VkImageView>&);
 };
 
 CG_NS_END

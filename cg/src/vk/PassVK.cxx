@@ -333,6 +333,17 @@ TargetVK::~TargetVK() {
   vkDestroyFramebuffer(dev, framebuffer_, nullptr);
 }
 
+void TargetVK::createColorViews(vector<VkImageView>& handles) {
+  assert(views_.size() == 0);
+  assert(handles.size() == 0);
+
+  for (auto& color : *colors_) {
+    auto img = static_cast<ImageVK*>(color.image);
+    views_.push_back(img->getView(color.layer, layers_, color.level, 1));
+    handles.push_back(views_.back()->handle());
+  }
+}
+
 Pass& TargetVK::pass() {
   return pass_;
 }

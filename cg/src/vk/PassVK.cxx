@@ -196,7 +196,13 @@ const AttachDesc* PassVK::depthStencil() const {
 }
 
 VkRenderPass PassVK::renderPass() {
-  return renderPass_;
+  const LoadStoreOp op{
+    VK_ATTACHMENT_LOAD_OP_CLEAR,
+    VK_ATTACHMENT_STORE_OP_STORE
+  };
+  if (colors_)
+    return renderPass(vector<LoadStoreOp>(colors_->size(), op), op, op);
+  return renderPass({}, op, op);
 }
 
 VkRenderPass PassVK::renderPass(const vector<LoadStoreOp>& colors,

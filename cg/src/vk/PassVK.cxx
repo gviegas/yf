@@ -201,6 +201,28 @@ void PassVK::setDepthStencil(vector<VkAttachmentDescription>& descs,
   });
 }
 
+void PassVK::setSubpass(VkSubpassDescription& subpass,
+                        const vector<VkAttachmentReference>& refs) {
+  subpass.flags = 0;
+  subpass.pipelineBindPoint = VK_PIPELINE_BIND_POINT_GRAPHICS;
+  subpass.inputAttachmentCount = 0;
+  subpass.pInputAttachments = nullptr;
+  if (colors_) {
+    subpass.colorAttachmentCount = colors_->size();
+    subpass.pColorAttachments = refs.data();
+  } else {
+    subpass.colorAttachmentCount = 0;
+    subpass.pColorAttachments = nullptr;
+  }
+  subpass.pResolveAttachments = nullptr;
+  if (depthStencil_)
+    subpass.pDepthStencilAttachment = &refs.data()[refs.size() - 1];
+  else
+    subpass.pDepthStencilAttachment = nullptr;
+  subpass.preserveAttachmentCount = 0;
+  subpass.pPreserveAttachments = nullptr;
+}
+
 Target::Ptr PassVK::target(Size2 size, uint32_t layers,
                            const vector<AttachImg>* colors,
                            const vector<AttachImg>* resolves,

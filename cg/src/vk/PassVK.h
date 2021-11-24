@@ -58,6 +58,9 @@ class PassVK final : public Pass {
   void setDepthStencil(std::vector<VkAttachmentDescription>&,
                        std::vector<VkAttachmentReference>&,
                        LoadStoreOp, LoadStoreOp);
+
+  void setSubpass(VkSubpassDescription&,
+                  const std::vector<VkAttachmentReference>&);
 };
 
 class TargetVK final : public Target {

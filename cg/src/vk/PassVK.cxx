@@ -125,7 +125,7 @@ void PassVK::setDepthStencil(vector<VkAttachmentDescription>& descs,
   desc.finalLayout = VK_IMAGE_LAYOUT_GENERAL;
 
   refs.push_back({
-    static_cast<uint32_t>(descs.size()-1),
+    static_cast<uint32_t>(descs.size() - 1),
     VK_IMAGE_LAYOUT_DEPTH_STENCIL_ATTACHMENT_OPTIMAL
   });
 }
@@ -198,7 +198,7 @@ const AttachDesc* PassVK::depthStencil() const {
 
 VkRenderPass PassVK::renderPass() {
   const LoadStoreOp op{
-    VK_ATTACHMENT_LOAD_OP_CLEAR,
+    VK_ATTACHMENT_LOAD_OP_LOAD,//CLEAR,
     VK_ATTACHMENT_STORE_OP_STORE
   };
   if (colors_)

@@ -146,6 +146,36 @@ PassVK::~PassVK() {
   vkDestroyRenderPass(dev, renderPass_, nullptr);
 }
 
+void PassVK::setColors(vector<VkAttachmentDescription>& descs,
+                       vector<VkAttachmentReference>& refs,
+                       const vector<LoadStoreOp>& ops) {
+  auto op = ops.begin();
+
+  for (const auto& color : *colors_) {
+    descs.push_back({});
+    auto& desc = descs.back();
+    desc.flags = 0;
+    desc.format = toFormatVK(color.format);
+    desc.samples = toSampleCountVK(color.samples);
+    desc.loadOp = op->first;
+    desc.storeOp = op->second;
+    desc.stencilLoadOp = VK_ATTACHMENT_LOAD_OP_DONT_CARE;
+    desc.stencilStoreOp = VK_ATTACHMENT_STORE_OP_DONT_CARE;
+    if (op->first != VK_ATTACHMENT_LOAD_OP_LOAD)
+      desc.initialLayout = VK_IMAGE_LAYOUT_UNDEFINED;
+    else
+      desc.initialLayout = VK_IMAGE_LAYOUT_GENERAL;
+    desc.finalLayout = VK_IMAGE_LAYOUT_GENERAL;
+
+    refs.push_back({
+      static_cast<uint32_t>(descs.size() - 1),
+      VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL
+    });
+
+    op++;
+  }
+}
+
 Target::Ptr PassVK::target(Size2 size, uint32_t layers,
                            const vector<AttachImg>* colors,
                            const vector<AttachImg>* resolves,

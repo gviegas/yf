@@ -8,6 +8,7 @@
 #ifndef YF_CG_PASSVK_H
 #define YF_CG_PASSVK_H
 
+#include <utility>
 #include <stdexcept>
 
 #include "Defs.h"
@@ -36,6 +37,10 @@ class PassVK final : public Pass {
   const std::vector<AttachDesc>* resolves() const;
   const AttachDesc* depthStencil() const;
 
+  /// Load/Store operations for an attachment.
+  ///
+  using LoadStoreOp = std::pair<VkAttachmentLoadOp, VkAttachmentStoreOp>;
+
   /// Getter.
   ///
   VkRenderPass renderPass();
@@ -45,6 +50,10 @@ class PassVK final : public Pass {
   std::vector<AttachDesc>* resolves_{};
   AttachDesc* depthStencil_{};
   VkRenderPass renderPass_ = VK_NULL_HANDLE;
+
+  void setColors(std::vector<VkAttachmentDescription>&,
+                 std::vector<VkAttachmentReference>&,
+                 const std::vector<LoadStoreOp>&);
 };
 
 class TargetVK final : public Target {

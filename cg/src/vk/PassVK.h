@@ -54,6 +54,10 @@ class PassVK final : public Pass {
   void setColors(std::vector<VkAttachmentDescription>&,
                  std::vector<VkAttachmentReference>&,
                  const std::vector<LoadStoreOp>&);
+
+  void setDepthStencil(std::vector<VkAttachmentDescription>&,
+                       std::vector<VkAttachmentReference>&,
+                       LoadStoreOp, LoadStoreOp);
 };
 
 class TargetVK final : public Target {

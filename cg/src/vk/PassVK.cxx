@@ -176,6 +176,31 @@ void PassVK::setColors(vector<VkAttachmentDescription>& descs,
   }
 }
 
+void PassVK::setDepthStencil(vector<VkAttachmentDescription>& descs,
+                             vector<VkAttachmentReference>& refs,
+                             LoadStoreOp depthOp, LoadStoreOp stencilOp) {
+  descs.push_back({});
+  auto& desc = descs.back();
+  desc.flags = 0;
+  desc.format = toFormatVK(depthStencil_->format);
+  desc.samples = toSampleCountVK(depthStencil_->samples);
+  desc.loadOp = depthOp.first;
+  desc.storeOp = depthOp.second;
+  desc.stencilLoadOp = stencilOp.first;
+  desc.stencilStoreOp = stencilOp.second;
+  if (depthOp.first != VK_ATTACHMENT_LOAD_OP_LOAD &&
+      stencilOp.first != VK_ATTACHMENT_LOAD_OP_LOAD)
+    desc.initialLayout = VK_IMAGE_LAYOUT_UNDEFINED;
+  else
+    desc.initialLayout = VK_IMAGE_LAYOUT_GENERAL;
+  desc.finalLayout = VK_IMAGE_LAYOUT_GENERAL;
+
+  refs.push_back({
+    static_cast<uint32_t>(descs.size()-1),
+    VK_IMAGE_LAYOUT_DEPTH_STENCIL_ATTACHMENT_OPTIMAL
+  });
+}
+
 Target::Ptr PassVK::target(Size2 size, uint32_t layers,
                            const vector<AttachImg>* colors,
                            const vector<AttachImg>* resolves,

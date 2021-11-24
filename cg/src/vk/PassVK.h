@@ -73,7 +73,6 @@ class PassVK final : public Pass {
   std::vector<AttachDesc>* colors_{};
   std::vector<AttachDesc>* resolves_{};
   AttachDesc* depthStencil_{};
-  VkRenderPass renderPass_ = VK_NULL_HANDLE;
   std::array<RenderPass, 4> renderPasses_{};
 
   void setColors(std::vector<VkAttachmentDescription>&,

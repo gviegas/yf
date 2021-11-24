@@ -71,7 +71,8 @@ PassVK::~PassVK() {
 
   // TODO: Notify
   auto dev = deviceVK().device();
-  vkDestroyRenderPass(dev, renderPass_, nullptr);
+  for (auto& rp : renderPasses_)
+    vkDestroyRenderPass(dev, rp.renderPass, nullptr);
 }
 
 void PassVK::setColors(vector<VkAttachmentDescription>& descs,

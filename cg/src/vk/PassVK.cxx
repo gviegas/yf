@@ -5,6 +5,8 @@
 // Copyright © 2020-2021 Gustavo C. Viegas.
 //
 
+#include <cassert>
+
 #include "PassVK.h"
 #include "ImageVK.h"
 #include "DeviceVK.h"
@@ -195,6 +197,39 @@ const AttachDesc* PassVK::depthStencil() const {
 
 VkRenderPass PassVK::renderPass() {
   return renderPass_;
+}
+
+VkRenderPass PassVK::renderPass(const vector<LoadStoreOp>& colors,
+                                LoadStoreOp depth, LoadStoreOp stencil) {
+  RenderPass* renderPass = &renderPasses_[0];
+  for (auto& rp : renderPasses_) {
+    if (rp.renderPass == VK_NULL_HANDLE) {
+      renderPass = &rp;
+      break;
+    }
+    if (rp.equalOp(colors, depth, stencil))
+      return rp.renderPass;
+  }
+
+  // Need a new render pass for these operations
+  vector<VkAttachmentDescription> descs;
+  vector<VkAttachmentReference> refs;
+  VkSubpassDescription subpass;
+  if (colors_) {
+    assert(colors.size() == colors_->size());
+    setColors(descs, refs, colors);
+  }
+  if (depthStencil_)
+    setDepthStencil(descs, refs, depth, stencil);
+  setSubpass(subpass, refs);
+
+  vkDestroyRenderPass(deviceVK().device(), renderPass->renderPass, nullptr);
+  renderPass->renderPass = VK_NULL_HANDLE;
+  renderPass->renderPass = createRenderPass(descs, subpass);
+  renderPass->colors = colors;
+  renderPass->depth = depth;
+  renderPass->stencil = stencil;
+  return renderPass->renderPass;
 }
 
 //

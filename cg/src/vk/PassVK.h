@@ -43,9 +43,11 @@ class PassVK final : public Pass {
   ///
   using LoadStoreOp = std::pair<VkAttachmentLoadOp, VkAttachmentStoreOp>;
 
-  /// Getter.
+  /// Getters.
   ///
   VkRenderPass renderPass();
+  VkRenderPass renderPass(const std::vector<LoadStoreOp>& colors,
+                          LoadStoreOp depth, LoadStoreOp stencil);
 
  private:
   /// Render pass handle created with given attachment operations.

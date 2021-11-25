@@ -15,6 +15,7 @@
 
 #include "Defs.h"
 #include "Pass.h"
+#include "Encoder.h"
 #include "VK.h"
 #include "ImageVK.h"
 
@@ -124,6 +125,27 @@ class TargetVK final : public Target {
   void createDepthStencilView(std::vector<VkImageView>&);
   void createFramebuffer(const std::vector<VkImageView>&);
 };
+
+/// Converts from a LoadOp value.
+///
+inline VkAttachmentLoadOp toLoadOpVK(LoadOp op) {
+  switch (op) {
+  case LoadOpClear:    return VK_ATTACHMENT_LOAD_OP_CLEAR;
+  case LoadOpLoad:     return VK_ATTACHMENT_LOAD_OP_LOAD;
+  case LoadOpDontCare: return VK_ATTACHMENT_LOAD_OP_DONT_CARE;
+  default:             throw std::invalid_argument("Invalid LoadOp value");
+  }
+}
+
+/// Converts from a StoreOp value.
+///
+inline VkAttachmentStoreOp toStoreOpVK(StoreOp op) {
+  switch (op) {
+  case StoreOpStore:    return VK_ATTACHMENT_STORE_OP_STORE;
+  case StoreOpDontCare: return VK_ATTACHMENT_STORE_OP_DONT_CARE;
+  default:              throw std::invalid_argument("Invalid StoreOp value");
+  }
+}
 
 CG_NS_END
 

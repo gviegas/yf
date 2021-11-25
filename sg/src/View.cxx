@@ -104,19 +104,15 @@ class View::Impl {
                               (*wsi_)[0]->samples());
 
     // Create pass
-    const vector<CG_NS::ColorAttach> clrAtts{{(*wsi_)[0]->format(),
-                                              (*wsi_)[0]->samples(),
-                                              CG_NS::LoadOpDontCare,
-                                              CG_NS::StoreOpStore}};
+    const vector<CG_NS::AttachDesc> clrDescs{
+      {(*wsi_)[0]->format(), (*wsi_)[0]->samples()}
+    };
 
-    const CG_NS::DepStenAttach dsAtt{depthStencil_->format(),
-                                     depthStencil_->samples(),
-                                     CG_NS::LoadOpDontCare,
-                                     CG_NS::StoreOpStore,
-                                     CG_NS::LoadOpDontCare,
-                                     CG_NS::StoreOpDontCare};
+    const CG_NS::AttachDesc dsDesc{
+      depthStencil_->format(), depthStencil_->samples()
+    };
 
-    pass_ = dev.pass(&clrAtts, nullptr, &dsAtt);
+    pass_ = dev.pass(&clrDescs, nullptr, &dsDesc);
 
     // Create targets
     vector<CG_NS::AttachImg> clrs{{nullptr, 0, 0}};

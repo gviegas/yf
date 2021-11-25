@@ -40,10 +40,6 @@ class PassVK final : public Pass {
   const std::vector<AttachDesc>* resolves() const;
   const AttachDesc* depthStencil() const;
 
-  /// Load/Store operations for an attachment.
-  ///
-  using LoadStoreOp = std::pair<VkAttachmentLoadOp, VkAttachmentStoreOp>;
-
   /// Getters.
   ///
   VkRenderPass renderPass();

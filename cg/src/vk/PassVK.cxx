@@ -86,11 +86,11 @@ void PassVK::setColors(vector<VkAttachmentDescription>& descs,
     desc.flags = 0;
     desc.format = toFormatVK(color.format);
     desc.samples = toSampleCountVK(color.samples);
-    desc.loadOp = op->first;
-    desc.storeOp = op->second;
+    desc.loadOp = toLoadOpVK(op->first);
+    desc.storeOp = toStoreOpVK(op->second);
     desc.stencilLoadOp = VK_ATTACHMENT_LOAD_OP_DONT_CARE;
     desc.stencilStoreOp = VK_ATTACHMENT_STORE_OP_DONT_CARE;
-    if (op->first != VK_ATTACHMENT_LOAD_OP_LOAD)
+    if (op->first != LoadOpLoad)
       desc.initialLayout = VK_IMAGE_LAYOUT_UNDEFINED;
     else
       desc.initialLayout = VK_IMAGE_LAYOUT_GENERAL;
@@ -113,12 +113,11 @@ void PassVK::setDepthStencil(vector<VkAttachmentDescription>& descs,
   desc.flags = 0;
   desc.format = toFormatVK(depthStencil_->format);
   desc.samples = toSampleCountVK(depthStencil_->samples);
-  desc.loadOp = depthOp.first;
-  desc.storeOp = depthOp.second;
-  desc.stencilLoadOp = stencilOp.first;
-  desc.stencilStoreOp = stencilOp.second;
-  if (depthOp.first != VK_ATTACHMENT_LOAD_OP_LOAD &&
-      stencilOp.first != VK_ATTACHMENT_LOAD_OP_LOAD)
+  desc.loadOp = toLoadOpVK(depthOp.first);
+  desc.storeOp = toStoreOpVK(depthOp.second);
+  desc.stencilLoadOp = toLoadOpVK(stencilOp.first);
+  desc.stencilStoreOp = toStoreOpVK(stencilOp.second);
+  if (depthOp.first != LoadOpLoad && stencilOp.first != LoadOpLoad)
     desc.initialLayout = VK_IMAGE_LAYOUT_UNDEFINED;
   else
     desc.initialLayout = VK_IMAGE_LAYOUT_GENERAL;
@@ -197,10 +196,7 @@ const AttachDesc* PassVK::depthStencil() const {
 }
 
 VkRenderPass PassVK::renderPass() {
-  const LoadStoreOp op{
-    VK_ATTACHMENT_LOAD_OP_LOAD,//CLEAR,
-    VK_ATTACHMENT_STORE_OP_STORE
-  };
+  const LoadStoreOp op{LoadOpLoad,/*Clear,*/ StoreOpStore};
   if (colors_)
     return renderPass(vector<LoadStoreOp>(colors_->size(), op), op, op);
   return renderPass({}, op, op);

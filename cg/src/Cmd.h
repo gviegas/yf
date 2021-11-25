@@ -18,11 +18,11 @@ struct Cmd {
   /// Identification for command subclasses (no rtti).
   ///
   enum Type {
-    StateGrT,
-    StateCpT,
     ViewportT,
     ScissorT,
     TargetT,
+    StateGrT,
+    StateCpT,
     DcTableT,
     VxBufferT,
     IxBufferT,
@@ -43,22 +43,6 @@ struct Cmd {
 
   explicit Cmd(Type cmd) : cmd(cmd) { }
   virtual ~Cmd() = default;
-};
-
-/// Set state command for graphics.
-///
-struct StateGrCmd : Cmd {
-  GrState* state;
-
-  explicit StateGrCmd(GrState* state) : Cmd(StateGrT), state(state) { }
-};
-
-/// Set state command for compute.
-///
-struct StateCpCmd : Cmd {
-  CpState* state;
-
-  explicit StateCpCmd(CpState* state) : Cmd(StateCpT), state(state) { }
 };
 
 /// Set viewport command.
@@ -85,8 +69,26 @@ struct ScissorCmd : Cmd {
 ///
 struct TargetCmd : Cmd {
   Target* target;
+  TargetOp targetOp;
 
-  explicit TargetCmd(Target* target) : Cmd(TargetT), target(target) { }
+  TargetCmd(Target* target, const TargetOp& targetOp)
+    : Cmd(TargetT), target(target), targetOp(targetOp) { }
+};
+
+/// Set state command for graphics.
+///
+struct StateGrCmd : Cmd {
+  GrState* state;
+
+  explicit StateGrCmd(GrState* state) : Cmd(StateGrT), state(state) { }
+};
+
+/// Set state command for compute.
+///
+struct StateCpCmd : Cmd {
+  CpState* state;
+
+  explicit StateCpCmd(CpState* state) : Cmd(StateCpT), state(state) { }
 };
 
 /// Set descriptor table command.

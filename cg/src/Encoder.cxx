@@ -43,10 +43,6 @@ const Encoding& Encoder::encoding() const {
 
 GrEncoder::GrEncoder() : Encoder(Graphics) { }
 
-void GrEncoder::setState(GrState* state) {
-  impl_->encode(make_unique<StateGrCmd>(state));
-}
-
 void GrEncoder::setViewport(Viewport viewport, uint32_t viewportIndex) {
   impl_->encode(make_unique<ViewportCmd>(viewport, viewportIndex));
 }
@@ -55,8 +51,12 @@ void GrEncoder::setScissor(Scissor scissor, uint32_t viewportIndex) {
   impl_->encode(make_unique<ScissorCmd>(scissor, viewportIndex));
 }
 
-void GrEncoder::setTarget(Target* target) {
-  impl_->encode(make_unique<TargetCmd>(target));
+void GrEncoder::setTarget(Target* target, const TargetOp& targetOp) {
+  impl_->encode(make_unique<TargetCmd>(target, targetOp));
+}
+
+void GrEncoder::setState(GrState* state) {
+  impl_->encode(make_unique<StateGrCmd>(state));
 }
 
 void GrEncoder::setDcTable(uint32_t tableIndex, uint32_t allocIndex) {

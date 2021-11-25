@@ -134,10 +134,6 @@ class GrEncoder final : public Encoder {
   GrEncoder();
   ~GrEncoder() = default;
 
-  /// Sets the graphics state.
-  ///
-  void setState(GrState* state);
-
   /// Sets the render area.
   ///
   void setViewport(Viewport viewport, uint32_t viewportIndex = 0);
@@ -145,7 +141,11 @@ class GrEncoder final : public Encoder {
 
   /// Sets the render target.
   ///
-  void setTarget(Target* target);
+  void setTarget(Target* target, const TargetOp& targetOp);
+
+  /// Sets the graphics state.
+  ///
+  void setState(GrState* state);
 
   /// Sets a descriptor table allocation.
   ///

@@ -258,69 +258,40 @@ TargetVK::TargetVK(PassVK& pass, Size2 size, uint32_t layers,
       layers > lim.maxFramebufferLayers)
     throw invalid_argument("TargetVK limit");
 
-  // TODO: Consider relaxing compatibility requirements
-
-  // Define attachments
-  if (colors) {
-    auto add = [&](const vector<AttachImg>& attachs) {
-      for (const auto& a : attachs) {
-        auto img = static_cast<ImageVK*>(a.image);
-        views_.push_back(img->getView(a.layer, layers, a.level, 1));
-      }
-    };
-
-    if (!pass.colors() || pass.colors()->size() != colors->size())
-      throw invalid_argument("Target not compatible with pass");
-
-    colors_ = new auto(*colors);
-    add(*colors);
-
-    if (resolves) {
-      if (!pass.resolves() || pass.resolves()->size() != resolves->size())
+  try {
+    if (colors) {
+      if (!pass.colors() || pass.colors()->size() != colors->size())
         throw invalid_argument("Target not compatible with pass");
+      colors_ = new auto(*colors);
 
-      resolves_ = new auto(*resolves);
-      add(*resolves);
+      if (resolves) {
+        if (!pass.resolves() || pass.resolves()->size() != resolves->size())
+          throw invalid_argument("Target not compatible with pass");
+        resolves_ = new auto(*resolves);
+      }
+    } else if (pass.colors()) {
+      throw invalid_argument("Target not compatible with pass");
     }
 
-  } else if (pass.colors()) {
-    throw invalid_argument("Target not compatible with pass");
-  }
-
-  if (depthStencil) {
-    if (!pass.depthStencil())
+    if (depthStencil) {
+      if (!pass.depthStencil())
+        throw invalid_argument("Target not compatible with pass");
+      depthStencil_ = new auto(*depthStencil);
+    } else if (pass.depthStencil()) {
       throw invalid_argument("Target not compatible with pass");
+    }
 
-    depthStencil_ = new auto(*depthStencil);
-
-    auto img = static_cast<ImageVK*>(depthStencil->image);
-    views_.push_back(img->getView(depthStencil->layer, layers,
-                                  depthStencil->level, 1));
-
-  } else if (pass.depthStencil()) {
-    throw invalid_argument("Target not compatible with pass");
+    vector<VkImageView> handles;
+    // MS resolve is done outside of render pass - need not create any views
+    createColorViews(handles);
+    createDepthStencilView(handles);
+    createFramebuffer(handles);
+  } catch (...) {
+    delete colors_;
+    delete resolves_;
+    delete depthStencil_;
+    throw;
   }
-
-  vector<VkImageView> attachs;
-  for (const auto& v : views_)
-    attachs.push_back(v->handle());
-
-  // Create framebuffer
-  VkFramebufferCreateInfo info;
-  info.sType = VK_STRUCTURE_TYPE_FRAMEBUFFER_CREATE_INFO;
-  info.pNext = nullptr;
-  info.flags = 0;
-  info.renderPass = pass.renderPass();
-  info.attachmentCount = attachs.size();
-  info.pAttachments = attachs.data();
-  info.width = size.width;
-  info.height = size.height;
-  info.layers = layers;
-
-  auto dev = deviceVK().device();
-  auto res = vkCreateFramebuffer(dev, &info, nullptr, &framebuffer_);
-  if (res != VK_SUCCESS)
-    throw DeviceExcept("Could not create framebuffer");
 }
 
 TargetVK::~TargetVK() {

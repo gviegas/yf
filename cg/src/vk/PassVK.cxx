@@ -354,6 +354,24 @@ void TargetVK::createDepthStencilView(vector<VkImageView>& handles) {
   handles.push_back(views_.back()->handle());
 }
 
+void TargetVK::createFramebuffer(const vector<VkImageView>& handles) {
+  VkFramebufferCreateInfo info;
+  info.sType = VK_STRUCTURE_TYPE_FRAMEBUFFER_CREATE_INFO;
+  info.pNext = nullptr;
+  info.flags = 0;
+  info.renderPass = pass_.renderPass();
+  info.attachmentCount = handles.size();
+  info.pAttachments = handles.data();
+  info.width = size_.width;
+  info.height = size_.height;
+  info.layers = layers_;
+
+  VkResult res = vkCreateFramebuffer(deviceVK().device(), &info, nullptr,
+                                     &framebuffer_);
+  if (res != VK_SUCCESS)
+    throw DeviceExcept("Could not create framebuffer");
+}
+
 Pass& TargetVK::pass() {
   return pass_;
 }

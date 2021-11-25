@@ -29,9 +29,6 @@ struct Cmd {
     DrawT,
     DrawIxT,
     DispatchT,
-    ClearClT,
-    ClearDpT,
-    ClearScT,
     CopyBBT,
     CopyIIT,
     SyncT
@@ -159,32 +156,6 @@ struct DispatchCmd : Cmd {
   Size3 size;
 
   explicit DispatchCmd(Size3 size) : Cmd(DispatchT), size(size) { }
-};
-
-/// Clear color command.
-///
-struct ClearClCmd : Cmd {
-  Color value;
-  uint32_t colorIndex;
-
-  ClearClCmd(Color value, uint32_t colorIndex)
-    : Cmd(ClearClT), value(value), colorIndex(colorIndex) { }
-};
-
-/// Clear depth command.
-///
-struct ClearDpCmd : Cmd {
-  float value;
-
-  explicit ClearDpCmd(float value) : Cmd(ClearDpT), value(value) { }
-};
-
-/// Clear stencil command.
-///
-struct ClearScCmd : Cmd {
-  uint32_t value;
-
-  explicit ClearScCmd(uint32_t value) : Cmd(ClearScT), value(value) { }
 };
 
 /// Copy buffer command.

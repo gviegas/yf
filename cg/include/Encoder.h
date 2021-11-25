@@ -170,12 +170,6 @@ class GrEncoder final : public Encoder {
                    int32_t vertexOffset = 0, uint32_t baseInstance = 0,
                    uint32_t instanceCount = 1);
 
-  /// Clears the bound target.
-  ///
-  void clearColor(Color value, uint32_t colorIndex = 0);
-  void clearDepth(float value);
-  void clearStencil(uint32_t value);
-
   /// Synchronizes commands.
   ///
   void synchronize();

@@ -90,18 +90,6 @@ void GrEncoder::drawIndexed(uint32_t indexStart, uint32_t vertexCount,
                                        baseInstance, instanceCount));
 }
 
-void GrEncoder::clearColor(Color value, uint32_t colorIndex) {
-  impl_->encode(make_unique<ClearClCmd>(value, colorIndex));
-}
-
-void GrEncoder::clearDepth(float value) {
-  impl_->encode(make_unique<ClearDpCmd>(value));
-}
-
-void GrEncoder::clearStencil(uint32_t value) {
-  impl_->encode(make_unique<ClearScCmd>(value));
-}
-
 void GrEncoder::synchronize() {
   impl_->encode(make_unique<SyncCmd>());
 }

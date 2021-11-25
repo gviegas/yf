@@ -117,6 +117,12 @@ struct CopyTest : Test {
                    static_cast<float>(winSz.height), 0.0f, 1.0f};
     Scissor sciss{{0}, winSz};
 
+    TargetOp tgtOp;
+    tgtOp.colorOps.push_back({LoadOpClear, StoreOpStore});
+    tgtOp.colorValues.push_back({0.0f, 0.0f, 0.0f, 1.0f});
+    tgtOp.depthOp = {LoadOpClear, StoreOpStore};
+    tgtOp.depthValue = 1.0f;
+
     while (!quit) {
       WS_NS::dispatch();
 
@@ -165,15 +171,13 @@ struct CopyTest : Test {
 
       // Encoder
       GrEncoder enc;
-      enc.setState(state.get());
       enc.setViewport(vport);
       enc.setScissor(sciss);
-      enc.setTarget(tgts[next.second].get());
+      enc.setTarget(tgts[next.second].get(), tgtOp);
+      enc.setState(state.get());
       enc.setDcTable(0, 0);
       enc.setVertexBuffer(buf.get(), 0, 0);
       enc.setVertexBuffer(buf.get(), sizeof pos, 1);
-      enc.clearColor({0.0f, 0.0f, 0.0f, 1.0f});
-      enc.clearDepth(1.0f);
       enc.draw(0, 3, 0, 1);
 
       cb->encode(enc);

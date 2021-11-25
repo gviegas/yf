@@ -108,6 +108,12 @@ struct DrawTest : Test {
     // Create command buffer
     auto cb = que.cmdBuffer();
 
+    TargetOp tgtOp;
+    tgtOp.colorOps.push_back({LoadOpClear, StoreOpStore});
+    tgtOp.colorValues.push_back({0.005f, 0.005f, 0.005f, 1.0f});
+    tgtOp.depthOp = {LoadOpClear, StoreOpStore};
+    tgtOp.depthValue = 1.0f;
+
     // Enter rendering loop
     const auto tm = chrono::system_clock::now() + chrono::seconds(5);
     while (chrono::system_clock::now() < tm) {
@@ -122,15 +128,13 @@ struct DrawTest : Test {
 
       // Encode commands
       GrEncoder enc;
-      enc.setState(state.get());
       enc.setViewport({0.0f, 0.0f, (float)winSz.width, (float)winSz.height,
                        0.0f, 1.0f});
       enc.setScissor({{0}, winSz});
-      enc.setTarget(tgtIt->get());
+      enc.setTarget(tgtIt->get(), tgtOp);
+      enc.setState(state.get());
       enc.setDcTable(0, 0);
       enc.setVertexBuffer(buf.get(), 0, 0);
-      enc.clearColor({0.005f, 0.005f, 0.005f, 1.0f});
-      enc.clearDepth(1.0f);
       enc.draw(0, 3, 0, 1);
 
       // Apply encoding to command buffer

@@ -12,22 +12,12 @@
 #include <memory>
 #include <array>
 #include <vector>
+#include <utility>
 
 #include "yf/cg/Defs.h"
 #include "yf/cg/Types.h"
 
 CG_NS_BEGIN
-
-/// Type of index data in an index buffer.
-///
-enum IndexType {
-  IndexTypeU16,
-  IndexTypeU32
-};
-
-/// Normalized RGBA color.
-///
-using Color = std::array<float, 4>;
 
 /// Viewport.
 ///
@@ -63,6 +53,47 @@ struct Scissor {
   bool operator!=(const Scissor& other) const {
     return !operator==(other);
   }
+};
+
+/// Load operations for attachments.
+///
+enum LoadOp {
+  LoadOpClear,
+  LoadOpLoad,
+  LoadOpDontCare
+};
+
+/// Store operations for attachments.
+///
+enum StoreOp {
+  StoreOpStore,
+  StoreOpDontCare
+};
+
+/// Load/Store operations of a given attachment.
+///
+using LoadStoreOp = std::pair<LoadOp, StoreOp>;
+
+/// Normalized RGBA color.
+///
+using Color = std::array<float, 4>;
+
+/// Set of operations for a render target.
+///
+struct TargetOp {
+  std::vector<LoadStoreOp> colorOps;
+  std::vector<Color> colorValues;
+  LoadStoreOp depthOp;
+  float depthValue;
+  LoadStoreOp stencilOp;
+  uint32_t stencilValue;
+};
+
+/// Type of index data in an index buffer.
+///
+enum IndexType {
+  IndexTypeU16,
+  IndexTypeU32
 };
 
 class GrState;

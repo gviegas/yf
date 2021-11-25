@@ -344,6 +344,16 @@ void TargetVK::createColorViews(vector<VkImageView>& handles) {
   }
 }
 
+void TargetVK::createDepthStencilView(vector<VkImageView>& handles) {
+  assert(colors_ ? views_.size() == colors_->size() : views_.empty());
+  assert(colors_ ? handles.size() == colors_->size() : handles.empty());
+
+  auto img = static_cast<ImageVK*>(depthStencil_->image);
+  views_.push_back(img->getView(depthStencil_->layer, layers_,
+                                depthStencil_->level, 1));
+  handles.push_back(views_.back()->handle());
+}
+
 Pass& TargetVK::pass() {
   return pass_;
 }

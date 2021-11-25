@@ -121,6 +121,7 @@ class TargetVK final : public Target {
   std::vector<ImageVK::View::Ptr> views_{};
 
   void createColorViews(std::vector<VkImageView>&);
+  void createDepthStencilView(std::vector<VkImageView>&);
 };
 
 CG_NS_END

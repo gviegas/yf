@@ -393,7 +393,6 @@ void CmdBufferVK::encode(const GrEncoder& encoder) {
   GrStateVK* gst = nullptr;
   TargetVK* tgt = nullptr;
   vector<const DcTableCmd*> dtbs;
-  vector<VkClearAttachment> clears;
 
   // Begin render pass
   auto beginPass = [&] {
@@ -438,15 +437,6 @@ void CmdBufferVK::encode(const GrEncoder& encoder) {
     dtbs.clear();
   };
 
-  // Clear attachments
-  auto clearAttachments = [&] {
-    VkClearRect rect{
-      {{0, 0}, {tgt->size().width, tgt->size().height}}, 0, tgt->layers()};
-
-    vkCmdClearAttachments(handle_, clears.size(), clears.data(), 1, &rect);
-    clears.clear();
-  };
-
   // Set graphics state
   auto setState = [&](const StateGrCmd* sub) {
     auto st = static_cast<GrStateVK*>(sub->state);
@@ -488,13 +478,8 @@ void CmdBufferVK::encode(const GrEncoder& encoder) {
 
   // Set target
   auto setTarget = [&](const TargetCmd* sub) {
-    if (tgt) {
-      if (!clears.empty())
-        clearAttachments();
-
+    if (tgt)
       endPass();
-    }
-
     tgt = static_cast<TargetVK*>(sub->target);
     beginPass();
   };
@@ -533,9 +518,6 @@ void CmdBufferVK::encode(const GrEncoder& encoder) {
     if (!dtbs.empty())
       bindSets();
 
-    if (!clears.empty())
-      clearAttachments();
-
     // TODO: Check limits
     vkCmdDraw(handle_, sub->vertexCount, sub->instanceCount,
               sub->vertexStart, sub->baseInstance);
@@ -549,62 +531,9 @@ void CmdBufferVK::encode(const GrEncoder& encoder) {
     if (!dtbs.empty())
       bindSets();
 
-    if (!clears.empty())
-      clearAttachments();
-
     // TODO: Check limits
     vkCmdDrawIndexed(handle_, sub->vertexCount, sub->instanceCount,
                      sub->indexStart, sub->vertexOffset, sub->baseInstance);
-  };
-
-  // Clear color
-  auto clearCl = [&](const ClearClCmd* sub) {
-    if (!tgt)
-      throw invalid_argument("clearColor() requires a target");
-
-    if (!tgt->colors() || tgt->colors()->size() <= sub->colorIndex)
-      throw invalid_argument("clearColor() index out of range");
-
-    VkClearValue val;
-    val.color.float32[0] = sub->value[0];
-    val.color.float32[1] = sub->value[1];
-    val.color.float32[2] = sub->value[2];
-    val.color.float32[3] = sub->value[3];
-    clears.push_back({VK_IMAGE_ASPECT_COLOR_BIT, sub->colorIndex, val});
-  };
-
-  // Clear depth
-  auto clearDp = [&](const ClearDpCmd* sub) {
-    if (!tgt)
-      throw invalid_argument("clearDepth() requires a target");
-
-    if (!tgt->depthStencil())
-      throw invalid_argument("clearDepth() requires a depth attachment");
-
-    if (aspectOfVK(tgt->pass().depthStencil()->format) !=
-        VK_IMAGE_ASPECT_DEPTH_BIT)
-      throw invalid_argument("clearDepth() requires a depth format");
-
-    VkClearValue val;
-    val.depthStencil.depth = sub->value;
-    clears.push_back({VK_IMAGE_ASPECT_DEPTH_BIT, 0, val});
-  };
-
-  // Clear stencil
-  auto clearSc = [&](const ClearScCmd* sub) {
-    if (!tgt)
-      throw invalid_argument("clearStencil() requires a target");
-
-    if (!tgt->depthStencil())
-      throw invalid_argument("clearStencil() requires a stencil attachment");
-
-    if (aspectOfVK(tgt->pass().depthStencil()->format) !=
-        VK_IMAGE_ASPECT_STENCIL_BIT)
-      throw invalid_argument("clearStencil() requires a stencil format");
-
-    VkClearValue val;
-    val.depthStencil.stencil = sub->value;
-    clears.push_back({VK_IMAGE_ASPECT_STENCIL_BIT, 0, val});
   };
 
   // Synchronize
@@ -663,15 +592,6 @@ void CmdBufferVK::encode(const GrEncoder& encoder) {
     case Cmd::DrawIxT:
       drawIx(static_cast<DrawIxCmd*>(cmd.get()));
       break;
-    case Cmd::ClearClT:
-      clearCl(static_cast<ClearClCmd*>(cmd.get()));
-      break;
-    case Cmd::ClearDpT:
-      clearDp(static_cast<ClearDpCmd*>(cmd.get()));
-      break;
-    case Cmd::ClearScT:
-      clearSc(static_cast<ClearScCmd*>(cmd.get()));
-      break;
     case Cmd::SyncT:
       sync(static_cast<SyncCmd*>(cmd.get()));
       break;
@@ -681,12 +601,8 @@ void CmdBufferVK::encode(const GrEncoder& encoder) {
     }
   }
 
-  if (tgt) {
-    if (!clears.empty())
-      clearAttachments();
-
+  if (tgt)
     endPass();
-  }
 }
 
 void CmdBufferVK::encode(const CpEncoder& encoder) {

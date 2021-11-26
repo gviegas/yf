@@ -65,10 +65,10 @@ struct ScissorCmd : Cmd {
 /// Set render target command.
 ///
 struct TargetCmd : Cmd {
-  Target* target;
+  Target& target;
   TargetOp targetOp;
 
-  TargetCmd(Target* target, const TargetOp& targetOp)
+  TargetCmd(Target& target, const TargetOp& targetOp)
     : Cmd(TargetT), target(target), targetOp(targetOp) { }
 };
 

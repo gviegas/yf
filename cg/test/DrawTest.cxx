@@ -131,7 +131,7 @@ struct DrawTest : Test {
       enc.setViewport({0.0f, 0.0f, (float)winSz.width, (float)winSz.height,
                        0.0f, 1.0f});
       enc.setScissor({{0}, winSz});
-      enc.setTarget(tgtIt->get(), tgtOp);
+      enc.setTarget(**tgtIt, tgtOp);
       enc.setState(state.get());
       enc.setDcTable(0, 0);
       enc.setVertexBuffer(buf.get(), 0, 0);

@@ -173,7 +173,7 @@ struct CopyTest : Test {
       GrEncoder enc;
       enc.setViewport(vport);
       enc.setScissor(sciss);
-      enc.setTarget(tgts[next.second].get(), tgtOp);
+      enc.setTarget(*tgts[next.second], tgtOp);
       enc.setState(state.get());
       enc.setDcTable(0, 0);
       enc.setVertexBuffer(buf.get(), 0, 0);

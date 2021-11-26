@@ -7,6 +7,7 @@
 
 #include "Test.h"
 #include "Encoder.h"
+#include "Device.h"
 #include "Cmd.h"
 
 using namespace TEST_NS;
@@ -21,6 +22,12 @@ struct EncoderTest : Test {
   Assertions run(const vector<string>&) {
     Assertions a;
 
+    const vector<AttachDesc> desc{{PxFormatRgba8Unorm, Samples1}};
+    auto pass = device().pass(&desc, nullptr, nullptr);
+    auto img = device().image(PxFormatRgba8Unorm, {64}, 1, 1, Samples1);
+    const vector<AttachImg> att{{img.get(), 0, 0}};
+    auto tgt = pass->target({480, 300}, 1, &att, nullptr, nullptr);
+
     Viewport vport{0.0f, 0.0f, 480.0f, 300.0f, 0.0f, 1.0f};
     Scissor sciss{{0, 0}, {480, 300}};
     TargetOp tgtOp{};
@@ -28,7 +35,7 @@ struct EncoderTest : Test {
     GrEncoder enc1;
     enc1.setViewport(vport);
     enc1.setScissor(sciss);
-    enc1.setTarget(nullptr, tgtOp);
+    enc1.setTarget(*tgt, tgtOp);
     enc1.setState(nullptr);
     enc1.setDcTable(1, 15);
     enc1.setVertexBuffer(nullptr, 128, 0);
@@ -63,7 +70,7 @@ struct EncoderTest : Test {
       } break;
       case Cmd::TargetT:
         str = L"Cmd::TargetT";
-        chk = static_cast<TargetCmd*>(cmd.get())->target == nullptr;
+        chk = &static_cast<TargetCmd*>(cmd.get())->target == tgt.get();
         break;
       case Cmd::StateGrT:
         str = L"Cmd::StateGrT";

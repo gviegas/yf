@@ -463,7 +463,7 @@ void CmdBufferVK::encode(const GrEncoder& encoder) {
   auto setTarget = [&](const TargetCmd* sub) {
     if (tgt)
       endPass();
-    tgt = static_cast<TargetVK*>(sub->target);
+    tgt = &static_cast<TargetVK&>(sub->target);
     tgtOp = &sub->targetOp;
     beginPass();
   };

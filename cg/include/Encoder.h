@@ -141,7 +141,7 @@ class GrEncoder final : public Encoder {
 
   /// Sets the render target.
   ///
-  void setTarget(Target* target, const TargetOp& targetOp);
+  void setTarget(Target& target, const TargetOp& targetOp);
 
   /// Sets the graphics state.
   ///

@@ -51,7 +51,7 @@ void GrEncoder::setScissor(Scissor scissor, uint32_t viewportIndex) {
   impl_->encode(make_unique<ScissorCmd>(scissor, viewportIndex));
 }
 
-void GrEncoder::setTarget(Target* target, const TargetOp& targetOp) {
+void GrEncoder::setTarget(Target& target, const TargetOp& targetOp) {
   impl_->encode(make_unique<TargetCmd>(target, targetOp));
 }
 

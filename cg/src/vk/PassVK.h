@@ -107,6 +107,12 @@ class TargetVK final : public Target {
   ///
   VkFramebuffer framebuffer();
 
+  /// Sets a `VkRenderPassBeginInfo` for a given `TargetOp'.
+  ///
+  void setBeginInfo(VkRenderPassBeginInfo& info,
+                    std::vector<VkClearValue>& clearValues,
+                    const TargetOp& targetOp);
+
  private:
   PassVK& pass_;
   const Size2 size_{0};

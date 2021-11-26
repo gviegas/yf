@@ -366,3 +366,47 @@ const AttachImg* TargetVK::depthStencil() const {
 VkFramebuffer TargetVK::framebuffer() {
   return framebuffer_;
 }
+
+void TargetVK::setBeginInfo(VkRenderPassBeginInfo& info,
+                            vector<VkClearValue>& clearValues,
+                            const TargetOp& targetOp) {
+  assert(clearValues.size() == 0);
+  assert(!colors_ || colors_->size() == targetOp.colorOps.size());
+
+  const auto& colors = targetOp.colorOps;
+  const auto& depth = targetOp.depthOp;
+  const auto& stencil = targetOp.stencilOp;
+  auto renderPass = pass_.renderPass(colors, depth, stencil);
+
+  if (colors_) {
+    auto colorValue = targetOp.colorValues.begin();
+    for (const auto& color : colors) {
+      VkClearValue value;
+      if (color.first == LoadOpClear) {
+        // TODO: SINT/UINT formats
+        value.color.float32[0] = (*colorValue)[0];
+        value.color.float32[1] = (*colorValue)[1];
+        value.color.float32[2] = (*colorValue)[2];
+        value.color.float32[3] = (*colorValue)[3];
+        colorValue++;
+      }
+      clearValues.push_back(value);
+    }
+  }
+  if (depthStencil_) {
+    if (depth.first == LoadOpClear || stencil.first == LoadOpClear) {
+      VkClearValue value;
+      value.depthStencil.depth = targetOp.depthValue;
+      value.depthStencil.stencil = targetOp.stencilValue;
+      clearValues.push_back(value);
+    }
+  }
+
+  info.sType = VK_STRUCTURE_TYPE_RENDER_PASS_BEGIN_INFO;
+  info.pNext = nullptr;
+  info.renderPass = renderPass;
+  info.framebuffer = framebuffer_;
+  info.renderArea = {{0, 0}, size_.width, size_.height};
+  info.clearValueCount = clearValues.size();
+  info.pClearValues = clearValues.data();
+}

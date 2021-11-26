@@ -28,6 +28,17 @@ struct EncoderTest : Test {
     const vector<AttachImg> att{{img.get(), 0, 0}};
     auto tgt = pass->target({480, 300}, 1, &att, nullptr, nullptr);
 
+    auto vert = device().shader(StageVertex, "tmp/vert");
+    auto dtb = device().dcTable({{0, DcTypeUniform, 1}});
+    const VxInput vxIn{
+      {{0, VxFormatFlt3, 0}, {1, VxFormatFlt2, 12}}, 20, VxStepFnVertex
+    };
+    const GrState::Config gconf{
+      pass.get(), {vert.get()}, {dtb.get()}, {vxIn},
+      TopologyTriangle, PolyModeFill, CullModeBack, WindingCounterCw
+    };
+    auto gst = device().state(gconf);
+
     Viewport vport{0.0f, 0.0f, 480.0f, 300.0f, 0.0f, 1.0f};
     Scissor sciss{{0, 0}, {480, 300}};
     TargetOp tgtOp{};
@@ -36,7 +47,7 @@ struct EncoderTest : Test {
     enc1.setViewport(vport);
     enc1.setScissor(sciss);
     enc1.setTarget(*tgt, tgtOp);
-    enc1.setState(nullptr);
+    enc1.setState(*gst);
     enc1.setDcTable(1, 15);
     enc1.setVertexBuffer(nullptr, 128, 0);
     enc1.setIndexBuffer(nullptr, 256, IndexTypeU16);
@@ -74,7 +85,7 @@ struct EncoderTest : Test {
         break;
       case Cmd::StateGrT:
         str = L"Cmd::StateGrT";
-        chk = static_cast<StateGrCmd*>(cmd.get())->state == nullptr;
+        chk = &static_cast<StateGrCmd*>(cmd.get())->state == gst.get();
         break;
       case Cmd::DcTableT: {
         auto sub = static_cast<DcTableCmd*>(cmd.get());

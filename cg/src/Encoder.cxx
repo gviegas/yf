@@ -55,7 +55,7 @@ void GrEncoder::setTarget(Target& target, const TargetOp& targetOp) {
   impl_->encode(make_unique<TargetCmd>(target, targetOp));
 }
 
-void GrEncoder::setState(GrState* state) {
+void GrEncoder::setState(GrState& state) {
   impl_->encode(make_unique<StateGrCmd>(state));
 }
 

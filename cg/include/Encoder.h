@@ -145,7 +145,7 @@ class GrEncoder final : public Encoder {
 
   /// Sets the graphics state.
   ///
-  void setState(GrState* state);
+  void setState(GrState& state);
 
   /// Sets a descriptor table allocation.
   ///

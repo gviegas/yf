@@ -75,9 +75,9 @@ struct TargetCmd : Cmd {
 /// Set state command for graphics.
 ///
 struct StateGrCmd : Cmd {
-  GrState* state;
+  GrState& state;
 
-  explicit StateGrCmd(GrState* state) : Cmd(StateGrT), state(state) { }
+  explicit StateGrCmd(GrState& state) : Cmd(StateGrT), state(state) { }
 };
 
 /// Set state command for compute.

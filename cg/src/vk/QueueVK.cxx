@@ -470,7 +470,7 @@ void CmdBufferVK::encode(const GrEncoder& encoder) {
 
   // Set graphics state
   auto setState = [&](const StateGrCmd* sub) {
-    auto st = static_cast<GrStateVK*>(sub->state);
+    auto st = &static_cast<GrStateVK&>(sub->state);
 
     if (st != gst) {
       gst = st;

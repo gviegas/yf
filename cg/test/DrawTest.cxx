@@ -132,7 +132,7 @@ struct DrawTest : Test {
                        0.0f, 1.0f});
       enc.setScissor({{0}, winSz});
       enc.setTarget(**tgtIt, tgtOp);
-      enc.setState(state.get());
+      enc.setState(*state);
       enc.setDcTable(0, 0);
       enc.setVertexBuffer(buf.get(), 0, 0);
       enc.draw(0, 3, 0, 1);

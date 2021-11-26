@@ -174,7 +174,7 @@ struct CopyTest : Test {
       enc.setViewport(vport);
       enc.setScissor(sciss);
       enc.setTarget(*tgts[next.second], tgtOp);
-      enc.setState(state.get());
+      enc.setState(*state);
       enc.setDcTable(0, 0);
       enc.setVertexBuffer(buf.get(), 0, 0);
       enc.setVertexBuffer(buf.get(), sizeof pos, 1);

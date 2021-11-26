@@ -519,12 +519,13 @@ bool NewRenderer::renderOnce(CG_NS::Target& target) {
   encoder.setViewport(viewport_);
   encoder.setScissor(scissor_);
 
-  encoder.setTarget(&target);
-  // TODO: CG's method to clear attachments need to change
-  encoder.clearColor(scene_->color());
-  if (target.depthStencil())
-    // TODO: Check format & clear stencil
-    encoder.clearDepth(1.0f);
+  // TODO: Store op as data member an update it when 'pass_' changes
+  CG_NS::TargetOp targetOp;
+  targetOp.colorOps.push_back({CG_NS::LoadOpClear, CG_NS::StoreOpStore});
+  targetOp.colorValues.push_back(scene_->color());
+  targetOp.depthOp = {CG_NS::LoadOpClear, CG_NS::StoreOpStore};
+  targetOp.depthValue = 1.0f;
+  encoder.setTarget(&target, targetOp);
 
   writeGlobal(offset);
   writeLight(offset);
@@ -549,9 +550,14 @@ bool NewRenderer::renderAgain(CG_NS::Target& target) {
 
   willRenderAgain();
 
+  // TODO: Store op as data member an update it when 'pass_' changes
+  CG_NS::TargetOp targetOp;
+  targetOp.colorOps.push_back({CG_NS::LoadOpLoad, CG_NS::StoreOpStore});
+  targetOp.depthOp = {CG_NS::LoadOpLoad, CG_NS::StoreOpStore};
+
   encoder.setViewport(viewport_);
   encoder.setScissor(scissor_);
-  encoder.setTarget(&target);
+  encoder.setTarget(&target, targetOp);
   encoder.setDcTable(0, 0);
 
   bool check;

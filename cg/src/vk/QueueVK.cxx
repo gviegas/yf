@@ -377,10 +377,10 @@ void CmdBufferVK::didExecute() {
 
 void CmdBufferVK::encode(const GrEncoder& encoder) {
   enum : uint32_t {
-    SGst   = 0x01,
-    STgt   = 0x02,
-    SVport = 0x04,
-    SSciss = 0x08,
+    SVport = 0x01,
+    SSciss = 0x02,
+    STgt   = 0x04,
+    SGst   = 0x08,
     SVbuf  = 0x10,
     SIbuf  = 0x20,
 
@@ -390,21 +390,16 @@ void CmdBufferVK::encode(const GrEncoder& encoder) {
   };
 
   uint32_t status = SNone;
-  GrStateVK* gst = nullptr;
   TargetVK* tgt = nullptr;
+  const TargetOp* tgtOp = nullptr;
+  GrStateVK* gst = nullptr;
   vector<const DcTableCmd*> dtbs;
 
   // Begin render pass
   auto beginPass = [&] {
     VkRenderPassBeginInfo info;
-    info.sType = VK_STRUCTURE_TYPE_RENDER_PASS_BEGIN_INFO;
-    info.pNext = nullptr;
-    info.renderPass = static_cast<PassVK&>(tgt->pass()).renderPass();
-    info.framebuffer = tgt->framebuffer();
-    info.renderArea = {{0, 0}, {tgt->size().width, tgt->size().height}};
-    // TODO
-    info.clearValueCount = 0;
-    info.pClearValues = nullptr;
+    vector<VkClearValue> clear;
+    tgt->setBeginInfo(info, clear, *tgtOp);
 
     vkCmdBeginRenderPass(handle_, &info, VK_SUBPASS_CONTENTS_INLINE);
     status |= STgt;
@@ -435,18 +430,6 @@ void CmdBufferVK::encode(const GrEncoder& encoder) {
     }
 
     dtbs.clear();
-  };
-
-  // Set graphics state
-  auto setState = [&](const StateGrCmd* sub) {
-    auto st = static_cast<GrStateVK*>(sub->state);
-
-    if (st != gst) {
-      gst = st;
-      auto pl = gst->pipeline();
-      vkCmdBindPipeline(handle_, VK_PIPELINE_BIND_POINT_GRAPHICS, pl);
-      status |= SGst;
-    }
   };
 
   // Set viewport
@@ -481,7 +464,20 @@ void CmdBufferVK::encode(const GrEncoder& encoder) {
     if (tgt)
       endPass();
     tgt = static_cast<TargetVK*>(sub->target);
+    tgtOp = &sub->targetOp;
     beginPass();
+  };
+
+  // Set graphics state
+  auto setState = [&](const StateGrCmd* sub) {
+    auto st = static_cast<GrStateVK*>(sub->state);
+
+    if (st != gst) {
+      gst = st;
+      auto pl = gst->pipeline();
+      vkCmdBindPipeline(handle_, VK_PIPELINE_BIND_POINT_GRAPHICS, pl);
+      status |= SGst;
+    }
   };
 
   // Set descriptor table
@@ -565,9 +561,6 @@ void CmdBufferVK::encode(const GrEncoder& encoder) {
 
   for (const auto& cmd : encoder.encoding()) {
     switch (cmd->cmd) {
-    case Cmd::StateGrT:
-      setState(static_cast<StateGrCmd*>(cmd.get()));
-      break;
     case Cmd::ViewportT:
       setViewport(static_cast<ViewportCmd*>(cmd.get()));
       break;
@@ -576,6 +569,9 @@ void CmdBufferVK::encode(const GrEncoder& encoder) {
       break;
     case Cmd::TargetT:
       setTarget(static_cast<TargetCmd*>(cmd.get()));
+      break;
+    case Cmd::StateGrT:
+      setState(static_cast<StateGrCmd*>(cmd.get()));
       break;
     case Cmd::DcTableT:
       setDcTable(static_cast<DcTableCmd*>(cmd.get()));

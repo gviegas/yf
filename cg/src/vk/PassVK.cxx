@@ -255,15 +255,21 @@ TargetVK::TargetVK(PassVK& pass, Size2 size, uint32_t layers,
     throw invalid_argument("TargetVK limit");
 
   try {
+    vector<VkImageView> handles;
+
     if (colors) {
       if (!pass.colors() || pass.colors()->size() != colors->size())
         throw invalid_argument("Target not compatible with pass");
+
       colors_ = new auto(*colors);
+      createColorViews(handles);
 
       if (resolves) {
         if (!pass.resolves() || pass.resolves()->size() != resolves->size())
           throw invalid_argument("Target not compatible with pass");
+
         resolves_ = new auto(*resolves);
+        // MS resolve is done outside of render pass
       }
     } else if (pass.colors()) {
       throw invalid_argument("Target not compatible with pass");
@@ -272,15 +278,14 @@ TargetVK::TargetVK(PassVK& pass, Size2 size, uint32_t layers,
     if (depthStencil) {
       if (!pass.depthStencil())
         throw invalid_argument("Target not compatible with pass");
+
       depthStencil_ = new auto(*depthStencil);
+      createDepthStencilView(handles);
+
     } else if (pass.depthStencil()) {
       throw invalid_argument("Target not compatible with pass");
     }
 
-    vector<VkImageView> handles;
-    // MS resolve is done outside of render pass - need not create any views
-    createColorViews(handles);
-    createDepthStencilView(handles);
     createFramebuffer(handles);
   } catch (...) {
     delete colors_;

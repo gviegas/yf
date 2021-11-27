@@ -534,15 +534,7 @@ bool NewRenderer::renderOnce(CG_NS::Target& target) {
 
   encoder.setViewport(viewport_);
   encoder.setScissor(scissor_);
-
-  // TODO: Store op as data member an update it when 'pass_' changes
-  CG_NS::TargetOp targetOp;
-  targetOp.colorOps.push_back({CG_NS::LoadOpClear, CG_NS::StoreOpStore});
-  targetOp.colorValues.push_back(scene_->color());
-  targetOp.depthOp = {CG_NS::LoadOpClear, CG_NS::StoreOpStore};
-  targetOp.depthValue = 1.0f;
-  encoder.setTarget(target, targetOp);
-
+  encoder.setTarget(target, onceOp_);
   writeGlobal(offset);
   writeLight(offset);
   encoder.setDcTable(0, 0);

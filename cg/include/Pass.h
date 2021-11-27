@@ -44,7 +44,7 @@ class Target {
   Target() = default;
   Target(const Target&) = delete;
   Target& operator=(const Target&) = delete;
-  virtual ~Target();
+  virtual ~Target() = default;
 
   /// Getters.
   ///
@@ -65,7 +65,7 @@ class Pass {
   Pass() = default;
   Pass(const Pass&) = delete;
   Pass& operator=(const Pass&) = delete;
-  virtual ~Pass();
+  virtual ~Pass() = default;
 
   /// Creates a new target compatible with the pass.
   ///

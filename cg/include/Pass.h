@@ -41,6 +41,9 @@ class Target {
  public:
   using Ptr = std::unique_ptr<Target>;
 
+  Target() = default;
+  Target(const Target&) = delete;
+  Target& operator=(const Target&) = delete;
   virtual ~Target();
 
   /// Getters.
@@ -59,6 +62,9 @@ class Pass {
  public:
   using Ptr = std::unique_ptr<Pass>;
 
+  Pass() = default;
+  Pass(const Pass&) = delete;
+  Pass& operator=(const Pass&) = delete;
   virtual ~Pass();
 
   /// Creates a new target compatible with the pass.

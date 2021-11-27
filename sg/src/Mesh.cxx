@@ -142,19 +142,17 @@ void Primitive::Impl::encodeBindings(CG_NS::GrEncoder& encoder) {
   for (const auto& att : attributes_) {
     if (dataMask_ & att.first)
       // TODO: Cache the input indices
-      encoder.setVertexBuffer(buffer_.get(), att.second.offset,
+      encoder.setVertexBuffer(*buffer_, att.second.offset,
                               vxInputIndexFor(att.first, dataMask_));
   }
 
   if (dataMask_ & VxDataIndices) {
     switch (indices_.stride) {
     case 2:
-      encoder.setIndexBuffer(buffer_.get(), indices_.offset,
-                             CG_NS::IndexTypeU16);
+      encoder.setIndexBuffer(*buffer_, indices_.offset, CG_NS::IndexTypeU16);
       break;
     case 4:
-      encoder.setIndexBuffer(buffer_.get(), indices_.offset,
-                             CG_NS::IndexTypeU32);
+      encoder.setIndexBuffer(*buffer_, indices_.offset, CG_NS::IndexTypeU32);
       break;
     default:
       throw UnsupportedExcept("Unsupported type for index buffer");
@@ -246,7 +244,7 @@ bool Primitive::Impl::resizeBuffer(uint64_t newSize) {
   // Copy data to new buffer
   // TODO: Consider copying only used ranges
   CG_NS::TfEncoder enc;
-  enc.copy(newBuf.get(), 0, buffer_.get(), 0, buffer_->size());
+  enc.copy(*newBuf, 0, *buffer_, 0, buffer_->size());
   auto& que = dev.queue(CG_NS::Queue::Transfer);
   auto cb = que.cmdBuffer();
   cb->encode(enc);

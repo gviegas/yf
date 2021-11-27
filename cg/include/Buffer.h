@@ -21,6 +21,9 @@ class Buffer {
  public:
   using Ptr = std::unique_ptr<Buffer>;
 
+  Buffer() = default;
+  Buffer(const Buffer&) = delete;
+  Buffer& operator=(const Buffer&) = delete;
   virtual ~Buffer();
 
   /// Writes data to buffer.

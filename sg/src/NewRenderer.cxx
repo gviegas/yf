@@ -70,7 +70,23 @@ void NewRenderer::render(Scene& scene, CG_NS::Target& target) {
   }
 
   if (&target.pass() != pass_) {
-    // TODO: Need to improve this on CG
+    assert(target.colors());
+    assert(target.depthStencil());
+
+    const CG_NS::LoadStoreOp clear{CG_NS::LoadOpClear, CG_NS::StoreOpStore};
+    onceOp_.colorOps.resize(target.colors()->size(), clear);
+    onceOp_.colorValues.resize(target.colors()->size(), scene.color());
+    onceOp_.depthOp = clear;
+    onceOp_.depthValue = 1.0f;
+    onceOp_.stencilOp = clear;
+    onceOp_.stencilValue = 0xFF;
+
+    const CG_NS::LoadStoreOp load{CG_NS::LoadOpLoad, CG_NS::StoreOpStore};
+    againOp_.colorOps.resize(target.colors()->size(), load);
+    againOp_.depthOp = load;
+    againOp_.stencilOp = load;
+
+    // XXX: This can be avoided when passes are `compatible`
     states_.clear();
   }
 

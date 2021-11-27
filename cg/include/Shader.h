@@ -35,7 +35,7 @@ class Shader {
   Shader() = default;
   Shader(const Shader&) = delete;
   Shader& operator=(const Shader&) = delete;
-  virtual ~Shader();
+  virtual ~Shader() = default;
 
   /// Getters.
   ///

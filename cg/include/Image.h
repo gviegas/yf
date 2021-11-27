@@ -85,6 +85,9 @@ class Image {
  public:
   using Ptr = std::unique_ptr<Image>;
 
+  Image() = default;
+  Image(const Image&) = delete;
+  Image& operator=(const Image&) = delete;
   virtual ~Image();
 
   /// Writes data to image.

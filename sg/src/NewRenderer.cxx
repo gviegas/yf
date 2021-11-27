@@ -558,14 +558,9 @@ bool NewRenderer::renderAgain(CG_NS::Target& target) {
 
   willRenderAgain();
 
-  // TODO: Store op as data member an update it when 'pass_' changes
-  CG_NS::TargetOp targetOp;
-  targetOp.colorOps.push_back({CG_NS::LoadOpLoad, CG_NS::StoreOpStore});
-  targetOp.depthOp = {CG_NS::LoadOpLoad, CG_NS::StoreOpStore};
-
   encoder.setViewport(viewport_);
   encoder.setScissor(scissor_);
-  encoder.setTarget(target, targetOp);
+  encoder.setTarget(target, againOp_);
   encoder.setDcTable(0, 0);
 
   bool check;

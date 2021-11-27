@@ -46,7 +46,7 @@ class DcTable {
   DcTable() = default;
   DcTable(const DcTable&) = delete;
   DcTable& operator=(const DcTable&) = delete;
-  virtual ~DcTable();
+  virtual ~DcTable() = default;
 
   /// Allocates a given number of resources.
   ///

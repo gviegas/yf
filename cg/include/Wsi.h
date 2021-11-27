@@ -28,7 +28,7 @@ class Wsi {
   Wsi() = default;
   Wsi(const Wsi&) = delete;
   Wsi& operator=(const Wsi&) = delete;
-  virtual ~Wsi();
+  virtual ~Wsi() = default;
 
   /// Gets the swapchain image for a givem index.
   ///

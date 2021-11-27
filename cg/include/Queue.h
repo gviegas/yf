@@ -24,6 +24,9 @@ class CmdBuffer {
  public:
   using Ptr = std::unique_ptr<CmdBuffer>;
 
+  CmdBuffer() = default;
+  CmdBuffer(const CmdBuffer&) = delete;
+  CmdBuffer& operator=(const CmdBuffer&) = delete;
   virtual ~CmdBuffer();
 
   /// Encodes the command buffer with the contents of an encoder object.
@@ -63,6 +66,9 @@ class Queue {
     Transfer = 0x04
   };
 
+  Queue() = default;
+  Queue(const Queue&) = delete;
+  Queue& operator=(const Queue&) = delete;
   virtual ~Queue();
 
   /// Creates a new command buffer object.

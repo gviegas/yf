@@ -184,7 +184,7 @@ class CpEncoder final : public Encoder {
 
   /// Sets the compute state.
   ///
-  void setState(CpState* state);
+  void setState(CpState& state);
 
   /// Sets a descriptor table allocation.
   ///

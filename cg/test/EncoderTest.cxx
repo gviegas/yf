@@ -39,6 +39,10 @@ struct EncoderTest : Test {
     };
     auto gst = device().state(gconf);
 
+    auto comp = device().shader(StageCompute, "tmp/comp");
+    const CpState::Config cconf{comp.get(), {}};
+    auto cst = device().state(cconf);
+
     Viewport vport{0.0f, 0.0f, 480.0f, 300.0f, 0.0f, 1.0f};
     Scissor sciss{{0, 0}, {480, 300}};
     TargetOp tgtOp{};
@@ -55,6 +59,7 @@ struct EncoderTest : Test {
     enc1.drawIndexed(6, 36, -6, 10, 50);
 
     CpEncoder enc2;
+    enc2.setState(*cst);
     enc2.setDcTable(0, 0);
     enc2.setDcTable(1, 20);
     enc2.dispatch(64);
@@ -129,7 +134,7 @@ struct EncoderTest : Test {
       switch (cmd->cmd) {
       case Cmd::StateCpT:
         str = L"Cmd::StateCpT";
-        chk = static_cast<StateCpCmd*>(cmd.get())->state == nullptr;
+        chk = &static_cast<StateCpCmd*>(cmd.get())->state == cst.get();
         break;
       case Cmd::DcTableT: {
         auto sub = static_cast<DcTableCmd*>(cmd.get());

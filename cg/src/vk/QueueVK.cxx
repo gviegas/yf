@@ -471,7 +471,6 @@ void CmdBufferVK::encode(const GrEncoder& encoder) {
   // Set graphics state
   auto setState = [&](const StateGrCmd* sub) {
     auto st = &static_cast<GrStateVK&>(sub->state);
-
     if (st != gst) {
       gst = st;
       auto pl = gst->pipeline();
@@ -607,7 +606,7 @@ void CmdBufferVK::encode(const CpEncoder& encoder) {
 
   // Set compute state
   auto setState = [&](const StateCpCmd* sub) {
-    cst = static_cast<CpStateVK*>(sub->state);
+    cst = &static_cast<CpStateVK&>(sub->state);
     auto pl = cst->pipeline();
     vkCmdBindPipeline(handle_, VK_PIPELINE_BIND_POINT_COMPUTE, pl);
   };

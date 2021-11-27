@@ -83,9 +83,9 @@ struct StateGrCmd : Cmd {
 /// Set state command for compute.
 ///
 struct StateCpCmd : Cmd {
-  CpState* state;
+  CpState& state;
 
-  explicit StateCpCmd(CpState* state) : Cmd(StateCpT), state(state) { }
+  explicit StateCpCmd(CpState& state) : Cmd(StateCpT), state(state) { }
 };
 
 /// Set descriptor table command.

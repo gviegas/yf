@@ -100,7 +100,7 @@ void GrEncoder::synchronize() {
 
 CpEncoder::CpEncoder() : Encoder(Compute) { }
 
-void CpEncoder::setState(CpState* state) {
+void CpEncoder::setState(CpState& state) {
   impl_->encode(make_unique<StateCpCmd>(state));
 }
 

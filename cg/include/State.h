@@ -211,6 +211,9 @@ class GrState {
     Winding winding;
   };
 
+  GrState() = default;
+  GrState(const GrState&) = delete;
+  GrState& operator=(const GrState&) = delete;
   virtual ~GrState();
 
   /// Gets the state's configuration.
@@ -231,6 +234,9 @@ class CpState {
     std::vector<DcTable*> dcTables;
   };
 
+  CpState() = default;
+  CpState(const CpState&) = delete;
+  CpState& operator=(const CpState&) = delete;
   virtual ~CpState();
 
   /// Gets the state's configuration.

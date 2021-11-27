@@ -43,6 +43,9 @@ class DcTable {
  public:
   using Ptr = std::unique_ptr<DcTable>;
 
+  DcTable() = default;
+  DcTable(const DcTable&) = delete;
+  DcTable& operator=(const DcTable&) = delete;
   virtual ~DcTable();
 
   /// Allocates a given number of resources.

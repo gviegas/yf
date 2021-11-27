@@ -56,6 +56,8 @@ class NewRenderer {
 
   CG_NS::Viewport viewport_{0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 1.0f};
   CG_NS::Scissor scissor_{{0}, {0}};
+  CG_NS::TargetOp onceOp_{};
+  CG_NS::TargetOp againOp_{};
 
   enum DrawableReq {
     // Which material (default is PBRMR)

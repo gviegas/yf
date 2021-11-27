@@ -31,7 +31,7 @@ class Device {
   Device() = default;
   Device(const Device&) = delete;
   Device& operator=(const Device&) = delete;
-  virtual ~Device();
+  virtual ~Device() = default;
 
   /// Gets execution queues.
   ///

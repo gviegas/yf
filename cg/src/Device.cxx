@@ -14,5 +14,3 @@ using namespace CG_NS;
 Device& CG_NS::device() {
   return deviceVK();
 }
-
-Device::~Device() { }

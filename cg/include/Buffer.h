@@ -24,7 +24,7 @@ class Buffer {
   Buffer() = default;
   Buffer(const Buffer&) = delete;
   Buffer& operator=(const Buffer&) = delete;
-  virtual ~Buffer();
+  virtual ~Buffer() = default;
 
   /// Writes data to buffer.
   ///

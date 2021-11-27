@@ -214,7 +214,7 @@ class GrState {
   GrState() = default;
   GrState(const GrState&) = delete;
   GrState& operator=(const GrState&) = delete;
-  virtual ~GrState();
+  virtual ~GrState() = default;
 
   /// Gets the state's configuration.
   ///
@@ -237,7 +237,7 @@ class CpState {
   CpState() = default;
   CpState(const CpState&) = delete;
   CpState& operator=(const CpState&) = delete;
-  virtual ~CpState();
+  virtual ~CpState() = default;
 
   /// Gets the state's configuration.
   ///

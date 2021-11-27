@@ -1,0 +1,10 @@
+//
+// CG
+// Comp.comp
+//
+// Copyright © 2021 Gustavo C. Viegas.
+//
+
+#version 460 core
+
+void main() { }

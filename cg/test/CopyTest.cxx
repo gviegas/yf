@@ -176,8 +176,8 @@ struct CopyTest : Test {
       enc.setTarget(*tgts[next.second], tgtOp);
       enc.setState(*state);
       enc.setDcTable(0, 0);
-      enc.setVertexBuffer(buf.get(), 0, 0);
-      enc.setVertexBuffer(buf.get(), sizeof pos, 1);
+      enc.setVertexBuffer(*buf, 0, 0);
+      enc.setVertexBuffer(*buf, sizeof pos, 1);
       enc.draw(0, 3, 0, 1);
 
       cb->encode(enc);

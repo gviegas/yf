@@ -134,7 +134,7 @@ struct DrawTest : Test {
       enc.setTarget(**tgtIt, tgtOp);
       enc.setState(*state);
       enc.setDcTable(0, 0);
-      enc.setVertexBuffer(buf.get(), 0, 0);
+      enc.setVertexBuffer(*buf, 0, 0);
       enc.draw(0, 3, 0, 1);
 
       // Apply encoding to command buffer

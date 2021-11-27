@@ -43,6 +43,8 @@ struct EncoderTest : Test {
     const CpState::Config cconf{comp.get(), {}};
     auto cst = device().state(cconf);
 
+    auto buf = device().buffer(1024);
+
     Viewport vport{0.0f, 0.0f, 480.0f, 300.0f, 0.0f, 1.0f};
     Scissor sciss{{0, 0}, {480, 300}};
     TargetOp tgtOp{};
@@ -53,7 +55,7 @@ struct EncoderTest : Test {
     enc1.setTarget(*tgt, tgtOp);
     enc1.setState(*gst);
     enc1.setDcTable(1, 15);
-    enc1.setVertexBuffer(nullptr, 128, 0);
+    enc1.setVertexBuffer(*buf, 128, 0);
     enc1.setIndexBuffer(nullptr, 256, IndexTypeU16);
     enc1.draw(0, 3, 0, 1);
     enc1.drawIndexed(6, 36, -6, 10, 50);
@@ -100,27 +102,27 @@ struct EncoderTest : Test {
       case Cmd::VxBufferT: {
         auto sub = static_cast<VxBufferCmd*>(cmd.get());
         str = L"Cmd::VxBufferT";
-        chk = sub->buffer == nullptr && sub->offset == 128 &&
-          sub->inputIndex == 0;
+        chk = &sub->buffer == buf.get() && sub->offset == 128 &&
+              sub->inputIndex == 0;
       } break;
       case Cmd::IxBufferT: {
         auto sub = static_cast<IxBufferCmd*>(cmd.get());
         str = L"Cmd::IxBufferT";
         chk = sub->buffer == nullptr && sub->offset == 256 &&
-          sub->type == IndexTypeU16;
+              sub->type == IndexTypeU16;
       } break;
       case Cmd::DrawT: {
         auto sub = static_cast<DrawCmd*>(cmd.get());
         str = L"Cmd::DrawT";
         chk = sub->vertexStart == 0 && sub->vertexCount == 3 &&
-          sub->baseInstance == 0 && sub->instanceCount == 1;
+              sub->baseInstance == 0 && sub->instanceCount == 1;
       } break;
       case Cmd::DrawIxT: {
         auto sub = static_cast<DrawIxCmd*>(cmd.get());
         str = L"Cmd::DrawIxT";
         chk = sub->indexStart == 6 && sub->vertexCount == 36 &&
-          sub->vertexOffset == -6 && sub->baseInstance == 10 &&
-          sub->instanceCount == 50;
+              sub->vertexOffset == -6 && sub->baseInstance == 10 &&
+              sub->instanceCount == 50;
       } break;
       default:
         str = L"#Invalid Cmd#";
@@ -140,7 +142,7 @@ struct EncoderTest : Test {
         auto sub = static_cast<DcTableCmd*>(cmd.get());
         str = L"Cmd::DcTableT";
         chk = (sub->tableIndex == 0 && sub->allocIndex == 0) ||
-          (sub->tableIndex == 1 && sub->allocIndex == 20);
+              (sub->tableIndex == 1 && sub->allocIndex == 20);
       } break;
       case Cmd::DispatchT:
         str = L"Cmd::DispatchT";
@@ -160,16 +162,16 @@ struct EncoderTest : Test {
         auto sub = static_cast<CopyBBCmd*>(cmd.get());
         str = L"Cmd::CopyBBT";
         chk = !sub->dst && sub->dstOffset == 512 && !sub->src &&
-          sub->srcOffset == 128 && sub->size == 4096;
+              sub->srcOffset == 128 && sub->size == 4096;
       } break;
       case Cmd::CopyIIT: {
         auto sub = static_cast<CopyIICmd*>(cmd.get());
         str = L"Cmd::CopyIIT";
         chk = !sub->dst && sub->dstOffset == Offset2{64, 32} &&
-          sub->dstLayer == 4 && sub->dstLevel == 2 && !sub->src &&
-          sub->srcOffset == Offset2{192, 16} && sub->srcLayer == 1 &&
-          sub->srcLevel == 2 && sub->size == Size2{64} &&
-          sub->layerCount == 3;
+              sub->dstLayer == 4 && sub->dstLevel == 2 && !sub->src &&
+              sub->srcOffset == Offset2{192, 16} && sub->srcLayer == 1 &&
+              sub->srcLevel == 2 && sub->size == Size2{64} &&
+              sub->layerCount == 3;
       } break;
       default:
         str = L"#Invalid Cmd#";

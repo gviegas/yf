@@ -153,7 +153,7 @@ class GrEncoder final : public Encoder {
 
   /// Sets the vertex buffer.
   ///
-  void setVertexBuffer(Buffer* buffer, uint64_t offset, uint32_t inputIndex);
+  void setVertexBuffer(Buffer& buffer, uint64_t offset, uint32_t inputIndex);
 
   /// Sets the index buffer.
   ///

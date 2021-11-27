@@ -486,7 +486,7 @@ void CmdBufferVK::encode(const GrEncoder& encoder) {
 
   // Set vertex buffer
   auto setVxBuffer = [&](const VxBufferCmd* sub) {
-    auto buf = static_cast<BufferVK*>(sub->buffer);
+    auto buf = &static_cast<BufferVK&>(sub->buffer);
     auto bufHandle = buf->handle();
     auto off = sub->offset;
 

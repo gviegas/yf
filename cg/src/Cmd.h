@@ -101,11 +101,11 @@ struct DcTableCmd : Cmd {
 /// Set vertex buffer command.
 ///
 struct VxBufferCmd : Cmd {
-  Buffer* buffer;
+  Buffer& buffer;
   uint64_t offset;
   uint32_t inputIndex;
 
-  VxBufferCmd(Buffer* buffer, uint64_t offset, uint32_t inputIndex)
+  VxBufferCmd(Buffer& buffer, uint64_t offset, uint32_t inputIndex)
     : Cmd(VxBufferT), buffer(buffer), offset(offset), inputIndex(inputIndex) { }
 };
 

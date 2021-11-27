@@ -63,7 +63,7 @@ void GrEncoder::setDcTable(uint32_t tableIndex, uint32_t allocIndex) {
   impl_->encode(make_unique<DcTableCmd>(tableIndex, allocIndex));
 }
 
-void GrEncoder::setVertexBuffer(Buffer* buffer, uint64_t offset,
+void GrEncoder::setVertexBuffer(Buffer& buffer, uint64_t offset,
                                 uint32_t inputIndex) {
 
   impl_->encode(make_unique<VxBufferCmd>(buffer, offset, inputIndex));

@@ -24,7 +24,7 @@ struct EncoderTest : Test {
 
     const vector<AttachDesc> desc{{PxFormatRgba8Unorm, Samples1}};
     auto pass = device().pass(&desc, nullptr, nullptr);
-    auto img = device().image(PxFormatRgba8Unorm, {64}, 1, 1, Samples1);
+    auto img = device().image(PxFormatRgba8Unorm, {480, 300}, 1, 1, Samples1);
     const vector<AttachImg> att{{img.get(), 0, 0}};
     auto tgt = pass->target({480, 300}, 1, &att, nullptr, nullptr);
 
@@ -68,7 +68,7 @@ struct EncoderTest : Test {
 
     TfEncoder enc3;
     enc3.copy(*buf, 3002, *buf, 60, 4096);
-    enc3.copy(nullptr, {64, 32}, 4, 2, nullptr, {192, 16}, 1, 2, {64}, 3);
+    enc3.copy(*img, {64, 32}, 4, 2, *img, {192, 16}, 1, 2, {64}, 3);
 
     wstring str;
     bool chk;
@@ -161,17 +161,19 @@ struct EncoderTest : Test {
       case Cmd::CopyBBT: {
         auto sub = static_cast<CopyBBCmd*>(cmd.get());
         str = L"Cmd::CopyBBT";
-        chk = &sub->dst == &sub->src && sub->dstOffset == 3002 &&
-              sub->srcOffset == 60 && sub->size == 4096;
+        chk = &sub->dst == &sub->src &&
+              sub->dstOffset == 3002 && sub->srcOffset == 60 &&
+              sub->size == 4096;
       } break;
       case Cmd::CopyIIT: {
         auto sub = static_cast<CopyIICmd*>(cmd.get());
         str = L"Cmd::CopyIIT";
-        chk = !sub->dst && sub->dstOffset == Offset2{64, 32} &&
-              sub->dstLayer == 4 && sub->dstLevel == 2 && !sub->src &&
+        chk = &sub->dst == &sub->src &&
+              sub->dstOffset == Offset2{64, 32} && sub->dstLayer == 4 &&
+              sub->dstLevel == 2  &&
               sub->srcOffset == Offset2{192, 16} && sub->srcLayer == 1 &&
-              sub->srcLevel == 2 && sub->size == Size2{64} &&
-              sub->layerCount == 3;
+              sub->srcLevel == 2 &&
+              sub->size == Size2{64} && sub->layerCount == 3;
       } break;
       default:
         str = L"#Invalid Cmd#";

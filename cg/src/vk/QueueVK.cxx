@@ -708,8 +708,8 @@ void CmdBufferVK::encode(const TfEncoder& encoder) {
 
   // Copy image
   auto copyII = [&](const CopyIICmd* sub) {
-    auto dst = static_cast<ImageVK*>(sub->dst);
-    auto src = static_cast<ImageVK*>(sub->src);
+    auto dst = &static_cast<ImageVK&>(sub->dst);
+    auto src = &static_cast<ImageVK&>(sub->src);
 
     if (sub->size.width == 0 || sub->size.height == 0 || sub->layerCount == 0 ||
         sub->dstOffset.x + sub->size.width >

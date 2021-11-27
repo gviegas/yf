@@ -213,8 +213,8 @@ class TfEncoder final : public Encoder {
 
   /// Copies data between images.
   ///
-  void copy(Image* dst, Offset2 dstOffset, uint32_t dstLayer, uint32_t dstLevel,
-            Image* src, Offset2 srcOffset, uint32_t srcLayer, uint32_t srcLevel,
+  void copy(Image& dst, Offset2 dstOffset, uint32_t dstLayer, uint32_t dstLevel,
+            Image& src, Offset2 srcOffset, uint32_t srcLayer, uint32_t srcLevel,
             Size2 size, uint32_t layerCount);
 };
 

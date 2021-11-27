@@ -176,19 +176,19 @@ struct CopyBBCmd : Cmd {
 /// Copy image command.
 ///
 struct CopyIICmd : Cmd {
-  Image* dst;
+  Image& dst;
   Offset2 dstOffset;
   uint32_t dstLayer;
   uint32_t dstLevel;
-  Image* src;
+  Image& src;
   Offset2 srcOffset;
   uint32_t srcLayer;
   uint32_t srcLevel;
   Size2 size;
   uint32_t layerCount;
 
-  CopyIICmd(Image* dst, Offset2 dstOffset, uint32_t dstLayer, uint32_t dstLevel,
-            Image* src, Offset2 srcOffset, uint32_t srcLayer, uint32_t srcLevel,
+  CopyIICmd(Image& dst, Offset2 dstOffset, uint32_t dstLayer, uint32_t dstLevel,
+            Image& src, Offset2 srcOffset, uint32_t srcLayer, uint32_t srcLevel,
             Size2 size, uint32_t layerCount)
     : Cmd(CopyIIT),
       dst(dst), dstOffset(dstOffset), dstLayer(dstLayer), dstLevel(dstLevel),

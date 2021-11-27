@@ -27,7 +27,7 @@ class CmdBuffer {
   CmdBuffer() = default;
   CmdBuffer(const CmdBuffer&) = delete;
   CmdBuffer& operator=(const CmdBuffer&) = delete;
-  virtual ~CmdBuffer();
+  virtual ~CmdBuffer() = default;
 
   /// Encodes the command buffer with the contents of an encoder object.
   ///
@@ -69,7 +69,7 @@ class Queue {
   Queue() = default;
   Queue(const Queue&) = delete;
   Queue& operator=(const Queue&) = delete;
-  virtual ~Queue();
+  virtual ~Queue() = default;
 
   /// Creates a new command buffer object.
   ///

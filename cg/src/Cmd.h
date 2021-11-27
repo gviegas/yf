@@ -161,13 +161,13 @@ struct DispatchCmd : Cmd {
 /// Copy buffer command.
 ///
 struct CopyBBCmd : Cmd {
-  Buffer* dst;
+  Buffer& dst;
   uint64_t dstOffset;
-  Buffer* src;
+  Buffer& src;
   uint64_t srcOffset;
   uint64_t size;
 
-  CopyBBCmd(Buffer* dst, uint64_t dstOffset, Buffer* src, uint64_t srcOffset,
+  CopyBBCmd(Buffer& dst, uint64_t dstOffset, Buffer& src, uint64_t srcOffset,
             uint64_t size)
     : Cmd(CopyBBT), dst(dst), dstOffset(dstOffset), src(src),
       srcOffset(srcOffset), size(size) { }

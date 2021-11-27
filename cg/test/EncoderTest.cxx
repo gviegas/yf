@@ -43,7 +43,7 @@ struct EncoderTest : Test {
     const CpState::Config cconf{comp.get(), {}};
     auto cst = device().state(cconf);
 
-    auto buf = device().buffer(1024);
+    auto buf = device().buffer(1 << 14);
 
     Viewport vport{0.0f, 0.0f, 480.0f, 300.0f, 0.0f, 1.0f};
     Scissor sciss{{0, 0}, {480, 300}};
@@ -67,7 +67,7 @@ struct EncoderTest : Test {
     enc2.dispatch(64);
 
     TfEncoder enc3;
-    enc3.copy(nullptr, 512, nullptr, 128, 4096);
+    enc3.copy(*buf, 3002, *buf, 60, 4096);
     enc3.copy(nullptr, {64, 32}, 4, 2, nullptr, {192, 16}, 1, 2, {64}, 3);
 
     wstring str;
@@ -161,8 +161,8 @@ struct EncoderTest : Test {
       case Cmd::CopyBBT: {
         auto sub = static_cast<CopyBBCmd*>(cmd.get());
         str = L"Cmd::CopyBBT";
-        chk = !sub->dst && sub->dstOffset == 512 && !sub->src &&
-              sub->srcOffset == 128 && sub->size == 4096;
+        chk = &sub->dst == &sub->src && sub->dstOffset == 3002 &&
+              sub->srcOffset == 60 && sub->size == 4096;
       } break;
       case Cmd::CopyIIT: {
         auto sub = static_cast<CopyIICmd*>(cmd.get());

@@ -208,7 +208,7 @@ class TfEncoder final : public Encoder {
 
   /// Copies data between buffers.
   ///
-  void copy(Buffer* dst, uint64_t dstOffset, Buffer* src, uint64_t srcOffset,
+  void copy(Buffer& dst, uint64_t dstOffset, Buffer& src, uint64_t srcOffset,
             uint64_t size);
 
   /// Copies data between images.

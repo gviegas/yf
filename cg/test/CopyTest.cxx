@@ -130,12 +130,12 @@ struct CopyTest : Test {
         key = WS_NS::KeyCodeUnknown;
         auto tmp = dev.buffer(buf->size());
         TfEncoder enc;
-        enc.copy(tmp.get(), 0, buf.get(), 0, buf->size());
+        enc.copy(*tmp, 0, *buf, 0, buf->size());
         cb->encode(enc);
         cb->enqueue();
         que.submit();
         buf.reset(tmp.release());
-        dtb->write(0, 0, 0, *buf, sizeof pos + sizeof tc, sizeof xform);
+        dtb->write(0, 0, 0, *buf, sizeof pos + sizeof tc + off, sizeof xform);
         wcout << "\n> buffer copied\n";
       } else if (key == WS_NS::KeyCodeI) {
         key = WS_NS::KeyCodeUnknown;
@@ -152,7 +152,7 @@ struct CopyTest : Test {
         static uint64_t cpySz = 31;
         key = WS_NS::KeyCodeUnknown;
         TfEncoder enc;
-        enc.copy(buf.get(), 200, buf.get(), 170, cpySz);
+        enc.copy(*buf, 200, *buf, 170, cpySz);
         try {
           cb->encode(enc);
           cb->enqueue();

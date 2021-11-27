@@ -686,8 +686,8 @@ void CmdBufferVK::encode(const CpEncoder& encoder) {
 void CmdBufferVK::encode(const TfEncoder& encoder) {
   // Copy buffer
   auto copyBB = [&](const CopyBBCmd* sub) {
-    auto dst = static_cast<BufferVK*>(sub->dst);
-    auto src = static_cast<BufferVK*>(sub->src);
+    auto dst = &static_cast<BufferVK&>(sub->dst);
+    auto src = &static_cast<BufferVK&>(sub->src);
 
     if (sub->size == 0 ||
         sub->dstOffset + sub->size > dst->size() ||

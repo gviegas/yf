@@ -122,8 +122,8 @@ void CpEncoder::synchronize() {
 
 TfEncoder::TfEncoder() : Encoder(Transfer) { }
 
-void TfEncoder::copy(Buffer* dst, uint64_t dstOffset,
-                     Buffer* src, uint64_t srcOffset,
+void TfEncoder::copy(Buffer& dst, uint64_t dstOffset,
+                     Buffer& src, uint64_t srcOffset,
                      uint64_t size) {
 
   impl_->encode(make_unique<CopyBBCmd>(dst, dstOffset, src, srcOffset, size));

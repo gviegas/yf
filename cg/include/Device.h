@@ -28,6 +28,9 @@ CG_NS_BEGIN
 ///
 class Device {
  public:
+  Device() = default;
+  Device(const Device&) = delete;
+  Device& operator=(const Device&) = delete;
   virtual ~Device();
 
   /// Gets execution queues.

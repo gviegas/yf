@@ -6,6 +6,7 @@
 //
 
 #include <typeinfo>
+#include <algorithm>
 #include <cstdio>
 #include <cstring>
 #include <cassert>
@@ -88,6 +89,9 @@ void NewRenderer::render(Scene& scene, CG_NS::Target& target) {
 
     // XXX: This can be avoided when passes are `compatible`
     states_.clear();
+  } else {
+    fill(onceOp_.colorValues.begin(), onceOp_.colorValues.end(),
+         scene.color());
   }
 
   scene_ = &scene;

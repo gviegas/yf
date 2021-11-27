@@ -525,7 +525,7 @@ bool NewRenderer::renderOnce(CG_NS::Target& target) {
   targetOp.colorValues.push_back(scene_->color());
   targetOp.depthOp = {CG_NS::LoadOpClear, CG_NS::StoreOpStore};
   targetOp.depthValue = 1.0f;
-  encoder.setTarget(&target, targetOp);
+  encoder.setTarget(target, targetOp);
 
   writeGlobal(offset);
   writeLight(offset);
@@ -557,7 +557,7 @@ bool NewRenderer::renderAgain(CG_NS::Target& target) {
 
   encoder.setViewport(viewport_);
   encoder.setScissor(scissor_);
-  encoder.setTarget(&target, targetOp);
+  encoder.setTarget(target, targetOp);
   encoder.setDcTable(0, 0);
 
   bool check;
@@ -618,7 +618,7 @@ bool NewRenderer::renderDrawable(Drawable& drawable,
     writeMaterialPbr(offset, drawable, allocation);
   writeTextureMaps(drawable, allocation);
 
-  encoder.setState(state.state.get());
+  encoder.setState(*state.state);
   encoder.setDcTable(1, allocation);
   drawable.primitive.impl().encodeBindings(encoder);
   drawable.primitive.impl().encodeDraw(encoder, 0, 1);

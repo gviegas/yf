@@ -230,7 +230,7 @@ bool Texture::Impl::setLayerCount(Resource& resource, uint32_t newCount) {
   const auto cpyCount = min(newCount, resource.image->layers());
   const auto cpySize = resource.image->size();
   for (uint32_t i = 0; i < resource.image->levels(); i++)
-    enc.copy(newImg.get(), {0}, 0, i, resource.image.get(), {0}, 0, i,
+    enc.copy(*newImg, {0}, 0, i, *resource.image, {0}, 0, i,
              {cpySize.width >> i, cpySize.height >> i}, cpyCount);
 
   auto& que = dev.queue(CG_NS::Queue::Transfer);

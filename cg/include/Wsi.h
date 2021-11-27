@@ -25,6 +25,9 @@ class Wsi {
   using Ptr = std::unique_ptr<Wsi>;
   using Index = uint32_t;
 
+  Wsi() = default;
+  Wsi(const Wsi&) = delete;
+  Wsi& operator=(const Wsi&) = delete;
   virtual ~Wsi();
 
   /// Gets the swapchain image for a givem index.

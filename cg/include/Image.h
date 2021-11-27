@@ -88,7 +88,7 @@ class Image {
   Image() = default;
   Image(const Image&) = delete;
   Image& operator=(const Image&) = delete;
-  virtual ~Image();
+  virtual ~Image() = default;
 
   /// Writes data to image.
   ///

@@ -12,8 +12,6 @@
 using namespace CG_NS;
 using namespace std;
 
-Image::~Image() { }
-
 uint32_t Image::texelSize(PxFormat format) {
   switch (format) {
   case PxFormatR8Unorm:

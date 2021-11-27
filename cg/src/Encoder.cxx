@@ -69,7 +69,7 @@ void GrEncoder::setVertexBuffer(Buffer& buffer, uint64_t offset,
   impl_->encode(make_unique<VxBufferCmd>(buffer, offset, inputIndex));
 }
 
-void GrEncoder::setIndexBuffer(Buffer* buffer, uint64_t offset,
+void GrEncoder::setIndexBuffer(Buffer& buffer, uint64_t offset,
                                IndexType type) {
 
   impl_->encode(make_unique<IxBufferCmd>(buffer, offset, type));

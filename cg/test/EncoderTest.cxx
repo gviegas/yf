@@ -56,7 +56,7 @@ struct EncoderTest : Test {
     enc1.setState(*gst);
     enc1.setDcTable(1, 15);
     enc1.setVertexBuffer(*buf, 128, 0);
-    enc1.setIndexBuffer(nullptr, 256, IndexTypeU16);
+    enc1.setIndexBuffer(*buf, 256, IndexTypeU16);
     enc1.draw(0, 3, 0, 1);
     enc1.drawIndexed(6, 36, -6, 10, 50);
 
@@ -108,7 +108,7 @@ struct EncoderTest : Test {
       case Cmd::IxBufferT: {
         auto sub = static_cast<IxBufferCmd*>(cmd.get());
         str = L"Cmd::IxBufferT";
-        chk = sub->buffer == nullptr && sub->offset == 256 &&
+        chk = &sub->buffer == buf.get() && sub->offset == 256 &&
               sub->type == IndexTypeU16;
       } break;
       case Cmd::DrawT: {

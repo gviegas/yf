@@ -112,11 +112,11 @@ struct VxBufferCmd : Cmd {
 /// Set index buffer command.
 ///
 struct IxBufferCmd : Cmd {
-  Buffer* buffer;
+  Buffer& buffer;
   uint64_t offset;
   IndexType type;
 
-  IxBufferCmd(Buffer* buffer, uint64_t offset, IndexType type)
+  IxBufferCmd(Buffer& buffer, uint64_t offset, IndexType type)
     : Cmd(IxBufferT), buffer(buffer), offset(offset), type(type) { }
 };
 

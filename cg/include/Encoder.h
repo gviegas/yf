@@ -157,7 +157,7 @@ class GrEncoder final : public Encoder {
 
   /// Sets the index buffer.
   ///
-  void setIndexBuffer(Buffer* buffer, uint64_t offset, IndexType type);
+  void setIndexBuffer(Buffer& buffer, uint64_t offset, IndexType type);
 
   /// Draws primitives.
   ///

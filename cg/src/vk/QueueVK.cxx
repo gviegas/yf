@@ -496,7 +496,7 @@ void CmdBufferVK::encode(const GrEncoder& encoder) {
 
   // Set index buffer
   auto setIxBuffer = [&](const IxBufferCmd* sub) {
-    auto buf = static_cast<BufferVK*>(sub->buffer);
+    auto buf = &static_cast<BufferVK&>(sub->buffer);
     auto bufHandle = buf->handle();
     auto type = sub->type == IndexTypeU16 ? VK_INDEX_TYPE_UINT16
                                           : VK_INDEX_TYPE_UINT32;

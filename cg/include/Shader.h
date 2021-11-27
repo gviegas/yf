@@ -32,6 +32,9 @@ class Shader {
  public:
   using Ptr = std::unique_ptr<Shader>;
 
+  Shader() = default;
+  Shader(const Shader&) = delete;
+  Shader& operator=(const Shader&) = delete;
   virtual ~Shader();
 
   /// Getters.

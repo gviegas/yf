@@ -25,10 +25,13 @@ struct RenderTest : InteractiveTest {
     // Resources
     Mesh mesh1{"tmp/cube.glb"};
     Mesh mesh2{"tmp/cube2.glb"};
+    Mesh mesh3{"tmp/cube3.glb"};
     Collection coll("tmp/animation.glb");
 
     // Scene #1 contents
     vector<Model> mdls{10, {mesh1}};
+    for (long i = mdls.size() - 1; i >= 0; i -= 2)
+      mdls[i].setMesh(&mesh3);
     for (auto& node : coll.nodes()) {
       Model* mdl = dynamic_cast<Model*>(node.get());
       if (mdl && mdl->skin()) {

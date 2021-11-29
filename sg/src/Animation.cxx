@@ -107,39 +107,40 @@ class Animation::Impl {
     return Qnionf(r, v);
   }
 
+  /// Updates a translation action.
+  ///
+  void updateT(const Action& action, float tm) {
+    const auto& inp = inputs_[action.input];
+    const auto& out = outT_[action.output];
+    const auto seq = getKeyframes(inp, tm);
+    auto node = action.target;
+
+    switch (action.method) {
+    case Step:
+      if (tm - inp[seq.first] < inp[seq.second] - tm)
+        node->setT(out[seq.first]);
+      else
+        node->setT(out[seq.second]);
+      break;
+    case Linear:
+      if (seq.first != seq.second) {
+        auto f = (tm - inp[seq.first]) / (inp[seq.second] - inp[seq.first]);
+        node->setT(lerp(out[seq.first], out[seq.second], f));
+      } else {
+        node->setT(out[seq.first]);
+      }
+      break;
+    case Cubic:
+      // TODO
+      break;
+    }
+  }
+
   /// Updates the animation.
   ///
   void update(chrono::nanoseconds elapsedTime) {
     time_ += elapsedTime;
     const float tm = time_.count();
-
-    // Update translation action
-    auto updateT = [&](const Action& action) {
-      const auto& inp = inputs_[action.input];
-      const auto& out = outT_[action.output];
-      const auto seq = getKeyframes(inp, tm);
-      auto node = action.target;
-
-      switch (action.method) {
-      case Step:
-        if (tm-inp[seq.first] < inp[seq.second]-tm)
-          node->setT(out[seq.first]);
-        else
-          node->setT(out[seq.second]);
-        break;
-      case Linear:
-        if (seq.first != seq.second)
-          node->setT(lerp(out[seq.first], out[seq.second],
-                          (tm - inp[seq.first]) /
-                          (inp[seq.second] - inp[seq.first])));
-        else
-          node->setT(out[seq.first]);
-        break;
-      case Cubic:
-        // TODO
-        break;
-      }
-    };
 
     // Update rotation action
     auto updateR = [&](const Action& action) {
@@ -205,7 +206,7 @@ class Animation::Impl {
 
       switch (act.type) {
       case T:
-        updateT(act);
+        updateT(act, tm);
         break;
       case R:
         updateR(act);

@@ -114,8 +114,8 @@ void NewRenderer::render(Scene& scene, CG_NS::Target& target) {
 }
 
 void NewRenderer::processGraph() {
-  blendDrawables_.clear();
   opaqueDrawables_.clear();
+  blendDrawables_.clear();
 
   if (scene_->isLeaf())
     return;
@@ -540,8 +540,8 @@ bool NewRenderer::renderOnce(CG_NS::Target& target) {
   encoder.setDcTable(0, 0);
 
   bool check;
-  if (!renderBlendDrawables(encoder, offset) ||
-      !renderOpaqueDrawables(encoder, offset))
+  if (!renderOpaqueDrawables(encoder, offset) ||
+      !renderBlendDrawables(encoder, offset))
     check = false;
   else
     check = true;
@@ -564,8 +564,8 @@ bool NewRenderer::renderAgain(CG_NS::Target& target) {
   encoder.setDcTable(0, 0);
 
   bool check;
-  if (!renderBlendDrawables(encoder, offset) ||
-      !renderOpaqueDrawables(encoder, offset))
+  if (!renderOpaqueDrawables(encoder, offset) ||
+      !renderBlendDrawables(encoder, offset))
     check = false;
   else
     check = true;
@@ -574,17 +574,6 @@ bool NewRenderer::renderAgain(CG_NS::Target& target) {
   cmdBuffer_->enqueue();
   cmdBuffer_->queue().submit();
   return check;
-}
-
-bool NewRenderer::renderBlendDrawables(CG_NS::GrEncoder& encoder,
-                                       uint64_t& offset) {
-  while (blendDrawables_.size() != 0) {
-    if (renderDrawable(blendDrawables_.front(), encoder, offset))
-      blendDrawables_.pop_front();
-    else
-      return false;
-  }
-  return true;
 }
 
 bool NewRenderer::renderOpaqueDrawables(CG_NS::GrEncoder& encoder,
@@ -597,6 +586,17 @@ bool NewRenderer::renderOpaqueDrawables(CG_NS::GrEncoder& encoder,
     opaqueDrawables_.pop_front();
   }
   return opaqueDrawables_.size() == 0;
+}
+
+bool NewRenderer::renderBlendDrawables(CG_NS::GrEncoder& encoder,
+                                       uint64_t& offset) {
+  while (blendDrawables_.size() != 0) {
+    if (renderDrawable(blendDrawables_.front(), encoder, offset))
+      blendDrawables_.pop_front();
+    else
+      return false;
+  }
+  return true;
 }
 
 bool NewRenderer::renderDrawable(Drawable& drawable,
@@ -925,15 +925,15 @@ void NewRenderer::print() const {
 
   wprintf(L"\nNewRenderer\n"
           L" unif. buffer size: %zu\n", unifBuffer_->size());
-  wprintf(L" blend drawables: #%zu\n", blendDrawables_.size());
-  for (uint32_t i = 0; i < blendDrawables_.size(); i++) {
-    wprintf(L"  [%u]:\n", i);
-    printDrawable(blendDrawables_[i]);
-  }
   wprintf(L" opaque drawables: #%zu\n", opaqueDrawables_.size());
   for (uint32_t i = 0; i < opaqueDrawables_.size(); i++) {
     wprintf(L"  [%u]:\n", i);
     printDrawable(opaqueDrawables_[i]);
+  }
+  wprintf(L" blend drawables: #%zu\n", blendDrawables_.size());
+  for (uint32_t i = 0; i < blendDrawables_.size(); i++) {
+    wprintf(L"  [%u]:\n", i);
+    printDrawable(blendDrawables_[i]);
   }
   wprintf(L" vert. shaders: #%zu\n", vertShaders_.size());
   for (uint32_t i = 0; i < vertShaders_.size(); i++) {

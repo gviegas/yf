@@ -130,8 +130,8 @@ class NewRenderer {
     DrawableReqMask mask;
   };
 
-  std::deque<Drawable> blendDrawables_{};
   std::deque<Drawable> opaqueDrawables_{};
+  std::deque<Drawable> blendDrawables_{};
   std::vector<Shader> vertShaders_{};
   std::vector<Shader> fragShaders_{};
   std::vector<Table> tables_{};
@@ -162,8 +162,8 @@ class NewRenderer {
 
   bool renderOnce(CG_NS::Target&);
   bool renderAgain(CG_NS::Target&);
-  bool renderBlendDrawables(CG_NS::GrEncoder&, uint64_t& offset);
   bool renderOpaqueDrawables(CG_NS::GrEncoder&, uint64_t& offset);
+  bool renderBlendDrawables(CG_NS::GrEncoder&, uint64_t& offset);
   bool renderDrawable(Drawable&, CG_NS::GrEncoder&, uint64_t& offset);
 
   static constexpr uint32_t ViewportN = 1;

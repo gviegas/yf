@@ -386,7 +386,7 @@ void NewRenderer::setInputs(DrawableReqMask mask,
 template<class T>
 pair<uint32_t, bool> NewRenderer::getIndex(DrawableReqMask mask,
                                            const vector<T>& container) {
-  if (mask == 0 || container.size() == 0)
+  if (container.size() == 0)
     return {0, false};
 
   uint32_t beg = 0;

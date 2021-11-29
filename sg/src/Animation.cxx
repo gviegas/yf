@@ -165,39 +165,40 @@ class Animation::Impl {
     }
   }
 
+  /// Updates a scale action.
+  ///
+  void updateS(const Action& action, float tm) {
+    const auto& inp = inputs_[action.input];
+    const auto& out = outS_[action.output];
+    const auto seq = getKeyframes(inp, tm);
+    auto node = action.target;
+
+    switch (action.method) {
+    case Step:
+      if (tm - inp[seq.first] < inp[seq.second] - tm)
+        node->setS(out[seq.first]);
+      else
+        node->setS(out[seq.second]);
+      break;
+    case Linear:
+      if (seq.first != seq.second) {
+        auto f = (tm - inp[seq.first]) / (inp[seq.second] - inp[seq.first]);
+        node->setS(lerp(out[seq.first], out[seq.second], f));
+      } else {
+        node->setS(out[seq.first]);
+      }
+      break;
+    case Cubic:
+      // TODO
+      break;
+    }
+  }
+
   /// Updates the animation.
   ///
   void update(chrono::nanoseconds elapsedTime) {
     time_ += elapsedTime;
     const float tm = time_.count();
-
-    // Update scale action
-    auto updateS = [&](const Action& action) {
-      const auto& inp = inputs_[action.input];
-      const auto& out = outS_[action.output];
-      const auto seq = getKeyframes(inp, tm);
-      auto node = action.target;
-
-      switch (action.method) {
-      case Step:
-        if (tm-inp[seq.first] < inp[seq.second]-tm)
-          node->setS(out[seq.first]);
-        else
-          node->setS(out[seq.second]);
-        break;
-      case Linear:
-        if (seq.first != seq.second)
-          node->setS(lerp(out[seq.first], out[seq.second],
-                          (tm - inp[seq.first]) /
-                          (inp[seq.second] - inp[seq.first])));
-        else
-          node->setS(out[seq.first]);
-        break;
-      case Cubic:
-        // TODO
-        break;
-      }
-    };
 
     size_t completeN = 0;
 
@@ -213,7 +214,7 @@ class Animation::Impl {
         updateR(act, tm);
         break;
       case S:
-        updateS(act);
+        updateS(act, tm);
         break;
       }
     }

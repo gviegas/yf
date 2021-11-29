@@ -80,38 +80,38 @@ class Animation::Impl {
                  (1.0f - f) * v1[2] + f * v2[2]};
   }
 
+  /// Spherical linear interpolation for 'Qnionf'.
+  ///
+  Qnionf slerp(const Qnionf& q1, const Qnionf& q2, float f) {
+    float d = dot(q1.v(), q2.v());
+    float k = 1.0f;
+
+    if (d > (1.0f - FLT_EPSILON)) {
+      const float r = (1.0f - f) * q1.r() + f * q2.r();
+      const Vec3f v = lerp(q1.v(), q2.v(), f);
+      return Qnionf(r, v);
+    }
+
+    if (d < 0.0f) {
+      d = -d;
+      k = -k;
+    }
+
+    const float a = acos(d);
+    const float s = sin(a);
+    const float s1 = sin((1.0f - f) * a);
+    const float s2 = sin(f * a);
+
+    const float r = (q1.r() * s1 + q2.r() * s2 * k) / s;
+    const Vec3f v = (q1.v() * s1 + q2.v() * s2 * k) / s;
+    return Qnionf(r, v);
+  }
+
   /// Updates the animation.
   ///
   void update(chrono::nanoseconds elapsedTime) {
     time_ += elapsedTime;
     const float tm = time_.count();
-
-    // Qnionf slerp
-    auto slerp = [&](const Qnionf& q1, const Qnionf& q2, float f) {
-      float d = dot(q1.v(), q2.v());
-
-      if (d > (1.0f - FLT_EPSILON)) {
-        const float r = (1.0f - f) * q1.r() + f * q2.r();
-        const Vec3f v = lerp(q1.v(), q2.v(), f);
-        return Qnionf(r, v);
-      }
-
-      float k = 1.0f;
-
-      if (d < 0.0f) {
-        k = -k;
-        d = -d;
-      }
-
-      const float ang = acos(d);
-      const float s = sin(ang);
-      const float s1 = sin((1.0f - f) * ang);
-      const float s2 = sin(f * ang);
-
-      const float r = (q1.r() * s1 + q2.r() * s2 * k) / s;
-      const Vec3f v = (q1.v() * s1 + q2.v() * s2 * k) / s;
-      return Qnionf(r, v);
-    };
 
     // Update translation action
     auto updateT = [&](const Action& action) {

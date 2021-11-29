@@ -72,18 +72,19 @@ class Animation::Impl {
     return {mid, mid + 1};
   }
 
+  /// Linear interpolation for 'Vec3f'.
+  ///
+  Vec3f lerp(const Vec3f& v1, const Vec3f& v2, float f) {
+    return Vec3f{(1.0f - f) * v1[0] + f * v2[0],
+                 (1.0f - f) * v1[1] + f * v2[1],
+                 (1.0f - f) * v1[2] + f * v2[2]};
+  }
+
   /// Updates the animation.
   ///
   void update(chrono::nanoseconds elapsedTime) {
     time_ += elapsedTime;
     const float tm = time_.count();
-
-    // Vec3f lerp
-    auto lerp = [&](const Vec3f& v1, const Vec3f& v2, float f) {
-      return Vec3f{(1.0f - f) * v1[0] + f * v2[0],
-                   (1.0f - f) * v1[1] + f * v2[1],
-                   (1.0f - f) * v1[2] + f * v2[2]};
-    };
 
     // Qnionf slerp
     auto slerp = [&](const Qnionf& q1, const Qnionf& q2, float f) {

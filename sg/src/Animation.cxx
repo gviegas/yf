@@ -44,39 +44,39 @@ class Animation::Impl {
   chrono::duration<float> time_{};
   bool completed_ = false;
 
+  /// Get a pair of timeline indices defining the keyframes to interpolate.
+  ///
+  pair<size_t, size_t> getKeyframes(const Timeline& input, float tm) {
+    if (input.front() > tm)
+      return {0, 0};
+
+    if (input.back() < tm)
+      return {input.size() - 1, input.size() - 1};
+
+    size_t beg = 0;
+    size_t end = input.size();
+    size_t mid;
+
+    while (beg < end) {
+      mid = (beg + end) >> 1;
+      if (input[mid] < tm)
+        beg = mid + 1;
+      else if (input[mid] > tm)
+        end = mid;
+      else
+        break;
+    }
+
+    if (input[mid] > tm)
+      return {mid - 1, mid};
+    return {mid, mid + 1};
+  }
+
   /// Updates the animation.
   ///
   void update(chrono::nanoseconds elapsedTime) {
     time_ += elapsedTime;
     const float tm = time_.count();
-
-    // Get a pair of timeline indices defining the keyframes to interpolate
-    auto getKeyframes = [&](const Timeline& input) {
-      if (input.front() > tm)
-        return pair<size_t, size_t>();
-
-      if (input.back() < tm)
-        return pair<size_t, size_t>(input.size()-1, input.size()-1);
-
-      size_t beg = 0;
-      size_t end = input.size() - 1; // XXX: Non-empty input
-      size_t cur = (beg + end) >> 1;
-
-      while (beg < end) {
-        if (input[cur] < tm)
-          beg = cur + 1;
-        else if (input[cur] > tm)
-          end = cur - 1;
-        else
-          break;
-
-        cur = (beg + end) >> 1;
-      }
-
-      return input[cur] > tm ?
-             pair<size_t, size_t>(cur-1, cur) :
-             pair<size_t, size_t>(cur, cur+1);
-    };
 
     // Vec3f lerp
     auto lerp = [&](const Vec3f& v1, const Vec3f& v2, float f) {
@@ -116,7 +116,7 @@ class Animation::Impl {
     auto updateT = [&](const Action& action) {
       const auto& inp = inputs_[action.input];
       const auto& out = outT_[action.output];
-      const auto seq = getKeyframes(inp);
+      const auto seq = getKeyframes(inp, tm);
       auto node = action.target;
 
       switch (action.method) {
@@ -144,7 +144,7 @@ class Animation::Impl {
     auto updateR = [&](const Action& action) {
       const auto& inp = inputs_[action.input];
       const auto& out = outR_[action.output];
-      const auto seq = getKeyframes(inp);
+      const auto seq = getKeyframes(inp, tm);
       auto node = action.target;
 
       switch (action.method) {
@@ -172,7 +172,7 @@ class Animation::Impl {
     auto updateS = [&](const Action& action) {
       const auto& inp = inputs_[action.input];
       const auto& out = outS_[action.output];
-      const auto seq = getKeyframes(inp);
+      const auto seq = getKeyframes(inp, tm);
       auto node = action.target;
 
       switch (action.method) {

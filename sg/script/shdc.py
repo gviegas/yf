@@ -81,17 +81,21 @@ def shdForMask(mask):
 
 vert = [
     shdForMask(dNormal),
+    shdForMask(dNormal | dColor0),
     shdForMask(dColorMap | dNormal | dTexCoord0),
     shdForMask(dColorMap | dNormal | dTexCoord0 | dSkin),
     shdForMask(dAlphaBlend | dNormal),
+    shdForMask(dAlphaBlend | dNormal | dColor0),
     shdForMask(dColorMap | dAlphaBlend | dNormal | dTexCoord0),
     shdForMask(dColorMap | dAlphaBlend | dNormal | dTexCoord0 | dSkin)
 ]
 frag = [
     shdForMask(dNormal),
+    shdForMask(dNormal | dColor0),
     shdForMask(dColorMap | dNormal | dTexCoord0),
     shdForMask(dColorMap | dNormal | dTexCoord0 | dSkin),
     shdForMask(dAlphaBlend | dNormal),
+    shdForMask(dAlphaBlend | dNormal | dColor0),
     shdForMask(dColorMap | dAlphaBlend | dNormal | dTexCoord0),
     shdForMask(dColorMap | dAlphaBlend | dNormal | dTexCoord0 | dSkin)
 ]

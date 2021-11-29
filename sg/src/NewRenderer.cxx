@@ -621,14 +621,14 @@ bool NewRenderer::renderDrawable(Drawable& drawable,
     writeMaterialPbr(offset, drawable, allocation);
   writeTextureMaps(drawable, allocation);
 
+  if (drawable.mask & RAlphaBlend)
+    // TODO: Improve this
+    encoder.synchronize();
+
   encoder.setState(*state.state);
   encoder.setDcTable(1, allocation);
   drawable.primitive.impl().encodeBindings(encoder);
   drawable.primitive.impl().encodeDraw(encoder, 0, 1);
-
-  if (drawable.mask & RAlphaBlend)
-    // TODO: Improve this
-    encoder.synchronize();
 
   didRenderDrawable(drawable);
   return true;

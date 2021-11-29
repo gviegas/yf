@@ -390,24 +390,20 @@ pair<uint32_t, bool> NewRenderer::getIndex(DrawableReqMask mask,
     return {0, false};
 
   uint32_t beg = 0;
-  uint32_t end = container.size() - 1;
-  uint32_t cur = end >> 1;
+  uint32_t end = container.size();
+  uint32_t mid;
 
   while (beg < end) {
-    if (container[cur].mask < mask)
-      beg = cur + 1;
-    else if (container[cur].mask > mask)
-      end = cur - 1;
+    mid = (beg + end) >> 1;
+    if (container[mid].mask == mask)
+      return {mid, true};
+    if (container[mid].mask < mask)
+      beg = mid + 1;
     else
-      return {cur, true};
-    cur = (beg + end) >> 1;
+      end = mid;
   }
 
-  if (container[cur].mask < mask)
-    return {cur + 1, false};
-  if (container[cur].mask > mask)
-    return {cur, false};
-  return {cur, true};
+  return {(container[mid].mask > mask) ? (mid) : (mid + 1), false};
 }
 
 NewRenderer::State& NewRenderer::getState(DrawableReqMask mask) {

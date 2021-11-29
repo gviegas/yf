@@ -176,6 +176,8 @@ void NewRenderer::pushDrawables(Node& node, Mesh& mesh, Skin* skin) {
       mask |= RTexCoord0;
     if (dataMask & VxDataTexCoord1)
       mask |= RTexCoord1;
+    if (dataMask & VxDataColor0)
+      mask |= RColor0;
 
     if (dataMask & VxDataJoints0) {
       if (!(dataMask & VxDataWeights0))

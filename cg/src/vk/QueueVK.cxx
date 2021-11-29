@@ -532,7 +532,7 @@ void CmdBufferVK::encode(const GrEncoder& encoder) {
   };
 
   // Synchronize
-  // TODO: Improve
+  // TODO: Improve this
   auto sync = [&](const SyncCmd*) {
     VkMemoryBarrier barrier;
     barrier.sType = VK_STRUCTURE_TYPE_MEMORY_BARRIER;
@@ -545,17 +545,9 @@ void CmdBufferVK::encode(const GrEncoder& encoder) {
     const VkPipelineStageFlags dstStg = VK_PIPELINE_STAGE_ALL_COMMANDS_BIT;
     const VkDependencyFlags depend = VK_DEPENDENCY_BY_REGION_BIT;
 
-    if (tgt) {
-      auto tmp = tgt;
-      endPass();
-      vkCmdPipelineBarrier(handle_, srcStg, dstStg, depend, 1, &barrier,
-                           0, nullptr, 0, nullptr);
-      tgt = tmp;
-      beginPass();
-    } else {
-      vkCmdPipelineBarrier(handle_, srcStg, dstStg, depend, 1, &barrier,
-                           0, nullptr, 0, nullptr);
-    }
+    // FIXME: This only affects the current render pass
+    vkCmdPipelineBarrier(handle_, srcStg, dstStg, depend, 1, &barrier,
+                         0, nullptr, 0, nullptr);
   };
 
   for (const auto& cmd : encoder.encoding()) {

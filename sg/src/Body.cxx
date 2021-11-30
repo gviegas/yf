@@ -117,16 +117,16 @@ class Body::Impl {
     }
   }
 
-  Node* node() {
-    return node_;
-  }
-
   void setNode(Node* node) {
     node_ = node;
     if (node_) {
       const auto& xform = node_->transform();
       localT_ = {xform[3][0], xform[3][1], xform[3][2]};
     }
+  }
+
+  Node* node() {
+    return node_;
   }
 
   /// Sets location to node's current transform.
@@ -198,12 +198,12 @@ Body& Body::operator=(const Body& other) {
 
 Body::~Body() { }
 
-Node* Body::node() {
-  return impl_->node();
-}
-
 void Body::setNode(Node* node) {
   impl_->setNode(node);
+}
+
+Node* Body::node() {
+  return impl_->node();
 }
 
 void Body::update(const vector<Body*>& bodies) {

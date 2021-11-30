@@ -55,8 +55,10 @@ class Body {
   Body& operator=(const Body& other);
   ~Body();
 
-  Node* node();
+  /// Node linked to the physics body.
+  ///
   void setNode(Node* node);
+  Node* node();
 
   static void update(const std::vector<Body*>& bodies);
 

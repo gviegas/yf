@@ -183,6 +183,16 @@ class Body::Impl {
   vector<BBox> bboxes_{};
   Node* node_ = nullptr;
   Vec3f localT_{};
+
+  void pushShape(const Shape& shape) {
+    const auto& id = typeid(shape);
+    if (id == typeid(Sphere))
+      spheres_.push_back(static_cast<const Sphere&>(shape));
+    else if (id == typeid(BBox))
+      bboxes_.push_back(static_cast<const BBox&>(shape));
+    else
+      throw invalid_argument("Unknown Shape type");
+  }
 };
 
 Body::Body(const Shape& shape) : impl_(make_unique<Impl>(shape)) { }

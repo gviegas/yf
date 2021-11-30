@@ -204,30 +204,23 @@ Node* Body::node() {
 }
 
 void Body::update(const vector<Body*>& bodies) {
-  if (bodies.empty())
-    return;
+  assert(none_of(bodies.begin(), bodies.end(), [](auto b) { return !b; }));
 
   const auto n = bodies.size();
+  if (n < 2)
+    return;
 
   for (size_t i = 0; i < n; i++) {
-    auto body1 = bodies[i];
-    assert(body1);
-
-    auto chk = false;
-    for (size_t j = i+1; j < n; j++) {
-      auto body2 = bodies[j];
-      assert(body2);
-
-      chk = body1->impl_->check(*body2->impl_);
-      if (chk) {
-        body2->impl_->undo();
-        break;
+    Body* body1 = bodies[i];
+    for (size_t j = (i + 1) % n; j != i; j = (j + 1) % n) {
+      Body* body2 = bodies[j];
+      if (body1->impl_->check(*body2->impl_)) {
+        body1->impl_->undo();
+        goto undone;
       }
     }
-
-    if (chk)
-      body1->impl_->undo();
-    else
-      body1->impl_->next();
+    body1->impl_->next();
+    undone:
+      ;
   }
 }

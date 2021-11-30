@@ -95,26 +95,13 @@ BBox::BBox(const Vec3f& extent, const Vec3f& t, const Qnionf& r)
 class Body::Impl {
  public:
   Impl(const Shape& shape) {
-    const auto& type = typeid(shape);
-    if (type == typeid(Sphere))
-      spheres_.push_back(static_cast<const Sphere&>(shape));
-    else if (type == typeid(BBox))
-      bboxes_.push_back(static_cast<const BBox&>(shape));
-    else
-      throw invalid_argument("Body() unknown shape type");
+    pushShape(shape);
   }
 
   Impl(const vector<Shape*>& shapes) {
-    for (const auto& shape : shapes) {
-      assert(shape);
-      const auto& type = typeid(*shape);
-      if (type == typeid(Sphere))
-        spheres_.push_back(static_cast<const Sphere&>(*shape));
-      else if (type == typeid(BBox))
-        bboxes_.push_back(static_cast<const BBox&>(*shape));
-      else
-        throw invalid_argument("Body() unknown shape type");
-    }
+    assert(none_of(shapes.begin(), shapes.end(), [](auto s) { return !s; }));
+    for (const auto& shape : shapes)
+      pushShape(*shape);
   }
 
   void setNode(Node* node) {

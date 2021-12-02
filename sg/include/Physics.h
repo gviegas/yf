@@ -18,8 +18,8 @@ SG_NS_BEGIN
 ///
 class PhysicsWorld {
  public:
-  PhysicsWorld(const PhysicsWorld&) = delete;
-  PhysicsWorld& operator=(const PhysicsWorld&) = delete;
+  PhysicsWorld(const PhysicsWorld& other);
+  PhysicsWorld& operator=(const PhysicsWorld& other);
   ~PhysicsWorld();
 
   /// Enable/disable physics simulation.

@@ -17,8 +17,8 @@ SG_NS_BEGIN
 class PhysicsWorld::Impl {
  public:
   Impl() = default;
-  Impl(const Impl&) = delete;
-  Impl& operator=(const Impl&) = delete;
+  Impl(const Impl&) = default;
+  Impl& operator=(const Impl&) = default;
   ~Impl() = default;
 
  private:

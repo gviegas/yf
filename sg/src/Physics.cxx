@@ -12,6 +12,14 @@ using namespace std;
 
 PhysicsWorld::PhysicsWorld() : impl_(make_unique<Impl>()) { }
 
+PhysicsWorld::PhysicsWorld(const PhysicsWorld& other)
+  : impl_(make_unique<Impl>(*other.impl_)) { }
+
+PhysicsWorld& PhysicsWorld::operator=(const PhysicsWorld& other) {
+  impl_ = make_unique<Impl>(*other.impl_);
+  return *this;
+}
+
 PhysicsWorld::~PhysicsWorld() { }
 
 void PhysicsWorld::enable() {

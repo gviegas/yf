@@ -6,6 +6,7 @@
 //
 
 #include "Scene.h"
+#include "Physics.h"
 #include "Camera.h"
 
 using namespace SG_NS;
@@ -18,6 +19,7 @@ class Scene::Impl {
   Impl& operator=(const Impl&) = default;
   ~Impl() = default;
 
+  PhysicsWorld physicsWorld_{};
   Camera camera_{{20.0f, 20.0f, 20.0f}, {}, 1.0f};
   array<float, 4> color_{0.0f, 0.0f, 0.0f, 1.0f};
 };

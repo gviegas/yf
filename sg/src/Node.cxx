@@ -10,6 +10,7 @@
 #include <stdexcept>
 
 #include "Node.h"
+#include "Body.h"
 #include "yf/Except.h"
 
 using namespace SG_NS;
@@ -300,6 +301,7 @@ class Node::Impl {
   Mat4f worldXform_ = Mat4f::identity();
   Mat4f worldInv_ = Mat4f::identity();
   Mat4f worldNorm_ = Mat4f::identity();
+  Body* body_ = nullptr;
 };
 
 Node::Node() : impl_(make_unique<Impl>(*this)) { }

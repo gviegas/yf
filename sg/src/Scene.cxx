@@ -37,6 +37,14 @@ Scene& Scene::operator=(const Scene& other) {
 
 Scene::~Scene() { }
 
+PhysicsWorld& Scene::physicsWorld() {
+  return impl_->physicsWorld_;
+}
+
+const PhysicsWorld& Scene::physicsWorld() const {
+  return impl_->physicsWorld_;
+}
+
 Camera& Scene::camera() {
   return impl_->camera_;
 }

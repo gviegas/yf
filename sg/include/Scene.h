@@ -14,6 +14,7 @@
 
 SG_NS_BEGIN
 
+class PhysicsWorld;
 class Camera;
 
 /// Scene graph.
@@ -26,6 +27,11 @@ class Scene : public Node {
   Scene(const Scene& other);
   Scene& operator=(const Scene& other);
   ~Scene();
+
+  /// The scene's physics world.
+  ///
+  PhysicsWorld& physicsWorld();
+  const PhysicsWorld& physicsWorld() const;
 
   /// The scene's camera.
   ///

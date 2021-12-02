@@ -57,7 +57,6 @@ class Body {
 
   /// Node linked to the physics body.
   ///
-  void setNode(Node* node);
   Node* node();
 
   static void update(const std::vector<Body*>& bodies);
@@ -65,6 +64,10 @@ class Body {
  private:
   class Impl;
   std::unique_ptr<Impl> impl_;
+
+  void setNode(Node* node);
+
+  friend Node;
 };
 
 SG_NS_END

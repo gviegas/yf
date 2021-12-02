@@ -20,6 +20,8 @@
 
 SG_NS_BEGIN
 
+class Body;
+
 /// Node.
 ///
 class Node {
@@ -111,6 +113,11 @@ class Node {
   ///
   Mat4f& worldNormal();
   const Mat4f& worldNormal() const;
+
+  /// Gets/sets the node's physics body.
+  ///
+  void setBody(Body* body);
+  Body* body();
 
  private:
   class Impl;

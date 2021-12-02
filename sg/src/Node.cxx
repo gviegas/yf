@@ -285,6 +285,19 @@ class Node::Impl {
     return worldNorm_;
   }
 
+  void setBody(Body* body) {
+    if (body_ == body)
+      return;
+    Node* otherNode = body->node();
+    body->setNode(&node_);
+    if (otherNode)
+      otherNode->impl_->body_ = nullptr;
+  }
+
+  Body* body() {
+    return body_;
+  }
+
  private:
   Node& node_;
   Impl* parent_ = nullptr;
@@ -423,4 +436,12 @@ Mat4f& Node::worldNormal() {
 
 const Mat4f& Node::worldNormal() const {
   return impl_->worldNormal();
+}
+
+void Node::setBody(Body* body) {
+  impl_->setBody(body);
+}
+
+Body* Node::body() {
+  return impl_->body();
 }

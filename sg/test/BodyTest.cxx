@@ -48,15 +48,6 @@ struct BodyTest : InteractiveTest {
     // TODO: check shapes
     a.push_back({L"Body()", !body1.node() && !body2.node() && !body3.node()});
 
-    Node node1, node2;
-    body2.setNode(&node2);
-    body2.setNode(nullptr);
-    body1.setNode(&node1);
-    body3.setNode(&node2);
-
-    a.push_back({L"setNode()", body1.node() == &node1 && !body2.node() &&
-                               body3.node() == &node2});
-
     fromFile();
     return a;
   }
@@ -94,8 +85,8 @@ struct BodyTest : InteractiveTest {
     Body body1(BBox(2.0f));
     Body body2(Sphere(1.0f));
 
-    body1.setNode(node1);
-    body2.setNode(node2);
+    node1->setBody(&body1);
+    node2->setBody(&body2);
 
     // Render
     auto scn = coll.scenes().front().get();

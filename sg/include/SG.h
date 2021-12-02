@@ -20,6 +20,7 @@
 #include "yf/sg/Mesh.h"
 #include "yf/sg/Model.h"
 #include "yf/sg/Node.h"
+#include "yf/sg/Physics.h"
 #include "yf/sg/Quaternion.h"
 #include "yf/sg/Scene.h"
 #include "yf/sg/Skin.h"

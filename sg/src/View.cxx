@@ -17,6 +17,7 @@
 
 #include "View.h"
 #include "Scene.h"
+#include "PhysicsImpl.h"
 #include "Camera.h"
 #include "NewRenderer.h"
 
@@ -33,11 +34,14 @@ class View::Impl {
     looping_ = true;
     scene_ = scene;
 
+    auto& physicsWorld = *scene->physicsWorld().impl_;
+
     const chrono::nanoseconds ipd{1'000'000'000 / fps};
     auto before = chrono::system_clock::now();
     auto now = before;
 
     while (update(now-before)) {
+      physicsWorld.evaluate(*scene_);
       render(scene_);
 
       before = now;

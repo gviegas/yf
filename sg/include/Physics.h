@@ -34,6 +34,7 @@ class PhysicsWorld {
   PhysicsWorld();
 
   friend class Scene;
+  friend class View;
 };
 
 SG_NS_END

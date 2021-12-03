@@ -11,7 +11,7 @@
 #include <cassert>
 #include <stdexcept>
 
-#include "Body.h"
+#include "BodyImpl.h"
 #include "Node.h"
 
 using namespace SG_NS;
@@ -92,96 +92,6 @@ BBox::BBox(const Vec3f& extent, const Vec3f& t, const Qnionf& r)
 // Body
 //
 
-class Body::Impl {
- public:
-  Impl(const Shape& shape) {
-    pushShape(shape);
-  }
-
-  Impl(const vector<Shape*>& shapes) {
-    assert(none_of(shapes.begin(), shapes.end(), [](auto s) { return !s; }));
-    for (const auto& shape : shapes)
-      pushShape(*shape);
-  }
-
-  void setNode(Node* node) {
-    node_ = node;
-    if (node_) {
-      const auto& xform = node_->transform();
-      localT_ = {xform[3][0], xform[3][1], xform[3][2]};
-    }
-  }
-
-  Node* node() {
-    return node_;
-  }
-
-  /// Sets location to node's current transform.
-  ///
-  void next() {
-    assert(node_);
-
-    const auto& xform = node_->transform();
-    localT_ = {xform[3][0], xform[3][1], xform[3][2]};
-  }
-
-  /// Sets node's transform to previous location.
-  ///
-  void undo() {
-    assert(node_);
-
-    node_->transform()[3] = {localT_[0], localT_[1], localT_[2], 1.0f};
-  }
-
-  /// Checks intersections against another physics body.
-  ///
-  bool check(Impl& other) {
-    assert(node_);
-    assert(other.node_);
-
-    const auto& xform = node_->transform();
-    const Vec3f t{xform[3][0], xform[3][1], xform[3][2]};
-    const auto& xform2 = other.node_->transform();
-    const Vec3f t2{xform2[3][0], xform2[3][1], xform2[3][2]};
-
-    for (const auto& sph : spheres_) {
-      for (const auto& sph2 : other.spheres_)
-        if (intersect(sph, t, sph2, t2))
-          return true;
-      for (const auto& bb2 : other.bboxes_)
-        if (intersect(sph, t, bb2, t2))
-          return true;
-    }
-
-    for (const auto& bb : bboxes_) {
-      for (const auto& sph2 : other.spheres_)
-        if (intersect(sph2, t2, bb, t))
-          return true;
-      for (const auto& bb2 : other.bboxes_)
-        if (intersect(bb, t, bb2, t2))
-          return true;
-    }
-
-    return false;
-  }
-
- private:
-  vector<Sphere> spheres_{};
-  vector<BBox> bboxes_{};
-  Node* node_ = nullptr;
-  Vec3f localT_{};
-
-  void pushShape(const Shape& shape) {
-    const auto& id = typeid(shape);
-    if (id == typeid(Sphere))
-      spheres_.push_back(static_cast<const Sphere&>(shape));
-    else if (id == typeid(BBox))
-      bboxes_.push_back(static_cast<const BBox&>(shape));
-    else
-      throw invalid_argument("Unknown Shape type");
-  }
-};
-
 Body::Body(const Shape& shape) : impl_(make_unique<Impl>(shape)) { }
 
 Body::Body(const vector<Shape*>& shapes) : impl_(make_unique<Impl>(shapes)) { }
@@ -223,4 +133,83 @@ void Body::update(const vector<Body*>& bodies) {
     undone:
       ;
   }
+}
+
+Body::Impl::Impl(const Shape& shape) {
+  pushShape(shape);
+}
+
+Body::Impl::Impl(const vector<Shape*>& shapes) {
+  assert(none_of(shapes.begin(), shapes.end(), [](auto s) { return !s; }));
+  for (const auto& shape : shapes)
+    pushShape(*shape);
+}
+
+void Body::Impl::setNode(Node* node) {
+  node_ = node;
+  if (node_) {
+    const auto& xform = node_->transform();
+    localT_ = {xform[3][0], xform[3][1], xform[3][2]};
+  }
+}
+
+Node* Body::Impl::node() {
+  return node_;
+}
+
+void Body::Impl::pushShape(const Shape& shape) {
+  const auto& id = typeid(shape);
+  if (id == typeid(Sphere))
+    spheres_.push_back(static_cast<const Sphere&>(shape));
+  else if (id == typeid(BBox))
+    bboxes_.push_back(static_cast<const BBox&>(shape));
+  else
+    throw invalid_argument("Unknown Shape type");
+}
+
+/// Sets location to node's current transform.
+///
+void Body::Impl::next() {
+  assert(node_);
+  const auto& xform = node_->transform();
+  localT_ = {xform[3][0], xform[3][1], xform[3][2]};
+}
+
+/// Sets node's transform to previous location.
+///
+void Body::Impl::undo() {
+  assert(node_);
+  node_->transform()[3] = {localT_[0], localT_[1], localT_[2], 1.0f};
+}
+
+/// Checks intersections against another physics body.
+///
+bool Body::Impl::check(Impl& other) {
+  assert(node_);
+  assert(other.node_);
+
+  const auto& xform = node_->transform();
+  const Vec3f t{xform[3][0], xform[3][1], xform[3][2]};
+  const auto& xform2 = other.node_->transform();
+  const Vec3f t2{xform2[3][0], xform2[3][1], xform2[3][2]};
+
+  for (const auto& sph : spheres_) {
+    for (const auto& sph2 : other.spheres_)
+      if (intersect(sph, t, sph2, t2))
+        return true;
+    for (const auto& bb2 : other.bboxes_)
+      if (intersect(sph, t, bb2, t2))
+        return true;
+  }
+
+  for (const auto& bb : bboxes_) {
+    for (const auto& sph2 : other.spheres_)
+      if (intersect(sph2, t2, bb, t))
+        return true;
+    for (const auto& bb2 : other.bboxes_)
+      if (intersect(bb, t, bb2, t2))
+        return true;
+  }
+
+  return false;
 }

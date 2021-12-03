@@ -34,6 +34,8 @@ class Body::Impl {
   void next();
   void undo();
   bool check(Impl& other);
+
+  friend void Body::update(const std::vector<Body*>&);
 };
 
 SG_NS_END

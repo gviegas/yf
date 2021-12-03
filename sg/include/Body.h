@@ -66,8 +66,6 @@ class Body {
   class Impl;
   std::unique_ptr<Impl> impl_;
 
-  void setNode(Node* node);
-
   friend Node;
 };
 

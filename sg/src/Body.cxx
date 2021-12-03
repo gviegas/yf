@@ -105,10 +105,6 @@ Body& Body::operator=(const Body& other) {
 
 Body::~Body() { }
 
-void Body::setNode(Node* node) {
-  impl_->setNode(node);
-}
-
 Node* Body::node() {
   return impl_->node();
 }

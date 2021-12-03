@@ -39,20 +39,22 @@ class View::Impl {
     const chrono::nanoseconds ipd{1'000'000'000 / fps};
     auto before = chrono::system_clock::now();
     auto now = before;
+    auto deltaTime = now - before;
 
-    while (update(now-before)) {
+    while (update(deltaTime)) {
       physicsWorld.evaluate(*scene_);
       render(scene_);
+      WS_NS::dispatch();
 
       before = now;
       now = chrono::system_clock::now();
+      deltaTime = now - before;
 
-      if (now-before < ipd) {
-        this_thread::sleep_until(now + ipd-(now-before));
+      if (deltaTime < ipd) {
+        this_thread::sleep_until(now + ipd - deltaTime);
         now = chrono::system_clock::now();
+        deltaTime = now - before;
       }
-
-      WS_NS::dispatch();
     }
 
     scene_ = nullptr;

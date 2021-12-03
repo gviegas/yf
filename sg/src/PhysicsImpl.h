@@ -12,6 +12,8 @@
 
 SG_NS_BEGIN
 
+class Scene;
+
 /// PhysicsWorld implementation details.
 ///
 class PhysicsWorld::Impl {
@@ -20,6 +22,10 @@ class PhysicsWorld::Impl {
   Impl(const Impl&) = default;
   Impl& operator=(const Impl&) = default;
   ~Impl() = default;
+
+  /// Evaluates the physics simulation.
+  ///
+  void evaluate(Scene& scene);
 
  private:
   bool enabled_ = true;

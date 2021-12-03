@@ -5,7 +5,11 @@
 // Copyright © 2021 Gustavo C. Viegas.
 //
 
+#include <cassert>
+
 #include "PhysicsImpl.h"
+#include "BodyImpl.h"
+#include "Scene.h"
 
 using namespace SG_NS;
 using namespace std;
@@ -28,4 +32,16 @@ void PhysicsWorld::enable() {
 
 void PhysicsWorld::disable() {
   impl_->enabled_ = false;
+}
+
+void PhysicsWorld::Impl::evaluate(Scene& scene) {
+  assert(scene.physicsWorld().impl_.get() == this);
+
+  // FIXME: Temporary implementation
+  vector<Body*> bodies;
+  scene.traverse([&](Node& node) {
+    if (node.body())
+      bodies.push_back(node.body());
+  }, true);
+  Body::update(bodies);
 }

@@ -288,10 +288,13 @@ class Node::Impl {
   void setBody(Body* body) {
     if (body_ == body)
       return;
+
     Node* otherNode = body->node();
-    body->impl_->setNode(&node_);
     if (otherNode)
       otherNode->impl_->body_ = nullptr;
+
+    body->impl_->setNode(&node_);
+    body_ = body;
   }
 
   Body* body() {

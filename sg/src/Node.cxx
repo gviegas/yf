@@ -10,7 +10,7 @@
 #include <stdexcept>
 
 #include "Node.h"
-#include "Body.h"
+#include "BodyImpl.h"
 #include "yf/Except.h"
 
 using namespace SG_NS;
@@ -289,7 +289,7 @@ class Node::Impl {
     if (body_ == body)
       return;
     Node* otherNode = body->node();
-    body->setNode(&node_);
+    body->impl_->setNode(&node_);
     if (otherNode)
       otherNode->impl_->body_ = nullptr;
   }

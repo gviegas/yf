@@ -59,6 +59,7 @@ class Body {
   ///
   Node* node();
 
+  [[deprecated]]
   static void update(const std::vector<Body*>& bodies);
 
  private:

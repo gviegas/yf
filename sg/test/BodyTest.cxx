@@ -109,8 +109,6 @@ struct BodyTest : InteractiveTest {
       auto g = invert(rot) * Vec3f{0.0f, -9.8f * dt, 0.0f};
       xform *= translate(g);
 
-      Body::update({&body1, &body2});
-
       if (input.start) {
         if (!coll.animations().empty())
           isPlaying = true;

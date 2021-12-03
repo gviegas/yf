@@ -8,8 +8,6 @@
 #ifndef YF_SG_BODYIMPL_H
 #define YF_SG_BODYIMPL_H
 
-#include <vector>
-
 #include "Body.h"
 
 SG_NS_BEGIN
@@ -30,10 +28,10 @@ class Body::Impl {
   Node* node_ = nullptr;
   Vec3f localT_{};
 
-  void pushShape(const Shape& shape);
-  void next();
-  void undo();
-  bool check(Impl& other);
+  void pushShape(const Shape&);
+  void nextStep();
+  void undoStep();
+  bool checkCollision(Impl&);
 
   friend void Body::update(const std::vector<Body*>&);
 };

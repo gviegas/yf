@@ -120,12 +120,12 @@ void Body::update(const vector<Body*>& bodies) {
     Body* body1 = bodies[i];
     for (size_t j = (i + 1) % n; j != i; j = (j + 1) % n) {
       Body* body2 = bodies[j];
-      if (body1->impl_->check(*body2->impl_)) {
-        body1->impl_->undo();
+      if (body1->impl_->checkCollision(*body2->impl_)) {
+        body1->impl_->undoStep();
         goto undone;
       }
     }
-    body1->impl_->next();
+    body1->impl_->nextStep();
     undone:
       ;
   }
@@ -163,24 +163,20 @@ void Body::Impl::pushShape(const Shape& shape) {
     throw invalid_argument("Unknown Shape type");
 }
 
-/// Sets location to node's current transform.
-///
-void Body::Impl::next() {
+void Body::Impl::nextStep() {
   assert(node_);
   const auto& xform = node_->transform();
   localT_ = {xform[3][0], xform[3][1], xform[3][2]};
 }
 
-/// Sets node's transform to previous location.
-///
-void Body::Impl::undo() {
+void Body::Impl::undoStep() {
   assert(node_);
   node_->transform()[3] = {localT_[0], localT_[1], localT_[2], 1.0f};
 }
 
 /// Checks intersections against another physics body.
 ///
-bool Body::Impl::check(Impl& other) {
+bool Body::Impl::checkCollision(Impl& other) {
   assert(node_);
   assert(other.node_);
 

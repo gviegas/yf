@@ -12,6 +12,7 @@
 #include <vector>
 
 #include "yf/sg/Defs.h"
+#include "yf/sg/Physics.h"
 #include "yf/sg/Vector.h"
 #include "yf/sg/Quaternion.h"
 

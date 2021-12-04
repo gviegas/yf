@@ -51,7 +51,7 @@ inline CG_NS::VxId vxIdFor(VxData semantic) {
 
 /// Produces the vertex input object of a given semantic.
 ///
-/// `Renderer` creates graphics states using these inputs, thus mesh data
+/// `NewRenderer` creates graphics states using these inputs, thus mesh data
 /// must be provided accordingly.
 ///
 inline CG_NS::VxInput vxInputFor(VxData semantic) {

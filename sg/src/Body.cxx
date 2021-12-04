@@ -174,6 +174,30 @@ float Body::Impl::mass() const {
   return mass_;
 }
 
+void Body::Impl::setCategoryMask(PhysicsFlags mask) {
+  categoryMask_ = mask;
+}
+
+PhysicsFlags Body::Impl::categoryMask() const {
+  return categoryMask_;
+}
+
+void Body::Impl::setContactMask(PhysicsFlags mask) {
+  contactMask_ = mask;
+}
+
+PhysicsFlags Body::Impl::contactMask() const {
+  return contactMask_;
+}
+
+void Body::Impl::setCollisionMask(PhysicsFlags mask) {
+  collisionMask_ = mask;
+}
+
+PhysicsFlags Body::Impl::collisionMask() const {
+  return collisionMask_;
+}
+
 void Body::Impl::setNode(Node* node) {
   node_ = node;
   if (node_) {

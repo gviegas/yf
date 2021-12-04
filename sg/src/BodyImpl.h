@@ -25,6 +25,15 @@ class Body::Impl {
   void setMass(float kg);
   float mass() const;
 
+  void setCategoryMask(PhysicsFlags mask);
+  PhysicsFlags categoryMask() const;
+
+  void setContactMask(PhysicsFlags mask);
+  PhysicsFlags contactMask() const;
+
+  void setCollisionMask(PhysicsFlags mask);
+  PhysicsFlags collisionMask() const;
+
   void setNode(Node* node);
   Node* node();
 
@@ -33,6 +42,9 @@ class Body::Impl {
   std::vector<BBox> bboxes_{};
   bool dynamic_ = false;
   float mass_ = 1.0f;
+  PhysicsFlags categoryMask_ = ~static_cast<PhysicsFlags>(0);
+  PhysicsFlags contactMask_ = ~static_cast<PhysicsFlags>(0);
+  PhysicsFlags collisionMask_ = ~static_cast<PhysicsFlags>(0);
   Node* node_ = nullptr;
   Vec3f localT_{};
 

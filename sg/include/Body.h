@@ -59,6 +59,11 @@ class Body {
 
   using ContactFn = std::function<void (Body& self, Body& other)>;
 
+  /// Contact callbacks.
+  ///
+  ContactFn& contactBegin();
+  ContactFn& contactEnd();
+
   /// Whether or not the physics body can be moved.
   ///
   void setDynamic(bool boolean);

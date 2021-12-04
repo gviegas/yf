@@ -105,6 +105,14 @@ Body& Body::operator=(const Body& other) {
 
 Body::~Body() { }
 
+Body::ContactFn& Body::contactBegin() {
+  return impl_->contactBegin();
+}
+
+Body::ContactFn& Body::contactEnd() {
+  return impl_->contactEnd();
+}
+
 void Body::setDynamic(bool boolean) {
   impl_->setDynamic(boolean);
 }

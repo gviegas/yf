@@ -10,6 +10,7 @@
 
 #include <memory>
 #include <vector>
+#include <functional>
 
 #include "yf/sg/Defs.h"
 #include "yf/sg/Physics.h"
@@ -55,6 +56,8 @@ class Body {
   Body(const Body& other);
   Body& operator=(const Body& other);
   ~Body();
+
+  using ContactFn = std::function<void (Body& self, Body& other)>;
 
   /// Whether or not the physics body can be moved.
   ///

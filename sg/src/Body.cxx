@@ -149,6 +149,15 @@ bool Body::Impl::dynamic() const {
   return dynamic_;
 }
 
+void Body::Impl::setMass(float kg) {
+  assert(mass_ >= 0.0f);
+  mass_ = kg;
+}
+
+float Body::Impl::mass() const {
+  return mass_;
+}
+
 void Body::Impl::setNode(Node* node) {
   node_ = node;
   if (node_) {

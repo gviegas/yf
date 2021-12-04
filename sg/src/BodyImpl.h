@@ -22,6 +22,9 @@ class Body::Impl {
   void setDynamic(bool boolean);
   bool dynamic() const;
 
+  void setMass(float kg);
+  float mass() const;
+
   void setNode(Node* node);
   Node* node();
 
@@ -29,6 +32,7 @@ class Body::Impl {
   std::vector<Sphere> spheres_{};
   std::vector<BBox> bboxes_{};
   bool dynamic_ = false;
+  float mass_ = 1.0f;
   Node* node_ = nullptr;
   Vec3f localT_{};
 

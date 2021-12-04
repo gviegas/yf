@@ -19,6 +19,9 @@ class Body::Impl {
   Impl(const Shape& shape);
   Impl(const std::vector<Shape*>& shapes);
 
+  ContactFn& contactBegin();
+  ContactFn& contactEnd();
+
   void setDynamic(bool boolean);
   bool dynamic() const;
 
@@ -40,6 +43,8 @@ class Body::Impl {
  private:
   std::vector<Sphere> spheres_{};
   std::vector<BBox> bboxes_{};
+  ContactFn contactBegin_{};
+  ContactFn contactEnd_{};
   bool dynamic_ = false;
   float mass_ = 1.0f;
   PhysicsFlags categoryMask_ = ~static_cast<PhysicsFlags>(0);

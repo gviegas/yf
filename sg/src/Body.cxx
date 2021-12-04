@@ -181,6 +181,14 @@ Body::Impl::Impl(const vector<Shape*>& shapes) {
     pushShape(*shape);
 }
 
+Body::ContactFn& Body::Impl::contactBegin() {
+  return contactBegin_;
+}
+
+Body::ContactFn& Body::Impl::contactEnd() {
+  return contactEnd_;
+}
+
 void Body::Impl::setDynamic(bool boolean) {
   dynamic_ = boolean;
 }

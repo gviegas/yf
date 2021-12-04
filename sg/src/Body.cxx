@@ -105,6 +105,14 @@ Body& Body::operator=(const Body& other) {
 
 Body::~Body() { }
 
+void Body::setDynamic(bool boolean) {
+  impl_->setDynamic(boolean);
+}
+
+bool Body::dynamic() const {
+  return impl_->dynamic();
+}
+
 Node* Body::node() {
   return impl_->node();
 }

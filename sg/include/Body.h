@@ -55,6 +55,11 @@ class Body {
   Body& operator=(const Body& other);
   ~Body();
 
+  /// Whether or not the physics body can be moved.
+  ///
+  void setDynamic(bool boolean);
+  bool dynamic() const;
+
   /// Node linked to the physics body.
   ///
   Node* node();

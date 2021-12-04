@@ -8,11 +8,16 @@
 #ifndef YF_SG_PHYSICS_H
 #define YF_SG_PHYSICS_H
 
+#include <cstdint>
 #include <memory>
 
 #include "yf/sg/Defs.h"
 
 SG_NS_BEGIN
+
+/// Type used when defining physics interactions.
+///
+using PhysicsFlags = uint32_t;
 
 /// Physics world.
 ///

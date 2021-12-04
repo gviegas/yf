@@ -113,6 +113,14 @@ bool Body::dynamic() const {
   return impl_->dynamic();
 }
 
+void Body::setMass(float kg) {
+  return impl_->setMass(kg);
+}
+
+float Body::mass() const {
+  return impl_->mass();
+}
+
 Node* Body::node() {
   return impl_->node();
 }

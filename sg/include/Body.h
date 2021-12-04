@@ -60,6 +60,11 @@ class Body {
   void setDynamic(bool boolean);
   bool dynamic() const;
 
+  /// The physics body's mass, in kilograms.
+  ///
+  void setMass(float kg);
+  float mass() const;
+
   /// Node linked to the physics body.
   ///
   Node* node();

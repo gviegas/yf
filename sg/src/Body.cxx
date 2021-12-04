@@ -141,6 +141,14 @@ Body::Impl::Impl(const vector<Shape*>& shapes) {
     pushShape(*shape);
 }
 
+void Body::Impl::setDynamic(bool boolean) {
+  dynamic_ = boolean;
+}
+
+bool Body::Impl::dynamic() const {
+  return dynamic_;
+}
+
 void Body::Impl::setNode(Node* node) {
   node_ = node;
   if (node_) {

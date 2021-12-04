@@ -19,12 +19,16 @@ class Body::Impl {
   Impl(const Shape& shape);
   Impl(const std::vector<Shape*>& shapes);
 
+  void setDynamic(bool boolean);
+  bool dynamic() const;
+
   void setNode(Node* node);
   Node* node();
 
  private:
   std::vector<Sphere> spheres_{};
   std::vector<BBox> bboxes_{};
+  bool dynamic_ = false;
   Node* node_ = nullptr;
   Vec3f localT_{};
 

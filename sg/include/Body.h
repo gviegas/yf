@@ -66,6 +66,21 @@ class Body {
   void setMass(float kg);
   float mass() const;
 
+  /// Category mask for physics interactions.
+  ///
+  void setCategoryMask(PhysicsFlags mask);
+  PhysicsFlags categoryMask() const;
+
+  /// Contact mask for physics interactions.
+  ///
+  void setContactMask(PhysicsFlags mask);
+  PhysicsFlags contactMask() const;
+
+  /// Collision mask for physics interactions.
+  ///
+  void setCollisionMask(PhysicsFlags mask);
+  PhysicsFlags collisionMask() const;
+
   /// Node linked to the physics body.
   ///
   Node* node();

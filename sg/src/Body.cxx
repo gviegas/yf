@@ -121,6 +121,30 @@ float Body::mass() const {
   return impl_->mass();
 }
 
+void Body::setCategoryMask(PhysicsFlags mask) {
+  impl_->setCategoryMask(mask);
+}
+
+PhysicsFlags Body::categoryMask() const {
+  return impl_->categoryMask();
+}
+
+void Body::setContactMask(PhysicsFlags mask) {
+  impl_->setContactMask(mask);
+}
+
+PhysicsFlags Body::contactMask() const {
+  return impl_->contactMask();
+}
+
+void Body::setCollisionMask(PhysicsFlags mask) {
+  impl_->setCollisionMask(mask);
+}
+
+PhysicsFlags Body::collisionMask() const {
+  return impl_->collisionMask();
+}
+
 Node* Body::node() {
   return impl_->node();
 }

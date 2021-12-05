@@ -366,6 +366,8 @@ void Node::prune() {
   impl_->prune();
 }
 
+void Node::willPrune(Node&) { }
+
 void Node::traverse(const function<bool (Node&)>& callback, bool ignoreSelf) {
   impl_->traverse(callback, ignoreSelf);
 }

@@ -54,6 +54,10 @@ class Node {
   ///
   void prune();
 
+  /// Notifies the node and its direct ancestors of a prune() call.
+  ///
+  virtual void willPrune(Node& node);
+
   /// Traverses the node graph.
   ///
   void traverse(const std::function<bool (Node&)>& callback, bool ignoreSelf);

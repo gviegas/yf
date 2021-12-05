@@ -70,6 +70,10 @@ class Node {
   ///
   bool isRoot() const;
 
+  /// Checks whether a node can have ancestors.
+  ///
+  virtual bool isInsertable() const;
+
   /// Gets the immediate ancestor.
   ///
   Node* parent();

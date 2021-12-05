@@ -373,6 +373,10 @@ bool Node::isRoot() const {
   return impl_->isRoot();
 }
 
+bool Node::isInsertable() const {
+  return true;
+}
+
 Node* Node::parent() {
   return impl_->parent();
 }

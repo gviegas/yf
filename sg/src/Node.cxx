@@ -355,6 +355,8 @@ void Node::drop() {
   impl_->drop();
 }
 
+void Node::willDrop(Node&) { }
+
 void Node::prune() {
   impl_->prune();
 }

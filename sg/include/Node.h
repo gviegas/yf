@@ -46,6 +46,10 @@ class Node {
   ///
   void drop();
 
+  /// Notifies the node and its direct ancestors of a drop() call.
+  ///
+  virtual void willDrop(Node& node);
+
   /// Removes all immediate descendants.
   ///
   void prune();

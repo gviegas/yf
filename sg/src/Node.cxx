@@ -57,6 +57,9 @@ class Node::Impl {
     if (&child == this)
       throw invalid_argument("Cannot insert a node into itself");
 
+    if (isDescendantOf(child))
+      throw invalid_argument("Cannot insert a node into its own descendant");
+
     if (!child.node_.isInsertable())
       throw invalid_argument("Node is not insertable");
 

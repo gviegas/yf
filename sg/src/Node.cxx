@@ -85,6 +85,11 @@ class Node::Impl {
     if (!parent_)
       return;
 
+    auto node = this;
+    do
+      node->node_.willDrop(node_);
+    while ((node = node->parent_));
+
     if (nextSib_)
       nextSib_->prevSib_ = prevSib_;
     if (prevSib_)
@@ -92,7 +97,7 @@ class Node::Impl {
     else
       parent_->child_ = nextSib_;
 
-    auto node = parent_;
+    node = parent_;
     do
       node->n_ -= n_;
     while ((node = node->parent_));

@@ -44,6 +44,15 @@ struct SceneTest : Test {
     a.push_back({L"color()", equal(color.begin(), color.end(),
                                    scn.color().begin())});
 
+    Node node;
+    try {
+      node.insert(scn);
+    } catch (invalid_argument&) {
+      scn.insert(node);
+      a.push_back({L"isInsertable()", !scn.isInsertable() && scn.isRoot() &&
+                                      node.parent() == &scn});
+    }
+
     return a;
   }
 };

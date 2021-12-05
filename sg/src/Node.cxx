@@ -60,6 +60,11 @@ class Node::Impl {
     if (!child.node_.isInsertable())
       throw invalid_argument("Node is not insertable");
 
+    auto node = this;
+    do
+      node->node_.willInsert(child.node_);
+    while ((node = node->parent_));
+
     if (child.parent_)
       child.drop();
 
@@ -70,7 +75,7 @@ class Node::Impl {
     }
     child_ = &child;
 
-    auto node = this;
+    node = this;
     do
       node->n_ += child.n_;
     while ((node = node->parent_));

@@ -38,6 +38,10 @@ class Node {
   void insert(Node& child);
   void insert(const std::vector<Node*>& children);
 
+  /// Notifies the node and its direct ancestors of an insert() call.
+  ///
+  virtual void willInsert(Node& descendant);
+
   /// Removes itself from immediate ancestor.
   ///
   void drop();

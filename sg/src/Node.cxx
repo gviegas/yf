@@ -344,6 +344,8 @@ void Node::insert(const vector<Node*>& children) {
     impl_->insert(*node->impl_);
 }
 
+void Node::willInsert(Node&) { }
+
 void Node::drop() {
   impl_->drop();
 }

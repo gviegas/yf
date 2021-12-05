@@ -109,7 +109,12 @@ class Node::Impl {
     if (!child_)
       return;
 
-    auto node = child_;
+    auto node = this;
+    do
+      node->node_.willPrune(node_);
+    while ((node = node->parent_));
+
+    node = child_;
     size_t n = 0;
     for (;;) {
       n += node->n_;

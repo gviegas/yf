@@ -359,19 +359,13 @@ void Node::insert(const vector<Node*>& children) {
     impl_->insert(*node->impl_);
 }
 
-void Node::willInsert(Node&) { }
-
 void Node::drop() {
   impl_->drop();
 }
 
-void Node::willDrop(Node&) { }
-
 void Node::prune() {
   impl_->prune();
 }
-
-void Node::willPrune(Node&) { }
 
 void Node::traverse(const function<bool (Node&)>& callback, bool ignoreSelf) {
   impl_->traverse(callback, ignoreSelf);
@@ -476,3 +470,9 @@ void Node::setBody(Body* body) {
 Body* Node::body() {
   return impl_->body();
 }
+
+void Node::willInsert(Node&) { }
+
+void Node::willDrop(Node&) { }
+
+void Node::willPrune(Node&) { }

@@ -38,25 +38,13 @@ class Node {
   void insert(Node& child);
   void insert(const std::vector<Node*>& children);
 
-  /// Notifies the node and its direct ancestors of an insert() call.
-  ///
-  virtual void willInsert(Node& descendant);
-
   /// Removes itself from immediate ancestor.
   ///
   void drop();
 
-  /// Notifies the node and its direct ancestors of a drop() call.
-  ///
-  virtual void willDrop(Node& node);
-
   /// Removes all immediate descendants.
   ///
   void prune();
-
-  /// Notifies the node and its direct ancestors of a prune() call.
-  ///
-  virtual void willPrune(Node& node);
 
   /// Traverses the node graph.
   ///
@@ -134,6 +122,19 @@ class Node {
   ///
   void setBody(Body* body);
   Body* body();
+
+ protected:
+  /// Notifies the node and its direct ancestors of an insert() call.
+  ///
+  virtual void willInsert(Node& descendant);
+
+  /// Notifies the node and its direct ancestors of a drop() call.
+  ///
+  virtual void willDrop(Node& node);
+
+  /// Notifies the node and its direct ancestors of a prune() call.
+  ///
+  virtual void willPrune(Node& node);
 
  private:
   class Impl;

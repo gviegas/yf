@@ -37,6 +37,10 @@ Scene& Scene::operator=(const Scene& other) {
 
 Scene::~Scene() { }
 
+bool Scene::isInsertable() const {
+  return false;
+}
+
 PhysicsWorld& Scene::physicsWorld() {
   return impl_->physicsWorld_;
 }

@@ -28,6 +28,10 @@ class Scene : public Node {
   Scene& operator=(const Scene& other);
   ~Scene();
 
+  /// XXX: Scenes must be root nodes.
+  ///
+  bool isInsertable() const final;
+
   /// The scene's physics world.
   ///
   PhysicsWorld& physicsWorld();

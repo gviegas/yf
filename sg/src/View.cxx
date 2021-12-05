@@ -34,15 +34,13 @@ class View::Impl {
     looping_ = true;
     scene_ = scene;
 
-    auto& physicsWorld = *scene->physicsWorld().impl_;
-
     const chrono::nanoseconds ipd{1'000'000'000 / fps};
     auto before = chrono::system_clock::now();
     auto now = before;
     auto deltaTime = now - before;
 
     while (update(deltaTime)) {
-      physicsWorld.evaluate(*scene_);
+      scene_->physicsWorld().impl_->evaluate(*scene_);
       render(scene_);
       WS_NS::dispatch();
 

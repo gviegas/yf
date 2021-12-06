@@ -82,7 +82,8 @@ struct BodyTest : InteractiveTest {
     setObject(node);
 
     // Physics bodies
-    node1->setBody(make_unique<Body>(BBox(2.0f)));
+    Body body(BBox(2.0f));
+    node1->setBody(body);
     node2->setBody(make_unique<Body>(Sphere(1.0f)));
 
     // Render

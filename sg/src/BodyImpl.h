@@ -19,6 +19,7 @@ class Body::Impl {
   Impl(const Shape& shape);
   Impl(const std::vector<Shape*>& shapes);
   Impl(const Impl& other);
+  Impl& operator=(const Impl& other);
 
   ContactFn& contactBegin();
   ContactFn& contactEnd();

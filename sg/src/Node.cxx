@@ -26,11 +26,11 @@ class Node::Impl {
     if (other.child_)
       throw runtime_error("Cannot copy non-leaf node");
 
-    if (other.parent_)
-      other.parent_->insert(*this);
-
     if (other.body_)
       setBody(make_unique<Body>(*other.body_));
+
+    if (other.parent_)
+      other.parent_->insert(*this);
   }
 
   Impl(const Impl&) = delete;
@@ -41,9 +41,6 @@ class Node::Impl {
 
     drop();
     prune();
-
-    if (other.parent_)
-      other.parent_->insert(*this);
 
     name_ = other.name_;
     transform_ = other.transform_;
@@ -56,6 +53,9 @@ class Node::Impl {
     } else if (other.body_) {
       setBody(make_unique<Body>(*other.body_));
     }
+
+    if (other.parent_)
+      other.parent_->insert(*this);
 
     return *this;
   }

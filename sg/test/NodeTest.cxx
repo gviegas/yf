@@ -180,6 +180,60 @@ struct NodeTest : Test {
     cNode.name();
     cNode.transform();
 
+    static auto insertN = 0;
+    static auto dropN = 0;
+    static auto pruneN = 0;
+
+    class Sub : public Node {
+     protected:
+      void willInsert(Node& node) {
+        wcout << " in " << name() << "'s willInsert(" << node.name() << ")\n";
+        insertN++;
+      }
+      void willDrop(Node& node) {
+        wcout << " in " << name() << "'s willDrop(" << node.name() << ")\n";
+        dropN++;
+      }
+      void willPrune(Node& node) {
+        wcout << " in " << name() << "'s willPrune(" << node.name() << ")\n";
+        pruneN++;
+      }
+    };
+
+    wcout << "\nwill*() overrides:\n";
+
+    Sub sub1, sub2, sub3;
+    sub1.name() = L"sub1";
+    sub2.name() = L"sub2";
+    sub3.name() = L"sub3";
+
+    wcout << "\nCall to sub1.insert(sub2)\n";
+    sub1.insert(sub2);
+
+    wcout << "\nCall to sub2.drop()\n";
+    sub2.drop();
+
+    wcout << "\nCall to sub2.insert(sub1)\n";
+    sub2.insert(sub1);
+
+    wcout << "\nCall to sub2.insert(sub3)\n";
+    sub2.insert(sub3);
+
+    wcout << "\nCall to sub1.drop()\n";
+    sub1.drop();
+
+    wcout << "\nCall to sub3.insert(1)\n";
+    sub3.insert(sub1);
+
+    wcout << "\nCall to sub3.prune()\n";
+    sub3.prune();
+
+    a.push_back({L"willInsert()", insertN == 5});
+    a.push_back({L"willDrop()", dropN == 4});
+    a.push_back({L"willPrune()", pruneN == 2});
+
+    wcout << "\nLeaving scope...\n";
+
     return a;
   }
 };

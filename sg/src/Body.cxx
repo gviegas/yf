@@ -189,6 +189,13 @@ Body::Impl::Impl(const vector<Shape*>& shapes) {
     pushShape(*shape);
 }
 
+Body::Impl::Impl(const Impl& other)
+  : spheres_(other.spheres_), bboxes_(other.bboxes_),
+    contactBegin_(other.contactBegin_), contactEnd_(other.contactEnd_),
+    dynamic_(other.dynamic_), mass_(other.mass_),
+    categoryMask_(other.categoryMask_), contactMask_(other.contactMask_),
+    collisionMask_(other.collisionMask_), node_{}, localT_{} { }
+
 Body::ContactFn& Body::Impl::contactBegin() {
   return contactBegin_;
 }

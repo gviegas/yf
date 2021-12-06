@@ -18,6 +18,7 @@ class Body::Impl {
  public:
   Impl(const Shape& shape);
   Impl(const std::vector<Shape*>& shapes);
+  Impl(const Impl& other);
 
   ContactFn& contactBegin();
   ContactFn& contactEnd();

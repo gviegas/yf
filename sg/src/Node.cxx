@@ -28,6 +28,9 @@ class Node::Impl {
 
     if (other.parent_)
       other.parent_->insert(*this);
+
+    if (other.body_)
+      setBody(make_unique<Body>(*other.body_));
   }
 
   Impl(const Impl&) = delete;

@@ -17,10 +17,9 @@
 #include "yf/sg/Defs.h"
 #include "yf/sg/Matrix.h"
 #include "yf/sg/Quaternion.h"
+#include "yf/sg/Body.h"
 
 SG_NS_BEGIN
-
-class Body;
 
 /// Node.
 ///
@@ -120,7 +119,7 @@ class Node {
 
   /// Gets/sets the node's physics body.
   ///
-  void setBody(Body* body);
+  void setBody(Body::Ptr&& body);
   Body* body();
 
  protected:

@@ -466,8 +466,8 @@ const Mat4f& Node::worldNormal() const {
   return impl_->worldNormal();
 }
 
-void Node::setBody(Body* body) {
-  impl_->setBody(body);
+void Node::setBody(Body::Ptr&& body) {
+  impl_->setBody(move(body));
 }
 
 Body* Node::body() {

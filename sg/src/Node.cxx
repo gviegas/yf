@@ -470,6 +470,10 @@ void Node::setBody(Body::Ptr&& body) {
   impl_->setBody(move(body));
 }
 
+void Node::setBody(const Body& body) {
+  impl_->setBody(make_unique<Body>(body));
+}
+
 Body* Node::body() {
   return impl_->body();
 }

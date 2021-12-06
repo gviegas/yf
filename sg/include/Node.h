@@ -120,6 +120,7 @@ class Node {
   /// Gets/sets the node's physics body.
   ///
   void setBody(Body::Ptr&& body);
+  void setBody(const Body& body);
   Body* body();
 
  protected:

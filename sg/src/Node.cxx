@@ -48,6 +48,15 @@ class Node::Impl {
     name_ = other.name_;
     transform_ = other.transform_;
 
+    if (body_) {
+      if (other.body_)
+        *body_ = *other.body_;
+      else
+        body_ = nullptr;
+    } else if (other.body_) {
+      setBody(make_unique<Body>(*other.body_));
+    }
+
     return *this;
   }
 

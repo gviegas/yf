@@ -306,7 +306,7 @@ class Node::Impl {
     return worldNorm_;
   }
 
-  void setBody(Body* body) {
+  void setBody(Body::Ptr&& body) {
     if (body_ == body)
       return;
 
@@ -315,11 +315,11 @@ class Node::Impl {
       otherNode->impl_->body_ = nullptr;
 
     body->impl_->setNode(&node_);
-    body_ = body;
+    body_ = move(body);
   }
 
   Body* body() {
-    return body_;
+    return body_.get();
   }
 
  private:
@@ -338,7 +338,7 @@ class Node::Impl {
   Mat4f worldXform_ = Mat4f::identity();
   Mat4f worldInv_ = Mat4f::identity();
   Mat4f worldNorm_ = Mat4f::identity();
-  Body* body_ = nullptr;
+  Body::Ptr body_{};
 };
 
 Node::Node() : impl_(make_unique<Impl>(*this)) { }

@@ -82,11 +82,8 @@ struct BodyTest : InteractiveTest {
     setObject(node);
 
     // Physics bodies
-    Body body1(BBox(2.0f));
-    Body body2(Sphere(1.0f));
-
-    node1->setBody(&body1);
-    node2->setBody(&body2);
+    node1->setBody(make_unique<Body>(BBox(2.0f)));
+    node2->setBody(make_unique<Body>(Sphere(1.0f)));
 
     // Render
     auto scn = coll.scenes().front().get();

@@ -51,6 +51,8 @@ struct BBox : Shape {
 ///
 class Body {
  public:
+  using Ptr = std::unique_ptr<Body>;
+
   Body(const Shape& shape);
   Body(const std::vector<Shape*>& shapes);
   Body(const Body& other);

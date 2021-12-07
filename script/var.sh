@@ -15,16 +15,16 @@ mkdir -pv $VAR_DIR $INCLUDE_DIR $LIB_DIR $BIN $CACHE_DIR $SHARE_DIR
 
 # yf
 mkdir -pv $INCLUDE_DIR/yf $CACHE_DIR/yf $SHARE_DIR/yf
-cp -v pub/* priv/* $INCLUDE_DIR/yf/
+cp -uv pub/* priv/* $INCLUDE_DIR/yf/
 
 # ws
 mkdir -pv $INCLUDE_DIR/yf/ws $CACHE_DIR/yf/ws $SHARE_DIR/yf/ws
-cp -v ws/include/* $INCLUDE_DIR/yf/ws/
+cp -uv ws/include/* $INCLUDE_DIR/yf/ws/
 
 # cg
 mkdir -pv $INCLUDE_DIR/yf/cg $CACHE_DIR/yf/cg $SHARE_DIR/yf/cg
-cp -v cg/include/* $INCLUDE_DIR/yf/cg/
+cp -uv cg/include/* $INCLUDE_DIR/yf/cg/
 
 # sg
 mkdir -pv $INCLUDE_DIR/yf/sg $CACHE_DIR/yf/sg $SHARE_DIR/yf/sg
-cp -v sg/include/* $INCLUDE_DIR/yf/sg/
+cp -uv sg/include/* $INCLUDE_DIR/yf/sg/

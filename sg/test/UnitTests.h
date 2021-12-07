@@ -33,8 +33,9 @@ Test* modelTest();
 Test* animationTest();
 Test* collectionTest();
 Test* cameraTest();
-Test* bodyTest();
 Test* renderTest();
+Test* bodyTest();
+Test* physicsTest();
 
 using TestFn = std::function<Test* ()>;
 using TestID = std::pair<std::string, std::vector<TestFn>>;
@@ -53,12 +54,13 @@ const std::vector<TestID> TIDs{
   TestID("animation", {animationTest}),
   TestID("collection", {collectionTest}),
   TestID("camera", {cameraTest}),
-  TestID("body", {bodyTest}),
   TestID("render", {renderTest}),
+  TestID("body", {bodyTest}),
+  TestID("physics", {physicsTest}),
   TestID("all", {nodeTest, sceneTest, viewTest, vectorTest, quaternionTest,
                  matrixTest, meshTest, textureTest, materialTest, skinTest,
                  modelTest, animationTest, collectionTest, cameraTest,
-                 bodyTest, renderTest})
+                 renderTest, bodyTest, physicsTest})
 };
 
 inline std::vector<Test*> unitTests(const std::string& id) {

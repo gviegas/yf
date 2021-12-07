@@ -38,3 +38,12 @@ struct PhysicsTest : InteractiveTest {
 };
 
 INTERNAL_NS_END
+
+TEST_NS_BEGIN
+
+Test* physicsTest() {
+  static PhysicsTest test;
+  return &test;
+}
+
+TEST_NS_END

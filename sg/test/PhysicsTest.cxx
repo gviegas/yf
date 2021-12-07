@@ -24,12 +24,21 @@ struct PhysicsTest : InteractiveTest {
 
     Scene scene1;
     PhysicsWorld& physWorld = scene1.physicsWorld();
+    bool check;
 
     physWorld.enable();
-    a.push_back({L"enable()", true});
+    check = physWorld.isEnabled();
+    a.push_back({L"enable()", check});
 
     physWorld.disable();
-    a.push_back({L"disable()", true});
+    check = check && !physWorld.isEnabled();
+    a.push_back({L"disable()", !physWorld.isEnabled()});
+
+    physWorld.enable();
+    check = check && physWorld.isEnabled();
+    physWorld.disable();
+    check = check && !physWorld.isEnabled();
+    a.push_back({L"isEnabled()", check});
 
     return a;
   }

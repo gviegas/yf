@@ -23,10 +23,14 @@ using PhysicsFlags = uint32_t;
 ///
 class PhysicsWorld {
  public:
-  /// Enable/disable physics simulation.
+  /// Enables/disables physics simulation.
   ///
   void enable();
   void disable();
+
+  /// Checks whether physics simulation is enabled or not.
+  ///
+  bool isEnabled() const;
 
  private:
   class Impl;

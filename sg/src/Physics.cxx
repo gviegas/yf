@@ -34,6 +34,10 @@ void PhysicsWorld::disable() {
   impl_->enabled_ = false;
 }
 
+bool PhysicsWorld::isEnabled() const {
+  return impl_->enabled_;
+}
+
 void PhysicsWorld::Impl::evaluate(Scene& scene) {
   assert(scene.physicsWorld().impl_.get() == this);
 

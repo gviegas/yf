@@ -23,9 +23,7 @@ struct PhysicsTest : InteractiveTest {
     Assertions a;
 
     Scene scene1;
-    // TODO: Need to disallow copy
-    PhysicsWorld physWorld = scene1.physicsWorld();
-    Scene().physicsWorld() = physWorld;
+    PhysicsWorld& physWorld = scene1.physicsWorld();
 
     physWorld.enable();
     a.push_back({L"enable()", true});

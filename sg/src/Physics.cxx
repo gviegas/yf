@@ -38,6 +38,14 @@ bool PhysicsWorld::isEnabled() const {
   return impl_->enabled_;
 }
 
+void PhysicsWorld::Impl::add(Body& body) {
+  // TODO
+}
+
+void PhysicsWorld::Impl::remove(Body& body) {
+  // TODO
+}
+
 void PhysicsWorld::Impl::evaluate(Scene& scene) {
   assert(scene.physicsWorld().impl_.get() == this);
 

@@ -13,6 +13,7 @@
 SG_NS_BEGIN
 
 class Scene;
+class Body;
 
 /// PhysicsWorld implementation details.
 ///
@@ -22,6 +23,14 @@ class PhysicsWorld::Impl {
   Impl(const Impl&) = default;
   Impl& operator=(const Impl&) = default;
   ~Impl() = default;
+
+  /// Adds a new physics body to the world.
+  ///
+  void add(Body& body);
+
+  /// Removes a physics body from the world.
+  ///
+  void remove(Body& body);
 
   /// Evaluates the physics simulation.
   ///

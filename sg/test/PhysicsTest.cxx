@@ -28,7 +28,7 @@ struct PhysicsTest : InteractiveTest {
     Scene().physicsWorld() = physWorld;
 
     physWorld.enable();
-    a.push_back({L"enabled()", true});
+    a.push_back({L"enable()", true});
 
     physWorld.disable();
     a.push_back({L"disable()", true});

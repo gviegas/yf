@@ -24,20 +24,27 @@ struct PhysicsTest : InteractiveTest {
 
     Scene scene1;
     PhysicsWorld& physWorld = scene1.physicsWorld();
-    bool check;
+    bool check = physWorld.isEnabled();
+
+    // Expected to be enabled by default
+    a.push_back({L"PhysicsWorld()", check});
+
+    physWorld.disable();
+    a.push_back({L"disable()", !physWorld.isEnabled()});
+    check = check && !physWorld.isEnabled();
 
     physWorld.enable();
+    a.push_back({L"enable()", physWorld.isEnabled()});
     check = physWorld.isEnabled();
-    a.push_back({L"enable()", check});
 
     physWorld.disable();
     check = check && !physWorld.isEnabled();
-    a.push_back({L"disable()", !physWorld.isEnabled()});
-
+    physWorld.disable();
+    check = check && !physWorld.isEnabled();
     physWorld.enable();
     check = check && physWorld.isEnabled();
-    physWorld.disable();
-    check = check && !physWorld.isEnabled();
+    physWorld.enable();
+    check = check && physWorld.isEnabled();
     a.push_back({L"isEnabled()", check});
 
     return a;

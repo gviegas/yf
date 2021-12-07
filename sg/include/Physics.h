@@ -23,10 +23,6 @@ using PhysicsFlags = uint32_t;
 ///
 class PhysicsWorld {
  public:
-  PhysicsWorld(const PhysicsWorld& other);
-  PhysicsWorld& operator=(const PhysicsWorld& other);
-  ~PhysicsWorld();
-
   /// Enable/disable physics simulation.
   ///
   void enable();
@@ -37,6 +33,9 @@ class PhysicsWorld {
   std::unique_ptr<Impl> impl_;
 
   PhysicsWorld();
+  PhysicsWorld(const PhysicsWorld& other);
+  PhysicsWorld& operator=(const PhysicsWorld& other);
+  ~PhysicsWorld();
 
   friend class Scene;
   friend class View;

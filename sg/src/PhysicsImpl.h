@@ -9,8 +9,9 @@
 #define YF_SG_PHYSICSIMPL_H
 
 #include <climits>
-#include <array>
 #include <list>
+#include <array>
+#include <set>
 
 #include "Physics.h"
 
@@ -54,6 +55,11 @@ class PhysicsWorld::Impl {
   static constexpr uint32_t CategoryN = sizeof(PhysicsFlags) * CHAR_BIT;
   std::list<Body*> bodies_{};
   std::array<std::list<Body*>, CategoryN> groups_{};
+
+  /// Changes to physics world are recorded in add()/remove() hooks and
+  /// applied prior to evaluation.
+  ///
+  std::set<Body*> pendingChanges_{};
 
   friend PhysicsWorld;
 };

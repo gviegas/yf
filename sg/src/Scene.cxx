@@ -70,3 +70,11 @@ void Scene::willInsert(Node& node) {
   if (body && !node.isDescendantOf(*this))
     impl_->physicsWorld_.impl_->add(*body);
 }
+
+void Scene::willDrop(Node& node) {
+  node.traverse([&](Node& node) {
+    Body* body = node.body();
+    if (body)
+      impl_->physicsWorld_.impl_->remove(*body);
+  }, false);
+}

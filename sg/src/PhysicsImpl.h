@@ -8,6 +8,10 @@
 #ifndef YF_SG_PHYSICSIMPL_H
 #define YF_SG_PHYSICSIMPL_H
 
+#include <climits>
+#include <array>
+#include <list>
+
 #include "Physics.h"
 
 SG_NS_BEGIN
@@ -42,6 +46,14 @@ class PhysicsWorld::Impl {
 
  private:
   bool enabled_ = true;
+
+  /// Physics bodies will be split into groups as indicated by the bits set
+  /// in their category masks.
+  /// Each category bit represents a different group.
+  ///
+  static constexpr uint32_t CategoryN = sizeof(PhysicsFlags) * CHAR_BIT;
+  std::list<Body*> bodies_{};
+  std::array<std::list<Body*>, CategoryN> groups_{};
 
   friend PhysicsWorld;
 };

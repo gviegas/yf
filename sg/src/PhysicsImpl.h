@@ -32,6 +32,10 @@ class PhysicsWorld::Impl {
   ///
   void remove(Body& body);
 
+  /// Removes all physics bodies from the world.
+  ///
+  void clear();
+
   /// Evaluates the physics simulation.
   ///
   void evaluate(Scene& scene);

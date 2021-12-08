@@ -46,6 +46,10 @@ void PhysicsWorld::Impl::remove(Body& body) {
   // TODO
 }
 
+void PhysicsWorld::Impl::clear() {
+  // TODO
+}
+
 void PhysicsWorld::Impl::evaluate(Scene& scene) {
   assert(scene.physicsWorld().impl_.get() == this);
 

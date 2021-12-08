@@ -82,9 +82,7 @@ class Node::Impl {
       node->node_.willInsert(child.node_);
     } while ((node = node->parent_));
 
-    if (child.parent_)
-      child.drop();
-
+    child.drop(this);
     child.parent_ = this;
     if (child_) {
       child.nextSib_ = child_;

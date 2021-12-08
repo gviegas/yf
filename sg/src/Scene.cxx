@@ -66,9 +66,11 @@ const array<float, 4>& Scene::color() const {
 }
 
 void Scene::willInsert(Node& node) {
-  Body* body = node.body();
-  if (body && !node.isDescendantOf(*this))
-    impl_->physicsWorld_.impl_->add(*body);
+  node.traverse([&](Node& node) {
+    Body* body = node.body();
+    if (body)
+      impl_->physicsWorld_.impl_->add(*body);
+  }, false);
 }
 
 void Scene::willDrop(Node& node) {

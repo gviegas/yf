@@ -98,14 +98,19 @@ class Node::Impl {
     while ((node = node->parent_));
   }
 
-  void drop() {
+  void drop(Impl* newParent = nullptr) {
     if (!parent_)
       return;
 
     auto node = this;
-    do
-      node->node_.willDrop(node_);
-    while ((node = node->parent_));
+    if (newParent) {
+      while ((node = node->parent_) && !newParent->isDescendantOf(*node))
+        node->node_.willDrop(node_);
+    } else {
+      do
+        node->node_.willDrop(node_);
+      while ((node = node->parent_));
+    }
 
     if (nextSib_)
       nextSib_->prevSib_ = prevSib_;

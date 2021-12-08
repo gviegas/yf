@@ -39,7 +39,9 @@ bool PhysicsWorld::isEnabled() const {
 }
 
 void PhysicsWorld::Impl::add(Body& body) {
-  // TODO
+  auto res = pendingChanges_.insert(&body);
+  if (!res.second)
+    pendingChanges_.erase(res.first);
 }
 
 void PhysicsWorld::Impl::remove(Body& body) {

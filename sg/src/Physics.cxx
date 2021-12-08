@@ -39,12 +39,18 @@ bool PhysicsWorld::isEnabled() const {
 }
 
 void PhysicsWorld::Impl::add(Body& body) {
+  assert(find(bodies_.begin(), bodies_.end(), &body) == bodies_.end() ||
+         pendingChanges_.find(&body) != pendingChanges_.end());
+
   auto res = pendingChanges_.insert(&body);
   if (!res.second)
     pendingChanges_.erase(res.first);
 }
 
 void PhysicsWorld::Impl::remove(Body& body) {
+  assert(find(bodies_.begin(), bodies_.end(), &body) != bodies_.end() ||
+         pendingChanges_.find(&body) != pendingChanges_.end());
+
   auto res = pendingChanges_.insert(&body);
   if (!res.second)
     pendingChanges_.erase(res.first);

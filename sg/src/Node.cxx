@@ -76,9 +76,11 @@ class Node::Impl {
       throw invalid_argument("Node is not insertable");
 
     auto node = this;
-    do
+    do {
+      if (child.isDescendantOf(*node))
+        break;
       node->node_.willInsert(child.node_);
-    while ((node = node->parent_));
+    } while ((node = node->parent_));
 
     if (child.parent_)
       child.drop();

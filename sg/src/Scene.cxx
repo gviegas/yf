@@ -6,7 +6,7 @@
 //
 
 #include "Scene.h"
-#include "Physics.h"
+#include "PhysicsImpl.h"
 #include "Camera.h"
 
 using namespace SG_NS;
@@ -63,4 +63,10 @@ array<float, 4>& Scene::color() {
 
 const array<float, 4>& Scene::color() const {
   return impl_->color_;
+}
+
+void Scene::willInsert(Node& node) {
+  Body* body = node.body();
+  if (body && !node.isDescendantOf(*this))
+    impl_->physicsWorld_.impl_->add(*body);
 }

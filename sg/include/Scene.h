@@ -50,6 +50,8 @@ class Scene : public Node {
  private:
   class Impl;
   std::unique_ptr<Impl> impl_;
+
+  void willInsert(Node&) override;
 };
 
 SG_NS_END

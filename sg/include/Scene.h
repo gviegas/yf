@@ -53,6 +53,7 @@ class Scene : public Node {
 
   void willInsert(Node&) override;
   void willDrop(Node&) override;
+  void willPrune(Node&) override;
 };
 
 SG_NS_END

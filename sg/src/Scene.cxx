@@ -78,3 +78,15 @@ void Scene::willDrop(Node& node) {
       impl_->physicsWorld_.impl_->remove(*body);
   }, false);
 }
+
+void Scene::willPrune(Node& node) {
+  if (&node == this) {
+    impl_->physicsWorld_.impl_->clear();
+  } else {
+    node.traverse([&](Node& node) {
+      Body* body = node.body();
+      if (body)
+        impl_->physicsWorld_.impl_->remove(*body);
+    }, true);
+  }
+}

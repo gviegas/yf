@@ -45,7 +45,9 @@ void PhysicsWorld::Impl::add(Body& body) {
 }
 
 void PhysicsWorld::Impl::remove(Body& body) {
-  // TODO
+  auto res = pendingChanges_.insert(&body);
+  if (!res.second)
+    pendingChanges_.erase(res.first);
 }
 
 void PhysicsWorld::Impl::clear() {

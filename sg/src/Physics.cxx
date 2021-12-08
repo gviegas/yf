@@ -51,7 +51,10 @@ void PhysicsWorld::Impl::remove(Body& body) {
 }
 
 void PhysicsWorld::Impl::clear() {
-  // TODO
+  bodies_.clear();
+  for (auto& group : groups_)
+    group.clear();
+  pendingChanges_.clear();
 }
 
 void PhysicsWorld::Impl::evaluate(Scene& scene) {

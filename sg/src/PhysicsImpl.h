@@ -60,6 +60,7 @@ class PhysicsWorld::Impl {
   /// applied prior to evaluation.
   ///
   std::set<Body*> pendingChanges_{};
+  void applyChanges();
 
   friend PhysicsWorld;
 };

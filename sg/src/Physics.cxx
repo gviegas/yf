@@ -74,3 +74,60 @@ void PhysicsWorld::Impl::evaluate(Scene& scene) {
   }, true);
   Body::update(bodies);
 }
+
+void PhysicsWorld::Impl::applyChanges() {
+  if (pendingChanges_.empty())
+    return;
+
+  auto changesIt = pendingChanges_.begin();
+  auto bodiesIt = bodies_.begin();
+  array<list<Body*>::iterator, CategoryN> groupsIts{};
+
+  for (uint32_t i = 0; i < CategoryN; i++)
+    groupsIts[i] = groups_[i].begin();
+
+  // Remove `*changesIt` from physics world
+  auto remove = [&] {
+    bodiesIt = bodies_.erase(bodiesIt);
+    const auto body = *changesIt++;
+    const auto categoryMask = body->categoryMask();
+
+    for (uint32_t i = 0; i < CategoryN; i++) {
+      if (categoryMask & i) {
+        while (*groupsIts[i] != body)
+          groupsIts[i]++;
+        groupsIts[i] = groups_[i].erase(groupsIts[i]);
+      }
+    }
+  };
+
+  // Add `*changesIt` to physics world
+  auto add = [&] {
+    bodies_.insert(bodiesIt, *changesIt);
+    const auto body = *changesIt++;
+    const auto categoryMask = body->categoryMask();
+
+    for (uint32_t i = 0; i < CategoryN; i++) {
+      if (categoryMask & i) {
+        while (groupsIts[i] != groups_[i].end() && *groupsIts[i] < body)
+          groupsIts[i]++;
+        groups_[i].insert(groupsIts[i], body)++;
+      }
+    }
+  };
+
+  while (bodiesIt != bodies_.end()) {
+    if (*changesIt > *bodiesIt) {
+      bodiesIt++;
+    } else {
+      *changesIt == *bodiesIt ? remove() : add();
+      if (changesIt == pendingChanges_.end()) {
+        pendingChanges_.clear();
+        return;
+      }
+    }
+  }
+  while (changesIt != pendingChanges_.end())
+    add();
+  pendingChanges_.clear();
+}

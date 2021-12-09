@@ -40,7 +40,7 @@ class View::Impl {
     auto deltaTime = now - before;
 
     while (update(deltaTime)) {
-      scene_->physicsWorld().impl_->evaluate(*scene_);
+      scene_->physicsWorld().impl_->evaluate();
       render(scene_);
       WS_NS::dispatch();
 

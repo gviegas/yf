@@ -45,6 +45,8 @@ class PhysicsWorld::Impl {
   ///
   void evaluate(Scene& scene);
 
+  void print() const;
+
  private:
   bool enabled_ = true;
 

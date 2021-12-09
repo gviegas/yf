@@ -138,3 +138,38 @@ void PhysicsWorld::Impl::applyChanges() {
     add();
   pendingChanges_.clear();
 }
+
+//
+// DEVEL
+//
+
+void PhysicsWorld::Impl::print() const {
+#ifdef YF_DEVEL
+  wprintf(L"\nPhysicsWorld\n");
+
+  auto printBody = [](Body* body, const char* indent) {
+    wprintf(L"%sBody %p:\n"
+            L"%s Node: %p (%ls)\n",
+            indent, static_cast<void*>(body),
+            indent, static_cast<void*>(body->node()),
+            body->node()->name().data());
+  };
+
+  wprintf(L" bodies_: %zu\n", bodies_.size());
+  for (const auto& body : bodies_)
+    printBody(body, "  ");
+
+  wprintf(L" groups_: %zu\n", groups_.size());
+  uint32_t grpIndex = 0;
+  for (const auto& group : groups_) {
+    wprintf(L"  groups_[%u]: %zu\n", grpIndex, groups_[grpIndex].size());
+    grpIndex++;
+    for (const auto& body : group)
+      printBody(body, "   ");
+  }
+
+  wprintf(L" pendingChanges_: %zu\n", pendingChanges_.size());
+  for (const auto& body : pendingChanges_)
+    printBody(body, "  ");
+#endif
+}

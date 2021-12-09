@@ -6,11 +6,12 @@
 //
 
 #include <type_traits>
+#include <algorithm>
 #include <cassert>
 
 #include "PhysicsImpl.h"
 #include "BodyImpl.h"
-#include "Scene.h"
+#include "Node.h"
 
 using namespace SG_NS;
 using namespace std;
@@ -64,9 +65,7 @@ void PhysicsWorld::Impl::clear() {
   pendingChanges_.clear();
 }
 
-void PhysicsWorld::Impl::evaluate(Scene& scene) {
-  assert(scene.physicsWorld().impl_.get() == this);
-
+void PhysicsWorld::Impl::evaluate() {
   print();
 
   applyChanges();
@@ -74,12 +73,7 @@ void PhysicsWorld::Impl::evaluate(Scene& scene) {
   print();
 
   // FIXME: Temporary implementation
-  vector<Body*> bodies;
-  scene.traverse([&](Node& node) {
-    if (node.body())
-      bodies.push_back(node.body());
-  }, true);
-  Body::update(bodies);
+  Body::update({bodies_.begin(), bodies_.end()});
 }
 
 void PhysicsWorld::Impl::applyChanges() {

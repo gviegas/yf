@@ -17,7 +17,6 @@
 
 SG_NS_BEGIN
 
-class Scene;
 class Body;
 
 /// PhysicsWorld implementation details.
@@ -43,7 +42,7 @@ class PhysicsWorld::Impl {
 
   /// Evaluates the physics simulation.
   ///
-  void evaluate(Scene& scene);
+  void evaluate();
 
   void print() const;
 

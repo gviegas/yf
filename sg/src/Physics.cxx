@@ -5,6 +5,7 @@
 // Copyright © 2021 Gustavo C. Viegas.
 //
 
+#include <type_traits>
 #include <cassert>
 
 #include "PhysicsImpl.h"
@@ -93,6 +94,7 @@ void PhysicsWorld::Impl::applyChanges() {
 
     auto categoryMask = body->categoryMask();
     uint32_t i = 0;
+    static_assert(!is_signed<decltype(categoryMask)>());
 
     for (; categoryMask != 0; categoryMask >>= 1, i++) {
       if (categoryMask & 1) {
@@ -110,6 +112,7 @@ void PhysicsWorld::Impl::applyChanges() {
 
     auto categoryMask = body->categoryMask();
     uint32_t i = 0;
+    static_assert(!is_signed<decltype(categoryMask)>());
 
     for (; categoryMask != 0; categoryMask >>= 1, i++) {
       if (categoryMask & 1) {

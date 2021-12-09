@@ -67,6 +67,12 @@ void PhysicsWorld::Impl::clear() {
 void PhysicsWorld::Impl::evaluate(Scene& scene) {
   assert(scene.physicsWorld().impl_.get() == this);
 
+  print();
+
+  applyChanges();
+
+  print();
+
   // FIXME: Temporary implementation
   vector<Body*> bodies;
   scene.traverse([&](Node& node) {

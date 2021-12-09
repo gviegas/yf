@@ -90,10 +90,12 @@ void PhysicsWorld::Impl::applyChanges() {
   auto remove = [&] {
     bodiesIt = bodies_.erase(bodiesIt);
     const auto body = *changesIt++;
-    const auto categoryMask = body->categoryMask();
 
-    for (uint32_t i = 0; i < CategoryN; i++) {
-      if (categoryMask & i) {
+    auto categoryMask = body->categoryMask();
+    uint32_t i = 0;
+
+    for (; categoryMask != 0; categoryMask >>= 1, i++) {
+      if (categoryMask & 1) {
         while (*groupsIts[i] != body)
           groupsIts[i]++;
         groupsIts[i] = groups_[i].erase(groupsIts[i]);
@@ -105,10 +107,12 @@ void PhysicsWorld::Impl::applyChanges() {
   auto add = [&] {
     bodies_.insert(bodiesIt, *changesIt);
     const auto body = *changesIt++;
-    const auto categoryMask = body->categoryMask();
 
-    for (uint32_t i = 0; i < CategoryN; i++) {
-      if (categoryMask & i) {
+    auto categoryMask = body->categoryMask();
+    uint32_t i = 0;
+
+    for (; categoryMask != 0; categoryMask >>= 1, i++) {
+      if (categoryMask & 1) {
         while (groupsIts[i] != groups_[i].end() && *groupsIts[i] < body)
           groupsIts[i]++;
         groups_[i].insert(groupsIts[i], body)++;

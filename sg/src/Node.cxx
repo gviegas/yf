@@ -325,15 +325,16 @@ class Node::Impl {
   }
 
   void setBody(Body::Ptr&& body) {
-    if (body_ == body)
+    if (body) {
+      if (body->node())
+        throw invalid_argument("Cannot share a node's physics body");
+
+      body->impl_->setNode(&node_);
+      body_ = move(body);
       return;
+    }
 
-    Node* otherNode = body->node();
-    if (otherNode)
-      otherNode->impl_->body_ = nullptr;
-
-    body->impl_->setNode(&node_);
-    body_ = move(body);
+    body_ = nullptr;
   }
 
   Body* body() {

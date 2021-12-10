@@ -271,6 +271,14 @@ Node* Body::Impl::node() {
   return node_;
 }
 
+void Body::Impl::setPhysicsWorld(PhysicsWorld* world) {
+  physicsWorld_ = world;
+}
+
+PhysicsWorld* Body::Impl::physicsWorld() {
+  return physicsWorld_;
+}
+
 void Body::Impl::pushShape(const Shape& shape) {
   const auto& id = typeid(shape);
   if (id == typeid(Sphere))

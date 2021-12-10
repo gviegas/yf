@@ -42,6 +42,9 @@ class Body::Impl {
   void setNode(Node* node);
   Node* node();
 
+  void setPhysicsWorld(PhysicsWorld* world);
+  PhysicsWorld* physicsWorld();
+
  private:
   std::vector<Sphere> spheres_{};
   std::vector<BBox> bboxes_{};

@@ -6,7 +6,6 @@
 //
 
 #include <iostream>
-#include <map>
 
 #include "Test.h"
 #include "Node.h"
@@ -183,6 +182,7 @@ struct NodeTest : Test {
     static auto insertN = 0;
     static auto dropN = 0;
     static auto pruneN = 0;
+    static auto setBodyN = 0;
 
     class Sub : public Node {
      protected:
@@ -197,6 +197,11 @@ struct NodeTest : Test {
       void willPrune(Node& node) {
         wcout << " in " << name() << "'s willPrune(" << node.name() << ")\n";
         pruneN++;
+      }
+      void willSetBody(Node& node, Body* body) {
+        wcout << " in " << name() << "'s willSetBody(" << node.name() << ", "
+              << body << ")\n";
+        setBodyN++;
       }
     };
 
@@ -219,11 +224,26 @@ struct NodeTest : Test {
     wcout << "\nCall to sub2.insert(sub3)\n";
     sub2.insert(sub3);
 
+    wcout << "\nCall to sub1.setBody(body1)\n";
+    sub1.setBody({Sphere(1.0f)});
+
+    wcout << "\nCall to sub2.setBody(body2)\n";
+    sub2.setBody({Sphere(1.0f)});
+
+    wcout << "\nCall to sub3.setBody(nullptr)\n";
+    sub3.setBody(nullptr);
+
     wcout << "\nCall to sub1.drop()\n";
     sub1.drop();
 
-    wcout << "\nCall to sub3.insert(1)\n";
+    wcout << "\nCall to sub1.setBody(body3)\n";
+    sub1.setBody({BBox(2.0f)});
+
+    wcout << "\nCall to sub3.insert(sub1)\n";
     sub3.insert(sub1);
+
+    wcout << "\nCall to sub1.setBody(nullptr)\n";
+    sub1.setBody(nullptr);
 
     wcout << "\nCall to sub3.prune()\n";
     sub3.prune();
@@ -231,6 +251,7 @@ struct NodeTest : Test {
     a.push_back({L"willInsert()", insertN == 5});
     a.push_back({L"willDrop()", dropN == 4});
     a.push_back({L"willPrune()", pruneN == 2});
+    a.push_back({L"willSetBody()", setBodyN == 7});
 
     wcout << "\nLeaving scope...\n";
 

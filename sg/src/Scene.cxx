@@ -104,3 +104,15 @@ void Scene::willPrune(Node& node) {
     }, true);
   }
 }
+
+void Scene::willSetBody(Node& node, Body* body) {
+  if (node.body()) {
+    // FIXME: `node.body()` will have been destroyed by the time that
+    // `physicsWorld_impl_->applyChanges()` is called.
+    impl_->physicsWorld_.impl_->remove(*node.body());
+  }
+  if (body) {
+    impl_->physicsWorld_.impl_->add(*body);
+    body->impl_->setPhysicsWorld(&impl_->physicsWorld_);
+  }
+}

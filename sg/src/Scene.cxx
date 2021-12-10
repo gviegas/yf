@@ -79,8 +79,10 @@ void Scene::willInsert(Node& node) {
 void Scene::willDrop(Node& node) {
   node.traverse([&](Node& node) {
     Body* body = node.body();
-    if (body)
+    if (body) {
       impl_->physicsWorld_.impl_->remove(*body);
+      body->impl_->setPhysicsWorld(nullptr);
+    }
   }, false);
 }
 

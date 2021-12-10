@@ -157,6 +157,10 @@ Node* Body::node() {
   return impl_->node();
 }
 
+PhysicsWorld* Body::physicsWorld() {
+  return impl_->physicsWorld();
+}
+
 void Body::update(const vector<Body*>& bodies) {
   assert(none_of(bodies.begin(), bodies.end(), [](auto b) { return !b; }));
 

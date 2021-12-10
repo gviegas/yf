@@ -95,6 +95,10 @@ class Body {
   ///
   Node* node();
 
+  /// Current world of the physics body.
+  ///
+  PhysicsWorld* physicsWorld();
+
   [[deprecated]]
   static void update(const std::vector<Body*>& bodies);
 

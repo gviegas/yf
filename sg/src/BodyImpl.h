@@ -54,6 +54,7 @@ class Body::Impl {
   PhysicsFlags collisionMask_ = ~static_cast<PhysicsFlags>(0);
   Node* node_ = nullptr;
   Vec3f localT_{};
+  PhysicsWorld* physicsWorld_ = nullptr;
 
   void pushShape(const Shape&);
   void nextStep();

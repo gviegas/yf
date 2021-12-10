@@ -126,7 +126,7 @@ class Node {
  protected:
   /// Notifies the node and its direct ancestors of an insert() call.
   ///
-  virtual void willInsert(Node& descendant);
+  virtual void willInsert(Node& node);
 
   /// Notifies the node and its direct ancestors of a drop() call.
   ///
@@ -135,6 +135,10 @@ class Node {
   /// Notifies the node and its direct ancestors of a prune() call.
   ///
   virtual void willPrune(Node& node);
+
+  /// Notifies the node and its direct ancestors of a setBody() call.
+  ///
+  virtual void willSetBody(Node& node, Body* body);
 
  private:
   class Impl;

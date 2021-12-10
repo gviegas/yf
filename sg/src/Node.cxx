@@ -501,3 +501,5 @@ void Node::willInsert(Node&) { }
 void Node::willDrop(Node&) { }
 
 void Node::willPrune(Node&) { }
+
+void Node::willSetBody(Node&, Body*) { }

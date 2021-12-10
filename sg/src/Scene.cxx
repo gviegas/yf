@@ -8,6 +8,7 @@
 #include "Scene.h"
 #include "PhysicsImpl.h"
 #include "Camera.h"
+#include "BodyImpl.h"
 
 using namespace SG_NS;
 using namespace std;
@@ -68,8 +69,10 @@ const array<float, 4>& Scene::color() const {
 void Scene::willInsert(Node& node) {
   node.traverse([&](Node& node) {
     Body* body = node.body();
-    if (body)
+    if (body) {
       impl_->physicsWorld_.impl_->add(*body);
+      body->impl_->setPhysicsWorld(&impl_->physicsWorld_);
+    }
   }, false);
 }
 

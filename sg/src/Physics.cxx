@@ -113,6 +113,8 @@ void PhysicsWorld::Impl::applyChanges() {
     if (!body->node())
       // Was released by its Node - get rid of it
       delete body;
+    else
+      body->impl_->setPhysicsWorld(nullptr);
   };
 
   // Add `*changesIt` to physics world
@@ -131,6 +133,8 @@ void PhysicsWorld::Impl::applyChanges() {
         groups_[i].insert(groupsIts[i], body)++;
       }
     }
+
+    body->impl_->setPhysicsWorld(&physicsWorld_);
   };
 
   while (bodiesIt != bodies_.end()) {

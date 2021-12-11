@@ -338,11 +338,22 @@ class Node::Impl {
 
       notify();
       body->impl_->setNode(&node_);
+      if (body_ && body_->physicsWorld()) {
+        // Let PhysicsWorld destroy it
+        body_->impl_->setNode(nullptr);
+        body_.release();
+      }
       body_ = move(body);
 
     } else if (body_) {
       notify();
-      body_ = nullptr;
+      if (body_->physicsWorld()) {
+        // Let PhysicsWorld destroy it
+        body_->impl_->setNode(nullptr);
+        body_.release();
+      } else {
+        body_ = nullptr;
+      }
     }
   }
 

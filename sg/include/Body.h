@@ -20,7 +20,6 @@
 SG_NS_BEGIN
 
 class Node;
-class Scene;
 
 /// Physics Shape.
 ///
@@ -108,7 +107,6 @@ class Body {
   std::unique_ptr<Impl> impl_;
 
   friend Node;
-  friend Scene;
 };
 
 SG_NS_END

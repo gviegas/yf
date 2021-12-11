@@ -103,6 +103,10 @@ void PhysicsWorld::Impl::applyChanges() {
         groupsIts[i] = groups_[i].erase(groupsIts[i]);
       }
     }
+
+    if (!body->node())
+      // Was released by its Node - get rid of it
+      delete body;
   };
 
   // Add `*changesIt` to physics world

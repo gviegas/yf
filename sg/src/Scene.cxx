@@ -69,50 +69,34 @@ const array<float, 4>& Scene::color() const {
 void Scene::willInsert(Node& node) {
   node.traverse([&](Node& node) {
     Body* body = node.body();
-    if (body) {
+    if (body)
       impl_->physicsWorld_.impl_->add(*body);
-      body->impl_->setPhysicsWorld(&impl_->physicsWorld_);
-    }
   }, false);
 }
 
 void Scene::willDrop(Node& node) {
   node.traverse([&](Node& node) {
     Body* body = node.body();
-    if (body) {
+    if (body)
       impl_->physicsWorld_.impl_->remove(*body);
-      body->impl_->setPhysicsWorld(nullptr);
-    }
   }, false);
 }
 
 void Scene::willPrune(Node& node) {
   if (&node == this) {
     impl_->physicsWorld_.impl_->clear();
-    node.traverse([&](Node& node) {
-      Body* body = node.body();
-      if (body)
-        body->impl_->setPhysicsWorld(nullptr);
-    }, true);
   } else {
     node.traverse([&](Node& node) {
       Body* body = node.body();
-      if (body) {
+      if (body)
         impl_->physicsWorld_.impl_->remove(*body);
-        body->impl_->setPhysicsWorld(nullptr);
-      }
     }, true);
   }
 }
 
 void Scene::willSetBody(Node& node, Body* body) {
-  if (node.body()) {
-    // FIXME: `node.body()` will have been destroyed by the time that
-    // `physicsWorld_impl_->applyChanges()` is called.
+  if (node.body())
     impl_->physicsWorld_.impl_->remove(*node.body());
-  }
-  if (body) {
+  if (body)
     impl_->physicsWorld_.impl_->add(*body);
-    body->impl_->setPhysicsWorld(&impl_->physicsWorld_);
-  }
 }

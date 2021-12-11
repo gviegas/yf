@@ -16,7 +16,7 @@
 using namespace SG_NS;
 using namespace std;
 
-PhysicsWorld::PhysicsWorld() : impl_(make_unique<Impl>()) { }
+PhysicsWorld::PhysicsWorld() : impl_(make_unique<Impl>(*this)) { }
 
 PhysicsWorld::PhysicsWorld(const PhysicsWorld& other)
   : impl_(make_unique<Impl>(*other.impl_)) { }
@@ -39,6 +39,9 @@ void PhysicsWorld::disable() {
 bool PhysicsWorld::isEnabled() const {
   return impl_->enabled_;
 }
+
+PhysicsWorld::Impl::Impl(PhysicsWorld& physicsWorld)
+  : physicsWorld_(physicsWorld) { }
 
 void PhysicsWorld::Impl::add(Body& body) {
   assert(find(bodies_.begin(), bodies_.end(), &body) == bodies_.end() ||

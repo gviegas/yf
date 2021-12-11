@@ -23,7 +23,7 @@ class Body;
 ///
 class PhysicsWorld::Impl {
  public:
-  Impl() = default;
+  Impl(PhysicsWorld& physicsWorld);
   Impl(const Impl&) = default;
   Impl& operator=(const Impl&) = default;
   ~Impl() = default;
@@ -47,6 +47,7 @@ class PhysicsWorld::Impl {
   void print() const;
 
  private:
+  PhysicsWorld& physicsWorld_;
   bool enabled_ = true;
 
   /// Physics bodies will be split into groups as indicated by the bits set

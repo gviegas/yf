@@ -8,7 +8,6 @@
 #include "Scene.h"
 #include "PhysicsImpl.h"
 #include "Camera.h"
-#include "BodyImpl.h"
 
 using namespace SG_NS;
 using namespace std;

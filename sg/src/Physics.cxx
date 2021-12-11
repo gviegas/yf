@@ -152,7 +152,7 @@ void PhysicsWorld::Impl::print() const {
             L"%s Node: %p (%ls)\n",
             indent, static_cast<void*>(body),
             indent, static_cast<void*>(body->node()),
-            body->node()->name().data());
+            (body->node() ? body->node()->name().data() : L""));
   };
 
   wprintf(L" bodies_: %zu\n", bodies_.size());

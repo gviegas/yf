@@ -386,7 +386,7 @@ Node::Node(const Node& other)
   : impl_(make_unique<Impl>(*this, *other.impl_)) { }
 
 Node& Node::operator=(const Node& other) {
-  *impl_ = *other.impl_;
+  impl_ = make_unique<Impl>(*this, *other.impl_);
   return *this;
 }
 

@@ -24,8 +24,9 @@ class Body;
 class PhysicsWorld::Impl {
  public:
   Impl(PhysicsWorld& physicsWorld);
-  Impl(const Impl&) = default;
-  Impl& operator=(const Impl&) = default;
+  Impl(PhysicsWorld& physicsWorld, const Impl& other);
+  Impl(const Impl&) = delete;
+  Impl& operator=(const Impl&) = delete;
   ~Impl() = default;
 
   /// Adds a new physics body to the world.

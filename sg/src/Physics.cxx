@@ -19,10 +19,10 @@ using namespace std;
 PhysicsWorld::PhysicsWorld() : impl_(make_unique<Impl>(*this)) { }
 
 PhysicsWorld::PhysicsWorld(const PhysicsWorld& other)
-  : impl_(make_unique<Impl>(*other.impl_)) { }
+  : impl_(make_unique<Impl>(*this, *other.impl_)) { }
 
 PhysicsWorld& PhysicsWorld::operator=(const PhysicsWorld& other) {
-  impl_ = make_unique<Impl>(*other.impl_);
+  impl_ = make_unique<Impl>(*this, *other.impl_);
   return *this;
 }
 
@@ -42,6 +42,9 @@ bool PhysicsWorld::isEnabled() const {
 
 PhysicsWorld::Impl::Impl(PhysicsWorld& physicsWorld)
   : physicsWorld_(physicsWorld) { }
+
+PhysicsWorld::Impl::Impl(PhysicsWorld& physicsWorld, const Impl& other)
+  : physicsWorld_(physicsWorld), enabled_(other.enabled_) { }
 
 void PhysicsWorld::Impl::add(Body& body) {
   assert(find(bodies_.begin(), bodies_.end(), &body) == bodies_.end() ||

@@ -12,6 +12,7 @@
 #include <stdexcept>
 
 #include "BodyImpl.h"
+#include "PhysicsImpl.h"
 #include "Node.h"
 
 using namespace SG_NS;
@@ -130,7 +131,14 @@ float Body::mass() const {
 }
 
 void Body::setCategoryMask(PhysicsFlags mask) {
-  impl_->setCategoryMask(mask);
+  const auto prevMask = impl_->categoryMask();
+  if (prevMask != mask) {
+    impl_->setCategoryMask(mask);
+
+    auto physicsWorld = impl_->physicsWorld();
+    if (physicsWorld)
+      physicsWorld->impl_->update(*this, prevMask);
+  }
 }
 
 PhysicsFlags Body::categoryMask() const {

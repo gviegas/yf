@@ -64,6 +64,12 @@ void PhysicsWorld::Impl::remove(Body& body) {
     pendingChanges_.erase(res.first);
 }
 
+void PhysicsWorld::Impl::update(Body& body, PhysicsFlags prevCategoryMask) {
+  assert(find(bodies_.begin(), bodies_.end(), &body) != bodies_.end());
+
+  // TODO
+}
+
 void PhysicsWorld::Impl::clear() {
   for (auto& body : bodies_)
     body->impl_->setPhysicsWorld(nullptr);

@@ -37,6 +37,10 @@ class PhysicsWorld::Impl {
   ///
   void remove(Body& body);
 
+  /// Updates physics world to reflect changes in a body's category mask.
+  ///
+  void update(Body& body, PhysicsFlags prevCategoryMask);
+
   /// Removes all physics bodies from the world.
   ///
   void clear();

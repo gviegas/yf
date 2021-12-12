@@ -21,17 +21,7 @@ class Node::Impl {
   Impl(Node& node) : node_(node) { }
 
   Impl(Node& node, const Impl& other)
-    : node_(node), name_(other.name_), transform_(other.transform_) {
-
-    if (other.child_)
-      throw runtime_error("Cannot copy non-leaf node");
-
-    if (other.body_)
-      setBody(make_unique<Body>(*other.body_));
-
-    if (other.parent_)
-      other.parent_->insert(*this);
-  }
+    : node_(node), name_(other.name_), transform_(other.transform_) { }
 
   Impl(const Impl&) = delete;
 
@@ -382,8 +372,16 @@ class Node::Impl {
 
 Node::Node() : impl_(make_unique<Impl>(*this)) { }
 
-Node::Node(const Node& other)
-  : impl_(make_unique<Impl>(*this, *other.impl_)) { }
+Node::Node(const Node& other) : impl_(make_unique<Impl>(*this, *other.impl_)) {
+  if (!other.impl_->isLeaf())
+    throw invalid_argument("Cannot copy non-leaf node");
+
+  // XXX: These might do anything with `impl_->node_`
+  if (other.impl_->body())
+    impl_->setBody(make_unique<Body>(*other.impl_->body()));
+  if (!other.impl_->isRoot())
+    other.impl_->parent()->insert(*this);
+}
 
 Node& Node::operator=(const Node& other) {
   impl_ = make_unique<Impl>(*this, *other.impl_);

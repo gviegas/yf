@@ -12,6 +12,7 @@
 #include <list>
 #include <array>
 #include <set>
+#include <map>
 
 #include "Physics.h"
 
@@ -63,11 +64,16 @@ class PhysicsWorld::Impl {
   std::list<Body*> bodies_{};
   std::array<std::list<Body*>, CategoryN> groups_{};
 
-  /// Changes to physics world are recorded in add()/remove() hooks and
-  /// applied prior to evaluation.
+  /// Changes to the physics world are recorded in the add() and remove()
+  /// methods and applied prior to evaluation.
   ///
   std::set<Body*> pendingChanges_{};
   void applyChanges();
+
+  /// Changes to the category mask of physics bodies are recorded in the
+  /// update() method and applied prior to evaluation.
+  ///
+  std::map<Body*, PhysicsFlags> pendingUpdates_{};
 
   friend PhysicsWorld;
 };

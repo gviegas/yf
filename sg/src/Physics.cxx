@@ -65,9 +65,17 @@ void PhysicsWorld::Impl::remove(Body& body) {
 }
 
 void PhysicsWorld::Impl::clear() {
+  for (auto& body : bodies_)
+    body->impl_->setPhysicsWorld(nullptr);
   bodies_.clear();
+
   for (auto& group : groups_)
     group.clear();
+
+  for (auto& body : pendingChanges_)
+    if (!body->node())
+      // Was released by its Node - get rid of it
+      delete body;
   pendingChanges_.clear();
 }
 

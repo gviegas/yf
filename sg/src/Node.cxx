@@ -21,7 +21,7 @@ class Node::Impl {
   Impl(Node& node) : node_(node) { }
 
   Impl(Node& node, const Impl& other)
-    : node_(node), name_(other.name_), transform_(other.transform_) { }
+    : node_(node), name_(other.name_), transform_(other.transform()) { }
 
   Impl(const Impl&) = delete;
   Impl& operator=(const Impl& other) = delete;

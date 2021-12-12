@@ -100,7 +100,14 @@ Body::Body(const vector<Shape*>& shapes) : impl_(make_unique<Impl>(shapes)) { }
 Body::Body(const Body& other) : impl_(make_unique<Impl>(*other.impl_)) { }
 
 Body& Body::operator=(const Body& other) {
+  const auto prevMask = impl_->categoryMask();
   *impl_ = *other.impl_;
+
+  if (prevMask != impl_->categoryMask()) {
+    const auto physicsWorld = impl_->physicsWorld();
+    if (physicsWorld)
+      physicsWorld->impl_->update(*this, prevMask);
+  }
   return *this;
 }
 
@@ -135,7 +142,7 @@ void Body::setCategoryMask(PhysicsFlags mask) {
   if (prevMask != mask) {
     impl_->setCategoryMask(mask);
 
-    auto physicsWorld = impl_->physicsWorld();
+    const auto physicsWorld = impl_->physicsWorld();
     if (physicsWorld)
       physicsWorld->impl_->update(*this, prevMask);
   }
@@ -206,7 +213,8 @@ Body::Impl::Impl(const Impl& other)
     contactBegin_(other.contactBegin_), contactEnd_(other.contactEnd_),
     dynamic_(other.dynamic_), mass_(other.mass_),
     categoryMask_(other.categoryMask_), contactMask_(other.contactMask_),
-    collisionMask_(other.collisionMask_), node_{}, localT_{} { }
+    collisionMask_(other.collisionMask_), node_{}, localT_{},
+    physicsWorld_{} { }
 
 Body::Impl& Body::Impl::operator=(const Impl& other) {
   spheres_ = other.spheres_;
@@ -218,7 +226,7 @@ Body::Impl& Body::Impl::operator=(const Impl& other) {
   categoryMask_ = other.categoryMask_;
   contactMask_ = other.contactMask_;
   collisionMask_ = other.collisionMask_;
-  // TODO: Need to handle new masks if they differ and node is non-null
+  // Keep node and physics world
   return *this;
 }
 

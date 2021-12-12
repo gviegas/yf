@@ -360,7 +360,19 @@ Node::Node(const Node& other) : impl_(make_unique<Impl>(*this, *other.impl_)) {
 }
 
 Node& Node::operator=(const Node& other) {
+  if (!other.impl_->isLeaf())
+    throw invalid_argument("Cannot copy non-leaf node");
+
   impl_ = make_unique<Impl>(*this, *other.impl_);
+
+  if (other.impl_->body())
+    impl_->setBody(make_unique<Body>(*other.impl_->body()));
+  else
+    impl_->setBody(nullptr);
+
+  if (!other.impl_->isRoot())
+    other.impl_->parent()->insert(*this);
+
   return *this;
 }
 

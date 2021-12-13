@@ -235,36 +235,36 @@ void PhysicsWorld::Impl::print() const {
   wprintf(L"\nPhysicsWorld\n");
 
   auto printBody = [](Body* body, const char* indent) {
-    wprintf(L"%sBody %p:\n"
-            L"%s Node: %p (%ls)\n"
-            L"%s categoryMask: %Xh\n",
+    wprintf(L"%sphysics body %p:\n"
+            L"%s node: %p (%ls)\n"
+            L"%s category mask: %Xh\n",
             indent, static_cast<void*>(body),
             indent, static_cast<void*>(body->node()),
             (body->node() ? body->node()->name().data() : L""),
             indent, body->categoryMask());
   };
 
-  wprintf(L" bodies_: %zu\n", bodies_.size());
+  wprintf(L" physics bodies: #%zu\n", bodies_.size());
   for (const auto& body : bodies_)
     printBody(body, "  ");
 
-  wprintf(L" groups_: %zu\n", groups_.size());
+  wprintf(L" physics groups: #%zu\n", groups_.size());
   uint32_t grpIndex = 0;
   for (const auto& group : groups_) {
-    wprintf(L"  groups_[%u]: %zu\n", grpIndex, groups_[grpIndex].size());
+    wprintf(L"  [%u]: #%zu\n", grpIndex, groups_[grpIndex].size());
     grpIndex++;
     for (const auto& body : group)
       printBody(body, "   ");
   }
 
-  wprintf(L" pendingChanges_: %zu\n", pendingChanges_.size());
+  wprintf(L" pending changes: #%zu\n", pendingChanges_.size());
   for (const auto& body : pendingChanges_)
     printBody(body, "  ");
 
-  wprintf(L" pendingUpdates_: %zu\n", pendingUpdates_.size());
+  wprintf(L" pending updates: #%zu\n", pendingUpdates_.size());
   for (const auto& kv : pendingUpdates_) {
     printBody(kv.first, "  ");
-    wprintf(L"   prevCategoryMask: %Xh\n", kv.second);
+    wprintf(L"   prev. category mask: %Xh\n", kv.second);
   }
 #endif
 }

@@ -91,6 +91,7 @@ void PhysicsWorld::Impl::evaluate() {
   print();
 
   applyChanges();
+  applyUpdates();
 
   print();
 

@@ -74,6 +74,7 @@ class PhysicsWorld::Impl {
   /// update() method and applied prior to evaluation.
   ///
   std::map<Body*, PhysicsFlags> pendingUpdates_{};
+  void applyUpdates();
 
   friend PhysicsWorld;
 };

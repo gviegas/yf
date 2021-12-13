@@ -169,6 +169,44 @@ void PhysicsWorld::Impl::applyChanges() {
   pendingChanges_.clear();
 }
 
+void PhysicsWorld::Impl::applyUpdates() {
+  if (pendingUpdates_.empty())
+    return;
+
+  array<list<Body*>::iterator, CategoryN> groupsIts{};
+  for (uint32_t i = 0; i < CategoryN; i++)
+    groupsIts[i] = groups_[i].begin();
+
+  for (const auto& kv : pendingUpdates_) {
+    const auto body = kv.first;
+    const auto categoryMask = body->categoryMask();
+    const auto prevCategoryMask = kv.second;
+    auto toInsert = categoryMask & ~prevCategoryMask;
+    auto toErase = prevCategoryMask & ~categoryMask;
+    uint32_t i;
+    static_assert(!is_signed<decltype(toInsert)>());
+    static_assert(!is_signed<decltype(toErase)>());
+
+    for (i = 0; toInsert != 0; toInsert >>= 1, i++) {
+      if (toInsert & 1) {
+        while (groupsIts[i] != groups_[i].end() && *groupsIts[i] < body)
+          groupsIts[i]++;
+        groups_[i].insert(groupsIts[i], body)++;
+      }
+    }
+
+    for (i = 0; toErase != 0; toErase >>= 1, i++) {
+      if (toErase & 1) {
+        while (*groupsIts[i] != body)
+          groupsIts[i]++;
+        groupsIts[i] = groups_[i].erase(groupsIts[i]);
+      }
+    }
+  }
+
+  pendingUpdates_.clear();
+}
+
 //
 // DEVEL
 //

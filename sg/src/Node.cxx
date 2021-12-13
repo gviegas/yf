@@ -305,10 +305,10 @@ class Node::Impl {
         throw invalid_argument("Cannot share a node's physics body");
 
       notify();
-      body->impl_->setNode(&node_);
+      body->impl().setNode(&node_);
       if (body_ && body_->physicsWorld()) {
         // Let PhysicsWorld destroy it
-        body_->impl_->setNode(nullptr);
+        body_->impl().setNode(nullptr);
         body_.release();
       }
       body_ = move(body);
@@ -317,7 +317,7 @@ class Node::Impl {
       notify();
       if (body_->physicsWorld()) {
         // Let PhysicsWorld destroy it
-        body_->impl_->setNode(nullptr);
+        body_->impl().setNode(nullptr);
         body_.release();
       } else {
         body_ = nullptr;

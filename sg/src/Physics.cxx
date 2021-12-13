@@ -78,7 +78,7 @@ void PhysicsWorld::Impl::update(Body& body, PhysicsFlags prevCategoryMask) {
 
 void PhysicsWorld::Impl::clear() {
   for (auto& body : bodies_)
-    body->impl_->setPhysicsWorld(nullptr);
+    body->impl().setPhysicsWorld(nullptr);
   bodies_.clear();
 
   for (auto& group : groups_)
@@ -147,7 +147,7 @@ void PhysicsWorld::Impl::applyChanges() {
       // Was released by its Node - get rid of it
       delete body;
     else
-      body->impl_->setPhysicsWorld(nullptr);
+      body->impl().setPhysicsWorld(nullptr);
   };
 
   // Add `*changesIt` to physics world
@@ -167,7 +167,7 @@ void PhysicsWorld::Impl::applyChanges() {
       }
     }
 
-    body->impl_->setPhysicsWorld(&physicsWorld_);
+    body->impl().setPhysicsWorld(&physicsWorld_);
     // Updating this body is redundant
     pendingUpdates_.erase(body);
   };

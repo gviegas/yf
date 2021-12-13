@@ -107,9 +107,6 @@ class Body {
 
  private:
   std::unique_ptr<Impl> impl_;
-
-  friend Node;
-  friend PhysicsWorld;
 };
 
 SG_NS_END

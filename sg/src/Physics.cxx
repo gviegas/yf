@@ -232,10 +232,12 @@ void PhysicsWorld::Impl::print() const {
 
   auto printBody = [](Body* body, const char* indent) {
     wprintf(L"%sBody %p:\n"
-            L"%s Node: %p (%ls)\n",
+            L"%s Node: %p (%ls)\n"
+            L"%s categoryMask: %Xh\n",
             indent, static_cast<void*>(body),
             indent, static_cast<void*>(body->node()),
-            (body->node() ? body->node()->name().data() : L""));
+            (body->node() ? body->node()->name().data() : L""),
+            indent, body->categoryMask());
   };
 
   wprintf(L" bodies_: %zu\n", bodies_.size());
@@ -258,9 +260,7 @@ void PhysicsWorld::Impl::print() const {
   wprintf(L" pendingUpdates_: %zu\n", pendingUpdates_.size());
   for (const auto& kv : pendingUpdates_) {
     printBody(kv.first, "  ");
-    wprintf(L"   categoryMask: %Xh\n"
-            L"   prevCategoryMask: %Xh\n",
-            kv.first->categoryMask(), kv.second);
+    wprintf(L"   prevCategoryMask: %Xh\n", kv.second);
   }
 #endif
 }

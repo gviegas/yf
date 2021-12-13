@@ -85,6 +85,8 @@ void PhysicsWorld::Impl::clear() {
       // Was released by its Node - get rid of it
       delete body;
   pendingChanges_.clear();
+
+  pendingUpdates_.clear();
 }
 
 void PhysicsWorld::Impl::evaluate() {

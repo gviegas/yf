@@ -52,8 +52,8 @@ class Body::Impl {
   ContactFn contactEnd_{};
   bool dynamic_ = false;
   float mass_ = 1.0f;
-  PhysicsFlags categoryMask_ = ~static_cast<PhysicsFlags>(0);
-  PhysicsFlags contactMask_ = ~static_cast<PhysicsFlags>(0);
+  PhysicsFlags categoryMask_ = 1;
+  PhysicsFlags contactMask_ = 0;
   PhysicsFlags collisionMask_ = ~static_cast<PhysicsFlags>(0);
   Node* node_ = nullptr;
   Vec3f localT_{};

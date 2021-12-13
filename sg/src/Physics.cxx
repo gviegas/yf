@@ -90,6 +90,10 @@ void PhysicsWorld::Impl::clear() {
 void PhysicsWorld::Impl::evaluate() {
   print();
 
+  // Ignore updates for newly added and removed bodies
+  for (auto& body : pendingChanges_)
+    pendingUpdates_.erase(body);
+
   applyChanges();
   applyUpdates();
 

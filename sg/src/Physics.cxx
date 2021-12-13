@@ -67,7 +67,9 @@ void PhysicsWorld::Impl::remove(Body& body) {
 void PhysicsWorld::Impl::update(Body& body, PhysicsFlags prevCategoryMask) {
   assert(find(bodies_.begin(), bodies_.end(), &body) != bodies_.end());
 
-  // TODO
+  auto res = pendingUpdates_.insert({&body, prevCategoryMask});
+  if (!res.second && res.first->second == body.categoryMask())
+    pendingUpdates_.erase(res.first);
 }
 
 void PhysicsWorld::Impl::clear() {

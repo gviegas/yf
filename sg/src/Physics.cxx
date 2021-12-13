@@ -240,5 +240,13 @@ void PhysicsWorld::Impl::print() const {
   wprintf(L" pendingChanges_: %zu\n", pendingChanges_.size());
   for (const auto& body : pendingChanges_)
     printBody(body, "  ");
+
+  wprintf(L" pendingUpdates_: %zu\n", pendingUpdates_.size());
+  for (const auto& kv : pendingUpdates_) {
+    printBody(kv.first, "  ");
+    wprintf(L"   categoryMask: %Xh\n"
+            L"   prevCategoryMask: %Xh\n",
+            kv.first->categoryMask(), kv.second);
+  }
 #endif
 }

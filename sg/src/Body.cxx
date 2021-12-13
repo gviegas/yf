@@ -106,7 +106,7 @@ Body& Body::operator=(const Body& other) {
   if (prevMask != impl_->categoryMask()) {
     const auto physicsWorld = impl_->physicsWorld();
     if (physicsWorld)
-      physicsWorld->impl_->update(*this, prevMask);
+      physicsWorld->impl().update(*this, prevMask);
   }
   return *this;
 }
@@ -144,7 +144,7 @@ void Body::setCategoryMask(PhysicsFlags mask) {
 
     const auto physicsWorld = impl_->physicsWorld();
     if (physicsWorld)
-      physicsWorld->impl_->update(*this, prevMask);
+      physicsWorld->impl().update(*this, prevMask);
   }
 }
 

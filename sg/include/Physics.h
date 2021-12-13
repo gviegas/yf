@@ -44,8 +44,6 @@ class PhysicsWorld {
   ~PhysicsWorld();
 
   friend class Scene;
-  friend class View;
-  friend class Body;
 };
 
 SG_NS_END

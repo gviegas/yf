@@ -40,6 +40,10 @@ bool PhysicsWorld::isEnabled() const {
   return impl_->enabled_;
 }
 
+PhysicsWorld::Impl& PhysicsWorld::impl() {
+  return *impl_;
+}
+
 PhysicsWorld::Impl::Impl(PhysicsWorld& physicsWorld)
   : physicsWorld_(physicsWorld) { }
 

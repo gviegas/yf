@@ -32,8 +32,10 @@ class PhysicsWorld {
   ///
   bool isEnabled() const;
 
- private:
   class Impl;
+  Impl& impl();
+
+ private:
   std::unique_ptr<Impl> impl_;
 
   PhysicsWorld();

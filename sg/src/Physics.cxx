@@ -92,10 +92,7 @@ void PhysicsWorld::Impl::clear() {
 void PhysicsWorld::Impl::evaluate() {
   print();
 
-  // Ignore updates for newly added and removed bodies
-  for (auto& body : pendingChanges_)
-    pendingUpdates_.erase(body);
-
+  // XXX: Changes must be applied first
   applyChanges();
   applyUpdates();
 
@@ -121,9 +118,18 @@ void PhysicsWorld::Impl::applyChanges() {
     bodiesIt = bodies_.erase(bodiesIt);
     const auto body = *changesIt++;
 
-    auto categoryMask = body->categoryMask();
+    PhysicsFlags categoryMask;
     uint32_t i = 0;
-    static_assert(!is_signed<decltype(categoryMask)>());
+    static_assert(!is_signed<PhysicsFlags>());
+
+    // Category mask might have changed before removal
+    const auto updateIt = pendingUpdates_.find(body);
+    if (updateIt != pendingUpdates_.end()) {
+      categoryMask = updateIt->second;
+      pendingUpdates_.erase(updateIt);
+    } else {
+      categoryMask = body->categoryMask();
+    }
 
     for (; categoryMask != 0; categoryMask >>= 1, i++) {
       if (categoryMask & 1) {
@@ -158,6 +164,8 @@ void PhysicsWorld::Impl::applyChanges() {
     }
 
     body->impl_->setPhysicsWorld(&physicsWorld_);
+    // Updating this body is redundant
+    pendingUpdates_.erase(body);
   };
 
   while (bodiesIt != bodies_.end()) {

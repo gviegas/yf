@@ -102,8 +102,10 @@ class Body {
   [[deprecated]]
   static void update(const std::vector<Body*>& bodies);
 
- private:
   class Impl;
+  Impl& impl();
+
+ private:
   std::unique_ptr<Impl> impl_;
 
   friend Node;

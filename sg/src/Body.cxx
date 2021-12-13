@@ -198,6 +198,10 @@ void Body::update(const vector<Body*>& bodies) {
   }
 }
 
+Body::Impl& Body::impl() {
+  return *impl_;
+}
+
 Body::Impl::Impl(const Shape& shape) {
   pushShape(shape);
 }

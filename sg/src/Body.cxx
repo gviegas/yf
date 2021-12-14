@@ -254,6 +254,15 @@ float Body::Impl::restitution() const {
   return restitution_;
 }
 
+void Body::Impl::setFriction(float cof) {
+  assert(cof >= 0.0f);
+  friction_ = cof;
+}
+
+float Body::Impl::friction() const {
+  return friction_;
+}
+
 void Body::Impl::setCategoryMask(PhysicsFlags mask) {
   categoryMask_ = mask;
 }

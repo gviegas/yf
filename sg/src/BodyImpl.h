@@ -33,6 +33,9 @@ class Body::Impl {
   void setRestitution(float cor);
   float restitution() const;
 
+  void setFriction(float cof);
+  float friction() const;
+
   void setCategoryMask(PhysicsFlags mask);
   PhysicsFlags categoryMask() const;
 

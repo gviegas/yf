@@ -81,6 +81,11 @@ class Body {
   void setRestitution(float cor);
   float restitution() const;
 
+  /// The physics body's coefficient of friction.
+  ///
+  void setFriction(float cof);
+  float friction() const;
+
   /// Category mask for physics interactions.
   ///
   void setCategoryMask(PhysicsFlags mask);

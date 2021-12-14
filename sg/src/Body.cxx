@@ -145,6 +145,14 @@ float Body::restitution() const {
   return impl_->restitution();
 }
 
+void Body::setFriction(float cof) {
+  impl_->setFriction(cof);
+}
+
+float Body::friction() const {
+  return impl_->friction();
+}
+
 void Body::setCategoryMask(PhysicsFlags mask) {
   const auto prevMask = impl_->categoryMask();
   if (prevMask != mask) {

@@ -281,29 +281,6 @@ PhysicsWorld* Body::Impl::physicsWorld() {
   return physicsWorld_;
 }
 
-void Body::Impl::pushShape(const Shape& shape) {
-  const auto& id = typeid(shape);
-  if (id == typeid(Sphere))
-    spheres_.push_back(static_cast<const Sphere&>(shape));
-  else if (id == typeid(BBox))
-    bboxes_.push_back(static_cast<const BBox&>(shape));
-  else
-    throw invalid_argument("Unknown Shape type");
-}
-
-void Body::Impl::nextStep() {
-  assert(node_);
-  const auto& xform = node_->transform();
-  localT_ = {xform[3][0], xform[3][1], xform[3][2]};
-}
-
-void Body::Impl::undoStep() {
-  assert(node_);
-  node_->transform()[3] = {localT_[0], localT_[1], localT_[2], 1.0f};
-}
-
-/// Checks intersections against another physics body.
-///
 bool Body::Impl::checkCollision(Impl& other) {
   assert(node_);
   assert(other.node_);
@@ -332,6 +309,27 @@ bool Body::Impl::checkCollision(Impl& other) {
   }
 
   return false;
+}
+
+void Body::Impl::pushShape(const Shape& shape) {
+  const auto& id = typeid(shape);
+  if (id == typeid(Sphere))
+    spheres_.push_back(static_cast<const Sphere&>(shape));
+  else if (id == typeid(BBox))
+    bboxes_.push_back(static_cast<const BBox&>(shape));
+  else
+    throw invalid_argument("Unknown Shape type");
+}
+
+void Body::Impl::nextStep() {
+  assert(node_);
+  const auto& xform = node_->transform();
+  localT_ = {xform[3][0], xform[3][1], xform[3][2]};
+}
+
+void Body::Impl::undoStep() {
+  assert(node_);
+  node_->transform()[3] = {localT_[0], localT_[1], localT_[2], 1.0f};
 }
 
 void Body::Impl::processCollisions(const vector<Body*>& bodies) {

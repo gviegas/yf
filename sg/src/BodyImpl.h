@@ -59,6 +59,7 @@ class Body::Impl {
   ContactFn contactEnd_{};
   bool dynamic_ = false;
   float mass_ = 1.0f;
+  float restitution_ = 0.5f;
   PhysicsFlags categoryMask_ = 1;
   PhysicsFlags contactMask_ = 0;
   PhysicsFlags collisionMask_ = ~static_cast<PhysicsFlags>(0);

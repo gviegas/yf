@@ -130,11 +130,19 @@ bool Body::dynamic() const {
 }
 
 void Body::setMass(float kg) {
-  return impl_->setMass(kg);
+  impl_->setMass(kg);
 }
 
 float Body::mass() const {
   return impl_->mass();
+}
+
+void Body::setRestitution(float cor) {
+  impl_->setRestitution(cor);
+}
+
+float Body::restitution() const {
+  return impl_->restitution();
 }
 
 void Body::setCategoryMask(PhysicsFlags mask) {

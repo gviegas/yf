@@ -76,6 +76,11 @@ class Body {
   void setMass(float kg);
   float mass() const;
 
+  /// The physics body's coefficient of restitution.
+  ///
+  void setRestitution(float cor);
+  float restitution() const;
+
   /// Category mask for physics interactions.
   ///
   void setCategoryMask(PhysicsFlags mask);

@@ -63,6 +63,7 @@ class Body::Impl {
   bool dynamic_ = false;
   float mass_ = 1.0f;
   float restitution_ = 0.5f;
+  float friction_ = 0.25f;
   PhysicsFlags categoryMask_ = 1;
   PhysicsFlags contactMask_ = 0;
   PhysicsFlags collisionMask_ = ~static_cast<PhysicsFlags>(0);

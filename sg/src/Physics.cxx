@@ -103,7 +103,7 @@ void PhysicsWorld::Impl::evaluate() {
   print();
 
   // FIXME: Temporary implementation
-  Body::update({bodies_.begin(), bodies_.end()});
+  Body::Impl::processCollisions({bodies_.begin(), bodies_.end()});
 }
 
 void PhysicsWorld::Impl::applyChanges() {

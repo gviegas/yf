@@ -30,6 +30,9 @@ class Body::Impl {
   void setMass(float kg);
   float mass() const;
 
+  void setRestitution(float cor);
+  float restitution() const;
+
   void setCategoryMask(PhysicsFlags mask);
   PhysicsFlags categoryMask() const;
 

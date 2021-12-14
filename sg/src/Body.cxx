@@ -237,6 +237,15 @@ float Body::Impl::mass() const {
   return mass_;
 }
 
+void Body::Impl::setRestitution(float cor) {
+  assert(cor >= 0.0f && cor <= 1.0f);
+  restitution_ = cor;
+}
+
+float Body::Impl::restitution() const {
+  return restitution_;
+}
+
 void Body::Impl::setCategoryMask(PhysicsFlags mask) {
   categoryMask_ = mask;
 }

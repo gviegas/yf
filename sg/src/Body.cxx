@@ -281,7 +281,7 @@ PhysicsWorld* Body::Impl::physicsWorld() {
   return physicsWorld_;
 }
 
-bool Body::Impl::checkCollision(Impl& other) {
+bool Body::Impl::intersect(Impl& other) {
   assert(node_);
   assert(other.node_);
 
@@ -292,19 +292,19 @@ bool Body::Impl::checkCollision(Impl& other) {
 
   for (const auto& sph : spheres_) {
     for (const auto& sph2 : other.spheres_)
-      if (intersect(sph, t, sph2, t2))
+      if (::intersect(sph, t, sph2, t2))
         return true;
     for (const auto& bb2 : other.bboxes_)
-      if (intersect(sph, t, bb2, t2))
+      if (::intersect(sph, t, bb2, t2))
         return true;
   }
 
   for (const auto& bb : bboxes_) {
     for (const auto& sph2 : other.spheres_)
-      if (intersect(sph2, t2, bb, t))
+      if (::intersect(sph2, t2, bb, t))
         return true;
     for (const auto& bb2 : other.bboxes_)
-      if (intersect(bb, t, bb2, t2))
+      if (::intersect(bb, t, bb2, t2))
         return true;
   }
 
@@ -343,7 +343,7 @@ void Body::Impl::processCollisions(const vector<Body*>& bodies) {
     Body* body1 = bodies[i];
     for (size_t j = (i + 1) % n; j != i; j = (j + 1) % n) {
       Body* body2 = bodies[j];
-      if (body1->impl_->checkCollision(*body2->impl_)) {
+      if (body1->impl_->intersect(*body2->impl_)) {
         body1->impl_->undoStep();
         goto undone;
       }

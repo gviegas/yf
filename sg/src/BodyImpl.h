@@ -45,7 +45,10 @@ class Body::Impl {
   void setPhysicsWorld(PhysicsWorld* world);
   PhysicsWorld* physicsWorld();
 
-  bool checkCollision(Impl& other);
+  /// Checks whether two physics bodies intersect each other.
+  /// This check ignores interaction masks.
+  ///
+  bool intersect(Impl& other);
 
   [[deprecated]] static void processCollisions(const std::vector<Body*>&);
 

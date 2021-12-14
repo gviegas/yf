@@ -99,9 +99,6 @@ class Body {
   ///
   PhysicsWorld* physicsWorld();
 
-  [[deprecated]]
-  static void update(const std::vector<Body*>& bodies);
-
   class Impl;
   Impl& impl();
 

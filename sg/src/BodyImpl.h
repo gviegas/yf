@@ -45,6 +45,8 @@ class Body::Impl {
   void setPhysicsWorld(PhysicsWorld* world);
   PhysicsWorld* physicsWorld();
 
+  [[deprecated]] static void processCollisions(const std::vector<Body*>&);
+
  private:
   std::vector<Sphere> spheres_{};
   std::vector<BBox> bboxes_{};
@@ -63,8 +65,6 @@ class Body::Impl {
   void nextStep();
   void undoStep();
   bool checkCollision(Impl&);
-
-  friend void Body::update(const std::vector<Body*>&);
 };
 
 SG_NS_END

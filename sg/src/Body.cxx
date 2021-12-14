@@ -176,28 +176,6 @@ PhysicsWorld* Body::physicsWorld() {
   return impl_->physicsWorld();
 }
 
-void Body::update(const vector<Body*>& bodies) {
-  assert(none_of(bodies.begin(), bodies.end(), [](auto b) { return !b; }));
-
-  const auto n = bodies.size();
-  if (n < 2)
-    return;
-
-  for (size_t i = 0; i < n; i++) {
-    Body* body1 = bodies[i];
-    for (size_t j = (i + 1) % n; j != i; j = (j + 1) % n) {
-      Body* body2 = bodies[j];
-      if (body1->impl_->checkCollision(*body2->impl_)) {
-        body1->impl_->undoStep();
-        goto undone;
-      }
-    }
-    body1->impl_->nextStep();
-    undone:
-      ;
-  }
-}
-
 Body::Impl& Body::impl() {
   return *impl_;
 }
@@ -354,4 +332,26 @@ bool Body::Impl::checkCollision(Impl& other) {
   }
 
   return false;
+}
+
+void Body::Impl::processCollisions(const vector<Body*>& bodies) {
+  assert(none_of(bodies.begin(), bodies.end(), [](auto b) { return !b; }));
+
+  const auto n = bodies.size();
+  if (n < 2)
+    return;
+
+  for (size_t i = 0; i < n; i++) {
+    Body* body1 = bodies[i];
+    for (size_t j = (i + 1) % n; j != i; j = (j + 1) % n) {
+      Body* body2 = bodies[j];
+      if (body1->impl_->checkCollision(*body2->impl_)) {
+        body1->impl_->undoStep();
+        goto undone;
+      }
+    }
+    body1->impl_->nextStep();
+    undone:
+      ;
+  }
 }

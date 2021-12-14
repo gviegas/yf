@@ -11,6 +11,9 @@
 #include "PhysicsImpl.h"
 #include "Scene.h"
 #include "Node.h"
+#include "Model.h"
+#include "Mesh.h"
+#include "Camera.h"
 
 using namespace TEST_NS;
 using namespace SG_NS;
@@ -50,6 +53,8 @@ struct PhysicsTest : InteractiveTest {
     a.push_back({L"isEnabled()", check});
 
     a.push_back(evalTest());
+
+    interTest();
 
     return a;
   }
@@ -146,6 +151,48 @@ struct PhysicsTest : InteractiveTest {
 
     // TODO
     return {L"Impl::evaluate()", true};
+  }
+
+  void interTest() {
+    Mesh mesh("tmp/cube2.glb");
+
+    Model model1(mesh);
+    model1.transform() = translate(2.0f, 0.0f, 0.0f);
+    model1.name() = L"model1";
+    model1.setBody({BBox(2.0f)});
+
+    Model model2(mesh);
+    model2.transform() = translate(-2.0f, 0.0f, 0.0f);
+    model2.name() = L"model2";
+    model2.setBody({BBox(2.0f)});
+
+    Model model3(mesh);
+    model3.transform() = translate(0.0f, -5.0f, -5.0f);
+    model3.name() = L"model3";
+    model3.setBody({Sphere(1.0f)});
+
+    const vector<Node*> nodes{&model1, &model2, &model3};
+
+    Scene scene;
+    scene.insert(nodes);
+    scene.camera().place({0.0f, 6.0f, 15.0f});
+    scene.camera().point({});
+
+    size_t curNode = 0;
+    setObject(nodes[curNode]);
+
+    update(scene, [&](auto) {
+      if (input.next) {
+        curNode = (curNode + 1) % nodes.size();
+        setObject(nodes[curNode]);
+        input.next = false;
+      } else if (input.prev) {
+        curNode = curNode == 0 ? nodes.size() - 1 : curNode - 1;
+        setObject(nodes[curNode]);
+        input.prev = false;
+      }
+      return true;
+    });
   }
 };
 

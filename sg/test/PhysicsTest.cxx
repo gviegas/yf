@@ -149,6 +149,9 @@ struct PhysicsTest : InteractiveTest {
     node4.body()->setCategoryMask(0x1);
     scene.physicsWorld().impl().evaluate();
 
+    wcout << "\n\nPress ENTER to continue\n\n";
+    while (wcin.get() != L'\n') { }
+
     // TODO
     return {L"Impl::evaluate()", true};
   }

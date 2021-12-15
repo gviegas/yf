@@ -21,35 +21,8 @@ class Body::Impl {
   Impl(const Impl& other);
   Impl& operator=(const Impl& other);
 
-  ContactFn& contactBegin();
-  ContactFn& contactEnd();
-
-  void setDynamic(bool boolean);
-  bool dynamic() const;
-
-  void setMass(float kg);
-  float mass() const;
-
-  void setRestitution(float cor);
-  float restitution() const;
-
-  void setFriction(float cof);
-  float friction() const;
-
-  void setCategoryMask(PhysicsFlags mask);
-  PhysicsFlags categoryMask() const;
-
-  void setContactMask(PhysicsFlags mask);
-  PhysicsFlags contactMask() const;
-
-  void setCollisionMask(PhysicsFlags mask);
-  PhysicsFlags collisionMask() const;
-
   void setNode(Node* node);
-  Node* node();
-
   void setPhysicsWorld(PhysicsWorld* world);
-  PhysicsWorld* physicsWorld();
 
   /// Checks whether two physics bodies intersect each other.
   /// This check ignores interaction masks.
@@ -77,6 +50,8 @@ class Body::Impl {
   void pushShape(const Shape&);
   void nextStep();
   void undoStep();
+
+  friend Body;
 };
 
 SG_NS_END

@@ -100,96 +100,93 @@ Body::Body(const vector<Shape*>& shapes) : impl_(make_unique<Impl>(shapes)) { }
 Body::Body(const Body& other) : impl_(make_unique<Impl>(*other.impl_)) { }
 
 Body& Body::operator=(const Body& other) {
-  const auto prevMask = impl_->categoryMask();
+  const auto prevMask = impl_->categoryMask_;
   *impl_ = *other.impl_;
-
-  if (prevMask != impl_->categoryMask()) {
-    const auto physicsWorld = impl_->physicsWorld();
-    if (physicsWorld)
-      physicsWorld->impl().update(*this, prevMask);
-  }
+  if (prevMask != impl_->categoryMask_ && impl_->physicsWorld_)
+    impl_->physicsWorld_->impl().update(*this, prevMask);
   return *this;
 }
 
 Body::~Body() { }
 
 Body::ContactFn& Body::contactBegin() {
-  return impl_->contactBegin();
+  return impl_->contactBegin_;
 }
 
 Body::ContactFn& Body::contactEnd() {
-  return impl_->contactEnd();
+  return impl_->contactEnd_;
 }
 
 void Body::setDynamic(bool boolean) {
-  impl_->setDynamic(boolean);
+  impl_->dynamic_ = boolean;
 }
 
 bool Body::dynamic() const {
-  return impl_->dynamic();
+  return impl_->dynamic_;
 }
 
 void Body::setMass(float kg) {
-  impl_->setMass(kg);
+  assert(kg >= 0.0f);
+  impl_->mass_ = kg;
 }
 
 float Body::mass() const {
-  return impl_->mass();
+  return impl_->mass_;
 }
 
 void Body::setRestitution(float cor) {
-  impl_->setRestitution(cor);
+  assert(cor >= 0.0f && cor <= 1.0f);
+  impl_->restitution_ = cor;
 }
 
 float Body::restitution() const {
-  return impl_->restitution();
+  return impl_->restitution_;
 }
 
 void Body::setFriction(float cof) {
-  impl_->setFriction(cof);
+  assert(cof >= 0.0f);
+  impl_->friction_ = cof;
 }
 
 float Body::friction() const {
-  return impl_->friction();
+  return impl_->friction_;
 }
 
 void Body::setCategoryMask(PhysicsFlags mask) {
-  const auto prevMask = impl_->categoryMask();
+  const auto prevMask = impl_->categoryMask_;
   if (prevMask != mask) {
-    impl_->setCategoryMask(mask);
-
-    const auto physicsWorld = impl_->physicsWorld();
-    if (physicsWorld)
-      physicsWorld->impl().update(*this, prevMask);
+    impl_->categoryMask_ = mask;
+    if (impl_->physicsWorld_)
+      impl_->physicsWorld_->impl().update(*this, prevMask);
   }
 }
 
 PhysicsFlags Body::categoryMask() const {
-  return impl_->categoryMask();
+  return impl_->categoryMask_;
 }
 
 void Body::setContactMask(PhysicsFlags mask) {
-  impl_->setContactMask(mask);
+  impl_->contactMask_ = mask;
 }
 
 PhysicsFlags Body::contactMask() const {
-  return impl_->contactMask();
+  return impl_->contactMask_;
 }
 
 void Body::setCollisionMask(PhysicsFlags mask) {
-  impl_->setCollisionMask(mask);
+  impl_->collisionMask_ = mask;
 }
 
 PhysicsFlags Body::collisionMask() const {
-  return impl_->collisionMask();
+  return impl_->collisionMask_;
 }
 
 Node* Body::node() {
-  return impl_->node();
+  return impl_->node_;
 }
 
 PhysicsWorld* Body::physicsWorld() {
-  return impl_->physicsWorld();
+  return impl_->physicsWorld_;
 }
 
 Body::Impl& Body::impl() {
@@ -228,73 +225,6 @@ Body::Impl& Body::Impl::operator=(const Impl& other) {
   return *this;
 }
 
-Body::ContactFn& Body::Impl::contactBegin() {
-  return contactBegin_;
-}
-
-Body::ContactFn& Body::Impl::contactEnd() {
-  return contactEnd_;
-}
-
-void Body::Impl::setDynamic(bool boolean) {
-  dynamic_ = boolean;
-}
-
-bool Body::Impl::dynamic() const {
-  return dynamic_;
-}
-
-void Body::Impl::setMass(float kg) {
-  assert(mass_ >= 0.0f);
-  mass_ = kg;
-}
-
-float Body::Impl::mass() const {
-  return mass_;
-}
-
-void Body::Impl::setRestitution(float cor) {
-  assert(cor >= 0.0f && cor <= 1.0f);
-  restitution_ = cor;
-}
-
-float Body::Impl::restitution() const {
-  return restitution_;
-}
-
-void Body::Impl::setFriction(float cof) {
-  assert(cof >= 0.0f);
-  friction_ = cof;
-}
-
-float Body::Impl::friction() const {
-  return friction_;
-}
-
-void Body::Impl::setCategoryMask(PhysicsFlags mask) {
-  categoryMask_ = mask;
-}
-
-PhysicsFlags Body::Impl::categoryMask() const {
-  return categoryMask_;
-}
-
-void Body::Impl::setContactMask(PhysicsFlags mask) {
-  contactMask_ = mask;
-}
-
-PhysicsFlags Body::Impl::contactMask() const {
-  return contactMask_;
-}
-
-void Body::Impl::setCollisionMask(PhysicsFlags mask) {
-  collisionMask_ = mask;
-}
-
-PhysicsFlags Body::Impl::collisionMask() const {
-  return collisionMask_;
-}
-
 void Body::Impl::setNode(Node* node) {
   node_ = node;
   if (node_) {
@@ -303,16 +233,8 @@ void Body::Impl::setNode(Node* node) {
   }
 }
 
-Node* Body::Impl::node() {
-  return node_;
-}
-
 void Body::Impl::setPhysicsWorld(PhysicsWorld* world) {
   physicsWorld_ = world;
-}
-
-PhysicsWorld* Body::Impl::physicsWorld() {
-  return physicsWorld_;
 }
 
 bool Body::Impl::intersect(Impl& other) {

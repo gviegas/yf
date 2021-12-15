@@ -126,7 +126,8 @@ bool Body::dynamic() const {
 }
 
 void Body::setMass(float kg) {
-  assert(kg >= 0.0f);
+  if (kg < 0.0f)
+    throw invalid_argument("Physics body mass less than zero");
   impl_->mass_ = kg;
 }
 
@@ -135,7 +136,8 @@ float Body::mass() const {
 }
 
 void Body::setRestitution(float cor) {
-  assert(cor >= 0.0f && cor <= 1.0f);
+  if (cor < 0.0f || cor > 1.0f)
+    throw invalid_argument("Physics body restitution outside the [0,1] range");
   impl_->restitution_ = cor;
 }
 
@@ -144,7 +146,8 @@ float Body::restitution() const {
 }
 
 void Body::setFriction(float cof) {
-  assert(cof >= 0.0f);
+  if (cof < 0.0f)
+    throw invalid_argument("Physics body friction less than zero");
   impl_->friction_ = cof;
 }
 

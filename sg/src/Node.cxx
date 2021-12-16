@@ -229,6 +229,20 @@ class Node::Impl {
     return n;
   }
 
+  Node* root() {
+    auto node = this;
+    while (node->parent_)
+      node = node->parent_;
+    return &node->node_;
+  }
+
+  const Node* root() const {
+    auto node = this;
+    while (node->parent_)
+      node = node->parent_;
+    return &node->node_;
+  }
+
   wstring& name() {
     return name_;
   }

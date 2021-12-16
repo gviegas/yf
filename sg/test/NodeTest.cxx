@@ -53,39 +53,58 @@ struct NodeTest : Test {
 
     nodes[0].insert(nodes[1]);
     a.push_back({L"#0.insert(#1)", nodes[0].count() == 2 &&
-                                   nodes[1].parent() == &nodes[0]});
+                                   nodes[1].parent() == &nodes[0] &&
+                                   nodes[0].root() == &nodes[0] &&
+                                   nodes[1].root() == &nodes[0]});
     nodes[0].insert(nodes[2]);
     a.push_back({L"#0.insert(#2)", nodes[0].count() == 3 &&
-                                   nodes[2].parent() == &nodes[0]});
+                                   nodes[2].parent() == &nodes[0] &&
+                                   nodes[2].root() == &nodes[0]});
     nodes[1].insert(nodes[3]);
     a.push_back({L"#1.insert(#3)", nodes[1].count() == 2 &&
                                    nodes[3].parent() == &nodes[1] &&
-                                   nodes[0].count() == 4});
+                                   nodes[0].count() == 4 &&
+                                   nodes[3].root() == &nodes[0]});
     nodes[2].insert(nodes[4]);
     a.push_back({L"#2.insert(#4)", nodes[2].count() == 2 &&
                                    nodes[4].parent() == &nodes[2] &&
-                                   nodes[0].count() == 5});
+                                   nodes[0].count() == 5 &&
+                                   nodes[4].root() == &nodes[0]});
     nodes[4].insert(nodes[5]);
     a.push_back({L"#4.insert(#5)", nodes[4].count() == 2 &&
                                    nodes[5].parent() == &nodes[4] &&
-                                   nodes[0].count() == 6});
+                                   nodes[0].count() == 6 &&
+                                   nodes[5].root() == &nodes[0]});
     nodes[0].insert(nodes[4]);
     a.push_back({L"#0.insert(#4)", nodes[0].count() == 6 &&
                                    nodes[4].parent() == &nodes[0] &&
-                                   nodes[2].count() == 1});
+                                   nodes[2].count() == 1 &&
+                                   nodes[4].root() == &nodes[0]});
     nodes[1].drop();
     a.push_back({L"#1.drop()", nodes[1].parent() == nullptr &&
                                nodes[3].parent() == &nodes[1] &&
                                nodes[1].count() == 2 &&
                                nodes[3].count() == 1 &&
-                               nodes[0].count() == 4});
+                               nodes[0].count() == 4 &&
+                               nodes[1].root() == &nodes[1] &&
+                               nodes[3].root() == &nodes[1] &&
+                               nodes[2].root() == &nodes[0] &&
+                               nodes[4].root() == &nodes[0] &&
+                               nodes[5].root() == &nodes[0]});
     nodes[0].prune();
     a.push_back({L"#0.prune()", nodes[0].parent() == nullptr &&
                                 nodes[2].parent() == nullptr &&
                                 nodes[4].parent() == nullptr &&
                                 nodes[0].count() == 1 &&
                                 nodes[2].count() == 1 &&
-                                nodes[4].count() == 2});
+                                nodes[4].count() == 2 &&
+                                nodes[0].root() == &nodes[0] &&
+                                nodes[1].root() == &nodes[1] &&
+                                nodes[2].root() == &nodes[2] &&
+                                nodes[3].root() == &nodes[1] &&
+                                nodes[4].root() == &nodes[4] &&
+                                nodes[5].root() == &nodes[4]});
+
     nodes[1].insert(nodes[4]);
     a.push_back({L"#1.insert(#4)", nodes[1].count() == 4 &&
                                    nodes[3].count() == 1 &&
@@ -93,6 +112,10 @@ struct NodeTest : Test {
                                    nodes[4].count() == 2 &&
                                    nodes[5].parent() == &nodes[4] &&
                                    nodes[5].count() == 1 &&
+                                   nodes[1].root() == &nodes[1] &&
+                                   nodes[2].root() == &nodes[2] &&
+                                   nodes[4].root() == &nodes[1] &&
+                                   nodes[5].root() == &nodes[1] &&
                                    nodes[3].isDescendantOf(nodes[1]) &&
                                    nodes[4].isDescendantOf(nodes[1]) &&
                                    nodes[5].isDescendantOf(nodes[1]) &&

@@ -83,6 +83,11 @@ class Node {
   std::vector<Node*> children() const;
   size_t children(std::vector<Node*>& dst) const;
 
+  /// Gets the root of the graph containing the node.
+  ///
+  Node* root();
+  const Node* root() const;
+
   /// Gets the node's name.
   ///
   std::wstring& name();

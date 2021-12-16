@@ -455,6 +455,14 @@ size_t Node::children(vector<Node*>& dst) const {
   return impl_->children(dst);
 }
 
+Node* Node::root() {
+  return impl_->root();
+}
+
+const Node* Node::root() const {
+  return impl_->root();
+}
+
 wstring& Node::name() {
   return impl_->name();
 }

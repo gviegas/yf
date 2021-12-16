@@ -83,6 +83,10 @@ struct PhysicsTest : InteractiveTest {
     node4.setBody(make_unique<Body>(BBox(2.0f)));
     node4.body()->setCategoryMask(0x80000002);
 
+    auto eval = [&] {
+      scene.physicsWorld().impl().evaluate(chrono::nanoseconds(0));
+    };
+
     wcout << "\n** PhysicsWorld state **\n\n";
 
     wcout << "scene.insert(node1)\n";
@@ -91,26 +95,26 @@ struct PhysicsTest : InteractiveTest {
     scene.insert(node1);
     scene.insert(node2);
     scene.insert(node4);
-    scene.physicsWorld().impl().evaluate();
+    eval();
 
     wcout << "\n----\n\n";
     wcout << "node1.drop()\n";
     wcout << "scene.insert(node3)\n";
     node1.drop();
     scene.insert(node3);
-    scene.physicsWorld().impl().evaluate();
+    eval();
 
     wcout << "\n----\n\n";
     wcout << "node1.body()->setCategoryMask(0x80000001)\n";
     wcout << "scene.insert(node1)\n";
     node1.body()->setCategoryMask(0x80000001);
     scene.insert(node1);
-    scene.physicsWorld().impl().evaluate();
+    eval();
 
     wcout << "\n----\n\n";
     wcout << "scene.prune()\n";
     scene.prune();
-    scene.physicsWorld().impl().evaluate();
+    eval();
 
     wcout << "\n----\n\n";
     wcout << "node3.body()->setCategoryMask(0)\n";
@@ -119,35 +123,35 @@ struct PhysicsTest : InteractiveTest {
     node3.body()->setCategoryMask(0);
     scene.insert(node3);
     scene.insert(node2);
-    scene.physicsWorld().impl().evaluate();
+    eval();
 
     wcout << "\n----\n\n";
     wcout << "node2.drop()\n";
     wcout << "scene.insert(node2)\n";
     node2.drop();
     scene.insert(node2);
-    scene.physicsWorld().impl().evaluate();
+    eval();
 
     wcout << "\n----\n\n";
     wcout << "node3.body()->setCategoryMask(0x40)\n";
     wcout << "node3.insert(node1)\n";
     node3.body()->setCategoryMask(0x40);
     node3.insert(node1);
-    scene.physicsWorld().impl().evaluate();
+    eval();
 
     wcout << "\n----\n\n";
     wcout << "node1.body()->setCategoryMask(0x2000)\n";
     wcout << "node1.drop()\n";
     node1.body()->setCategoryMask(0x2000);
     node1.drop();
-    scene.physicsWorld().impl().evaluate();
+    eval();
 
     wcout << "\n----\n\n";
     wcout << "node3.insert(node4)\n";
     wcout << "node4.body()->setCategoryMask(0x1)\n";
     node3.insert(node4);
     node4.body()->setCategoryMask(0x1);
-    scene.physicsWorld().impl().evaluate();
+    eval();
 
     wcout << "\n\nPress ENTER to continue\n\n";
     while (wcin.get() != L'\n') { }

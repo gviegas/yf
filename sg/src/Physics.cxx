@@ -102,6 +102,30 @@ void PhysicsWorld::Impl::evaluate(chrono::nanoseconds) {
 
   print();
 
+  for (const auto& body : bodies_) {
+    auto contactMask = body->contactMask();
+    auto collisionMask = body->collisionMask();
+    auto mask = contactMask | collisionMask;
+    uint32_t i = 0;
+    static_assert(!is_signed<decltype(mask)>());
+
+    while (mask != 0) {
+      if (contactMask & mask & 1) {
+        if (collisionMask & mask & 1) {
+          // TODO: Check contacts and collisions
+        } else {
+          // TODO: Check contacts
+        }
+      } else if (collisionMask & mask & 1) {
+        // TODO: Check collisions
+      }
+      contactMask >>= 1;
+      collisionMask >>= 1;
+      mask >>= 1;
+      i++;
+    }
+  }
+
   // FIXME: Temporary implementation
   Body::Impl::processCollisions({bodies_.begin(), bodies_.end()});
 }

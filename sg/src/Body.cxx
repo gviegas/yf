@@ -252,6 +252,9 @@ bool Body::Impl::intersect(const Body& body) const {
   assert(node_);
   assert(body.impl_->node_);
 
+  if (body.impl_.get() == this)
+    return true;
+
   const auto& xform = node_->transform();
   const Vec3f t{xform[3][0], xform[3][1], xform[3][2]};
   const auto& xform2 = body.impl_->node_->transform();

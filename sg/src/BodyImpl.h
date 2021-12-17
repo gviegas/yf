@@ -53,6 +53,7 @@ class Body::Impl {
   Vec3f localT_{};
   PhysicsWorld* physicsWorld_ = nullptr;
   std::forward_list<Body*> contacts_{};
+  Vec3f position_{};
 
   void pushShape(const Shape&);
   void nextStep();

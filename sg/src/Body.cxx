@@ -306,6 +306,14 @@ void Body::Impl::updateContact(Body& self, Body& body, bool intersect) {
   }
 }
 
+void Body::Impl::updateCollision(const Body& body, bool intersect) {
+  // FIXME: Temporary implementation
+  if (intersect)
+    undoStep();
+  else
+    nextStep();
+}
+
 void Body::Impl::pushShape(const Shape& shape) {
   const auto& id = typeid(shape);
   if (id == typeid(Sphere))

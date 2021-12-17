@@ -240,6 +240,13 @@ void Body::Impl::setPhysicsWorld(PhysicsWorld* world) {
   physicsWorld_ = world;
 }
 
+bool Body::Impl::inContact(const Body& body) const {
+  for (const auto& contact : contacts_)
+    if (contact == &body)
+      return true;
+  return false;
+}
+
 bool Body::Impl::intersect(Impl& other) {
   assert(node_);
   assert(other.node_);

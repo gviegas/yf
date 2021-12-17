@@ -26,6 +26,10 @@ class Body::Impl {
   void setNode(Node* node);
   void setPhysicsWorld(PhysicsWorld* world);
 
+  /// Checks whether two physics bodies are in contact.
+  ///
+  bool inContact(const Body& body) const;
+
   /// Checks whether two physics bodies intersect each other.
   /// This check ignores interaction masks.
   ///

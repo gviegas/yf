@@ -37,7 +37,12 @@ class Body::Impl {
   ///
   bool inContact(const Body& body) const;
 
+  /// Updates the physics body's contact state.
+  ///
   void updateContact(Body& self, Body& body, bool intersect);
+
+  /// Updates the physics body's collision state.
+  ///
   void updateCollision(const Body& body, bool intersect);
 
   [[deprecated]] static void processCollisions(const std::vector<Body*>&);

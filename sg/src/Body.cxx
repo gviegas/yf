@@ -248,13 +248,6 @@ void Body::Impl::setRotation(const Qnionf& rotation) {
   rotation_ = rotation;
 }
 
-bool Body::Impl::inContact(const Body& body) const {
-  for (const auto& contact : contacts_)
-    if (contact == &body)
-      return true;
-  return false;
-}
-
 bool Body::Impl::intersect(const Body& body) const {
   assert(node_);
   assert(body.impl_->node_);
@@ -283,6 +276,34 @@ bool Body::Impl::intersect(const Body& body) const {
   }
 
   return false;
+}
+
+bool Body::Impl::inContact(const Body& body) const {
+  for (const auto& contact : contacts_)
+    if (contact == &body)
+      return true;
+  return false;
+}
+
+void Body::Impl::updateContact(Body& self, Body& body, bool intersect) {
+  if (intersect) {
+    if (!inContact(body)) {
+      contacts_.push_front(&body);
+      if (contactBegin_)
+        contactBegin_(self, body);
+    }
+  } else {
+    auto prevIt = contacts_.before_begin();
+    auto it = contacts_.begin();
+    for (; it != contacts_.end(); it++, prevIt++) {
+      if (*it == &body) {
+        contacts_.erase_after(prevIt);
+        if (contactEnd_)
+          contactEnd_(self, body);
+        return;
+      }
+    }
+  }
 }
 
 void Body::Impl::pushShape(const Shape& shape) {

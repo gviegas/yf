@@ -28,14 +28,16 @@ class Body::Impl {
   void setPosition(const Vec3f& position);
   void setRotation(const Qnionf& rotation);
 
-  /// Checks whether two physics bodies are in contact.
-  ///
-  bool inContact(const Body& body) const;
-
   /// Checks whether two physics bodies intersect each other.
   /// This check ignores interaction masks.
   ///
   bool intersect(const Body& body) const;
+
+  /// Checks whether two physics bodies are in contact.
+  ///
+  bool inContact(const Body& body) const;
+
+  void updateContact(Body& self, Body& body, bool intersect);
 
   [[deprecated]] static void processCollisions(const std::vector<Body*>&);
 

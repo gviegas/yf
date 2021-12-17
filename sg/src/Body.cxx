@@ -244,6 +244,10 @@ void Body::Impl::setPosition(const Vec3f& position) {
   position_ = position;
 }
 
+void Body::Impl::setRotation(const Qnionf& rotation) {
+  rotation_ = rotation;
+}
+
 bool Body::Impl::inContact(const Body& body) const {
   for (const auto& contact : contacts_)
     if (contact == &body)

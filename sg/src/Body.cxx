@@ -345,25 +345,3 @@ void Body::Impl::undoStep() {
   assert(node_);
   node_->transform()[3] = {localT_[0], localT_[1], localT_[2], 1.0f};
 }
-
-void Body::Impl::processCollisions(const vector<Body*>& bodies) {
-  assert(none_of(bodies.begin(), bodies.end(), [](auto b) { return !b; }));
-
-  const auto n = bodies.size();
-  if (n < 2)
-    return;
-
-  for (size_t i = 0; i < n; i++) {
-    Body* body1 = bodies[i];
-    for (size_t j = (i + 1) % n; j != i; j = (j + 1) % n) {
-      Body* body2 = bodies[j];
-      if (body1->impl_->intersect(*body2)) {
-        body1->impl_->undoStep();
-        goto undone;
-      }
-    }
-    body1->impl_->nextStep();
-    undone:
-      ;
-  }
-}

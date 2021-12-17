@@ -45,8 +45,6 @@ class Body::Impl {
   ///
   void updateCollision(const Body& body, bool intersect);
 
-  [[deprecated]] static void processCollisions(const std::vector<Body*>&);
-
  private:
   std::vector<Sphere> spheres_{};
   std::vector<BBox> bboxes_{};

@@ -110,17 +110,27 @@ void PhysicsWorld::Impl::evaluate(chrono::nanoseconds) {
     auto collisionMask = body->collisionMask();
     auto mask = contactMask | collisionMask;
     uint32_t i = 0;
+    auto& impl = body->impl();
     static_assert(!is_signed<decltype(mask)>());
 
     while (mask != 0) {
       if (contactMask & mask & 1) {
         if (collisionMask & mask & 1) {
-          // TODO: Check contacts and collisions
+          // Contact and collision
+          for (const auto& other : groups_[i]) {
+            const bool intersect = impl.intersect(*other);
+            impl.updateContact(*body, *other, intersect);
+            impl.updateCollision(*other, intersect);
+          }
         } else {
-          // TODO: Check contacts
+          // Contact only
+          for (const auto& other : groups_[i])
+            impl.updateContact(*body, *other, impl.intersect(*other));
         }
       } else if (collisionMask & mask & 1) {
-        // TODO: Check collisions
+        // Collision only
+        for (const auto& other : groups_[i])
+          impl.updateCollision(*other, impl.intersect(*other));
       }
       contactMask >>= 1;
       collisionMask >>= 1;

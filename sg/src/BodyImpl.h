@@ -55,6 +55,7 @@ class Body::Impl {
   PhysicsWorld* physicsWorld_ = nullptr;
   std::forward_list<Body*> contacts_{};
   Vec3f position_{};
+  Qnionf rotation_{};
 
   void pushShape(const Shape&);
   void nextStep();

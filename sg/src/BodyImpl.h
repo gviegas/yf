@@ -8,6 +8,8 @@
 #ifndef YF_SG_BODYIMPL_H
 #define YF_SG_BODYIMPL_H
 
+#include <forward_list>
+
 #include "Body.h"
 
 SG_NS_BEGIN
@@ -46,6 +48,7 @@ class Body::Impl {
   Node* node_ = nullptr;
   Vec3f localT_{};
   PhysicsWorld* physicsWorld_ = nullptr;
+  std::forward_list<Body*> contacts_{};
 
   void pushShape(const Shape&);
   void nextStep();

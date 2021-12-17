@@ -138,9 +138,6 @@ void PhysicsWorld::Impl::evaluate(chrono::nanoseconds) {
       i++;
     }
   }
-
-  // FIXME: Temporary implementation
-  Body::Impl::processCollisions({bodies_.begin(), bodies_.end()});
 }
 
 void PhysicsWorld::Impl::applyChanges() {

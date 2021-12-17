@@ -33,7 +33,7 @@ class Body::Impl {
   /// Checks whether two physics bodies intersect each other.
   /// This check ignores interaction masks.
   ///
-  bool intersect(Impl& other);
+  bool intersect(const Body& body) const;
 
   [[deprecated]] static void processCollisions(const std::vector<Body*>&);
 

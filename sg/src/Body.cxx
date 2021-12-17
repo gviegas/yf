@@ -247,29 +247,29 @@ bool Body::Impl::inContact(const Body& body) const {
   return false;
 }
 
-bool Body::Impl::intersect(Impl& other) {
+bool Body::Impl::intersect(const Body& body) const {
   assert(node_);
-  assert(other.node_);
+  assert(body.impl_->node_);
 
   const auto& xform = node_->transform();
   const Vec3f t{xform[3][0], xform[3][1], xform[3][2]};
-  const auto& xform2 = other.node_->transform();
+  const auto& xform2 = body.impl_->node_->transform();
   const Vec3f t2{xform2[3][0], xform2[3][1], xform2[3][2]};
 
   for (const auto& sph : spheres_) {
-    for (const auto& sph2 : other.spheres_)
+    for (const auto& sph2 : body.impl_->spheres_)
       if (::intersect(sph, t, sph2, t2))
         return true;
-    for (const auto& bb2 : other.bboxes_)
+    for (const auto& bb2 : body.impl_->bboxes_)
       if (::intersect(sph, t, bb2, t2))
         return true;
   }
 
   for (const auto& bb : bboxes_) {
-    for (const auto& sph2 : other.spheres_)
+    for (const auto& sph2 : body.impl_->spheres_)
       if (::intersect(sph2, t2, bb, t))
         return true;
-    for (const auto& bb2 : other.bboxes_)
+    for (const auto& bb2 : body.impl_->bboxes_)
       if (::intersect(bb, t, bb2, t2))
         return true;
   }
@@ -309,7 +309,7 @@ void Body::Impl::processCollisions(const vector<Body*>& bodies) {
     Body* body1 = bodies[i];
     for (size_t j = (i + 1) % n; j != i; j = (j + 1) % n) {
       Body* body2 = bodies[j];
-      if (body1->impl_->intersect(*body2->impl_)) {
+      if (body1->impl_->intersect(*body2)) {
         body1->impl_->undoStep();
         goto undone;
       }

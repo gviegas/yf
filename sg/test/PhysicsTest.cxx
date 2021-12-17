@@ -189,6 +189,11 @@ struct PhysicsTest : InteractiveTest {
     setObject(nodes[curNode]);
 
     update(scene, [&](auto) {
+      if (input.swap) {
+        scene.physicsWorld().isEnabled() ?
+          scene.physicsWorld().disable() : scene.physicsWorld().enable();
+        input.swap = false;
+      }
       if (input.next) {
         curNode = (curNode + 1) % nodes.size();
         setObject(nodes[curNode]);

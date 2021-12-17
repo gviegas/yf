@@ -287,7 +287,9 @@ bool Body::Impl::inContact(const Body& body) const {
 
 void Body::Impl::updateContact(Body& self, Body& body, bool intersect) {
   assert(self.impl_.get() == this);
-  assert(&self != &body);
+
+  if (&self == &body)
+    return;
 
   if (intersect) {
     if (!inContact(body)) {
@@ -310,7 +312,8 @@ void Body::Impl::updateContact(Body& self, Body& body, bool intersect) {
 }
 
 void Body::Impl::updateCollision(const Body& body, bool intersect) {
-  assert(body.impl_.get() != this);
+  if (body.impl_.get() == this)
+    return;
 
   // FIXME: Temporary implementation
   if (intersect)

@@ -240,6 +240,10 @@ void Body::Impl::setPhysicsWorld(PhysicsWorld* world) {
   physicsWorld_ = world;
 }
 
+void Body::Impl::setPosition(const Vec3f& position) {
+  position_ = position;
+}
+
 bool Body::Impl::inContact(const Body& body) const {
   for (const auto& contact : contacts_)
     if (contact == &body)

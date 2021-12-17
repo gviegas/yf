@@ -25,6 +25,7 @@ class Body::Impl {
 
   void setNode(Node* node);
   void setPhysicsWorld(PhysicsWorld* world);
+  void setPosition(const Vec3f& position);
 
   /// Checks whether two physics bodies are in contact.
   ///

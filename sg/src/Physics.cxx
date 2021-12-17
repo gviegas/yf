@@ -102,6 +102,9 @@ void PhysicsWorld::Impl::evaluate(chrono::nanoseconds) {
 
   print();
 
+  if (!enabled_)
+    return;
+
   for (const auto& body : bodies_) {
     auto contactMask = body->contactMask();
     auto collisionMask = body->collisionMask();

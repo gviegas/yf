@@ -58,7 +58,6 @@ class Body::Impl {
   PhysicsFlags contactMask_ = 0;
   PhysicsFlags collisionMask_ = ~static_cast<PhysicsFlags>(0);
   Node* node_ = nullptr;
-  Vec3f localT_{};
   PhysicsWorld* physicsWorld_ = nullptr;
   std::forward_list<Body*> contacts_{};
   Vec3f position_{};

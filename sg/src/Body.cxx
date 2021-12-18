@@ -211,8 +211,7 @@ Body::Impl::Impl(const Impl& other)
     contactBegin_(other.contactBegin_), contactEnd_(other.contactEnd_),
     dynamic_(other.dynamic_), mass_(other.mass_),
     categoryMask_(other.categoryMask_), contactMask_(other.contactMask_),
-    collisionMask_(other.collisionMask_), node_{}, localT_{},
-    physicsWorld_{} { }
+    collisionMask_(other.collisionMask_), node_{}, physicsWorld_{} { }
 
 Body::Impl& Body::Impl::operator=(const Impl& other) {
   spheres_ = other.spheres_;

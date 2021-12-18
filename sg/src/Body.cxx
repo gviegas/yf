@@ -230,10 +230,8 @@ Body::Impl& Body::Impl::operator=(const Impl& other) {
 
 void Body::Impl::setNode(Node* node) {
   node_ = node;
-  if (node_) {
-    const auto& xform = node_->transform();
-    localT_ = {xform[3][0], xform[3][1], xform[3][2]};
-  }
+  if (node_)
+    nextStep();
 }
 
 void Body::Impl::setPhysicsWorld(PhysicsWorld* world) {

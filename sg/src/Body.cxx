@@ -343,12 +343,6 @@ void Body::Impl::updateCollision(Body& body, bool intersect) {
       }
     }
   }
-
-  // FIXME: Temporary implementation
-  if (intersect)
-    undoStep();
-  else
-    nextStep();
 }
 
 void Body::Impl::resolveCollisions() {

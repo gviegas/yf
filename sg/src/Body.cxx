@@ -325,9 +325,24 @@ void Body::Impl::updateContact(Body& self, Body& body, bool intersect) {
   }
 }
 
-void Body::Impl::updateCollision(const Body& body, bool intersect) {
+void Body::Impl::updateCollision(Body& body, bool intersect) {
   if (body.impl_.get() == this)
     return;
+
+  if (intersect) {
+    if (!inCollision(body))
+      collisions_.push_front(&body);
+  } else {
+    auto prevIt = collisions_.before_begin();
+    auto it = collisions_.begin();
+    for (; it != collisions_.end(); it++, prevIt++) {
+      if (*it == &body) {
+        collisions_.erase_after(prevIt);
+        //return;
+        break;
+      }
+    }
+  }
 
   // FIXME: Temporary implementation
   if (intersect)

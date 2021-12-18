@@ -47,7 +47,7 @@ class Body::Impl {
 
   /// Updates the physics body's collision state.
   ///
-  void updateCollision(const Body& body, bool intersect);
+  void updateCollision(Body& body, bool intersect);
 
  private:
   std::vector<Sphere> spheres_{};

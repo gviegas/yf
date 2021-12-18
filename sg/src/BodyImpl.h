@@ -37,6 +37,10 @@ class Body::Impl {
   ///
   bool inContact(const Body& body) const;
 
+  /// Checks whether two physics bodies are colliding.
+  ///
+  bool inCollision(const Body& body) const;
+
   /// Updates the physics body's contact state.
   ///
   void updateContact(Body& self, Body& body, bool intersect);

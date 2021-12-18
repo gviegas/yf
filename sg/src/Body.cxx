@@ -285,6 +285,13 @@ bool Body::Impl::inContact(const Body& body) const {
   return false;
 }
 
+bool Body::Impl::inCollision(const Body& body) const {
+  for (const auto& collision : collisions_)
+    if (collision == &body)
+      return true;
+  return false;
+}
+
 void Body::Impl::updateContact(Body& self, Body& body, bool intersect) {
   assert(self.impl_.get() == this);
 

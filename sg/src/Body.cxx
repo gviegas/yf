@@ -345,7 +345,7 @@ void Body::Impl::updateCollision(Body& body, bool intersect) {
   }
 }
 
-void Body::Impl::resolveCollisions() {
+void Body::Impl::resolveInteractions() {
   if (collisions_.empty()) {
     // TODO...
     nextStep();

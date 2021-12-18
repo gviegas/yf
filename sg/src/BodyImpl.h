@@ -49,9 +49,10 @@ class Body::Impl {
   ///
   void updateCollision(Body& body, bool intersect);
 
-  /// Resolves collisions for the physics body.
+  /// Resolves interactions for the physics body.
+  /// Called by the physics world after all of its bodies have been updated.
   ///
-  void resolveCollisions();
+  void resolveInteractions();
 
  private:
   std::vector<Sphere> spheres_{};

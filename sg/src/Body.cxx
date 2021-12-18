@@ -351,6 +351,17 @@ void Body::Impl::updateCollision(Body& body, bool intersect) {
     nextStep();
 }
 
+void Body::Impl::resolveCollisions() {
+  if (collisions_.empty()) {
+    // TODO...
+    nextStep();
+  } else {
+    collisions_.clear();
+    // TODO...
+    undoStep();
+  }
+}
+
 void Body::Impl::pushShape(const Shape& shape) {
   const auto& id = typeid(shape);
   if (id == typeid(Sphere))

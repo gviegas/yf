@@ -49,6 +49,10 @@ class Body::Impl {
   ///
   void updateCollision(Body& body, bool intersect);
 
+  /// Resolves collisions for the physics body.
+  ///
+  void resolveCollisions();
+
  private:
   std::vector<Sphere> spheres_{};
   std::vector<BBox> bboxes_{};

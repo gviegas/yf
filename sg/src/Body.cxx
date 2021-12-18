@@ -337,11 +337,18 @@ void Body::Impl::pushShape(const Shape& shape) {
 
 void Body::Impl::nextStep() {
   assert(node_);
+  // TODO: This should use world transform instead
+  // TODO: `rotation_`
   const auto& xform = node_->transform();
-  localT_ = {xform[3][0], xform[3][1], xform[3][2]};
+  position_ = {xform[3][0], xform[3][1], xform[3][2]};
 }
 
 void Body::Impl::undoStep() {
   assert(node_);
-  node_->transform()[3] = {localT_[0], localT_[1], localT_[2], 1.0f};
+  // TODO: This should use world transform instead
+  // TODO: `rotation_`
+  auto& t = node_->transform()[3];
+  t[0] = position_[0];
+  t[1] = position_[1];
+  t[2] = position_[2];
 }

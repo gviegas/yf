@@ -345,7 +345,10 @@ void Body::Impl::updateCollision(Body& body, bool intersect) {
   }
 }
 
-void Body::Impl::resolveInteractions() {
+void Body::Impl::resolveInteractions(Body& self) {
+  assert(self.impl_.get() == this);
+  assert(node_);
+
   if (collisions_.empty()) {
     // TODO...
     nextStep();

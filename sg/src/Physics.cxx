@@ -141,7 +141,7 @@ void PhysicsWorld::Impl::evaluate(chrono::nanoseconds) {
   }
 
   for (const auto& body : bodies_)
-    body->impl().resolveInteractions();
+    body->impl().resolveInteractions(*body);
 }
 
 void PhysicsWorld::Impl::applyChanges() {

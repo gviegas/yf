@@ -52,7 +52,7 @@ class Body::Impl {
   /// Resolves interactions for the physics body.
   /// Called by the physics world after all of its bodies have been updated.
   ///
-  void resolveInteractions();
+  void resolveInteractions(Body& self);
 
  private:
   std::vector<Sphere> spheres_{};

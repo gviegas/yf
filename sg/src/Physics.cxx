@@ -105,6 +105,7 @@ void PhysicsWorld::Impl::evaluate(chrono::nanoseconds) {
   if (!enabled_)
     return;
 
+  // TODO: Cache results to avoid redundant intersection checks
   for (const auto& body : bodies_) {
     auto contactMask = body->contactMask();
     auto collisionMask = body->collisionMask();

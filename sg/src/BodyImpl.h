@@ -60,6 +60,7 @@ class Body::Impl {
   Node* node_ = nullptr;
   PhysicsWorld* physicsWorld_ = nullptr;
   std::forward_list<Body*> contacts_{};
+  std::forward_list<Body*> collisions_{};
   Vec3f position_{};
   Qnionf rotation_{};
 

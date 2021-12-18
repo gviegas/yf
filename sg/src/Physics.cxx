@@ -139,6 +139,9 @@ void PhysicsWorld::Impl::evaluate(chrono::nanoseconds) {
       i++;
     }
   }
+
+  for (const auto& body : bodies_)
+    body->impl().resolveCollisions();
 }
 
 void PhysicsWorld::Impl::applyChanges() {

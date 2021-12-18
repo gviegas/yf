@@ -162,21 +162,53 @@ struct PhysicsTest : InteractiveTest {
 
   void interTest() {
     Mesh mesh("tmp/cube2.glb");
+    Mesh mesh2("tmp/cube.glb");
+
+    auto contactBegin = [&](Body& self, Body& other) {
+      auto node = self.node();
+      auto otherNode = other.node();
+      if (!node || !otherNode)
+        throw runtime_error("Unexpected nil Node");
+      wcout << "\ncontact begin: "
+            << node->name() << ", "
+            << otherNode->name() << "\n";
+      dynamic_cast<Model*>(node)->setMesh(&mesh2);
+    };
+
+    auto contactEnd = [&](Body& self, Body& other) {
+      auto node = self.node();
+      auto otherNode = other.node();
+      if (!node || !otherNode)
+        throw runtime_error("Unexpected nil Node");
+      wcout << "\ncontact end: "
+            << node->name() << ", "
+            << otherNode->name() << "\n";
+      dynamic_cast<Model*>(node)->setMesh(&mesh);
+    };
 
     Model model1(mesh);
     model1.transform() = translate(2.0f, 0.0f, 0.0f);
     model1.name() = L"model1";
     model1.setBody({BBox(2.0f)});
+    model1.body()->setContactMask(1);
+    model1.body()->contactBegin() = contactBegin;
+    model1.body()->contactEnd() = contactEnd;
 
     Model model2(mesh);
     model2.transform() = translate(-2.0f, 0.0f, 0.0f);
     model2.name() = L"model2";
     model2.setBody({BBox(2.0f)});
+    model2.body()->setContactMask(1);
+    model2.body()->contactBegin() = contactBegin;
+    model2.body()->contactEnd() = contactEnd;
 
     Model model3(mesh);
     model3.transform() = translate(0.0f, -5.0f, -5.0f);
     model3.name() = L"model3";
     model3.setBody({Sphere(1.0f)});
+    model3.body()->setContactMask(1);
+    model3.body()->contactBegin() = contactBegin;
+    model3.body()->contactEnd() = contactEnd;
 
     const vector<Node*> nodes{&model1, &model2, &model3};
 

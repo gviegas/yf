@@ -2594,7 +2594,7 @@ void SG_NS::loadGLTF(Mesh::Data& dst, ifstream& stream, size_t index) {
 //
 
 void GLTF::print() const {
-#ifdef YF_DEVEL
+#ifdef YF_DEVEL_GLTF
   wprintf(L"\nGLTF");
 
   wprintf(L"\n scene: %d", scene_);

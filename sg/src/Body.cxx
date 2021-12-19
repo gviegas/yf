@@ -349,6 +349,22 @@ void Body::Impl::resolveInteractions(Body& self) {
   assert(self.impl_.get() == this);
   assert(node_);
 
+  // Handle physics bodies that changed category during contact
+  if (!contacts_.empty()) {
+    auto prevIt = contacts_.before_begin();
+    auto it = contacts_.begin();
+    while (it != contacts_.end()) {
+      if ((*it)->impl_->categoryMask_ & contactMask_) {
+        it++;
+        prevIt++;
+      } else {
+        if (contactEnd_)
+          contactEnd_(self, **it);
+        it = contacts_.erase_after(prevIt);
+      }
+    }
+  }
+
   if (collisions_.empty()) {
     // TODO...
     nextStep();

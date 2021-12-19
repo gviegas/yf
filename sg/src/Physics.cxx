@@ -28,6 +28,14 @@ PhysicsWorld& PhysicsWorld::operator=(const PhysicsWorld& other) {
 
 PhysicsWorld::~PhysicsWorld() { }
 
+Vec3f& PhysicsWorld::gravity() {
+  return impl_->gravity_;
+}
+
+const Vec3f& PhysicsWorld::gravity() const {
+  return impl_->gravity_;
+}
+
 void PhysicsWorld::enable() {
   impl_->enabled_ = true;
 }

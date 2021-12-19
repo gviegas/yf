@@ -12,6 +12,7 @@
 #include <memory>
 
 #include "yf/sg/Defs.h"
+#include "yf/sg/Vector.h"
 
 SG_NS_BEGIN
 
@@ -23,6 +24,11 @@ using PhysicsFlags = uint32_t;
 ///
 class PhysicsWorld {
  public:
+  /// The physics world's gravity force.
+  ///
+  Vec3f& gravity();
+  const Vec3f& gravity() const;
+
   /// Enables/disables physics simulation.
   ///
   void enable();

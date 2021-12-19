@@ -277,7 +277,7 @@ void PhysicsWorld::Impl::applyUpdates() {
 //
 
 void PhysicsWorld::Impl::print() const {
-#ifdef YF_DEVEL
+#ifdef YF_DEVEL_PHYSICSWORLD
   wprintf(L"\nPhysicsWorld\n");
 
   auto printBody = [](Body* body, const char* indent) {

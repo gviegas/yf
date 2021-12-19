@@ -686,6 +686,8 @@ class GLTF {
     return asset_;
   }
 
+  void print() const;
+
  private:
   string directory_{};
   bool ownsStream_ = false;
@@ -1864,10 +1866,6 @@ class GLTF {
       }
     }
   }
-
-#ifdef YF_DEVEL
-  friend void printGLTF(const GLTF&);
-#endif
 };
 
 /// GLTF data load.
@@ -2552,9 +2550,7 @@ INTERNAL_NS_END
 void SG_NS::loadGLTF(Collection& collection, const string& pathname) {
   GLTF gltf(pathname);
 
-#ifdef YF_DEVEL
-  printGLTF(gltf);
-#endif
+  gltf.print();
 
   DataLoad data(gltf);
   collection = move(data.loadContents());
@@ -2563,9 +2559,7 @@ void SG_NS::loadGLTF(Collection& collection, const string& pathname) {
 void SG_NS::loadGLTF(Collection& collection, ifstream& stream) {
   GLTF gltf(stream, "");
 
-#ifdef YF_DEVEL
-  printGLTF(gltf);
-#endif
+  gltf.print();
 
   DataLoad data(gltf);
   collection = move(data.loadContents());
@@ -2574,9 +2568,7 @@ void SG_NS::loadGLTF(Collection& collection, ifstream& stream) {
 void SG_NS::loadGLTF(Mesh::Data& dst, const string& pathname, size_t index) {
   GLTF gltf(pathname);
 
-#ifdef YF_DEVEL
-  printGLTF(gltf);
-#endif
+  gltf.print();
 
   if (index >= gltf.meshes().size())
     throw invalid_argument("loadGLTF() index out of bounds");
@@ -2588,9 +2580,7 @@ void SG_NS::loadGLTF(Mesh::Data& dst, const string& pathname, size_t index) {
 void SG_NS::loadGLTF(Mesh::Data& dst, ifstream& stream, size_t index) {
   GLTF gltf(stream, "");
 
-#ifdef YF_DEVEL
-  printGLTF(gltf);
-#endif
+  gltf.print();
 
   if (index >= gltf.meshes().size())
     throw invalid_argument("loadGLTF() index out of bounds");
@@ -2603,17 +2593,14 @@ void SG_NS::loadGLTF(Mesh::Data& dst, ifstream& stream, size_t index) {
 // DEVEL
 //
 
+void GLTF::print() const {
 #ifdef YF_DEVEL
-
-INTERNAL_NS_BEGIN
-
-void printGLTF(const GLTF& gltf) {
   wprintf(L"\nGLTF");
 
-  wprintf(L"\n scene: %d", gltf.scene_);
+  wprintf(L"\n scene: %d", scene_);
 
   wprintf(L"\n scenes:");
-  for (const auto& scn : gltf.scenes_) {
+  for (const auto& scn : scenes_) {
     wprintf(L"\n  scene `%s`:", scn.name.data());
     wprintf(L"\n   nodes: [ ");
     for (auto nd : scn.nodes)
@@ -2622,7 +2609,7 @@ void printGLTF(const GLTF& gltf) {
   }
 
   wprintf(L"\n nodes:");
-  for (const auto& nd : gltf.nodes_) {
+  for (const auto& nd : nodes_) {
     wprintf(L"\n  node `%s`:", nd.name.data());
     wprintf(L"\n   children: [ ");
     for (auto ch : nd.children)
@@ -2659,7 +2646,7 @@ void printGLTF(const GLTF& gltf) {
   }
 
   wprintf(L"\n meshes:");
-  for (const auto& msh : gltf.meshes_) {
+  for (const auto& msh : meshes_) {
     wprintf(L"\n  mesh `%s`:", msh.name.data());
     wprintf(L"\n   primitives:");
     for (const auto& prm : msh.primitives) {
@@ -2682,7 +2669,7 @@ void printGLTF(const GLTF& gltf) {
   }
 
   wprintf(L"\n skins:");
-  for (const auto& sk : gltf.skins_) {
+  for (const auto& sk : skins_) {
     wprintf(L"\n  skin `%s`:", sk.name.data());
     wprintf(L"\n   inversebindMatrices: %d", sk.inverseBindMatrices);
     wprintf(L"\n   skeleton: %d", sk.skeleton);
@@ -2693,7 +2680,7 @@ void printGLTF(const GLTF& gltf) {
   }
 
   wprintf(L"\n materials:");
-  for (const auto& ml : gltf.materials_) {
+  for (const auto& ml : materials_) {
     wprintf(L"\n  material `%s`:", ml.name.data());
     wprintf(L"\n   pbrMetallicRoughness:");
     wprintf(L"\n    baseColorTexture:");
@@ -2735,14 +2722,14 @@ void printGLTF(const GLTF& gltf) {
   }
 
   wprintf(L"\n textures:");
-  for (const auto& tex : gltf.textures_) {
+  for (const auto& tex : textures_) {
     wprintf(L"\n  texture `%s`:", tex.name.data());
     wprintf(L"\n   sampler: %d", tex.sampler);
     wprintf(L"\n   source: %d", tex.source);
   }
 
   wprintf(L"\n samplers:");
-  for (const auto& spl : gltf.samplers_) {
+  for (const auto& spl : samplers_) {
     wprintf(L"\n  sampler `%s`:", spl.name.data());
     wprintf(L"\n   wrapS: %d", spl.wrapS);
     wprintf(L"\n   wrapT: %d", spl.wrapT);
@@ -2751,7 +2738,7 @@ void printGLTF(const GLTF& gltf) {
   }
 
   wprintf(L"\n images:");
-  for (const auto& img : gltf.images_) {
+  for (const auto& img : images_) {
     wprintf(L"\n  image `%s`:", img.name.data());
     wprintf(L"\n   uri: %s", img.uri.data());
     wprintf(L"\n   mimeType: %s", img.mimeType.data());
@@ -2759,7 +2746,7 @@ void printGLTF(const GLTF& gltf) {
   }
 
   wprintf(L"\n cameras:");
-  for (const auto& cam : gltf.cameras_) {
+  for (const auto& cam : cameras_) {
     wprintf(L"\n  camera `%s`:", cam.name.data());
     wprintf(L"\n   type: %s", cam.type.data());
     if (cam.type == "perspective") {
@@ -2780,7 +2767,7 @@ void printGLTF(const GLTF& gltf) {
   }
 
   wprintf(L"\n animations:");
-  for (const auto& an : gltf.animations_) {
+  for (const auto& an : animations_) {
     wprintf(L"\n  animation `%s`:", an.name.data());
     wprintf(L"\n   channels:");
     for (const auto& ch : an.channels) {
@@ -2800,7 +2787,7 @@ void printGLTF(const GLTF& gltf) {
   }
 
   wprintf(L"\n accessors:");
-  for (const auto& ac : gltf.accessors_) {
+  for (const auto& ac : accessors_) {
     wprintf(L"\n  accessor `%s`:", ac.name.data());
     wprintf(L"\n   bufferView: %d", ac.bufferView);
     wprintf(L"\n   byteOffset: %lld", ac.byteOffset);
@@ -2828,7 +2815,7 @@ void printGLTF(const GLTF& gltf) {
   }
 
   wprintf(L"\n bufferViews:");
-  for (const auto& bv : gltf.bufferViews_) {
+  for (const auto& bv : bufferViews_) {
     wprintf(L"\n  bufferView `%s`:", bv.name.data());
     wprintf(L"\n   buffer: %d", bv.buffer);
     wprintf(L"\n   byteOffset: %lld", bv.byteOffset);
@@ -2838,21 +2825,18 @@ void printGLTF(const GLTF& gltf) {
   }
 
   wprintf(L"\n buffers:");
-  for (const auto& b : gltf.buffers_) {
+  for (const auto& b : buffers_) {
     wprintf(L"\n  buffer `%s`:", b.name.data());
     wprintf(L"\n   uri: %s", b.uri.data());
     wprintf(L"\n   byteLength: %lld", b.byteLength);
   }
 
   wprintf(L"\n asset:");
-  wprintf(L"\n  copyright: %s", gltf.asset_.copyright.data());
-  wprintf(L"\n  generator: %s", gltf.asset_.generator.data());
-  wprintf(L"\n  version: %s", gltf.asset_.version.data());
-  wprintf(L"\n  minVersion: %s", gltf.asset_.minVersion.data());
+  wprintf(L"\n  copyright: %s", asset_.copyright.data());
+  wprintf(L"\n  generator: %s", asset_.generator.data());
+  wprintf(L"\n  version: %s", asset_.version.data());
+  wprintf(L"\n  minVersion: %s", asset_.minVersion.data());
 
   wprintf(L"\n");
-}
-
-INTERNAL_NS_END
-
 #endif
+}

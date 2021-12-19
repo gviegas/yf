@@ -113,9 +113,7 @@ void createCodeTree(const vector<uint8_t>& codeLengths, ZTree& codeTree) {
   }
 }
 
-#ifdef YF_DEVEL
 void printCodeTree(const ZTree& codeTree);
-#endif
 
 /// Decompresses data.
 ///
@@ -844,9 +842,10 @@ void SG_NS::loadPNG(Texture::Data& dst, ifstream& stream) {
 // DEVEL
 //
 
-#ifdef YF_DEVEL
+INTERNAL_NS_BEGIN
 
 void PNG::print() const {
+#ifdef YF_DEVEL_PNG
   wprintf(L"\nPNG");
   wprintf(L"\n IHDR:");
   wprintf(L"\n  width: %u", ihdr_.width);
@@ -865,12 +864,11 @@ void PNG::print() const {
   wprintf(L"\n  *sclnSize: %u", sclnSize_);
   wprintf(L"\n  *format: %d", format());
   wprintf(L"\n");
+#endif
 }
 
-INTERNAL_NS_BEGIN
-
-[[maybe_unused]]
-void printCodeTree(const ZTree& codeTree) {
+[[maybe_unused]] void printCodeTree([[maybe_unused]] const ZTree& codeTree) {
+#ifdef YF_DEVEL_PNG
   wprintf(L"\nCode Tree");
   for (size_t i = 0; i < codeTree.size(); i++) {
     wprintf(L"\n (%lu) ", i);
@@ -880,8 +878,7 @@ void printCodeTree(const ZTree& codeTree) {
       wprintf(L"next: %u/%u", codeTree[i][0], codeTree[i][1]);
   }
   wprintf(L"\n");
+#endif
 }
 
 INTERNAL_NS_END
-
-#endif

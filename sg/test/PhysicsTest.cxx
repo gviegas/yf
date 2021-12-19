@@ -64,7 +64,7 @@ struct PhysicsTest : InteractiveTest {
 
     a.push_back(evalTest());
 
-    interTest();
+    interactive();
 
     return a;
   }
@@ -170,7 +170,7 @@ struct PhysicsTest : InteractiveTest {
     return {L"Impl::evaluate()", true};
   }
 
-  void interTest() {
+  void interactive() {
     Mesh mesh("tmp/cube2.glb");
     Mesh mesh2("tmp/cube.glb");
 

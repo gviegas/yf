@@ -29,10 +29,20 @@ struct PhysicsTest : InteractiveTest {
 
     Scene scene1;
     PhysicsWorld& physWorld = scene1.physicsWorld();
+    auto gravity = physWorld.gravity();
     bool check = physWorld.isEnabled();
 
     // Expected to be enabled by default
-    a.push_back({L"PhysicsWorld()", check});
+    a.push_back({L"PhysicsWorld()", gravity[0] ==  0.0f &&
+                                    gravity[1] == -9.8f &&
+                                    gravity[2] ==  0.0f &&
+                                    check});
+
+    gravity -= 0.5f;
+    physWorld.gravity() = gravity;
+    a.push_back({L"gravity()", physWorld.gravity()[0] == gravity[0] &&
+                               physWorld.gravity()[1] == gravity[1] &&
+                               physWorld.gravity()[2] == gravity[2]});
 
     physWorld.disable();
     a.push_back({L"disable()", !physWorld.isEnabled()});

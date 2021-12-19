@@ -8,6 +8,7 @@
 #include <iostream>
 
 #include "InteractiveTest.h"
+#include "PhysicsImpl.h"
 #include "SG.h"
 #include "yf/Except.h"
 
@@ -47,6 +48,27 @@ struct BodyTest : InteractiveTest {
 
     // TODO: check shapes
     a.push_back({L"Body()", !body1.node() && !body2.node() && !body3.node()});
+
+    Node node;
+    bool checkNode = !body1.node() && !body2.node() && !body3.node();
+    node.setBody(body1);
+    checkNode = checkNode && node.body() && node.body()->node() == &node;
+    a.push_back({L"node()", checkNode});
+
+    if (node.body()) {
+      Scene scene;
+      bool checkWorld = !node.body()->physicsWorld();
+      scene.insert(node);
+      scene.physicsWorld().impl().evaluate(chrono::nanoseconds(0));
+      checkWorld = checkWorld && node.body()->physicsWorld() &&
+                   node.body()->physicsWorld() == &scene.physicsWorld();
+      node.drop();
+      scene.physicsWorld().impl().evaluate(chrono::nanoseconds(0));
+      checkWorld = checkWorld && !node.body()->physicsWorld();
+      a.push_back({L"physicsWorld()", checkWorld});
+    } else {
+      a.push_back({L"physicsWorld()", false});
+    }
 
     interactive();
 

@@ -55,6 +55,7 @@ class PhysicsWorld::Impl {
 
  private:
   PhysicsWorld& physicsWorld_;
+  Vec3f gravity_{0.0f, -9.8f, 0.0f};
   bool enabled_ = true;
 
   /// Physics bodies will be split into groups as indicated by the bits set

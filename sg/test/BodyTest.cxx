@@ -48,11 +48,12 @@ struct BodyTest : InteractiveTest {
     // TODO: check shapes
     a.push_back({L"Body()", !body1.node() && !body2.node() && !body3.node()});
 
-    fromFile();
+    interactive();
+
     return a;
   }
 
-  void fromFile() {
+  void interactive() {
     Collection coll;
     coll.load("tmp/cube.glb");
 
@@ -77,7 +78,7 @@ struct BodyTest : InteractiveTest {
     if (node)
       coll.nodes().push_back(unique_ptr<Model>(static_cast<Model*>(node)));
     else
-      throw yf::FileExcept("BodyTest fromFile() - Invalid file");
+      throw yf::FileExcept("BodyTest interactive() - Invalid file");
 
     setObject(node);
 

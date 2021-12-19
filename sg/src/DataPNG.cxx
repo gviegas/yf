@@ -500,6 +500,8 @@ class PNG {
     return CG_NS::PxFormatUndefined;
   }
 
+  void print() const;
+
  private:
   /// File signature.
   ///
@@ -810,10 +812,6 @@ class PNG {
 
     return crc ^ 0xFFFFFFFF;
   }
-
-#ifdef YF_DEVEL
-  friend void printPNG(const PNG& png);
-#endif
 };
 
 INTERNAL_NS_END
@@ -821,9 +819,7 @@ INTERNAL_NS_END
 void SG_NS::loadPNG(Texture::Data& dst, const string& pathname) {
   PNG png(pathname);
 
-#ifdef YF_DEVEL
-  printPNG(png);
-#endif
+  png.print();
 
   dst.data = png.imageData();
   dst.format = png.format();
@@ -835,9 +831,7 @@ void SG_NS::loadPNG(Texture::Data& dst, const string& pathname) {
 void SG_NS::loadPNG(Texture::Data& dst, ifstream& stream) {
   PNG png(stream);
 
-#ifdef YF_DEVEL
-  printPNG(png);
-#endif
+  png.print();
 
   dst.data = png.imageData();
   dst.format = png.format();
@@ -852,6 +846,27 @@ void SG_NS::loadPNG(Texture::Data& dst, ifstream& stream) {
 
 #ifdef YF_DEVEL
 
+void PNG::print() const {
+  wprintf(L"\nPNG");
+  wprintf(L"\n IHDR:");
+  wprintf(L"\n  width: %u", ihdr_.width);
+  wprintf(L"\n  height: %u", ihdr_.height);
+  wprintf(L"\n  bitDepth: %u", ihdr_.bitDepth);
+  wprintf(L"\n  colorType: %u", ihdr_.colorType);
+  wprintf(L"\n  compressionMethod: %u", ihdr_.compressionMethod);
+  wprintf(L"\n  filterMethod: %u", ihdr_.filterMethod);
+  wprintf(L"\n  interlaceMethod: %u", ihdr_.interlaceMethod);
+  wprintf(L"\n PLTE: %lu byte(s)", plte_.size());
+  wprintf(L"\n IDAT: %lu byte(s)", idat_.size());
+  wprintf(L"\n *Aux.:");
+  wprintf(L"\n  *Components: %u", components_);
+  wprintf(L"\n  *bpp: %u", bpp_);
+  wprintf(L"\n  *Bpp: %u", Bpp_);
+  wprintf(L"\n  *sclnSize: %u", sclnSize_);
+  wprintf(L"\n  *format: %d", format());
+  wprintf(L"\n");
+}
+
 INTERNAL_NS_BEGIN
 
 [[maybe_unused]]
@@ -864,27 +879,6 @@ void printCodeTree(const ZTree& codeTree) {
     else
       wprintf(L"next: %u/%u", codeTree[i][0], codeTree[i][1]);
   }
-  wprintf(L"\n");
-}
-
-void printPNG(const PNG& png) {
-  wprintf(L"\nPNG");
-  wprintf(L"\n IHDR:");
-  wprintf(L"\n  width: %u", png.ihdr_.width);
-  wprintf(L"\n  height: %u", png.ihdr_.height);
-  wprintf(L"\n  bitDepth: %u", png.ihdr_.bitDepth);
-  wprintf(L"\n  colorType: %u", png.ihdr_.colorType);
-  wprintf(L"\n  compressionMethod: %u", png.ihdr_.compressionMethod);
-  wprintf(L"\n  filterMethod: %u", png.ihdr_.filterMethod);
-  wprintf(L"\n  interlaceMethod: %u", png.ihdr_.interlaceMethod);
-  wprintf(L"\n PLTE: %lu byte(s)", png.plte_.size());
-  wprintf(L"\n IDAT: %lu byte(s)", png.idat_.size());
-  wprintf(L"\n *Aux.:");
-  wprintf(L"\n  *Components: %u", png.components_);
-  wprintf(L"\n  *bpp: %u", png.bpp_);
-  wprintf(L"\n  *Bpp: %u", png.Bpp_);
-  wprintf(L"\n  *sclnSize: %u", png.sclnSize_);
-  wprintf(L"\n  *format: %d", png.format());
   wprintf(L"\n");
 }
 

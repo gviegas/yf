@@ -892,7 +892,7 @@ void NewRenderer::willRenderAgain() {
 //
 
 void NewRenderer::print() const {
-#ifdef YF_DEVEL
+#ifdef YF_DEVEL_NEWRENDERER
   auto printDrawable = [](const Drawable& drawable) {
     wprintf(L"   node: %p\n"
             L"   primitive: %p\n"

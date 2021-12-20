@@ -72,6 +72,7 @@ class Body::Impl {
   std::forward_list<Body*> collisions_{};
   Vec3f position_{};
   Qnionf rotation_{};
+  Vec3f velocity_{};
 
   void pushShape(const Shape&);
   void nextStep();

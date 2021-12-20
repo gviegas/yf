@@ -71,6 +71,7 @@ struct PhysicsTest : InteractiveTest {
 
   // TODO: Check `PhysicsWorld::Impl` state for each evaluation
   Assertion evalTest() {
+#ifdef YF_DEVEL_PHYSICSWORLD
     Scene scene;
 
     Node node1;
@@ -165,7 +166,7 @@ struct PhysicsTest : InteractiveTest {
 
     wcout << "\n\nPress ENTER to continue\n\n";
     while (wcin.get() != L'\n') { }
-
+#endif
     // TODO
     return {L"Impl::evaluate()", true};
   }

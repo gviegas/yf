@@ -198,7 +198,7 @@ struct PhysicsTest : InteractiveTest {
     };
 
     Model model1(mesh);
-    model1.transform() = translate(-2.0f, -2.0f, 0.0f);
+    model1.transform() = translate(-3.0f, 0.0f, 0.0f);
     model1.name() = L"model1";
     model1.setBody({BBox(2.0f)});
     model1.body()->setContactMask(1);
@@ -206,7 +206,7 @@ struct PhysicsTest : InteractiveTest {
     model1.body()->contactEnd() = contactEnd;
 
     Model model2(mesh);
-    model2.transform() = translate(3.0f, 1.0f, 0.0f) * scale(0.5f, 0.5f, 0.5f);
+    model2.transform() = translate(4.0f, 0.0f, 0.0f) * scale(0.5f, 0.5f, 0.5f);
     model2.name() = L"model2";
     model2.setBody({BBox(1.0f)});
     model2.body()->setContactMask(1);
@@ -214,7 +214,7 @@ struct PhysicsTest : InteractiveTest {
     model2.body()->contactEnd() = contactEnd;
 
     Model model3(mesh);
-    model3.transform() = translate(0.0f, -6.0f, -4.0f);
+    model3.transform() = translate(0.0f, -6.0f, 0.0f);
     model3.name() = L"model3";
     model3.setBody({Sphere(1.0f)});
     model3.body()->setContactMask(1);
@@ -225,7 +225,7 @@ struct PhysicsTest : InteractiveTest {
 
     Scene scene;
     scene.insert(nodes);
-    scene.camera().place({10.0f, 6.0f, 10.0f});
+    scene.camera().place({0.0f, 20.0f, 30.0f});
     scene.camera().point({});
 
     size_t curNode = 0;

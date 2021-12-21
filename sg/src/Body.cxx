@@ -242,6 +242,7 @@ void Body::Impl::setNode(Node* node) {
   if (node_)
     nextStep();
   velocity_ = {};
+  finalVelocity_ = {};
 }
 
 void Body::Impl::setPhysicsWorld(PhysicsWorld* world) {

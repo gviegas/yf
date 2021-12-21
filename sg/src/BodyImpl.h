@@ -73,6 +73,7 @@ class Body::Impl {
   Vec3f position_{};
   Qnionf rotation_{};
   Vec3f velocity_{};
+  Vec3f finalVelocity_{};
 
   void pushShape(const Shape&);
   void nextStep();

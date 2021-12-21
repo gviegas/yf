@@ -213,7 +213,8 @@ Body::Impl::Impl(const Impl& other)
     restitution_(other.restitution_), friction_(other.friction_),
     categoryMask_(other.categoryMask_), contactMask_(other.contactMask_),
     collisionMask_(other.collisionMask_), node_{}, physicsWorld_{},
-    contacts_{}, collisions_{}, position_{}, rotation_{}, velocity_{} { }
+    contacts_{}, collisions_{}, position_{}, rotation_{}, velocity_{},
+    finalVelocity_{} { }
 
 Body::Impl& Body::Impl::operator=(const Impl& other) {
   spheres_ = other.spheres_;
@@ -232,6 +233,7 @@ Body::Impl& Body::Impl::operator=(const Impl& other) {
   collisions_.clear();
   // Keep position and rotation
   velocity_ = {};
+  finalVelocity_ = {};
   return *this;
 }
 

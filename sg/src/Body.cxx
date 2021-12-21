@@ -390,6 +390,19 @@ void Body::Impl::pushShape(const Shape& shape) {
     throw invalid_argument("Unknown Shape type");
 }
 
+void Body::Impl::combineVelocity(const Impl& collidingBody) {
+  assert(dynamic_);
+
+  const auto& u1 = velocity_;
+  const auto& u2 = collidingBody.velocity_;
+  const auto m1 = mass_;
+  const auto m2 = collidingBody.mass_;
+  const auto cor = restitution_;
+
+  const Vec3f v1 = ((u2 - u1) * m2 * cor + u1 * m1 + u2 * m2) / (m1 + m2);
+  finalVelocity_ += v1;
+}
+
 void Body::Impl::nextStep() {
   assert(node_);
   // TODO: This should use world transform instead

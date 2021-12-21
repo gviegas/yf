@@ -76,6 +76,7 @@ class Body::Impl {
   Vec3f finalVelocity_{};
 
   void pushShape(const Shape&);
+  void combineVelocity(const Impl&);
   void nextStep();
   void undoStep();
 

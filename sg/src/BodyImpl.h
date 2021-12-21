@@ -59,7 +59,7 @@ class Body::Impl {
   std::vector<BBox> bboxes_{};
   ContactFn contactBegin_{};
   ContactFn contactEnd_{};
-  bool dynamic_ = false;
+  bool dynamic_ = true;
   float mass_ = 1.0f;
   float restitution_ = 0.5f;
   float friction_ = 0.25f;

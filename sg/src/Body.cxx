@@ -335,8 +335,10 @@ void Body::Impl::updateCollision(Body& body, bool intersect) {
     return;
 
   if (intersect) {
-    if (!inCollision(body))
+    if (!inCollision(body)) {
       collisions_.push_front(&body);
+      combineVelocity(*body.impl_);
+    }
   } else {
     auto prevIt = collisions_.before_begin();
     auto it = collisions_.begin();

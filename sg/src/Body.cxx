@@ -354,6 +354,7 @@ void Body::Impl::updateCollision(Body& body, bool intersect) {
     if (!inCollision(body)) {
       collisions_.push_front(&body);
       combineVelocity(*body.impl_);
+      combineSpin(*body.impl_);
     }
   } else {
     auto prevIt = collisions_.before_begin();

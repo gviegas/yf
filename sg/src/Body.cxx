@@ -163,6 +163,14 @@ const Vec3f& Body::velocity() const {
   return impl_->velocity_;
 }
 
+void Body::setSpin(const Qnionf& spin) {
+  impl_->spin_ = spin;
+}
+
+const Qnionf& Body::spin() const {
+  return impl_->spin_;
+}
+
 void Body::setCategoryMask(PhysicsFlags mask) {
   const auto prevMask = impl_->categoryMask_;
   if (prevMask != mask) {

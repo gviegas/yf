@@ -91,6 +91,11 @@ class Body {
   void setVelocity(const Vec3f& velocity);
   const Vec3f& velocity() const;
 
+  /// The physics body's angular velocity.
+  ///
+  void setSpin(const Qnionf& spin);
+  const Qnionf& spin() const;
+
   /// Category mask for physics interactions.
   ///
   void setCategoryMask(PhysicsFlags mask);

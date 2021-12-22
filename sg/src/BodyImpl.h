@@ -74,6 +74,7 @@ class Body::Impl {
   Qnionf rotation_{};
   Vec3f velocity_{};
   Vec3f finalVelocity_{};
+  Qnionf spin_{1.0f, {}};
 
   void pushShape(const Shape&);
   void combineVelocity(const Impl&);

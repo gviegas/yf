@@ -71,7 +71,7 @@ class Body::Impl {
   std::forward_list<Body*> contacts_{};
   std::forward_list<Body*> collisions_{};
   Vec3f position_{};
-  Qnionf rotation_{};
+  Qnionf rotation_{1.0f, {}};
   Vec3f velocity_{};
   Vec3f finalVelocity_{};
   Qnionf spin_{1.0f, {}};

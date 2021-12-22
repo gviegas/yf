@@ -421,6 +421,13 @@ void Body::Impl::combineVelocity(const Impl& collidingBody) {
   finalVelocity_ += v1;
 }
 
+void Body::Impl::combineSpin(const Impl& collidingBody) {
+  assert(dynamic_);
+
+  // TODO
+  finalSpin_ = spin_;
+}
+
 void Body::Impl::nextStep() {
   assert(node_);
   // TODO: This should use world transform instead

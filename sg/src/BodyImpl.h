@@ -79,6 +79,7 @@ class Body::Impl {
 
   void pushShape(const Shape&);
   void combineVelocity(const Impl&);
+  void combineSpin(const Impl&);
   void nextStep();
   void undoStep();
 

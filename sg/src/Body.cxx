@@ -155,6 +155,14 @@ float Body::friction() const {
   return impl_->friction_;
 }
 
+void Body::setVelocity(const Vec3f& velocity) {
+  impl_->velocity_ = velocity;
+}
+
+const Vec3f& Body::velocity() const {
+  return impl_->velocity_;
+}
+
 void Body::setCategoryMask(PhysicsFlags mask) {
   const auto prevMask = impl_->categoryMask_;
   if (prevMask != mask) {

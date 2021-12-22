@@ -86,6 +86,11 @@ class Body {
   void setFriction(float cof);
   float friction() const;
 
+  /// The physics body's linear velocity.
+  ///
+  void setVelocity(const Vec3f& velocity);
+  const Vec3f& velocity() const;
+
   /// Category mask for physics interactions.
   ///
   void setCategoryMask(PhysicsFlags mask);

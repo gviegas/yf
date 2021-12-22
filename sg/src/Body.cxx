@@ -230,7 +230,7 @@ Body::Impl::Impl(const Impl& other)
     categoryMask_(other.categoryMask_), contactMask_(other.contactMask_),
     collisionMask_(other.collisionMask_), node_{}, physicsWorld_{},
     contacts_{}, collisions_{}, position_{}, rotation_(1.0f, {}), velocity_{},
-    finalVelocity_{}, spin_(1.0f, {}) { }
+    finalVelocity_{}, spin_(1.0f, {}), finalSpin_(1.0f, {}) { }
 
 Body::Impl& Body::Impl::operator=(const Impl& other) {
   spheres_ = other.spheres_;
@@ -248,9 +248,8 @@ Body::Impl& Body::Impl::operator=(const Impl& other) {
   contacts_.clear();
   collisions_.clear();
   // Keep position and rotation
-  velocity_ = {};
-  finalVelocity_ = {};
-  spin_ = {1.0f, {}};
+  velocity_ = finalVelocity_ = {};
+  spin_ = finalSpin_ = {1.0f, {}};
   return *this;
 }
 

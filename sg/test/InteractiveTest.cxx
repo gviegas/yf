@@ -169,7 +169,14 @@ void InteractiveTest::update(Scene& scene, const View::UpdateFn& fn) {
         r *= rotateQX(6.0f * dt);
       if (input.place)
         t = {0.0f, 0.0f, 0.0f};
-      object_->transform() *= translate(t * dt) * rotate(r);
+      t *= dt;
+
+      if (object_->body()) {
+        object_->body()->setVelocity(t);
+        object_->body()->setSpin(r);
+      } else {
+        object_->transform() *= translate(t) * rotate(r);
+      }
     }
 
     return fn ? fn(elapsedTime) : true;

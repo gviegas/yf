@@ -252,6 +252,7 @@ void Body::Impl::setNode(Node* node) {
     nextStep();
   velocity_ = {};
   finalVelocity_ = {};
+  spin_ = {1.0f, {}};
 }
 
 void Body::Impl::setPhysicsWorld(PhysicsWorld* world) {

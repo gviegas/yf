@@ -265,14 +265,6 @@ void Body::Impl::setPhysicsWorld(PhysicsWorld* world) {
   physicsWorld_ = world;
 }
 
-void Body::Impl::setPosition(const Vec3f& position) {
-  position_ = position;
-}
-
-void Body::Impl::setRotation(const Qnionf& rotation) {
-  rotation_ = rotation;
-}
-
 bool Body::Impl::intersect(const Body& body) const {
   assert(node_);
   assert(body.impl_->node_);

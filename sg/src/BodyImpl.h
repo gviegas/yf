@@ -25,8 +25,6 @@ class Body::Impl {
 
   void setNode(Node* node);
   void setPhysicsWorld(PhysicsWorld* world);
-  void setPosition(const Vec3f& position);
-  void setRotation(const Qnionf& rotation);
 
   /// Checks whether two physics bodies intersect each other.
   /// This check ignores interaction masks.

@@ -381,14 +381,18 @@ void Body::Impl::resolveInteractions(Body& self) {
     }
   }
 
+  // TODO
   if (collisions_.empty()) {
-    // TODO...
     nextStep();
   } else {
     collisions_.clear();
-    // TODO...
     undoStep();
+    velocity_ = finalVelocity_;
+    spin_ = finalSpin_;
   }
+  node_->transform() *= translate(velocity_) * rotate(spin_);
+  finalVelocity_ = {};
+  finalSpin_ = {};
 }
 
 void Body::Impl::pushShape(const Shape& shape) {

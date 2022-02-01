@@ -14,7 +14,7 @@ using namespace std;
 
 INTERNAL_NS_BEGIN
 
-/// Selects a suitable memory heap.
+/// Selects a suitable memory type.
 ///
 int32_t selectMemory(uint32_t requirement, VkMemoryPropertyFlags properties) {
   const auto& memProp = deviceVK().memProperties();

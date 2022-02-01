@@ -172,6 +172,7 @@ void InteractiveTest::update(Scene& scene, const View::UpdateFn& fn) {
       t *= dt;
 
       if (object_->body()) {
+        // TODO Direction is fixed (relative to default axis)
         object_->body()->setVelocity(t);
         object_->body()->setSpin(r);
       } else {

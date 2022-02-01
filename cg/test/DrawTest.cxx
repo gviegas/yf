@@ -29,8 +29,8 @@ struct DrawTest : Test {
     auto& que = dev.defaultQueue();
 
     // Create shaders
-    auto vert = dev.shader(StageVertex, "tmp/vert");
-    auto frag = dev.shader(StageFragment, "tmp/frag");
+    auto vert = dev.shader(StageVertex, "test/data/vert");
+    auto frag = dev.shader(StageFragment, "test/data/frag");
 
     // Create wsi
     auto win = WS_NS::createWindow(480, 400, name_);

@@ -28,7 +28,7 @@ struct EncoderTest : Test {
     const vector<AttachImg> att{{img.get(), 0, 0}};
     auto tgt = pass->target({480, 300}, 1, &att, nullptr, nullptr);
 
-    auto vert = device().shader(StageVertex, "tmp/vert");
+    auto vert = device().shader(StageVertex, "test/data/vert");
     auto dtb = device().dcTable({{0, DcTypeUniform, 1}});
     const VxInput vxIn{
       {{0, VxFormatFlt3, 0}, {1, VxFormatFlt2, 12}}, 20, VxStepFnVertex
@@ -39,7 +39,7 @@ struct EncoderTest : Test {
     };
     auto gst = device().state(gconf);
 
-    auto comp = device().shader(StageCompute, "tmp/comp");
+    auto comp = device().shader(StageCompute, "test/data/comp");
     const CpState::Config cconf{comp.get(), {}};
     auto cst = device().state(cconf);
 

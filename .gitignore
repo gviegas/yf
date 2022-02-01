@@ -2,7 +2,6 @@
 etc/
 tmp/
 cache/
-bin/
 build/
 local/
 local.*

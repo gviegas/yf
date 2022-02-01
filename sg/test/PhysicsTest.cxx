@@ -234,6 +234,16 @@ struct PhysicsTest : InteractiveTest {
     input.mode = true;
 
     update(scene, [&](auto) {
+      if (input.stop) {
+        scene.traverse([&](auto& node)  {
+          auto body = node.body();
+          if (!body)
+            return;
+          body->setVelocity({});
+          body->setSpin({1.0f, {}});
+        }, true);
+        input.stop = false;
+      }
       if (input.swap) {
         scene.physicsWorld().isEnabled() ?
           scene.physicsWorld().disable() : scene.physicsWorld().enable();

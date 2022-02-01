@@ -20,7 +20,7 @@ struct CameraTest : InteractiveTest {
   Assertions run(const vector<string>&) {
     Camera cam{{0.0f, 0.0f, 10.0f}, {}, 640.0f / 480.0f};
 
-    Mesh mesh("tmp/cube4.glb");
+    Mesh mesh("test/data/cube4.glb");
     Model mdl(mesh);
 
     Scene scn{};

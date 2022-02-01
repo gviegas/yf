@@ -26,7 +26,7 @@ struct ModelTest : Test {
 
     Model mdl1;
 
-    Mesh mesh{"tmp/cube.glb"};
+    Mesh mesh{"test/data/cube.glb"};
     Model mdl2;
     mdl2.setMesh(&mesh);
 

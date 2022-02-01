@@ -77,7 +77,7 @@ struct BodyTest : InteractiveTest {
 
   void interactive() {
     Collection coll;
-    coll.load("tmp/cube.glb");
+    coll.load("test/data/cube.glb");
 
     // Dup.
     Node* node1 = nullptr;

@@ -172,8 +172,8 @@ struct PhysicsTest : InteractiveTest {
   }
 
   void interactive() {
-    Mesh mesh("tmp/cube2.glb");
-    Mesh mesh2("tmp/cube.glb");
+    Mesh mesh("test/data/cube2.glb");
+    Mesh mesh2("test/data/cube.glb");
 
     auto contactBegin = [&](Body& self, Body& other) {
       auto node = self.node();

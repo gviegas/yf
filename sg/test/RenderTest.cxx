@@ -23,10 +23,10 @@ struct RenderTest : InteractiveTest {
     Assertions a;
 
     // Resources
-    Mesh mesh1{"tmp/cube.glb"};
-    Mesh mesh2{"tmp/cube2.glb"};
-    Mesh mesh3{"tmp/cube3.glb"};
-    Collection coll("tmp/animation.glb");
+    Mesh mesh1{"test/data/cube.glb"};
+    Mesh mesh2{"test/data/cube2.glb"};
+    Mesh mesh3{"test/data/cube3.glb"};
+    Collection coll("test/data/animation.glb");
 
     // Scene #1 contents
     vector<Model> mdls{10, {mesh1}};

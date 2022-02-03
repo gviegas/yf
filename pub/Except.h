@@ -14,19 +14,7 @@
 
 YF_NS_BEGIN
 
-struct NoMemoryExcept : std::runtime_error {
-  using std::runtime_error::runtime_error;
-};
-
-struct LimitExcept : std::runtime_error {
-  using std::runtime_error::runtime_error;
-};
-
-struct NotReadyExcept : std::runtime_error {
-  using std::runtime_error::runtime_error;
-};
-
-struct UnsupportedExcept : std::runtime_error {
+struct ConversionExcept : std::runtime_error {
   using std::runtime_error::runtime_error;
 };
 
@@ -38,7 +26,15 @@ struct FileExcept : std::runtime_error {
   using std::runtime_error::runtime_error;
 };
 
-struct ConversionExcept : std::runtime_error {
+struct LimitExcept : std::runtime_error {
+  using std::runtime_error::runtime_error;
+};
+
+struct NoMemoryExcept : std::runtime_error {
+  using std::runtime_error::runtime_error;
+};
+
+struct UnsupportedExcept : std::runtime_error {
   using std::runtime_error::runtime_error;
 };
 

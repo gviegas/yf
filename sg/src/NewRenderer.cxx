@@ -393,7 +393,8 @@ pair<uint32_t, bool> NewRenderer::getIndex(DrawableReqMask mask,
 
   uint32_t beg = 0;
   uint32_t end = container.size();
-  uint32_t mid;
+  // The compiler may complain if this is left uninitialized
+  uint32_t mid = 0;
 
   while (beg < end) {
     mid = (beg + end) >> 1;

@@ -56,7 +56,7 @@ class Animation::Impl {
 
     size_t beg = 0;
     size_t end = input.size();
-    size_t mid;
+    size_t mid = 0;
 
     while (beg < end) {
       mid = (beg + end) >> 1;

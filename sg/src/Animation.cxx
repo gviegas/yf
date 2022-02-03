@@ -7,6 +7,7 @@
 
 #include <cfloat>
 #include <cmath>
+#include <stdexcept>
 #include <utility>
 
 #include "Animation.h"
@@ -228,7 +229,18 @@ Animation::Animation(const vector<Timeline>& inputs,
                      const vector<Translation>& outT,
                      const vector<Rotation>& outR,
                      const vector<Scale>& outS)
-  : impl_(make_unique<Impl>(inputs, outT, outR, outS)) { }
+  : impl_(make_unique<Impl>(inputs, outT, outR, outS)) {
+
+  if (inputs.empty())
+    throw invalid_argument("Cannot create an animation with no input");
+
+  for (const auto& tl : inputs)
+    if (tl.empty())
+      throw invalid_argument("Cannot create an animation with empty timeline");
+
+  if (outT.empty() && outR.empty() && outS.empty())
+    throw invalid_argument("Cannot create an animation with no output");
+}
 
 Animation::~Animation() { }
 

@@ -1,3 +1,1 @@
 # [YF]
-
-An experimental renderer.

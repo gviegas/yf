@@ -12,6 +12,7 @@
 #include <cassert>
 #include <atomic>
 #include <algorithm>
+#include <vector>
 #include <stdexcept>
 
 #include "DataPNG.h"

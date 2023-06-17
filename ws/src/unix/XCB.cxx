@@ -2,7 +2,7 @@
 // WS
 // XCB.cxx
 //
-// Copyright © 2020-2021 Gustavo C. Viegas.
+// Copyright © 2020-2023 Gustavo C. Viegas.
 //
 
 #include <cstdlib>
@@ -33,7 +33,7 @@ VarsXCB vars{nullptr, 0, 0, 0, 0, 0, 0, 0, 0, 0};
 ///
 void* libHandle = nullptr;
 
-/// Loads XCB lib and set dynamic symbols.
+/// Loads XCB lib and sets dynamic symbols.
 ///
 inline void loadXCB() {
   if (libHandle)
@@ -68,7 +68,7 @@ if (!fp) { \
   WS_SETFP(internAtomReplyXCB, "xcb_intern_atom_reply");
   WS_SETFP(changePropertyCheckedXCB, "xcb_change_property_checked");
   WS_SETFP(changeKeyboardControlCheckedXCB,
-  "xcb_change_keyboard_control_checked");
+           "xcb_change_keyboard_control_checked");
 
 #undef WS_SETFP
 

@@ -1,7 +1,7 @@
 #!/usr/bin/env sh
 
 #
-# Updated WS local include directory.
+# Updates WS local include directory.
 #
 
 VAR_DIR=~/var

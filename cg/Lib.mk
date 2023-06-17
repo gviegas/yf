@@ -30,7 +30,7 @@ DEP := $(OBJ:.o=.d)
 CC := /usr/bin/c++
 CC_FLAGS := -std=gnu++17 -Wpedantic -Wall -Wextra -O3
 
-LD_LIBS := -ldl -lyf-ws
+LD_LIBS := -lyf-ws
 LD_FLAGS := -I $(VAR_DIR)include/ \
 	    -iquote $(INCLUDE_DIR) \
 	    -iquote $(SRC_DIR) \

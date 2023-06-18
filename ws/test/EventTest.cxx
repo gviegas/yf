@@ -2,7 +2,7 @@
 // WS
 // EventTest.cxx
 //
-// Copyright © 2020-2021 Gustavo C. Viegas.
+// Copyright © 2020-2023 Gustavo C. Viegas.
 //
 
 #include <thread>
@@ -13,6 +13,7 @@
 #include "Event.h"
 #include "Keyboard.h"
 #include "Pointer.h"
+#include "Delegate.h"
 
 using namespace TEST_NS;
 using namespace WS_NS;
@@ -27,28 +28,46 @@ struct EventTest : Test {
     Assertions a;
 
     KeyCode key = KeyCodeUnknown;
+    uint64_t count = 0;
 
-    onWdClose([](Window* win) { wcout << "wd close: " << win << endl; });
-    onWdResize([](Window* win, uint32_t w, uint32_t h) {
-        wcout << "wd resize: " << win << ", " << w << ", " << h << endl;
+    onWdClose([&count](Window* win) {
+      wcout << "wd close: " << win << endl;
+      count++;
+    });
+    onWdResize([&count](Window* win, uint32_t w, uint32_t h) {
+      wcout << "wd resize: " << win << ", " << w << ", " << h << endl;
+      count++;
     });
 
-    onKbEnter([](Window* win) { wcout << "kb enter: " << win << endl; });
-    onKbLeave([](Window* win) { wcout << "kb leave: " << win << endl; });
-    onKbKey([&key](KeyCode c, KeyState s, KeyModMask m) {
+    onKbEnter([&count](Window* win) {
+      wcout << "kb enter: " << win << endl;
+      count++;
+    });
+    onKbLeave([&count](Window* win) {
+      wcout << "kb leave: " << win << endl;
+      count++;
+    });
+    onKbKey([&key, &count](KeyCode c, KeyState s, KeyModMask m) {
       wcout << "kb key: " << c << ", " << s << ", " << hex << m << dec << endl;
       key = c;
+      count++;
     });
 
-    onPtEnter([](Window* win, int32_t x, int32_t y) {
+    onPtEnter([&count](Window* win, int32_t x, int32_t y) {
       wcout << "pt enter: " << win << ", " << x << ", " << y << endl;
+      count++;
     });
-    onPtLeave([](Window* win) { wcout << "pt leave: " << win << endl; });
-    onPtMotion([](int32_t x, int32_t y) {
+    onPtLeave([&count](Window* win) {
+      wcout << "pt leave: " << win << endl;
+      count++;
+    });
+    onPtMotion([&count](int32_t x, int32_t y) {
       wcout << "pt motion: " << x << ", " << y << endl;
+      count++;
     });
-    onPtButton([](Button b, ButtonState s, int32_t x, int32_t y) {
+    onPtButton([&count](Button b, ButtonState s, int32_t x, int32_t y) {
       wcout << "pt button: " << b << ", " << s << "," << x << ", " << y << endl;
+      count++;
     });
 
     auto win1 = createWindow(300, 200, L"Window 1");
@@ -69,11 +88,63 @@ struct EventTest : Test {
           wcout << "new wd close: " << win << endl;
         });
     }
+    onWdClose([](Window*){});
 
-    a.push_back({L"setDelegate(WdDelegate)", true});
-    a.push_back({L"setDelegate(KbDelegate)", true});
-    a.push_back({L"setDelegate(PtDelegate)", true});
-    a.push_back({L"dispatch()", true});
+    a.push_back({L"onWdClose(<function>)",
+                delegate().mask_ & Delegate::WdClose && delegate().wdClose_});
+    a.push_back({L"onWdResize(<function>)",
+                delegate().mask_ & Delegate::WdResize && delegate().wdResize_});
+
+    a.push_back({L"onKbEnter(<function>)",
+                delegate().mask_ & Delegate::KbEnter && delegate().kbEnter_});
+    a.push_back({L"onKbLeave(<function>)",
+                delegate().mask_ & Delegate::KbLeave && delegate().kbLeave_});
+    a.push_back({L"onKbKey(<function>)",
+                delegate().mask_ & Delegate::KbKey && delegate().kbKey_});
+
+    a.push_back({L"onPtEnter(<function>)",
+                delegate().mask_ & Delegate::PtEnter && delegate().ptEnter_});
+    a.push_back({L"onPtLeave(<function>)",
+                delegate().mask_ & Delegate::PtLeave && delegate().ptLeave_});
+    a.push_back({L"onPtMotion(<function>)",
+                delegate().mask_ & Delegate::PtMotion && delegate().ptMotion_});
+    a.push_back({L"onPtButton(<function>)",
+                delegate().mask_ & Delegate::PtButton && delegate().ptButton_});
+
+    onWdClose({});
+    onWdResize({});
+    onKbEnter({});
+    onKbLeave({});
+    onKbKey({});
+    onPtEnter({});
+    onPtLeave({});
+    onPtMotion({});
+    onPtButton({});
+
+    a.push_back({L"onWdClose({})",
+                !(delegate().mask_ & Delegate::WdClose) && !delegate().wdClose_});
+    a.push_back({L"onWdResize({})",
+                !(delegate().mask_ & Delegate::WdResize) && !delegate().wdResize_});
+
+    a.push_back({L"onKbEnter({})",
+                !(delegate().mask_ & Delegate::KbEnter) && !delegate().kbEnter_});
+    a.push_back({L"onKbLeave({})",
+                !(delegate().mask_ & Delegate::KbLeave) && !delegate().kbLeave_});
+    a.push_back({L"onKbKey({})",
+                !(delegate().mask_ & Delegate::KbKey) && !delegate().kbKey_});
+
+    a.push_back({L"onPtEnter({})",
+                !(delegate().mask_ & Delegate::PtEnter) && !delegate().ptEnter_});
+    a.push_back({L"onPtLeave({})",
+                !(delegate().mask_ & Delegate::PtLeave) && !delegate().ptLeave_});
+    a.push_back({L"onPtMotion({})",
+                !(delegate().mask_ & Delegate::PtMotion) && !delegate().ptMotion_});
+    a.push_back({L"onPtButton({})",
+                !(delegate().mask_ & Delegate::PtButton) && !delegate().ptButton_});
+
+    // NOTE: Failure here might not be `dispatch()`'s fault
+    a.push_back({L"dispatch()", count});
+    wcout << "dispatched " << count << (count > 1 ? " events" : " event") << endl;
 
     return a;
   }

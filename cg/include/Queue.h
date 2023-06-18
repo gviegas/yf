@@ -2,7 +2,7 @@
 // CG
 // Queue.h
 //
-// Copyright © 2020-2021 Gustavo C. Viegas.
+// Copyright © 2020-2023 Gustavo C. Viegas.
 //
 
 #ifndef YF_CG_QUEUE_H
@@ -54,13 +54,13 @@ class CmdBuffer {
 ///
 class Queue {
  public:
-  /// Mask of `CapabilityFlags` bits.
+  /// Mask of `Capability` bits.
   ///
   using CapabilityMask = uint32_t;
 
   /// Possible capabilities of a queue.
   ///
-  enum CapabilityFlags : uint32_t {
+  enum Capability : uint32_t {
     Graphics = 0x01,
     Compute  = 0x02,
     Transfer = 0x04

@@ -9,6 +9,7 @@ INCLUDE_DIR := include/
 SRC_DIR := src/
 SUB_DIR := sub/
 TEST_DIR := test/
+SCRIPT_DIR := script/
 BIN_DIR := $(VAR_DIR)bin/
 CACHE_DIR := $(VAR_DIR)cache/yf/cg/
 
@@ -36,6 +37,15 @@ PP := $(CC) -E
 PP_FLAGS := -D YF -D YF_CG -D YF_DEVEL
 
 OUT := $(BIN_DIR)cg-devel
+
+INC_SCRIPT := $(SCRIPT_DIR)inc.sh
+
+.PHONY: all
+all: inc devel
+
+.PHONY: inc
+inc:
+	./$(INC_SCRIPT)
 
 devel: $(OBJ)
 	$(CC) $(CC_FLAGS) $(LD_FLAGS) $^ $(LD_LIBS) -o $(OUT)

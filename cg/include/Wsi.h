@@ -2,7 +2,7 @@
 // CG
 // Wsi.h
 //
-// Copyright © 2020-2021 Gustavo C. Viegas.
+// Copyright © 2020-2023 Gustavo C. Viegas.
 //
 
 #ifndef YF_CG_WSI_H
@@ -30,7 +30,7 @@ class Wsi {
   Wsi& operator=(const Wsi&) = delete;
   virtual ~Wsi() = default;
 
-  /// Gets the swapchain image for a givem index.
+  /// Gets the swapchain image for a given index.
   ///
   virtual Image* operator[](Index index) = 0;
   virtual const Image* operator[](Index index) const = 0;

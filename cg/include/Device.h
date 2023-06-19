@@ -2,7 +2,7 @@
 // CG
 // Device.h
 //
-// Copyright © 2020-2021 Gustavo C. Viegas.
+// Copyright © 2020-2023 Gustavo C. Viegas.
 //
 
 #ifndef YF_CG_DEVICE_H
@@ -40,7 +40,8 @@ class Device {
 
   /// Creates a new buffer object.
   ///
-  virtual Buffer::Ptr buffer(uint64_t size) = 0;
+  virtual Buffer::Ptr buffer(uint64_t size, Buffer::Mode mode,
+                             Buffer::UsageMask usageMask) = 0;
 
   /// Creates a new image object.
   ///

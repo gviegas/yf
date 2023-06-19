@@ -2,7 +2,7 @@
 // CG
 // ImageVK.cxx
 //
-// Copyright © 2020-2021 Gustavo C. Viegas.
+// Copyright © 2020-2023 Gustavo C. Viegas.
 //
 
 #include <cstring>
@@ -285,18 +285,22 @@ void ImageVK::write(Offset2 offset, Size2 size, uint32_t layer, uint32_t level,
     auto stgIt = staging_.find(layer);
 
     // One staging buffer per layer
+    // TODO: Consider keeping a pool of staging buffers
     if (stgIt == staging_.end()) {
       uint64_t sz = size_.width * size_.height * txSz;
       sz = (sz & ~255) + 256;
       if (levels_ > 1)
         sz <<= 1;
-      VkBufferUsageFlags usage = VK_BUFFER_USAGE_TRANSFER_SRC_BIT;
-      stgIt = staging_.emplace(layer, make_unique<BufferVK>(sz, usage)).first;
+      const auto mode = BufferVK::Shared;
+      const auto usage = BufferVK::CopySrc;
+      stgIt = staging_
+        .emplace(layer, make_unique<BufferVK>(sz, mode, usage))
+        .first;
     }
 
     BufferVK* buf = stgIt->second.get();
 
-    // The mipmap chain is stored contiguosly in the buffer
+    // The mipmap chain is stored contiguously in the buffer
     uint64_t off = 0;
     for (uint32_t i = 0; i < level; i++) {
       off += (size_.width >> i) * (size_.height >> i) * txSz;

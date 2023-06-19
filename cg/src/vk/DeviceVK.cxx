@@ -2,7 +2,7 @@
 // CG
 // DeviceVK.cxx
 //
-// Copyright © 2020-2021 Gustavo C. Viegas.
+// Copyright © 2020-2023 Gustavo C. Viegas.
 //
 
 #include <unordered_set>
@@ -447,8 +447,10 @@ Queue& DeviceVK::queue(Queue::CapabilityMask) {
   return *queue_;
 }
 
-Buffer::Ptr DeviceVK::buffer(uint64_t size) {
-  return make_unique<BufferVK>(size);
+Buffer::Ptr DeviceVK::buffer(uint64_t size, Buffer::Mode mode,
+                             Buffer::UsageMask usageMask) {
+
+  return make_unique<BufferVK>(size, mode, usageMask);
 }
 
 Image::Ptr DeviceVK::image(PxFormat format, Size2 size, uint32_t layers,

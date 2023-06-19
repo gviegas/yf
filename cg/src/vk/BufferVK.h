@@ -2,7 +2,7 @@
 // CG
 // BufferVK.h
 //
-// Copyright © 2020-2021 Gustavo C. Viegas.
+// Copyright © 2020-2023 Gustavo C. Viegas.
 //
 
 #ifndef YF_CG_BUFFERVK_H
@@ -15,7 +15,7 @@ CG_NS_BEGIN
 
 class BufferVK final : public Buffer {
  public:
-  BufferVK(uint64_t size, VkBufferUsageFlags usage = 0);
+  BufferVK(uint64_t size, Mode mode, UsageMask usageMask);
   ~BufferVK();
 
   void write(uint64_t offset, uint64_t size, const void* data);
@@ -27,6 +27,8 @@ class BufferVK final : public Buffer {
 
  private:
   const uint64_t size_;
+  const Mode mode_;
+  const UsageMask usageMask_;
   VkDeviceMemory memory_ = VK_NULL_HANDLE;
   VkBuffer handle_ = VK_NULL_HANDLE;
   void* data_ = nullptr;

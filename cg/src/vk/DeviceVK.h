@@ -2,7 +2,7 @@
 // CG
 // DeviceVK.h
 //
-// Copyright © 2020-2021 Gustavo C. Viegas.
+// Copyright © 2020-2023 Gustavo C. Viegas.
 //
 
 #ifndef YF_CG_DEVICEVK_H
@@ -28,7 +28,8 @@ class DeviceVK final : public Device {
   Queue& defaultQueue();
   Queue& queue(Queue::CapabilityMask capabilities);
 
-  Buffer::Ptr buffer(uint64_t size);
+  Buffer::Ptr buffer(uint64_t size, Buffer::Mode mode,
+                     Buffer::UsageMask usageMask);
 
   Image::Ptr image(PxFormat format, Size2 size, uint32_t layers,
                    uint32_t levels, Samples samples);

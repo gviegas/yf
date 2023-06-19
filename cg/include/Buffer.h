@@ -36,6 +36,20 @@ class Buffer {
     Query    = 0x80
   };
 
+  /// Memory modes.
+  enum class Mode {
+    Shared,
+    Private
+  };
+
+  // TODO: Update this when migrating to C++20
+#if __cplusplus >= 202002L
+# error use `using` instead
+#else
+  static constexpr Mode Shared = Mode::Shared;
+  static constexpr Mode Private = Mode::Private;
+#endif
+
   Buffer() = default;
   Buffer(const Buffer&) = delete;
   Buffer& operator=(const Buffer&) = delete;

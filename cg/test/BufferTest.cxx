@@ -2,7 +2,7 @@
 // CG
 // BufferTest.cxx
 //
-// Copyright © 2020-2021 Gustavo C. Viegas.
+// Copyright © 2020-2023 Gustavo C. Viegas.
 //
 
 #include "Test.h"
@@ -20,15 +20,18 @@ struct BufferTest : Test {
   Assertions run(const vector<string>&) {
     class Buffer_ : public Buffer {
       uint64_t sz_;
+      Mode md_;
+      UsageMask usg_;
      public:
-      Buffer_(size_t sz) : sz_(sz) { }
+      Buffer_(size_t sz, Mode md, UsageMask usg)
+        : sz_(sz), md_(md), usg_(usg) { }
       void write(uint64_t, uint64_t, const void*) { }
       uint64_t size() const { return sz_; }
     };
 
     Assertions a;
 
-    Buffer_ buf(1<<14);
+    Buffer_ buf(1 << 14, Buffer::Shared, Buffer::CopySrc | Buffer::CopyDst);
 
     a.push_back({L"Buffer(1<<14)", buf.size() == (1<<14)});
 

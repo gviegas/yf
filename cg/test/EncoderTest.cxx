@@ -2,7 +2,7 @@
 // CG
 // EncoderTest.cxx
 //
-// Copyright © 2020-2021 Gustavo C. Viegas.
+// Copyright © 2020-2023 Gustavo C. Viegas.
 //
 
 #include "Test.h"
@@ -43,7 +43,10 @@ struct EncoderTest : Test {
     const CpState::Config cconf{comp.get(), {}};
     auto cst = device().state(cconf);
 
-    auto buf = device().buffer(1 << 14);
+    auto buf = device().buffer(1 << 14, Buffer::Shared, Buffer::CopySrc |
+                                                        Buffer::CopyDst |
+                                                        Buffer::Index |
+                                                        Buffer::Vertex);
 
     Viewport vport{0.0f, 0.0f, 480.0f, 300.0f, 0.0f, 1.0f};
     Scissor sciss{{0, 0}, {480, 300}};

@@ -2,7 +2,7 @@
 // CG
 // CopyTest.cxx
 //
-// Copyright © 2021 Gustavo C. Viegas.
+// Copyright © 2021-2023 Gustavo C. Viegas.
 //
 
 #include <iostream>
@@ -68,7 +68,10 @@ struct CopyTest : Test {
     const uint64_t off = (sizeof pos + sizeof tc) % align ?
                          align - ((sizeof pos + sizeof tc) % align) : 0;
 
-    auto buf = dev.buffer(4096);
+    const auto bufUsg = Buffer::CopySrc | Buffer::CopyDst | Buffer::Vertex |
+                        Buffer::Uniform;
+
+    auto buf = dev.buffer(4096, Buffer::Shared, bufUsg);
     buf->write(0, sizeof pos, pos);
     buf->write(sizeof pos, sizeof tc, tc);
     buf->write(sizeof pos + sizeof tc + off, sizeof xform, xform);
@@ -128,7 +131,8 @@ struct CopyTest : Test {
 
       if (key == WS_NS::KeyCodeB) {
         key = WS_NS::KeyCodeUnknown;
-        auto tmp = dev.buffer(buf->size());
+        // Can be GPU-private
+        auto tmp = dev.buffer(buf->size(), Buffer::Private, bufUsg);
         TfEncoder enc;
         enc.copy(*tmp, 0, *buf, 0, buf->size());
         cb->encode(enc);

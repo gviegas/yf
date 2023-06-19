@@ -2,7 +2,7 @@
 // CG
 // DrawTest.cxx
 //
-// Copyright © 2020-2021 Gustavo C. Viegas.
+// Copyright © 2020-2023 Gustavo C. Viegas.
 //
 
 #include <chrono>
@@ -73,7 +73,8 @@ struct DrawTest : Test {
     const uint64_t unifOff = sizeof vxData % unifAlign ?
                              unifAlign - (sizeof vxData % unifAlign) : 0;
 
-    auto buf = dev.buffer(2048);
+    auto buf = dev.buffer(2048, Buffer::Shared, Buffer::Vertex |
+                                                Buffer::Uniform);
     buf->write(0, sizeof vxData, vxData);
     buf->write(sizeof vxData + unifOff, sizeof unifData, unifData);
 
@@ -95,14 +96,16 @@ struct DrawTest : Test {
                           vxStrd, VxStepFnVertex};
 
     // Create graphics state
-    GrState::Config config{pass.get(),
-                           {vert.get(), frag.get()},
-                           {dtb.get()},
-                           {vxIn},
-                           TopologyTriangle,
-                           PolyModeFill,
-                           CullModeBack,
-                           WindingCounterCw};
+    GrState::Config config{
+      pass.get(),
+      {vert.get(), frag.get()},
+      {dtb.get()},
+      {vxIn},
+      TopologyTriangle,
+      PolyModeFill,
+      CullModeBack,
+      WindingCounterCw
+    };
     auto state = dev.state(config);
 
     // Create command buffer

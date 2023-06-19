@@ -2,7 +2,7 @@
 // CG
 // Buffer.h
 //
-// Copyright © 2020-2021 Gustavo C. Viegas.
+// Copyright © 2020-2023 Gustavo C. Viegas.
 //
 
 #ifndef YF_CG_BUFFER_H
@@ -20,6 +20,21 @@ CG_NS_BEGIN
 class Buffer {
  public:
   using Ptr = std::unique_ptr<Buffer>;
+
+  /// Mask of `Usage` bits.
+  using UsageMask = uint32_t;
+
+  /// Usages of a buffer.
+  enum Usage : uint32_t {
+    CopySrc  = 0x01,
+    CopyDst  = 0x02,
+    Vertex   = 0x04,
+    Index    = 0x08,
+    Indirect = 0x10,
+    Uniform  = 0x20,
+    Storage  = 0x40,
+    Query    = 0x80
+  };
 
   Buffer() = default;
   Buffer(const Buffer&) = delete;

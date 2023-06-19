@@ -96,7 +96,14 @@ void BufferVK::write(uint64_t offset, uint64_t size, const void* data) {
   if (offset + size > size_ || !data)
     throw invalid_argument("Invalid BufferVK::write() argument(s)");
 
-  memcpy(reinterpret_cast<char*>(data_)+offset, data, size);
+  switch (mode_) {
+  case Shared:
+    memcpy(reinterpret_cast<char*>(data_)+offset, data, size);
+    break;
+  default:
+    // TODO: Consider allowing this (do the write through a staging buffer)
+    throw runtime_error("BufferVK::write() requires shared mode");
+  }
 }
 
 uint64_t BufferVK::size() const {

@@ -110,6 +110,14 @@ uint64_t BufferVK::size() const {
   return size_;
 }
 
+Buffer::Mode BufferVK::mode() const {
+  return mode_;
+}
+
+Buffer::UsageMask BufferVK::usageMask() const {
+  return usageMask_;
+}
+
 VkBuffer BufferVK::handle() {
   return handle_;
 }

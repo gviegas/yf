@@ -79,9 +79,9 @@ struct DrawTest : Test {
     buf->write(sizeof vxData + unifOff, sizeof unifData, unifData);
 
     // Create sampling image and fill with data
-    const uint8_t pxData[][3] = {{255, 0, 0}, {255, 255, 0}};
+    const uint8_t pxData[][4] = {{255, 0, 0, 255}, {255, 255, 0, 255}};
 
-    auto tex = dev.image(PxFormatRgb8Unorm, {2, 1}, 1, 1, Samples1);
+    auto tex = dev.image(PxFormatRgba8Unorm, {2, 1}, 1, 1, Samples1);
     tex->write({0}, {2, 1}, 0, 0, pxData);
 
     // Create descriptor table, allocate resources and copy data

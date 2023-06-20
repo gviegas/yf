@@ -77,9 +77,11 @@ struct CopyTest : Test {
     buf->write(sizeof pos + sizeof tc + off, sizeof xform, xform);
 
     // Image
-    const uint8_t pixels[][3] = {{0, 0, 255}, {0, 255, 0}, {255, 0, 0}};
+    const uint8_t pixels[][4] = {
+      {0, 0, 255, 255}, {0, 255, 0, 255}, {255, 0, 0, 255}
+    };
 
-    auto img = dev.image(PxFormatRgb8Unorm, {3, 1}, 1, 1, Samples1);
+    auto img = dev.image(PxFormatRgba8Unorm, {3, 1}, 1, 1, Samples1);
     img->write({0}, {3, 1}, 0, 0, pixels);
 
     // DcTable

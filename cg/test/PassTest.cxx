@@ -2,7 +2,7 @@
 // CG
 // PassTest.cxx
 //
-// Copyright © 2020-2021 Gustavo C. Viegas.
+// Copyright © 2020-2023 Gustavo C. Viegas.
 //
 
 #include "Test.h"
@@ -54,7 +54,7 @@ struct PassTest : Test {
 
     clrs.push_back({PxFormatRgba8Unorm, Samples1});
     clrs.front().samples = Samples1;
-    depSten.format = PxFormatD24UnormS8Uint;
+    depSten.format = PxFormatD24UnormS8;
     Pass_ p2(&clrs, nullptr, &depSten);
 
     Pass_ p3(&clrs, nullptr, nullptr);
@@ -80,7 +80,7 @@ struct PassTest : Test {
                  p2.colors()->back().samples == Samples1 &&
                  p2.resolves() == nullptr &&
                  p2.depthStencil() != nullptr &&
-                 p2.depthStencil()->format == PxFormatD24UnormS8Uint &&
+                 p2.depthStencil()->format == PxFormatD24UnormS8 &&
                  p2.depthStencil()->samples == Samples1});
 
     a.push_back({L"Pass(#color only#)",
@@ -96,7 +96,7 @@ struct PassTest : Test {
                  p4.colors() == nullptr &&
                  p4.resolves() == nullptr &&
                  p4.depthStencil() != nullptr &&
-                 p4.depthStencil()->format == PxFormatD24UnormS8Uint &&
+                 p4.depthStencil()->format == PxFormatD24UnormS8 &&
                  p4.depthStencil()->samples == Samples1});
 
     return a;

@@ -2,7 +2,7 @@
 // CG
 // Image.h
 //
-// Copyright © 2020-2021 Gustavo C. Viegas.
+// Copyright © 2020-2023 Gustavo C. Viegas.
 //
 
 #ifndef YF_CG_IMAGE_H
@@ -21,50 +21,57 @@ CG_NS_BEGIN
 enum PxFormat {
   PxFormatUndefined,
 
+  // 8-bit
   PxFormatR8Unorm,
+  PxFormatR8Norm,
   PxFormatR8Uint,
-  PxFormatR8Srgb,
+  PxFormatR8Int,
 
-  PxFormatRg8Unorm,
-  PxFormatRg8Uint,
-  PxFormatRg8Srgb,
-
-  PxFormatRgb8Unorm,
-  PxFormatRgb8Uint,
-  PxFormatRgb8Srgb,
-  PxFormatBgr8Unorm,
-  PxFormatBgr8Uint,
-  PxFormatBgr8Srgb,
-
-  PxFormatRgba8Unorm,
-  PxFormatRgba8Uint,
-  PxFormatRgba8Srgb,
-  PxFormatBgra8Unorm,
-  PxFormatBgra8Uint,
-  PxFormatBgra8Srgb,
-
-  PxFormatR16Unorm,
+  // 16-bit
   PxFormatR16Uint,
+  PxFormatR16Int,
+  PxFormatR16Float,
+  PxFormatRg8Unorm,
+  PxFormatRg8Norm,
+  PxFormatRg8Uint,
+  PxFormatRg8Int,
 
-  PxFormatRg16Unorm,
-  PxFormatRg16Uint,
-
-  PxFormatRgb16Unorm,
-  PxFormatRgb16Uint,
-
-  PxFormatRgba16Unorm,
-  PxFormatRgba16Uint,
-
+  // 32-bit
   PxFormatR32Uint,
-  PxFormatR32Flt,
+  PxFormatR32Int,
+  PxFormatR32Float,
+  PxFormatRg16Uint,
+  PxFormatRg16Int,
+  PxFormatRg16Float,
+  PxFormatRgba8Unorm,
+  PxFormatRgba8Srgb,
+  PxFormatRgba8Norm,
+  PxFormatRgba8Uint,
+  PxFormatRgba8Int,
+  PxFormatBgra8Unorm,
+  PxFormatBgra8Srgb,
+  PxFormatRgb10a2Unorm,
+  PxFormatRg11b10Float,
 
+  // 64-bit
+  PxFormatRg32Uint,
+  PxFormatRg32Int,
+  PxFormatRg32Float,
+  PxFormatRgba16Uint,
+  PxFormatRgba16Int,
+  PxFormatRgba16Float,
+
+  // 128-bit
+  PxFormatRgba32Uint,
+  PxFormatRgba32Int,
+  PxFormatRgba32Float,
+
+  // Depth/stencil
   PxFormatD16Unorm,
-  PxFormatD32Flt,
-
-  PxFormatS8Uint,
-
-  PxFormatD16UnormS8Uint,
-  PxFormatD24UnormS8Uint
+  PxFormatD32Float,
+  PxFormatS8,
+  PxFormatD24UnormS8,
+  PxFormatD32FloatS8
 };
 
 /// Sample counts.

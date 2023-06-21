@@ -28,8 +28,7 @@ class DeviceVK final : public Device {
   Queue& defaultQueue();
   Queue& queue(Queue::CapabilityMask capabilities);
 
-  Buffer::Ptr buffer(uint64_t size, Buffer::Mode mode,
-                     Buffer::UsageMask usageMask);
+  Buffer::Ptr buffer(const Buffer::Desc& desc);
 
   Image::Ptr image(PxFormat format, Size2 size, uint32_t layers,
                    uint32_t levels, Samples samples);

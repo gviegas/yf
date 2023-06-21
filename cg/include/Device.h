@@ -40,8 +40,7 @@ class Device {
 
   /// Creates a new buffer object.
   ///
-  virtual Buffer::Ptr buffer(uint64_t size, Buffer::Mode mode,
-                             Buffer::UsageMask usageMask) = 0;
+  virtual Buffer::Ptr buffer(const Buffer::Desc& desc) = 0;
 
   /// Creates a new image object.
   ///

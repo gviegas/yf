@@ -16,10 +16,10 @@
 using namespace CG_NS;
 using namespace std;
 
-BufferVK::BufferVK(uint64_t size, Mode mode, UsageMask usageMask)
-  : size_(size), mode_(mode), usageMask_(usageMask) {
+BufferVK::BufferVK(const Desc& desc)
+  : size_(desc.size), mode_(desc.mode), usageMask_(desc.usageMask) {
 
-  if (size == 0)
+  if (size_ == 0)
     throw invalid_argument("BufferVK requires size > 0");
 
   // Create buffer
@@ -27,26 +27,26 @@ BufferVK::BufferVK(uint64_t size, Mode mode, UsageMask usageMask)
   VkResult res;
 
   VkBufferUsageFlags usage = 0;
-  if (usageMask & CopySrc)
+  if (usageMask_ & CopySrc)
     usage |= VK_BUFFER_USAGE_TRANSFER_SRC_BIT;
-  if (usageMask & (CopyDst | Query))
+  if (usageMask_ & (CopyDst | Query))
     usage |= VK_BUFFER_USAGE_TRANSFER_DST_BIT;
-  if (usageMask & Vertex)
+  if (usageMask_ & Vertex)
     usage |= VK_BUFFER_USAGE_VERTEX_BUFFER_BIT;
-  if (usageMask & Index)
+  if (usageMask_ & Index)
     usage |= VK_BUFFER_USAGE_INDEX_BUFFER_BIT;
-  if (usageMask & Indirect)
+  if (usageMask_ & Indirect)
     usage |= VK_BUFFER_USAGE_INDIRECT_BUFFER_BIT;
-  if (usageMask & Uniform)
+  if (usageMask_ & Uniform)
     usage |= VK_BUFFER_USAGE_UNIFORM_BUFFER_BIT;
-  if (usageMask & Storage)
+  if (usageMask_ & Storage)
     usage |= VK_BUFFER_USAGE_STORAGE_BUFFER_BIT;
 
   VkBufferCreateInfo info;
   info.sType = VK_STRUCTURE_TYPE_BUFFER_CREATE_INFO;
   info.pNext = nullptr;
   info.flags = 0;
-  info.size = size;
+  info.size = size_;
   info.usage = usage;
   info.sharingMode = VK_SHARING_MODE_EXCLUSIVE;
   info.queueFamilyIndexCount = 0;
@@ -61,7 +61,7 @@ BufferVK::BufferVK(uint64_t size, Mode mode, UsageMask usageMask)
   vkGetBufferMemoryRequirements(dev, handle_, &memReq);
 
   try {
-    memory_ = allocateVK(memReq, mode == Shared);
+    memory_ = allocateVK(memReq, mode_ == Shared);
   } catch (...) {
     vkDestroyBuffer(dev, handle_, nullptr);
     throw;
@@ -74,7 +74,7 @@ BufferVK::BufferVK(uint64_t size, Mode mode, UsageMask usageMask)
     throw DeviceExcept("Failed to bind memory to buffer");
   }
 
-  if (mode == Shared) {
+  if (mode_ == Shared) {
     // TODO: Consider exposing mapping/unmapping methods
     res = vkMapMemory(dev, memory_, 0, VK_WHOLE_SIZE, 0, &data_);
     if (res != VK_SUCCESS) {

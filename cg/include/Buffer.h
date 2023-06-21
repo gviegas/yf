@@ -22,6 +22,7 @@ class Buffer {
   using Ptr = std::unique_ptr<Buffer>;
 
   /// Modes of a buffer.
+  ///
   enum class Mode {
     Shared,
     Private
@@ -35,9 +36,11 @@ class Buffer {
 #endif
 
   /// Mask of `Usage` bits.
+  ///
   using UsageMask = uint32_t;
 
   /// Usages of a buffer.
+  ///
   enum Usage : uint32_t {
     CopySrc  = 0x01,
     CopyDst  = 0x02,
@@ -49,12 +52,20 @@ class Buffer {
     Query    = 0x80
   };
 
+  /// Buffer descriptor.
+  ///
+  struct Desc {
+    uint64_t size;
+    Mode mode;
+    UsageMask usageMask;
+  };
+
   Buffer() = default;
   Buffer(const Buffer&) = delete;
   Buffer& operator=(const Buffer&) = delete;
   virtual ~Buffer() = default;
 
-  /// Writes data to buffer.
+  /// Writes data to buffer memory.
   ///
   virtual void write(uint64_t offset, uint64_t size, const void* data) = 0;
 

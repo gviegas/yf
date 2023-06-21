@@ -447,10 +447,8 @@ Queue& DeviceVK::queue(Queue::CapabilityMask) {
   return *queue_;
 }
 
-Buffer::Ptr DeviceVK::buffer(uint64_t size, Buffer::Mode mode,
-                             Buffer::UsageMask usageMask) {
-
-  return make_unique<BufferVK>(size, mode, usageMask);
+Buffer::Ptr DeviceVK::buffer(const Buffer::Desc& desc) {
+  return make_unique<BufferVK>(desc);
 }
 
 Image::Ptr DeviceVK::image(PxFormat format, Size2 size, uint32_t layers,

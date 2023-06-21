@@ -71,7 +71,7 @@ struct CopyTest : Test {
     const auto bufUsg = Buffer::CopySrc | Buffer::CopyDst | Buffer::Vertex |
                         Buffer::Uniform;
 
-    auto buf = dev.buffer(4096, Buffer::Shared, bufUsg);
+    auto buf = dev.buffer({4096, Buffer::Shared, bufUsg});
     buf->write(0, sizeof pos, pos);
     buf->write(sizeof pos, sizeof tc, tc);
     buf->write(sizeof pos + sizeof tc + off, sizeof xform, xform);
@@ -134,7 +134,7 @@ struct CopyTest : Test {
       if (key == WS_NS::KeyCodeB) {
         key = WS_NS::KeyCodeUnknown;
         // Can be GPU-private
-        auto tmp = dev.buffer(buf->size(), Buffer::Private, bufUsg);
+        auto tmp = dev.buffer({buf->size(), Buffer::Private, bufUsg});
         TfEncoder enc;
         enc.copy(*tmp, 0, *buf, 0, buf->size());
         cb->encode(enc);

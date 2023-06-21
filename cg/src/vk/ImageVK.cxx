@@ -291,10 +291,9 @@ void ImageVK::write(Offset2 offset, Size2 size, uint32_t layer, uint32_t level,
       sz = (sz & ~255) + 256;
       if (levels_ > 1)
         sz <<= 1;
-      const auto mode = BufferVK::Shared;
-      const auto usage = BufferVK::CopySrc;
+      const Buffer::Desc desc{sz, Buffer::Shared, Buffer::CopySrc};
       stgIt = staging_
-        .emplace(layer, make_unique<BufferVK>(sz, mode, usage))
+        .emplace(layer, make_unique<BufferVK>(desc))
         .first;
     }
 

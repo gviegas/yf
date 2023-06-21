@@ -62,7 +62,7 @@ struct BufferTest : Test {
     for (auto& sz : sizes) {
       for (auto& md : modes) {
         for (auto& um : usageMasks) {
-          auto buf = device().buffer(sz, md, um);
+          auto buf = device().buffer({sz, md, um});
           check &= buf->size() == sz && buf->mode() == md &&
                    buf->usageMask() == um;
         }
@@ -73,8 +73,9 @@ struct BufferTest : Test {
       const size_t inds[3][3]{{1, 0, 0}, {2, 1, 1}, {3, 0, 2}};
       Buffer::Ptr bufs[3];
       for (int i = 0; i < 3; i++)
-        bufs[i] = device().buffer(sizes[inds[i][0]], modes[inds[i][1]],
-                                  usageMasks[inds[i][2]]);
+        bufs[i] = device().buffer({sizes[inds[i][0]],
+                                   modes[inds[i][1]],
+                                   usageMasks[inds[i][2]]});
       for (int i = 0; i < 3; i++)
         check &= bufs[i]->size() == sizes[inds[i][0]] &&
                  bufs[i]->mode() == modes[inds[i][1]] &&

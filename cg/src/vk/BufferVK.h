@@ -15,7 +15,7 @@ CG_NS_BEGIN
 
 class BufferVK final : public Buffer {
  public:
-  BufferVK(uint64_t size, Mode mode, UsageMask usageMask);
+  BufferVK(const Desc& desc);
   ~BufferVK();
 
   void write(uint64_t offset, uint64_t size, const void* data);

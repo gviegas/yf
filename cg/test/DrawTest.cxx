@@ -73,8 +73,8 @@ struct DrawTest : Test {
     const uint64_t unifOff = sizeof vxData % unifAlign ?
                              unifAlign - (sizeof vxData % unifAlign) : 0;
 
-    auto buf = dev.buffer(2048, Buffer::Shared, Buffer::Vertex |
-                                                Buffer::Uniform);
+    auto buf = dev.buffer({2048, Buffer::Shared, Buffer::Vertex |
+                                                 Buffer::Uniform});
     buf->write(0, sizeof vxData, vxData);
     buf->write(sizeof vxData + unifOff, sizeof unifData, unifData);
 

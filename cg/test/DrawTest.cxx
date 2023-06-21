@@ -82,7 +82,7 @@ struct DrawTest : Test {
     const uint8_t pxData[][4] = {{255, 0, 0, 255}, {255, 255, 0, 255}};
 
     auto tex = dev.image(PxFormatRgba8Unorm, {2, 1}, 1, 1, Samples1);
-    tex->write({0}, {2, 1}, 0, 0, pxData);
+    tex->write({}, {2, 1}, 0, 0, pxData);
 
     // Create descriptor table, allocate resources and copy data
     const vector<DcEntry> dcs{{0, DcTypeUniform, 1}, {1, DcTypeImgSampler, 1}};
@@ -133,7 +133,7 @@ struct DrawTest : Test {
       GrEncoder enc;
       enc.setViewport({0.0f, 0.0f, (float)winSz.width, (float)winSz.height,
                        0.0f, 1.0f});
-      enc.setScissor({{0}, winSz});
+      enc.setScissor({{}, winSz});
       enc.setTarget(**tgtIt, tgtOp);
       enc.setState(*state);
       enc.setDcTable(0, 0);

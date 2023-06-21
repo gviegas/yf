@@ -47,25 +47,32 @@ struct TypesTest : Test {
 
     // Offset2
     {
-      Offset2 t(-20);
+      Offset2 t(-20, -20);
       Offset2 u(-1, 2);
-      a.push_back({L"Offset2 t(-20)", t.x == -20 && t.y == -20});
+      Offset2 v;
+      a.push_back({L"Offset2 t(-20, -20)", t.x == -20 && t.y == -20});
       a.push_back({L"Offset2 u(1, 2)", u.x == -1 && u.y == 2});
+      a.push_back({L"Offset2 v", v.x == 0 && v.y == 0});
       a.push_back({L"t == u", !(t == u)});
       a.push_back({L"t == Offset2(-20, -20)", t == Offset2(-20, -20)});
       a.push_back({L"u != Offset2(2, -1)", u != Offset2(2, -1)});
+      a.push_back({L"v == Offset2(0, 0)", v == Offset2(0, 0)});
     }
 
     // Offset3
     {
-      Offset3 t(3);
+      Offset3 t(3, 3, 3);
       Offset3 u(-1, 2, -3);
-      a.push_back({L"Offset3 t(3)", t.x == 3 && t.y == 3 && t.z == 3});
+      Offset3 v;
+      a.push_back({L"Offset3 t(3, 3, 3)", t.x == 3 && t.y == 3 && t.z == 3});
       a.push_back({L"Offset3 u(1, 2)", u.x == -1 && u.y == 2 && u.z == -3});
+      a.push_back({L"Offset3 v", v.x == 0 && v.y == 0 && v.z == 0});
       a.push_back({L"t == u", !(t == u)});
       a.push_back({L"t == Offset3(3, 3, 3)", t == Offset3(3, 3, 3)});
       a.push_back({L"u != Offset3(3, -1, 1)", u != Offset3(3, -1, 1)});
       a.push_back({L"u == Offset3({-1, 2}, -3)", u == Offset3({-1, 2}, -3)});
+      a.push_back({L"v == Offset3(0, 0, 0)", v == Offset3(0, 0, 0)});
+      a.push_back({L"v == Offset3(Offset2{}, 0)", v == Offset3(Offset2{}, 0)});
     }
 
     return a;

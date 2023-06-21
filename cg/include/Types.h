@@ -57,7 +57,7 @@ struct Offset2 {
   int32_t y;
 
   Offset2(int32_t x, int32_t y) : x(x), y(y) { }
-  Offset2(int32_t value = 0) : x(value), y(value) { }
+  Offset2() : Offset2(0, 0) { }
 
   bool operator==(const Offset2& other) const {
     return x == other.x && y == other.y;
@@ -75,7 +75,7 @@ struct Offset3 : Offset2 {
 
   Offset3(int32_t x, int32_t y, int32_t z) : Offset2(x, y), z(z) { }
   Offset3(Offset2 offset2, int32_t z) : Offset2(offset2), z(z) { }
-  Offset3(int32_t value = 0) : Offset3(value, value, value) { }
+  Offset3() : Offset3(0, 0, 0) { }
 
   bool operator==(const Offset3& other) const {
     return Offset2::operator==(other) && z == other.z;

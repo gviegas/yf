@@ -82,7 +82,7 @@ struct CopyTest : Test {
     };
 
     auto img = dev.image(PxFormatRgba8Unorm, {3, 1}, 1, 1, Samples1);
-    img->write({0}, {3, 1}, 0, 0, pixels);
+    img->write({}, {3, 1}, 0, 0, pixels);
 
     // DcTable
     const vector<DcEntry> dcs{{0, DcTypeUniform, 1}, {1, DcTypeImgSampler, 1}};
@@ -120,7 +120,7 @@ struct CopyTest : Test {
 
     Viewport vport{0.0f, 0.0f, static_cast<float>(winSz.width),
                    static_cast<float>(winSz.height), 0.0f, 1.0f};
-    Scissor sciss{{0}, winSz};
+    Scissor sciss{{}, winSz};
 
     TargetOp tgtOp;
     tgtOp.colorOps.push_back({LoadOpClear, StoreOpStore});
@@ -147,7 +147,7 @@ struct CopyTest : Test {
         key = WS_NS::KeyCodeUnknown;
         auto tmp = dev.image(img->format(), img->size(), 1, 1, Samples1);
         TfEncoder enc;
-        enc.copy(*tmp, {0}, 0, 0, *img, {0}, 0, 0, img->size(), 1);
+        enc.copy(*tmp, {}, 0, 0, *img, {}, 0, 0, img->size(), 1);
         cb->encode(enc);
         cb->enqueue();
         que.submit();

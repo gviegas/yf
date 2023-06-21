@@ -305,7 +305,7 @@ void ImageVK::write(Offset2 offset, Size2 size, uint32_t layer, uint32_t level,
       off += (size_.width >> i) * (size_.height >> i) * txSz;
       off = ((off-1) & ~3) + 4;
     }
-    if (offset != 0)
+    if (offset != Offset2{})
       off += offset.y * (size_.width >> level) * txSz + offset.x * txSz;
     uint64_t sz = (size.width >> level) * (size.height >> level) * txSz;
 

@@ -92,12 +92,42 @@ class Image {
  public:
   using Ptr = std::unique_ptr<Image>;
 
+  /// Image dimensionality.
+  ///
+  enum class Dimension {
+    Dim1,
+    Dim2,
+    Dim3
+  };
+  // TODO: Update this when migrating to C++20
+#if __cplusplus >= 202002L
+# error Use `using` instead
+#else
+  static constexpr Dimension Dim1 = Dimension::Dim1;
+  static constexpr Dimension Dim2 = Dimension::Dim2;
+  static constexpr Dimension Dim3 = Dimension::Dim3;
+#endif
+
+  /// Mask of `Usage` bits.
+  ///
+  using UsageMask = uint32_t;
+
+  /// Usages of an image.
+  ///
+  enum Usage : uint32_t {
+    CopySrc    = 0x01,
+    CopyDst    = 0x02,
+    Sampled    = 0x04,
+    Storage    = 0x08,
+    Attachment = 0x10
+  };
+
   Image() = default;
   Image(const Image&) = delete;
   Image& operator=(const Image&) = delete;
   virtual ~Image() = default;
 
-  /// Writes data to image.
+  /// Writes data to image memory.
   ///
   virtual void write(Offset2 offset, Size2 size, uint32_t layer, uint32_t level,
                      const void* data) = 0;

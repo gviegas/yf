@@ -34,10 +34,11 @@ class ImageVK final : public Image {
              const void* data);
 
   Format format() const;
-  Size2 size() const;
-  uint32_t layers() const;
+  Size3 size() const;
   uint32_t levels() const;
   Samples samples() const;
+  Dimension dimension() const;
+  UsageMask usageMask() const;
 
   /// Performs a layout transition.
   ///
@@ -89,10 +90,11 @@ class ImageVK final : public Image {
 
  private:
   const Format format_{};
-  const Size2 size_{0, 0};
-  const uint32_t layers_ = 0;
+  const Size3 size_{0, 0, 0};
   const uint32_t levels_ = 0;
   const Samples samples_{};
+  const Dimension dimension_{};
+  const UsageMask usageMask_{};
 
   const bool owned_ = true;
 

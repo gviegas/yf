@@ -77,7 +77,7 @@ struct WsiTest : Test {
     Wsi::Index ix = 0;
     const uint32_t lays[]{1, 3, 4, 2};
     for (auto& img : wsi) {
-      if (img != wsi[ix] || img->layers() != lays[ix++]) {
+      if (img != wsi[ix] || img->size().depth != lays[ix++]) {
         chk = false;
         break;
       }

@@ -2,7 +2,7 @@
 // CG
 // DcTableVK.cxx
 //
-// Copyright © 2020-2021 Gustavo C. Viegas.
+// Copyright © 2020-2023 Gustavo C. Viegas.
 //
 
 #include <algorithm>
@@ -220,7 +220,7 @@ void DcTableVK::write(uint32_t allocation, DcId id, uint32_t element,
 
   if (allocation >= sets_.size() || ent == entries_.end() || ent->id != id ||
       (ent->type != DcTypeImage && ent->type != DcTypeImgSampler) ||
-      element >= ent->elements || layer >= image.layers())
+      element >= ent->elements || layer >= image.size().depth)
     throw invalid_argument("DcTableVK write() [Image]");
 
   ImgRef& ref = imgRefs_[allocation].find(id)->second[element];

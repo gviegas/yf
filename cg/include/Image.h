@@ -146,10 +146,11 @@ class Image {
   /// Getters.
   ///
   virtual Format format() const = 0;
-  virtual Size2 size() const = 0;
-  virtual uint32_t layers() const = 0;
+  virtual Size3 size() const = 0;
   virtual uint32_t levels() const = 0;
   virtual Samples samples() const = 0;
+  virtual Dimension dimension() const = 0;
+  virtual UsageMask usageMask() const = 0;
 
   /// Gets the number of bytes in a single texel of the `Format`.
   ///

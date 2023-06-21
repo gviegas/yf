@@ -2,7 +2,7 @@
 // CG
 // QueueVK.cxx
 //
-// Copyright © 2020-2021 Gustavo C. Viegas.
+// Copyright © 2020-2023 Gustavo C. Viegas.
 //
 
 #include <cstdlib>
@@ -712,8 +712,8 @@ void CmdBufferVK::encode(const TfEncoder& encoder) {
           src->size().width >> sub->srcLevel ||
         sub->srcOffset.y + sub->size.height >
           src->size().height >> sub->srcLevel ||
-        sub->dstLayer + sub->layerCount > dst->layers() ||
-        sub->srcLayer + sub->layerCount > src->layers() ||
+        sub->dstLayer + sub->layerCount > dst->size().depth ||
+        sub->srcLayer + sub->layerCount > src->size().depth ||
         sub->dstLevel >= dst->levels() || sub->srcLevel >= src->levels())
       throw invalid_argument("copy(img, img) invalid range");
 

@@ -451,10 +451,8 @@ Buffer::Ptr DeviceVK::buffer(const Buffer::Desc& desc) {
   return make_unique<BufferVK>(desc);
 }
 
-Image::Ptr DeviceVK::image(PxFormat format, Size2 size, uint32_t layers,
-                           uint32_t levels, Samples samples) {
-
-  return make_unique<ImageVK>(format, size, layers, levels, samples);
+Image::Ptr DeviceVK::image(const Image::Desc& desc) {
+  return make_unique<ImageVK>(desc);
 }
 
 Shader::Ptr DeviceVK::shader(Stage stage, const string& codeFile,

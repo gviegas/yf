@@ -39,7 +39,8 @@ struct CopyTest : Test {
     auto pass = dev.pass(&passClrs, nullptr, &passDs);
 
     // Depth image
-    auto ds = dev.image(passDs.format, winSz, 1, 1, passDs.samples);
+    auto ds = dev.image({passDs.format, {winSz, 1}, 1, passDs.samples,
+                         Image::Dim2, Image::Attachment});
 
     // Targets
     vector<AttachImg> clrImgs{{nullptr, 0, 0}};
@@ -81,7 +82,10 @@ struct CopyTest : Test {
       {0, 0, 255, 255}, {0, 255, 0, 255}, {255, 0, 0, 255}
     };
 
-    auto img = dev.image(PxFormatRgba8Unorm, {3, 1}, 1, 1, Samples1);
+    const auto imgUsg = Image::CopySrc | Image::CopyDst | Image::Sampled;
+
+    auto img = dev.image({PxFormatRgba8Unorm, {3, 1, 1}, 1, Samples1,
+                          Image::Dim2, imgUsg});
     img->write({}, {3, 1}, 0, 0, pixels);
 
     // DcTable
@@ -145,7 +149,8 @@ struct CopyTest : Test {
         wcout << "\n> buffer copied\n";
       } else if (key == WS_NS::KeyCodeI) {
         key = WS_NS::KeyCodeUnknown;
-        auto tmp = dev.image(img->format(), img->size(), 1, 1, Samples1);
+        auto tmp = dev.image({img->format(), {img->size(), 1}, 1, Samples1,
+                              Image::Dim2, imgUsg});
         TfEncoder enc;
         enc.copy(*tmp, {}, 0, 0, *img, {}, 0, 0, img->size(), 1);
         cb->encode(enc);

@@ -20,38 +20,40 @@ using namespace std;
 // ImageVK
 //
 
-ImageVK::ImageVK(PxFormat format, Size2 size, uint32_t layers, uint32_t levels,
-                 Samples samples)
-  : format_(format), size_(size), layers_(layers), levels_(levels),
-    samples_(samples), owned_(true) {
+// TODO: 3D images; store Size3/Dimension/UsageMask as members
+ImageVK::ImageVK(const Image::Desc& desc)
+  : format_(desc.format), size_({desc.size.width, desc.size.height}),
+    layers_(desc.size.depth), levels_(desc.levels), samples_(desc.samples),
+    owned_(true) {
 
-  if (size.width == 0 || size.height == 0)
+  if (size_.width == 0 || size_.height == 0)
     throw invalid_argument("ImageVK requires size != 0");
-  if (layers == 0)
+  if (layers_ == 0)
     throw invalid_argument("ImageVK requires layers != 0");
-  if (levels == 0)
+  if (levels_ == 0)
     throw invalid_argument("ImageVK requires levels != 0");
 
   const auto& lim = deviceVK().physLimits();
-  if (layers > lim.maxImageArrayLayers)
+  if (layers_ > lim.maxImageArrayLayers)
     throw invalid_argument("ImageVK layer count limit");
 
   // Convert to format
-  VkFormat fmt = toFormatVK(format);
+  VkFormat fmt = toFormatVK(format_);
   if (fmt == VK_FORMAT_UNDEFINED)
     throw invalid_argument("ImageVK requires a valid format");
 
   // Convert to sample count
-  VkSampleCountFlagBits spl = toSampleCountVK(samples);
+  VkSampleCountFlagBits spl = toSampleCountVK(samples_);
 
   // Set image type
-  if (size.height > 1) {
-    if (size.width > lim.maxImageDimension2D ||
-        size.height > lim.maxImageDimension2D)
+  // TODO: Use `desc.dimension`
+  if (size_.height > 1) {
+    if (size_.width > lim.maxImageDimension2D ||
+        size_.height > lim.maxImageDimension2D)
       throw invalid_argument("ImageVK 2D image size limit");
     type_ = VK_IMAGE_TYPE_2D;
   } else {
-    if (size.width > lim.maxImageDimension1D)
+    if (size_.width > lim.maxImageDimension1D)
       throw invalid_argument("ImageVK 1D image size limit");
     type_ = VK_IMAGE_TYPE_1D;
   }
@@ -62,6 +64,7 @@ ImageVK::ImageVK(PxFormat format, Size2 size, uint32_t layers, uint32_t levels,
   vkGetPhysicalDeviceFormatProperties(phys, fmt, &fmtProp);
 
   // Set valid usage mask for use with `tiling`
+  // TODO: Use `desc.usageMask`
   auto setUsage = [&](VkImageTiling tiling) {
     usage_ = 0;
     VkFormatFeatureFlags feat;
@@ -79,7 +82,7 @@ ImageVK::ImageVK(PxFormat format, Size2 size, uint32_t layers, uint32_t levels,
 
     // XXX: This check assumes that multisample storage is not supported,
     // since it could spoil the query for additional capabilities
-    if (samples == Samples1 && (feat & VK_FORMAT_FEATURE_STORAGE_IMAGE_BIT))
+    if (samples_ == Samples1 && (feat & VK_FORMAT_FEATURE_STORAGE_IMAGE_BIT))
       usage_ |= VK_IMAGE_USAGE_STORAGE_BIT;
 
     if (usage_ == 0)
@@ -107,10 +110,10 @@ ImageVK::ImageVK(PxFormat format, Size2 size, uint32_t layers, uint32_t levels,
                                                         &prop);
     switch (res) {
     case VK_SUCCESS:
-      if (prop.maxExtent.width < size.width ||
-          prop.maxExtent.height < size.height ||
-          prop.maxMipLevels < levels ||
-          prop.maxArrayLayers < layers ||
+      if (prop.maxExtent.width < size_.width ||
+          prop.maxExtent.height < size_.height ||
+          prop.maxMipLevels < levels_ ||
+          prop.maxArrayLayers < layers_ ||
           !(prop.sampleCounts & spl))
         return false;
 
@@ -130,7 +133,7 @@ ImageVK::ImageVK(PxFormat format, Size2 size, uint32_t layers, uint32_t levels,
   };
 
   // Check if image creation with linear tiling _might_ work
-  if (samples != Samples1 ||
+  if (samples_ != Samples1 ||
       !setUsage(VK_IMAGE_TILING_LINEAR) ||
       !setTiling(VK_IMAGE_TILING_LINEAR)) {
 
@@ -150,9 +153,9 @@ ImageVK::ImageVK(PxFormat format, Size2 size, uint32_t layers, uint32_t levels,
   info.flags = 0;
   info.imageType = type_;
   info.format = fmt;
-  info.extent = {size.width, size.height, 1};
-  info.mipLevels = levels;
-  info.arrayLayers = layers;
+  info.extent = {size_.width, size_.height, 1};
+  info.mipLevels = levels_;
+  info.arrayLayers = layers_;
   info.samples = spl;
   info.tiling = tiling_;
   info.usage = usage_;

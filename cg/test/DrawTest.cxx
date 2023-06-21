@@ -44,7 +44,8 @@ struct DrawTest : Test {
     auto pass = dev.pass(&passClrs, nullptr, &passDs);
 
     // Create depth/stencil image
-    auto ds = dev.image(passDs.format, winSz, 1, 1, passDs.samples);
+    auto ds = dev.image({passDs.format, {winSz, 1}, 1, passDs.samples,
+                         Image::Dim2, Image::Attachment});
 
     // Create a target for each wsi image
     vector<AttachImg> clrImgs{{nullptr, 0, 0}};
@@ -81,7 +82,8 @@ struct DrawTest : Test {
     // Create sampling image and fill with data
     const uint8_t pxData[][4] = {{255, 0, 0, 255}, {255, 255, 0, 255}};
 
-    auto tex = dev.image(PxFormatRgba8Unorm, {2, 1}, 1, 1, Samples1);
+    auto tex = dev.image({PxFormatRgba8Unorm, {2, 1, 1}, 1, Samples1,
+                          Image::Dim2, Image::CopyDst | Image::Sampled});
     tex->write({}, {2, 1}, 0, 0, pxData);
 
     // Create descriptor table, allocate resources and copy data

@@ -27,11 +27,8 @@ class DeviceVK final : public Device {
 
   Queue& defaultQueue();
   Queue& queue(Queue::CapabilityMask capabilities);
-
   Buffer::Ptr buffer(const Buffer::Desc& desc);
-
-  Image::Ptr image(PxFormat format, Size2 size, uint32_t layers,
-                   uint32_t levels, Samples samples);
+  Image::Ptr image(const Image::Desc& desc);
 
   Shader::Ptr shader(Stage stage, const std::string& codeFile,
                      const std::string& entryPoint);

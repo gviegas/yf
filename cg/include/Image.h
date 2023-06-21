@@ -122,6 +122,17 @@ class Image {
     Attachment = 0x10
   };
 
+  /// Image descriptor.
+  ///
+  struct Desc {
+    PxFormat format;
+    Size3 size;
+    uint32_t levels;
+    Samples samples;
+    Dimension dimension;
+    UsageMask usageMask;
+  };
+
   Image() = default;
   Image(const Image&) = delete;
   Image& operator=(const Image&) = delete;

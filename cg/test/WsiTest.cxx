@@ -27,14 +27,21 @@ struct WsiTest : Test {
       vector<Image*> images_;
      public:
       Wsi_(WS_NS::Window* window) : window_(window), images_() {
-        static auto i1 = device().image(PxFormatR8Unorm, {16, 16}, 1, 1,
-                                        Samples1);
-        static auto i2 = device().image(PxFormatR8Unorm, {16, 16}, 2, 1,
-                                        Samples1);
-        static auto i3 = device().image(PxFormatR8Unorm, {16, 16}, 3, 1,
-                                        Samples1);
-        static auto i4 = device().image(PxFormatR8Unorm, {16, 16}, 4, 1,
-                                        Samples1);
+        Image::Desc desc{
+          PxFormatR8Unorm,
+          {16, 16, 1},
+          1,
+          Samples1,
+          Image::Dim2,
+          Image::CopySrc | Image::CopyDst
+        };
+        static auto i1 = device().image(desc);
+        desc.size.depth++;
+        static auto i2 = device().image(desc);
+        desc.size.depth++;
+        static auto i3 = device().image(desc);
+        desc.size.depth++;
+        static auto i4 = device().image(desc);
         images_.push_back(i1.get());
         images_.push_back(i3.get());
         images_.push_back(i4.get());

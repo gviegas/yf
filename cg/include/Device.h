@@ -44,8 +44,7 @@ class Device {
 
   /// Creates a new image object.
   ///
-  virtual Image::Ptr image(PxFormat format, Size2 size, uint32_t layers,
-                           uint32_t levels, Samples samples) = 0;
+  virtual Image::Ptr image(const Image::Desc& desc) = 0;
 
   /// Creates a new shader object.
   ///

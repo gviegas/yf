@@ -19,8 +19,7 @@ CG_NS_BEGIN
 
 class ImageVK final : public Image {
  public:
-  ImageVK(PxFormat format, Size2 size, uint32_t layers, uint32_t levels,
-          Samples samples);
+  ImageVK(const Desc& desc);
 
   /// Wraps an existing `VkImage` on an `ImageVK` object.
   ///

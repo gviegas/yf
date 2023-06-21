@@ -18,60 +18,60 @@ CG_NS_BEGIN
 
 /// Pixel formats.
 ///
-enum PxFormat {
-  PxFormatUndefined,
+enum class Format {
+  Undefined,
 
   // 8-bit
-  PxFormatR8Unorm,
-  PxFormatR8Norm,
-  PxFormatR8Uint,
-  PxFormatR8Int,
+  R8Unorm,
+  R8Norm,
+  R8Uint,
+  R8Int,
 
   // 16-bit
-  PxFormatR16Uint,
-  PxFormatR16Int,
-  PxFormatR16Float,
-  PxFormatRg8Unorm,
-  PxFormatRg8Norm,
-  PxFormatRg8Uint,
-  PxFormatRg8Int,
+  R16Uint,
+  R16Int,
+  R16Float,
+  Rg8Unorm,
+  Rg8Norm,
+  Rg8Uint,
+  Rg8Int,
 
   // 32-bit
-  PxFormatR32Uint,
-  PxFormatR32Int,
-  PxFormatR32Float,
-  PxFormatRg16Uint,
-  PxFormatRg16Int,
-  PxFormatRg16Float,
-  PxFormatRgba8Unorm,
-  PxFormatRgba8Srgb,
-  PxFormatRgba8Norm,
-  PxFormatRgba8Uint,
-  PxFormatRgba8Int,
-  PxFormatBgra8Unorm,
-  PxFormatBgra8Srgb,
-  PxFormatRgb10a2Unorm,
-  PxFormatRg11b10Float,
+  R32Uint,
+  R32Int,
+  R32Float,
+  Rg16Uint,
+  Rg16Int,
+  Rg16Float,
+  Rgba8Unorm,
+  Rgba8Srgb,
+  Rgba8Norm,
+  Rgba8Uint,
+  Rgba8Int,
+  Bgra8Unorm,
+  Bgra8Srgb,
+  Rgb10a2Unorm,
+  Rg11b10Float,
 
   // 64-bit
-  PxFormatRg32Uint,
-  PxFormatRg32Int,
-  PxFormatRg32Float,
-  PxFormatRgba16Uint,
-  PxFormatRgba16Int,
-  PxFormatRgba16Float,
+  Rg32Uint,
+  Rg32Int,
+  Rg32Float,
+  Rgba16Uint,
+  Rgba16Int,
+  Rgba16Float,
 
   // 128-bit
-  PxFormatRgba32Uint,
-  PxFormatRgba32Int,
-  PxFormatRgba32Float,
+  Rgba32Uint,
+  Rgba32Int,
+  Rgba32Float,
 
   // Depth/stencil
-  PxFormatD16Unorm,
-  PxFormatD32Float,
-  PxFormatS8,
-  PxFormatD24UnormS8,
-  PxFormatD32FloatS8
+  D16Unorm,
+  D32Float,
+  S8,
+  D24UnormS8,
+  D32FloatS8
 };
 
 /// Sample counts.
@@ -125,7 +125,7 @@ class Image {
   /// Image descriptor.
   ///
   struct Desc {
-    PxFormat format;
+    Format format;
     Size3 size;
     uint32_t levels;
     Samples samples;
@@ -145,15 +145,15 @@ class Image {
 
   /// Getters.
   ///
-  virtual PxFormat format() const = 0;
+  virtual Format format() const = 0;
   virtual Size2 size() const = 0;
   virtual uint32_t layers() const = 0;
   virtual uint32_t levels() const = 0;
   virtual Samples samples() const = 0;
 
-  /// Gets the number of bytes in a single texel of the `PxFormat`.
+  /// Gets the number of bytes in a single texel of the `Format`.
   ///
-  static uint32_t texelSize(PxFormat format);
+  static uint32_t texelSize(Format format);
   uint32_t texelSize() const;
 };
 

@@ -2,7 +2,7 @@
 // CG
 // Pass.h
 //
-// Copyright © 2020-2021 Gustavo C. Viegas.
+// Copyright © 2020-2023 Gustavo C. Viegas.
 //
 
 #ifndef YF_CG_PASS_H
@@ -21,7 +21,7 @@ CG_NS_BEGIN
 /// Attachment description.
 ///
 struct AttachDesc {
-  PxFormat format;
+  Format format;
   Samples samples;
 };
 

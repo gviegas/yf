@@ -196,7 +196,7 @@ ImageVK::ImageVK(const Image::Desc& desc)
   }
 }
 
-ImageVK::ImageVK(PxFormat format, Size2 size, uint32_t layers, uint32_t levels,
+ImageVK::ImageVK(Format format, Size2 size, uint32_t layers, uint32_t levels,
                  Samples samples, VkImageType type, VkImageTiling tiling,
                  VkImageUsageFlags usage, VkImage handle, void* data,
                  VkImageLayout layout, bool owned)
@@ -337,7 +337,7 @@ void ImageVK::write(Offset2 offset, Size2 size, uint32_t layer, uint32_t level,
   }
 }
 
-PxFormat ImageVK::format() const {
+Format ImageVK::format() const {
   return format_;
 }
 

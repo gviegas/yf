@@ -47,14 +47,14 @@ struct PassTest : Test {
 
     Assertions a;
 
-    vector<AttachDesc> clrs{{PxFormatBgra8Srgb, Samples4}};
-    vector<AttachDesc> resvs{{PxFormatBgra8Srgb, Samples1}};
-    AttachDesc depSten{PxFormatD16Unorm, Samples1};
+    vector<AttachDesc> clrs{{Format::Bgra8Srgb, Samples4}};
+    vector<AttachDesc> resvs{{Format::Bgra8Srgb, Samples1}};
+    AttachDesc depSten{Format::D16Unorm, Samples1};
     Pass_ p1(&clrs, &resvs, &depSten);
 
-    clrs.push_back({PxFormatRgba8Unorm, Samples1});
+    clrs.push_back({Format::Rgba8Unorm, Samples1});
     clrs.front().samples = Samples1;
-    depSten.format = PxFormatD24UnormS8;
+    depSten.format = Format::D24UnormS8;
     Pass_ p2(&clrs, nullptr, &depSten);
 
     Pass_ p3(&clrs, nullptr, nullptr);
@@ -63,31 +63,31 @@ struct PassTest : Test {
 
     a.push_back({L"Pass(#one color, resolve and depth/stencil#)",
                  p1.colors() != nullptr && p1.colors()->size() == 1 &&
-                 p1.colors()->front().format == PxFormatBgra8Srgb &&
+                 p1.colors()->front().format == Format::Bgra8Srgb &&
                  p1.colors()->front().samples == Samples4 &&
                  p1.resolves() != nullptr && p1.resolves()->size() == 1 &&
-                 p1.resolves()->front().format == PxFormatBgra8Srgb &&
+                 p1.resolves()->front().format == Format::Bgra8Srgb &&
                  p1.resolves()->front().samples == Samples1 &&
                  p1.depthStencil() != nullptr &&
-                 p1.depthStencil()->format == PxFormatD16Unorm &&
+                 p1.depthStencil()->format == Format::D16Unorm &&
                  p1.depthStencil()->samples == Samples1});
 
     a.push_back({L"Pass(#two colors and depth/stencil, no resolve#)",
                  p2.colors() != nullptr && p2.colors()->size() == 2 &&
-                 p2.colors()->front().format == PxFormatBgra8Srgb &&
+                 p2.colors()->front().format == Format::Bgra8Srgb &&
                  p2.colors()->front().samples == Samples1 &&
-                 p2.colors()->back().format == PxFormatRgba8Unorm &&
+                 p2.colors()->back().format == Format::Rgba8Unorm &&
                  p2.colors()->back().samples == Samples1 &&
                  p2.resolves() == nullptr &&
                  p2.depthStencil() != nullptr &&
-                 p2.depthStencil()->format == PxFormatD24UnormS8 &&
+                 p2.depthStencil()->format == Format::D24UnormS8 &&
                  p2.depthStencil()->samples == Samples1});
 
     a.push_back({L"Pass(#color only#)",
                  p3.colors() != nullptr && p3.colors()->size() == 2 &&
-                 p3.colors()->front().format == PxFormatBgra8Srgb &&
+                 p3.colors()->front().format == Format::Bgra8Srgb &&
                  p3.colors()->front().samples == Samples1 &&
-                 p3.colors()->back().format == PxFormatRgba8Unorm &&
+                 p3.colors()->back().format == Format::Rgba8Unorm &&
                  p3.colors()->back().samples == Samples1 &&
                  p3.resolves() == nullptr &&
                  p3.depthStencil() == nullptr});
@@ -96,7 +96,7 @@ struct PassTest : Test {
                  p4.colors() == nullptr &&
                  p4.resolves() == nullptr &&
                  p4.depthStencil() != nullptr &&
-                 p4.depthStencil()->format == PxFormatD24UnormS8 &&
+                 p4.depthStencil()->format == Format::D24UnormS8 &&
                  p4.depthStencil()->samples == Samples1});
 
     return a;

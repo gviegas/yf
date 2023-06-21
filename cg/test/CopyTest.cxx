@@ -35,7 +35,7 @@ struct CopyTest : Test {
 
     // Pass
     vector<AttachDesc> passClrs{{(*wsi)[0]->format(), (*wsi)[0]->samples()}};
-    AttachDesc passDs{PxFormatD16Unorm, Samples1};
+    AttachDesc passDs{Format::D16Unorm, Samples1};
     auto pass = dev.pass(&passClrs, nullptr, &passDs);
 
     // Depth image
@@ -84,7 +84,7 @@ struct CopyTest : Test {
 
     const auto imgUsg = Image::CopySrc | Image::CopyDst | Image::Sampled;
 
-    auto img = dev.image({PxFormatRgba8Unorm, {3, 1, 1}, 1, Samples1,
+    auto img = dev.image({Format::Rgba8Unorm, {3, 1, 1}, 1, Samples1,
                           Image::Dim2, imgUsg});
     img->write({}, {3, 1}, 0, 0, pixels);
 

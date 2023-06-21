@@ -2,7 +2,7 @@
 // CG
 // WsiVK.cxx
 //
-// Copyright © 2020-2021 Gustavo C. Viegas.
+// Copyright © 2020-2023 Gustavo C. Viegas.
 //
 
 #include <algorithm>
@@ -266,7 +266,7 @@ void WsiVK::querySurface() {
 
   if (fmtIt == fmts.end()) {
     fmtIt = find_if(fmts.begin(), fmts.end(), [](const auto& fmt) {
-      return fromFormatVK(fmt.format) != PxFormatUndefined;
+      return fromFormatVK(fmt.format) != Format::Undefined;
     });
     if (fmtIt == fmts.end())
       throw UnsupportedExcept("Surface format(s) not supported");

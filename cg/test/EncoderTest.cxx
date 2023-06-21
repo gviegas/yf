@@ -22,9 +22,9 @@ struct EncoderTest : Test {
   Assertions run(const vector<string>&) {
     Assertions a;
 
-    const vector<AttachDesc> desc{{PxFormatRgba8Unorm, Samples1}};
+    const vector<AttachDesc> desc{{Format::Rgba8Unorm, Samples1}};
     auto pass = device().pass(&desc, nullptr, nullptr);
-    auto img = device().image({PxFormatRgba8Unorm, {480, 300, 1}, 1, Samples1,
+    auto img = device().image({Format::Rgba8Unorm, {480, 300, 1}, 1, Samples1,
                                Image::Dim2, Image::CopySrc | Image::CopyDst |
                                             Image::Attachment});
     const vector<AttachImg> att{{img.get(), 0, 0}};

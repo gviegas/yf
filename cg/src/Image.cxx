@@ -12,61 +12,61 @@
 using namespace CG_NS;
 using namespace std;
 
-uint32_t Image::texelSize(PxFormat format) {
+uint32_t Image::texelSize(Format format) {
   switch (format) {
-  case PxFormatR8Unorm:
-  case PxFormatR8Norm:
-  case PxFormatR8Uint:
-  case PxFormatR8Int:
-  case PxFormatS8:
+  case Format::R8Unorm:
+  case Format::R8Norm:
+  case Format::R8Uint:
+  case Format::R8Int:
+  case Format::S8:
     return 1;
 
-  case PxFormatR16Uint:
-  case PxFormatR16Int:
-  case PxFormatR16Float:
-  case PxFormatRg8Unorm:
-  case PxFormatRg8Norm:
-  case PxFormatRg8Uint:
-  case PxFormatRg8Int:
-  case PxFormatD16Unorm:
+  case Format::R16Uint:
+  case Format::R16Int:
+  case Format::R16Float:
+  case Format::Rg8Unorm:
+  case Format::Rg8Norm:
+  case Format::Rg8Uint:
+  case Format::Rg8Int:
+  case Format::D16Unorm:
     return 2;
 
-  case PxFormatR32Uint:
-  case PxFormatR32Int:
-  case PxFormatR32Float:
-  case PxFormatRg16Uint:
-  case PxFormatRg16Int:
-  case PxFormatRg16Float:
-  case PxFormatRgba8Unorm:
-  case PxFormatRgba8Srgb:
-  case PxFormatRgba8Norm:
-  case PxFormatRgba8Uint:
-  case PxFormatRgba8Int:
-  case PxFormatBgra8Unorm:
-  case PxFormatBgra8Srgb:
-  case PxFormatRgb10a2Unorm:
-  case PxFormatRg11b10Float:
-  case PxFormatD32Float:
-  case PxFormatD24UnormS8:
+  case Format::R32Uint:
+  case Format::R32Int:
+  case Format::R32Float:
+  case Format::Rg16Uint:
+  case Format::Rg16Int:
+  case Format::Rg16Float:
+  case Format::Rgba8Unorm:
+  case Format::Rgba8Srgb:
+  case Format::Rgba8Norm:
+  case Format::Rgba8Uint:
+  case Format::Rgba8Int:
+  case Format::Bgra8Unorm:
+  case Format::Bgra8Srgb:
+  case Format::Rgb10a2Unorm:
+  case Format::Rg11b10Float:
+  case Format::D32Float:
+  case Format::D24UnormS8:
     return 4;
 
-  case PxFormatRg32Uint:
-  case PxFormatRg32Int:
-  case PxFormatRg32Float:
-  case PxFormatRgba16Uint:
-  case PxFormatRgba16Int:
-  case PxFormatRgba16Float:
+  case Format::Rg32Uint:
+  case Format::Rg32Int:
+  case Format::Rg32Float:
+  case Format::Rgba16Uint:
+  case Format::Rgba16Int:
+  case Format::Rgba16Float:
     return 8;
 
-  case PxFormatRgba32Uint:
-  case PxFormatRgba32Int:
-  case PxFormatRgba32Float:
+  case Format::Rgba32Uint:
+  case Format::Rgba32Int:
+  case Format::Rgba32Float:
     return 16;
 
-  case PxFormatD32FloatS8:
+  case Format::D32FloatS8:
     return 5;
 
-  case PxFormatUndefined:
+  case Format::Undefined:
   default:
     throw invalid_argument(__func__);
   }

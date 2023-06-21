@@ -28,7 +28,7 @@ struct WsiTest : Test {
      public:
       Wsi_(WS_NS::Window* window) : window_(window), images_() {
         Image::Desc desc{
-          PxFormatR8Unorm,
+          Format::R8Unorm,
           {16, 16, 1},
           1,
           Samples1,

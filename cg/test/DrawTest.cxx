@@ -40,7 +40,7 @@ struct DrawTest : Test {
 
     // Create pass
     vector<AttachDesc> passClrs{{(*wsi)[0]->format(), (*wsi)[0]->samples()}};
-    AttachDesc passDs{PxFormatD16Unorm, Samples1};
+    AttachDesc passDs{Format::D16Unorm, Samples1};
     auto pass = dev.pass(&passClrs, nullptr, &passDs);
 
     // Create depth/stencil image
@@ -82,7 +82,7 @@ struct DrawTest : Test {
     // Create sampling image and fill with data
     const uint8_t pxData[][4] = {{255, 0, 0, 255}, {255, 255, 0, 255}};
 
-    auto tex = dev.image({PxFormatRgba8Unorm, {2, 1, 1}, 1, Samples1,
+    auto tex = dev.image({Format::Rgba8Unorm, {2, 1, 1}, 1, Samples1,
                           Image::Dim2, Image::CopyDst | Image::Sampled});
     tex->write({}, {2, 1}, 0, 0, pxData);
 

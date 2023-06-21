@@ -2,7 +2,7 @@
 // CG
 // Types.h
 //
-// Copyright © 2020-2021 Gustavo C. Viegas.
+// Copyright © 2020-2023 Gustavo C. Viegas.
 //
 
 #ifndef YF_CG_TYPES_H
@@ -21,7 +21,6 @@ struct Size2 {
   uint32_t height;
 
   Size2(uint32_t width, uint32_t height) : width(width), height(height) { }
-  Size2(uint32_t size) : width(size), height(size) { }
 
   bool operator==(const Size2& other) const {
     return width == other.width && height == other.height;
@@ -41,7 +40,6 @@ struct Size3 : Size2 {
     : Size2(width, height), depth(depth) { }
 
   Size3(Size2 size2, uint32_t depth) : Size2(size2), depth(depth) { }
-  Size3(uint32_t size) : Size2(size), depth(size) { }
 
   bool operator==(const Size3& other) const {
     return Size2::operator==(other) && depth == other.depth;

@@ -2,7 +2,7 @@
 // CG
 // PassVK.h
 //
-// Copyright © 2020-2021 Gustavo C. Viegas.
+// Copyright © 2020-2023 Gustavo C. Viegas.
 //
 
 #ifndef YF_CG_PASSVK_H
@@ -115,7 +115,7 @@ class TargetVK final : public Target {
 
  private:
   PassVK& pass_;
-  const Size2 size_{0};
+  const Size2 size_{0, 0};
   const uint32_t layers_{};
   std::vector<AttachImg>* colors_{};
   std::vector<AttachImg>* resolves_{};

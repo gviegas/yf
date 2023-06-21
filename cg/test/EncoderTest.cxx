@@ -67,11 +67,11 @@ struct EncoderTest : Test {
     enc2.setState(*cst);
     enc2.setDcTable(0, 0);
     enc2.setDcTable(1, 20);
-    enc2.dispatch(64);
+    enc2.dispatch({64, 64, 16});
 
     TfEncoder enc3;
     enc3.copy(*buf, 3002, *buf, 60, 4096);
-    enc3.copy(*img, {64, 32}, 4, 2, *img, {192, 16}, 1, 2, {64}, 3);
+    enc3.copy(*img, {64, 32}, 4, 2, *img, {192, 16}, 1, 2, {64, 64}, 3);
 
     wstring str;
     bool chk;
@@ -149,7 +149,7 @@ struct EncoderTest : Test {
       } break;
       case Cmd::DispatchT:
         str = L"Cmd::DispatchT";
-        chk = static_cast<DispatchCmd*>(cmd.get())->size == Size3(64);
+        chk = static_cast<DispatchCmd*>(cmd.get())->size == Size3({64, 64, 16});
         break;
       default:
         str = L"#Invalid Cmd#";
@@ -176,7 +176,7 @@ struct EncoderTest : Test {
               sub->dstLevel == 2  &&
               sub->srcOffset == Offset2{192, 16} && sub->srcLayer == 1 &&
               sub->srcLevel == 2 &&
-              sub->size == Size2{64} && sub->layerCount == 3;
+              sub->size == Size2{64, 64} && sub->layerCount == 3;
       } break;
       default:
         str = L"#Invalid Cmd#";

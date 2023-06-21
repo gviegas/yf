@@ -90,7 +90,7 @@ class ImageVK final : public Image {
 
  private:
   const PxFormat format_{};
-  const Size2 size_{0};
+  const Size2 size_{0, 0};
   const uint32_t layers_ = 0;
   const uint32_t levels_ = 0;
   const Samples samples_{};

@@ -25,7 +25,7 @@ ImageVK::ImageVK(PxFormat format, Size2 size, uint32_t layers, uint32_t levels,
   : format_(format), size_(size), layers_(layers), levels_(levels),
     samples_(samples), owned_(true) {
 
-  if (size == 0)
+  if (size.width == 0 || size.height == 0)
     throw invalid_argument("ImageVK requires size != 0");
   if (layers == 0)
     throw invalid_argument("ImageVK requires layers != 0");
@@ -202,7 +202,7 @@ ImageVK::ImageVK(PxFormat format, Size2 size, uint32_t layers, uint32_t levels,
     usage_(usage), handle_(handle), data_(data), layout_(layout),
     nextLayout_(layout) {
 
-  if (size == 0)
+  if (size.width == 0 || size.height == 0)
     throw invalid_argument("ImageVK requires size != 0");
   if (layers == 0)
     throw invalid_argument("ImageVK requires layers != 0");

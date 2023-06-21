@@ -2,7 +2,7 @@
 // CG
 // ImageTest.cxx
 //
-// Copyright © 2020-2021 Gustavo C. Viegas.
+// Copyright © 2020-2023 Gustavo C. Viegas.
 //
 
 #include "Test.h"
@@ -40,7 +40,7 @@ struct ImageTest : Test {
 
     Assertions a;
 
-    Image_ img(PxFormatRgba8Unorm, 2048, 16, 1, Samples1);
+    Image_ img(PxFormatRgba8Unorm, {2048, 2048}, 16, 1, Samples1);
 
     a.push_back({L"Image(PxFormatRgba8Unorm, 2048, 16, 1, Samples1)",
                  img.format() == PxFormatRgba8Unorm &&

@@ -2,7 +2,7 @@
 // CG
 // PassVK.cxx
 //
-// Copyright © 2020-2021 Gustavo C. Viegas.
+// Copyright © 2020-2023 Gustavo C. Viegas.
 //
 
 #include <cassert>
@@ -245,7 +245,7 @@ TargetVK::TargetVK(PassVK& pass, Size2 size, uint32_t layers,
                    const AttachImg* depthStencil)
   : pass_(pass), size_(size), layers_(layers) {
 
-  if (size == 0 || layers == 0)
+  if (size.width == 0 || size.height == 0 || layers == 0)
     throw invalid_argument("TargetVK requires size > 0 and layers > 0");
 
   const auto& lim = deviceVK().physLimits();

@@ -2,7 +2,7 @@
 // CG
 // TypesTest.cxx
 //
-// Copyright © 2020-2021 Gustavo C. Viegas.
+// Copyright © 2020-2023 Gustavo C. Viegas.
 //
 
 #include "Test.h"
@@ -22,9 +22,9 @@ struct TypesTest : Test {
 
     // Size2
     {
-      Size2 t(20);
+      Size2 t(20, 20);
       Size2 u(1, 2);
-      a.push_back({L"Size2 t(20)", t.width == 20 && t.height == 20});
+      a.push_back({L"Size2 t(20, 20)", t.width == 20 && t.height == 20});
       a.push_back({L"Size2 u(1, 2)", u.width == 1 && u.height == 2});
       a.push_back({L"t == u", !(t == u)});
       a.push_back({L"t == Size2(20, 20)", t == Size2(20, 20)});
@@ -33,9 +33,9 @@ struct TypesTest : Test {
 
     // Size3
     {
-      Size3 t(30);
+      Size3 t(30, 30, 30);
       Size3 u(1, 2, 3);
-      a.push_back({L"Size3 t(30)",
+      a.push_back({L"Size3 t(30, 30, 30)",
                    t.width == 30 && t.height == 30 && t.depth == 30});
       a.push_back({L"Size3 u(1, 2, 3)",
                    u.width == 1 && u.height == 2 && u.depth == 3});

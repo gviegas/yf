@@ -633,7 +633,8 @@ void CmdBufferVK::encode(const CpEncoder& encoder) {
     }
 
     // TODO: Check limits
-    vkCmdDispatch(handle_, sub->size.width, sub->size.height, sub->size.depth);
+    vkCmdDispatch(handle_, sub->size.width, sub->size.height,
+                  sub->size.depthOrLayers);
   };
 
   // Synchronize
@@ -712,8 +713,8 @@ void CmdBufferVK::encode(const TfEncoder& encoder) {
           src->size().width >> sub->srcLevel ||
         sub->srcOffset.y + sub->size.height >
           src->size().height >> sub->srcLevel ||
-        sub->dstLayer + sub->layerCount > dst->size().depth ||
-        sub->srcLayer + sub->layerCount > src->size().depth ||
+        sub->dstLayer + sub->layerCount > dst->size().depthOrLayers ||
+        sub->srcLayer + sub->layerCount > src->size().depthOrLayers ||
         sub->dstLevel >= dst->levels() || sub->srcLevel >= src->levels())
       throw invalid_argument("copy(img, img) invalid range");
 

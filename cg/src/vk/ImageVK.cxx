@@ -26,13 +26,13 @@ ImageVK::ImageVK(const Image::Desc& desc)
     samples_(desc.samples), dimension_(desc.dimension),
     usageMask_(desc.usageMask), owned_(true) {
 
-  if (size_.width == 0 || size_.height == 0 || size_.depth == 0)
+  if (size_.width == 0 || size_.height == 0 || size_.depthOrLayers == 0)
     throw invalid_argument("ImageVK requires size != 0");
   if (levels_ == 0)
     throw invalid_argument("ImageVK requires levels != 0");
 
   const auto& lim = deviceVK().physLimits();
-  if (size_.depth > lim.maxImageArrayLayers)
+  if (size_.depthOrLayers > lim.maxImageArrayLayers) // XXX: 3D
     throw invalid_argument("ImageVK layer count limit");
 
   // Convert to format
@@ -110,7 +110,7 @@ ImageVK::ImageVK(const Image::Desc& desc)
     case VK_SUCCESS:
       if (prop.maxExtent.width < size_.width ||
           prop.maxExtent.height < size_.height ||
-          prop.maxArrayLayers < size_.depth ||
+          prop.maxArrayLayers < size_.depthOrLayers ||
           prop.maxMipLevels < levels_ ||
           !(prop.sampleCounts & spl))
         return false;
@@ -153,7 +153,7 @@ ImageVK::ImageVK(const Image::Desc& desc)
   info.format = fmt;
   info.extent = {size_.width, size_.height, 1}; // XXX: 3D
   info.mipLevels = levels_;
-  info.arrayLayers = size_.depth; // XXX: 3D
+  info.arrayLayers = size_.depthOrLayers; // XXX: 3D
   info.samples = spl;
   info.tiling = tiling_;
   info.usage = usage_;
@@ -232,7 +232,7 @@ void ImageVK::write(Offset2 offset, Size2 size, uint32_t layer, uint32_t level,
 
   if (offset.x + size.width > size_.width ||
       offset.y + size.height > size_.height ||
-      layer >= size_.depth ||
+      layer >= size_.depthOrLayers ||
       level >= levels_ ||
       !data)
     throw invalid_argument("ImageVK write()");
@@ -381,7 +381,7 @@ void ImageVK::changeLayout(VkImageLayout newLayout, bool defer) {
   barrier.subresourceRange.baseMipLevel = 0;
   barrier.subresourceRange.levelCount = levels_;
   barrier.subresourceRange.baseArrayLayer = 0;
-  barrier.subresourceRange.layerCount = size_.depth; // XXX: 3D
+  barrier.subresourceRange.layerCount = size_.depthOrLayers; // XXX: 3D
 
   barrier_ = barrier;
   changeLayout(defer);
@@ -437,7 +437,7 @@ pair<VkImageLayout, VkImageLayout> ImageVK::layout() const {
 ImageVK::View::Ptr ImageVK::getView(uint32_t firstLayer, uint32_t layerCount,
                                     uint32_t firstLevel, uint32_t levelCount) {
 
-  if (layerCount == 0 || firstLayer + layerCount > size_.depth ||
+  if (layerCount == 0 || firstLayer + layerCount > size_.depthOrLayers ||
       levelCount == 0 || firstLevel + levelCount > levels_)
     throw invalid_argument("ImageVK getView()");
 

@@ -36,11 +36,11 @@ struct WsiTest : Test {
           Image::CopySrc | Image::CopyDst
         };
         static auto i1 = device().image(desc);
-        desc.size.depth++;
+        desc.size.depthOrLayers++;
         static auto i2 = device().image(desc);
-        desc.size.depth++;
+        desc.size.depthOrLayers++;
         static auto i3 = device().image(desc);
-        desc.size.depth++;
+        desc.size.depthOrLayers++;
         static auto i4 = device().image(desc);
         images_.push_back(i1.get());
         images_.push_back(i3.get());
@@ -77,7 +77,7 @@ struct WsiTest : Test {
     Wsi::Index ix = 0;
     const uint32_t lays[]{1, 3, 4, 2};
     for (auto& img : wsi) {
-      if (img != wsi[ix] || img->size().depth != lays[ix++]) {
+      if (img != wsi[ix] || img->size().depthOrLayers != lays[ix++]) {
         chk = false;
         break;
       }

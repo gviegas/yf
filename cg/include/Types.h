@@ -34,15 +34,16 @@ struct Size2 {
 /// Three-dimensional size.
 ///
 struct Size3 : Size2 {
-  uint32_t depth;
+  uint32_t depthOrLayers;
 
-  Size3(uint32_t width, uint32_t height, uint32_t depth)
-    : Size2(width, height), depth(depth) { }
+  Size3(uint32_t width, uint32_t height, uint32_t depthOrLayers)
+    : Size2(width, height), depthOrLayers(depthOrLayers) { }
 
-  Size3(Size2 size2, uint32_t depth) : Size2(size2), depth(depth) { }
+  Size3(Size2 size2, uint32_t depthOrLayers)
+    : Size2(size2), depthOrLayers(depthOrLayers) { }
 
   bool operator==(const Size3& other) const {
-    return Size2::operator==(other) && depth == other.depth;
+    return Size2::operator==(other) && depthOrLayers == other.depthOrLayers;
   }
 
   bool operator!=(const Size3& other) const {

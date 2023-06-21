@@ -36,9 +36,9 @@ struct TypesTest : Test {
       Size3 t(30, 30, 30);
       Size3 u(1, 2, 3);
       a.push_back({L"Size3 t(30, 30, 30)",
-                   t.width == 30 && t.height == 30 && t.depth == 30});
+                   t.width == 30 && t.height == 30 && t.depthOrLayers == 30});
       a.push_back({L"Size3 u(1, 2, 3)",
-                   u.width == 1 && u.height == 2 && u.depth == 3});
+                   u.width == 1 && u.height == 2 && u.depthOrLayers == 3});
       a.push_back({L"t == u", !(t == u)});
       a.push_back({L"t == Size3(30, 30, 30)", t == Size3(30, 30, 30)});
       a.push_back({L"u != Size3(1, 2, 4)", u != Size3(1, 2, 4)});

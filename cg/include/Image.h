@@ -195,6 +195,10 @@ class Image {
   Image& operator=(const Image&) = delete;
   virtual ~Image() = default;
 
+  /// Creates a new image view object.
+  ///
+  virtual ImageView::Ptr view(const ImageView::Desc& desc) = 0;
+
   /// Writes data to image memory.
   ///
   // TODO: Update for use with 3D images

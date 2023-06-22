@@ -32,6 +32,8 @@ class ImageVK final : public Image {
 
   ~ImageVK();
 
+  ImageView::Ptr view(const ImageView::Desc& desc);
+
   void write(Offset2 offset, Size2 size, uint32_t layer, uint32_t level,
              const void* data);
 

@@ -236,6 +236,11 @@ ImageVK::~ImageVK() {
   }
 }
 
+ImageView::Ptr ImageVK::view(const ImageView::Desc& desc) {
+  // TODO
+  throw runtime_error("ImageVK::view() not yet implemented");
+}
+
 void ImageVK::write(Offset2 offset, Size2 size, uint32_t layer, uint32_t level,
                     const void* data) {
 

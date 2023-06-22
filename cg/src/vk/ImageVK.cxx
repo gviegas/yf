@@ -328,7 +328,7 @@ void ImageVK::write(Offset2 offset, Size2 size, uint32_t layer, uint32_t level,
     // TODO: Consider checking if write area falls inside the level bounds
 
     // Write data to staging buffer
-    buf->write(off, sz, data);
+    buf->write(off, data, sz);
 
     // Get priority buffer into which the transfer will be encoded
     // TODO: Improve staging buffer management

@@ -73,9 +73,9 @@ struct CopyTest : Test {
                         Buffer::Uniform;
 
     auto buf = dev.buffer({4096, Buffer::Shared, bufUsg});
-    buf->write(0, sizeof pos, pos);
-    buf->write(sizeof pos, sizeof tc, tc);
-    buf->write(sizeof pos + sizeof tc + off, sizeof xform, xform);
+    buf->write(0, pos, sizeof pos);
+    buf->write(sizeof pos, tc, sizeof tc);
+    buf->write(sizeof pos + sizeof tc + off, xform, sizeof xform);
 
     // Image
     const uint8_t pixels[][4] = {

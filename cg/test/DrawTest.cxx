@@ -76,8 +76,8 @@ struct DrawTest : Test {
 
     auto buf = dev.buffer({2048, Buffer::Shared, Buffer::Vertex |
                                                  Buffer::Uniform});
-    buf->write(0, sizeof vxData, vxData);
-    buf->write(sizeof vxData + unifOff, sizeof unifData, unifData);
+    buf->write(0, vxData, sizeof vxData);
+    buf->write(sizeof vxData + unifOff, unifData, sizeof unifData);
 
     // Create sampling image and fill with data
     const uint8_t pxData[][4] = {{255, 0, 0, 255}, {255, 255, 0, 255}};

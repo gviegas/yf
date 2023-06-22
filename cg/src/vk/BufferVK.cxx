@@ -92,7 +92,7 @@ BufferVK::~BufferVK() {
   deallocateVK(memory_);
 }
 
-void BufferVK::write(uint64_t offset, uint64_t size, const void* data) {
+void BufferVK::write(uint64_t offset, const void* data, uint64_t size) {
   if (offset + size > size_ || !data)
     throw invalid_argument("Invalid BufferVK::write() argument(s)");
 

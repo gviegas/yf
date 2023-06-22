@@ -26,7 +26,7 @@ struct BufferTest : Test {
      public:
       Buffer_(size_t sz, Mode md, UsageMask usg)
         : sz_(sz), md_(md), usg_(usg) { }
-      void write(uint64_t, uint64_t, const void*) { }
+      void write(uint64_t, const void*, uint64_t) { }
       uint64_t size() const { return sz_; }
       Mode mode() const { return md_; }
       UsageMask usageMask() const { return usg_; }

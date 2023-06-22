@@ -365,12 +365,12 @@ void WsiVK::createSwapchain() {
   for_each(images_.begin(), images_.end(), [](auto& img) { delete img; });
   images_.clear();
   auto fmt = fromFormatVK(scInfo_.imageFormat);
-  Size2 sz{scInfo_.imageExtent.width, scInfo_.imageExtent.height};
+  Size3 sz{scInfo_.imageExtent.width, scInfo_.imageExtent.height, 1};
   for (auto& ih : imgHandles)
-    images_.push_back(new ImageVK(fmt, sz, 1, 1, Samples1,
-                                  VK_IMAGE_TYPE_2D, VK_IMAGE_TILING_OPTIMAL,
-                                  scInfo_.imageUsage, ih, nullptr,
-                                  VK_IMAGE_LAYOUT_UNDEFINED, false));
+    // TODO: Convert `scInfo_.imageUsage`
+    images_.push_back(new ImageVK(
+      {fmt, sz, 1, Samples1, Image::Dim2, Image::Attachment},
+      ih, nullptr, VK_IMAGE_LAYOUT_UNDEFINED, false));
 
   // Clear image acquisitions & set new limit
   acquisitions_.clear();

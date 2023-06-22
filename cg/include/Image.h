@@ -86,6 +86,63 @@ enum Samples {
   Samples64
 };
 
+class Image;
+
+/// View onto an image subresource.
+///
+class ImageView {
+ public:
+  using Ptr = std::unique_ptr<ImageView>;
+
+  /// View dimensionality.
+  ///
+  enum class Dimension {
+    Dim1,
+    Dim1Array,
+    Dim2,
+    Dim2Array,
+    DimCube,
+    DimCubeArray,
+    Dim3,
+  };
+  // TODO: Update this when migrating to C++20
+#if __cplusplus >= 202002L
+# error Use `using` instead
+#else
+  static constexpr Dimension Dim1 = Dimension::Dim1;
+  static constexpr Dimension Dim1Array = Dimension::Dim1Array;
+  static constexpr Dimension Dim2 = Dimension::Dim2;
+  static constexpr Dimension Dim2Array = Dimension::Dim2Array;
+  static constexpr Dimension DimCube = Dimension::DimCube;
+  static constexpr Dimension DimCubeArray = Dimension::DimCubeArray;
+  static constexpr Dimension Dim3 = Dimension::Dim3;
+#endif
+
+  /// View descriptor.
+  ///
+  // TODO: Format/aspect
+  struct Desc {
+    Range levels;
+    Range layers;
+    Dimension dimension;
+  };
+
+  ImageView() = default;
+  ImageView(const ImageView&) = delete;
+  ImageView& operator=(const ImageView&) = delete;
+  virtual ~ImageView() = default;
+
+  /// Gets the image which this is a view of.
+  ///
+  virtual Image& image() = 0;
+
+  /// Getters.
+  ///
+  virtual Range levels() const = 0;
+  virtual Range layers() const = 0;
+  virtual Dimension dimension() const = 0;
+};
+
 /// Formatted multidimensional data in device memory.
 ///
 class Image {
@@ -140,6 +197,7 @@ class Image {
 
   /// Writes data to image memory.
   ///
+  // TODO: Update for use with 3D images
   virtual void write(Offset2 offset, Size2 size, uint32_t layer, uint32_t level,
                      const void* data) = 0;
 

@@ -30,15 +30,15 @@ ImageVK::ImageVK(const Image::Desc& desc)
   if (levels_ == 0)
     throw invalid_argument("ImageVK requires levels != 0");
 
-  const auto& lim = deviceVK().physLimits();
-
   const VkFormat fmt = toFormatVK(format_);
   if (fmt == VK_FORMAT_UNDEFINED)
     throw invalid_argument("ImageVK requires a valid format");
 
   const VkSampleCountFlagBits spl = toSampleCountVK(samples_);
 
-  // Set image type
+  // Convert and validate dimension
+  const auto& lim = deviceVK().physLimits();
+  VkImageType type;
   switch (dimension_) {
   case Dim1:
     if (size_.width > lim.maxImageDimension1D)
@@ -47,7 +47,7 @@ ImageVK::ImageVK(const Image::Desc& desc)
       throw invalid_argument("ImageVK requires height == 1 for 1D images");
     if (size_.depthOrLayers > lim.maxImageArrayLayers)
       throw invalid_argument("ImageVK layer limit");
-    type_ = VK_IMAGE_TYPE_1D;
+    type = VK_IMAGE_TYPE_1D;
     break;
   case Dim2:
     if (size_.width > lim.maxImageDimension2D ||
@@ -56,51 +56,51 @@ ImageVK::ImageVK(const Image::Desc& desc)
     if (size_.depthOrLayers > lim.maxImageArrayLayers)
       throw invalid_argument("ImageVK layer limit");
     // TODO: Decide how to handle cubes
-    type_ = VK_IMAGE_TYPE_2D;
+    type = VK_IMAGE_TYPE_2D;
     break;
   case Dim3:
     if (size_.width > lim.maxImageDimension3D ||
         size_.height > lim.maxImageDimension3D ||
         size_.depthOrLayers > lim.maxImageDimension3D)
       throw invalid_argument("ImageVK size limit");
-    type_ = VK_IMAGE_TYPE_3D;
+    type = VK_IMAGE_TYPE_3D;
     break;
   }
 
-  // Set usage flags and record required format features
-  usage_ = 0;
+  // Convert usage mask and record required format features
+  VkImageUsageFlags usage = 0;
   VkFormatFeatureFlags fmtFeat = 0;
   if (usageMask_ & CopySrc) {
-    usage_ |= VK_IMAGE_USAGE_TRANSFER_SRC_BIT;
+    usage |= VK_IMAGE_USAGE_TRANSFER_SRC_BIT;
     if (deviceVK().devVersion() >= VK_API_VERSION_1_1)
       fmtFeat |= VK_FORMAT_FEATURE_TRANSFER_SRC_BIT;
   }
   if (usageMask_ & CopyDst) {
-    usage_ |= VK_IMAGE_USAGE_TRANSFER_DST_BIT;
+    usage |= VK_IMAGE_USAGE_TRANSFER_DST_BIT;
     if (deviceVK().devVersion() >= VK_API_VERSION_1_1)
       fmtFeat |= VK_FORMAT_FEATURE_TRANSFER_DST_BIT;
   }
   if (usageMask_ & Sampled) {
-    usage_ |= VK_IMAGE_USAGE_SAMPLED_BIT;
+    usage |= VK_IMAGE_USAGE_SAMPLED_BIT;
     fmtFeat |= VK_FORMAT_FEATURE_SAMPLED_IMAGE_BIT |
                // TODO: Check elsewhere
                VK_FORMAT_FEATURE_SAMPLED_IMAGE_FILTER_LINEAR_BIT;
   }
   if (usageMask_ & Storage) {
-    usage_ |= VK_IMAGE_USAGE_STORAGE_BIT;
+    usage |= VK_IMAGE_USAGE_STORAGE_BIT;
     fmtFeat |= VK_FORMAT_FEATURE_STORAGE_IMAGE_BIT;
   }
   if (usageMask_ & Attachment) {
     switch (aspectOfVK(format_)) {
     case VK_IMAGE_ASPECT_COLOR_BIT:
-      usage_ |= VK_IMAGE_USAGE_COLOR_ATTACHMENT_BIT;
+      usage |= VK_IMAGE_USAGE_COLOR_ATTACHMENT_BIT;
       fmtFeat |= VK_FORMAT_FEATURE_COLOR_ATTACHMENT_BIT |
                  // TODO: Check elsewhere
                  VK_FORMAT_FEATURE_COLOR_ATTACHMENT_BLEND_BIT;
       break;
     case VK_IMAGE_ASPECT_DEPTH_BIT:
     case VK_IMAGE_ASPECT_STENCIL_BIT:
-      usage_ |= VK_IMAGE_USAGE_DEPTH_STENCIL_ATTACHMENT_BIT;
+      usage |= VK_IMAGE_USAGE_DEPTH_STENCIL_ATTACHMENT_BIT;
       fmtFeat |= VK_FORMAT_FEATURE_DEPTH_STENCIL_ATTACHMENT_BIT;
       break;
     }
@@ -120,7 +120,7 @@ ImageVK::ImageVK(const Image::Desc& desc)
 
     VkImageFormatProperties prop;
     const auto res = vkGetPhysicalDeviceImageFormatProperties(
-      phys, fmt, type_, tiling, usage_, 0, &prop);
+      phys, fmt, type, tiling, usage, 0, &prop);
 
     switch (res) {
     case VK_SUCCESS:
@@ -161,7 +161,7 @@ ImageVK::ImageVK(const Image::Desc& desc)
   info.sType = VK_STRUCTURE_TYPE_IMAGE_CREATE_INFO;
   info.pNext = nullptr;
   info.flags = 0;
-  info.imageType = type_;
+  info.imageType = type;
   info.format = fmt;
   info.extent = {size_.width, size_.height, dimension_ == Dim3 ?
                                             size_.depthOrLayers :
@@ -170,7 +170,7 @@ ImageVK::ImageVK(const Image::Desc& desc)
   info.arrayLayers = dimension_ == Dim3 ? 1 : size_.depthOrLayers;
   info.samples = spl;
   info.tiling = tiling_;
-  info.usage = usage_;
+  info.usage = usage;
   info.sharingMode = VK_SHARING_MODE_EXCLUSIVE;
   info.queueFamilyIndexCount = 0;
   info.pQueueFamilyIndices = nullptr;
@@ -214,9 +214,8 @@ ImageVK::ImageVK(Format format, Size2 size, uint32_t layers, uint32_t levels,
                  VkImageUsageFlags usage, VkImage handle, void* data,
                  VkImageLayout layout, bool owned)
   : format_(format), size_({size, layers}), levels_(levels), samples_(samples),
-    dimension_(Dim2), usageMask_(0 /* TODO */), owned_(owned), type_(type),
-    tiling_(tiling), usage_(usage), handle_(handle), data_(data),
-    layout_(layout), nextLayout_(layout) {
+    dimension_(Dim2), usageMask_(0 /* TODO */), owned_(owned), tiling_(tiling),
+    handle_(handle), data_(data), layout_(layout), nextLayout_(layout) {
 
   if (size.width == 0 || size.height == 0)
     throw invalid_argument("ImageVK requires size != 0");
@@ -473,7 +472,8 @@ ImageVK::View::Ptr ImageVK::getView(uint32_t firstLayer, uint32_t layerCount,
   info.subresourceRange.baseArrayLayer = firstLayer;
   info.subresourceRange.layerCount = layerCount;
 
-  if (type_ == VK_IMAGE_TYPE_2D) {
+  // TODO: 3D
+  if (dimension_ == Dim2) {
     if (layerCount == 1)
       info.viewType = VK_IMAGE_VIEW_TYPE_2D;
     else

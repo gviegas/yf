@@ -98,9 +98,7 @@ class ImageVK final : public Image {
 
   const bool owned_ = true;
 
-  VkImageType type_ = VK_IMAGE_TYPE_2D;
   VkImageTiling tiling_ = VK_IMAGE_TILING_OPTIMAL;
-  VkImageUsageFlags usage_ = 0;
 
   VkDeviceMemory memory_ = VK_NULL_HANDLE;
   VkImage handle_ = VK_NULL_HANDLE;

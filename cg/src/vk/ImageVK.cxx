@@ -208,27 +208,23 @@ ImageVK::ImageVK(const Image::Desc& desc)
   }
 }
 
-// TODO: Update this to match `Image::Desc`
-ImageVK::ImageVK(Format format, Size2 size, uint32_t layers, uint32_t levels,
-                 Samples samples, VkImageType type, VkImageTiling tiling,
-                 VkImageUsageFlags usage, VkImage handle, void* data,
+ImageVK::ImageVK(const Desc& desc, VkImage handle, void* data,
                  VkImageLayout layout, bool owned)
-  : format_(format), size_({size, layers}), levels_(levels), samples_(samples),
-    dimension_(Dim2), usageMask_(0 /* TODO */), owned_(owned), tiling_(tiling),
+  : format_(desc.format), size_(desc.size), levels_(desc.levels),
+    samples_(desc.samples), dimension_(desc.dimension),
+    usageMask_(desc.usageMask), owned_(owned),
+    tiling_(data ? VK_IMAGE_TILING_LINEAR : VK_IMAGE_TILING_OPTIMAL),
     handle_(handle), data_(data), layout_(layout), nextLayout_(layout) {
 
-  if (size.width == 0 || size.height == 0)
-    throw invalid_argument("ImageVK requires size != 0");
-  if (layers == 0)
-    throw invalid_argument("ImageVK requires layers != 0");
-  if (levels == 0)
-    throw invalid_argument("ImageVK requires levels != 0");
-  if (toFormatVK(format) == VK_FORMAT_UNDEFINED)
-    throw invalid_argument("ImageVK requires a valid format");
-  if (handle == VK_NULL_HANDLE)
+  // TODO: Validate further
+  if (handle_ == VK_NULL_HANDLE)
     throw invalid_argument("ImageVK requires a valid handle");
-  if (tiling == VK_IMAGE_TILING_LINEAR && !data)
-    throw invalid_argument("ImageVK linear tiling requires non-null data");
+  if (size_.width == 0 || size_.height == 0 || size_.depthOrLayers == 0)
+    throw invalid_argument("ImageVK requires size != 0");
+  if (levels_ == 0)
+    throw invalid_argument("ImageVK requires levels != 0");
+  if (toFormatVK(format_) == VK_FORMAT_UNDEFINED)
+    throw invalid_argument("ImageVK requires a valid format");
 }
 
 ImageVK::~ImageVK() {

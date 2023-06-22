@@ -21,12 +21,14 @@ class ImageVK final : public Image {
  public:
   ImageVK(const Desc& desc);
 
-  /// Wraps an existing `VkImage` on an `ImageVK` object.
+  /// Wraps an existing `VkImage`.
   ///
-  ImageVK(Format format, Size2 size, uint32_t layers, uint32_t levels,
-          Samples samples, VkImageType type, VkImageTiling tiling,
-          VkImageUsageFlags usage, VkImage handle, void* data,
-          VkImageLayout layout, bool owned);
+  /// If `owned` is set, then the destructor will call `vkDestroyImage`
+  /// on `handle`.
+  /// Non-null `data` indicates that the image uses linear tiling.
+  ///
+  ImageVK(const Desc& desc, VkImage handle, void* data, VkImageLayout layout,
+          bool owned);
 
   ~ImageVK();
 

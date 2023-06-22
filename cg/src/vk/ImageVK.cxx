@@ -20,7 +20,6 @@ using namespace std;
 // ImageVK
 //
 
-// TODO: 3D images; cube-compatible
 ImageVK::ImageVK(const Image::Desc& desc)
   : format_(desc.format), size_(desc.size), levels_(desc.levels),
     samples_(desc.samples), dimension_(desc.dimension),
@@ -32,85 +31,104 @@ ImageVK::ImageVK(const Image::Desc& desc)
     throw invalid_argument("ImageVK requires levels != 0");
 
   const auto& lim = deviceVK().physLimits();
-  if (size_.depthOrLayers > lim.maxImageArrayLayers) // XXX: 3D
-    throw invalid_argument("ImageVK layer count limit");
 
-  // Convert to format
-  VkFormat fmt = toFormatVK(format_);
+  const VkFormat fmt = toFormatVK(format_);
   if (fmt == VK_FORMAT_UNDEFINED)
     throw invalid_argument("ImageVK requires a valid format");
 
-  // Convert to sample count
-  VkSampleCountFlagBits spl = toSampleCountVK(samples_);
+  const VkSampleCountFlagBits spl = toSampleCountVK(samples_);
 
   // Set image type
-  // TODO: Use `desc.dimension`
-  if (size_.height > 1) {
+  switch (dimension_) {
+  case Dim1:
+    if (size_.width > lim.maxImageDimension1D)
+      throw invalid_argument("ImageVK size limit");
+    if (size_.height != 1)
+      throw invalid_argument("ImageVK requires height == 1 for 1D images");
+    if (size_.depthOrLayers > lim.maxImageArrayLayers)
+      throw invalid_argument("ImageVK layer limit");
+    type_ = VK_IMAGE_TYPE_1D;
+    break;
+  case Dim2:
     if (size_.width > lim.maxImageDimension2D ||
         size_.height > lim.maxImageDimension2D)
-      throw invalid_argument("ImageVK 2D image size limit");
+      throw invalid_argument("ImageVK size limit");
+    if (size_.depthOrLayers > lim.maxImageArrayLayers)
+      throw invalid_argument("ImageVK layer limit");
+    // TODO: Decide how to handle cubes
     type_ = VK_IMAGE_TYPE_2D;
-  } else {
-    if (size_.width > lim.maxImageDimension1D)
-      throw invalid_argument("ImageVK 1D image size limit");
-    type_ = VK_IMAGE_TYPE_1D;
+    break;
+  case Dim3:
+    if (size_.width > lim.maxImageDimension3D ||
+        size_.height > lim.maxImageDimension3D ||
+        size_.depthOrLayers > lim.maxImageDimension3D)
+      throw invalid_argument("ImageVK size limit");
+    type_ = VK_IMAGE_TYPE_3D;
+    break;
   }
 
-  // Get format properties
+  // Set usage flags and record required format features
+  usage_ = 0;
+  VkFormatFeatureFlags fmtFeat = 0;
+  if (usageMask_ & CopySrc) {
+    usage_ |= VK_IMAGE_USAGE_TRANSFER_SRC_BIT;
+    if (deviceVK().devVersion() >= VK_API_VERSION_1_1)
+      fmtFeat |= VK_FORMAT_FEATURE_TRANSFER_SRC_BIT;
+  }
+  if (usageMask_ & CopyDst) {
+    usage_ |= VK_IMAGE_USAGE_TRANSFER_DST_BIT;
+    if (deviceVK().devVersion() >= VK_API_VERSION_1_1)
+      fmtFeat |= VK_FORMAT_FEATURE_TRANSFER_DST_BIT;
+  }
+  if (usageMask_ & Sampled) {
+    usage_ |= VK_IMAGE_USAGE_SAMPLED_BIT;
+    fmtFeat |= VK_FORMAT_FEATURE_SAMPLED_IMAGE_BIT |
+               // TODO: Check elsewhere
+               VK_FORMAT_FEATURE_SAMPLED_IMAGE_FILTER_LINEAR_BIT;
+  }
+  if (usageMask_ & Storage) {
+    usage_ |= VK_IMAGE_USAGE_STORAGE_BIT;
+    fmtFeat |= VK_FORMAT_FEATURE_STORAGE_IMAGE_BIT;
+  }
+  if (usageMask_ & Attachment) {
+    switch (aspectOfVK(format_)) {
+    case VK_IMAGE_ASPECT_COLOR_BIT:
+      usage_ |= VK_IMAGE_USAGE_COLOR_ATTACHMENT_BIT;
+      fmtFeat |= VK_FORMAT_FEATURE_COLOR_ATTACHMENT_BIT |
+                 // TODO: Check elsewhere
+                 VK_FORMAT_FEATURE_COLOR_ATTACHMENT_BLEND_BIT;
+      break;
+    case VK_IMAGE_ASPECT_DEPTH_BIT:
+    case VK_IMAGE_ASPECT_STENCIL_BIT:
+      usage_ |= VK_IMAGE_USAGE_DEPTH_STENCIL_ATTACHMENT_BIT;
+      fmtFeat |= VK_FORMAT_FEATURE_DEPTH_STENCIL_ATTACHMENT_BIT;
+      break;
+    }
+  }
+
   auto phys = deviceVK().physicalDev();
   VkFormatProperties fmtProp;
   vkGetPhysicalDeviceFormatProperties(phys, fmt, &fmtProp);
 
-  // Set valid usage mask for use with `tiling`
-  // TODO: Use `desc.usageMask`
-  auto setUsage = [&](VkImageTiling tiling) {
-    usage_ = 0;
-    VkFormatFeatureFlags feat;
-    if (tiling == VK_IMAGE_TILING_LINEAR)
-      feat = fmtProp.linearTilingFeatures;
-    else
-      feat = fmtProp.optimalTilingFeatures;
-
-    if (feat & VK_FORMAT_FEATURE_SAMPLED_IMAGE_BIT)
-      usage_ |= VK_IMAGE_USAGE_SAMPLED_BIT;
-    if (feat & VK_FORMAT_FEATURE_COLOR_ATTACHMENT_BIT)
-      usage_ |= VK_IMAGE_USAGE_COLOR_ATTACHMENT_BIT;
-    if (feat & VK_FORMAT_FEATURE_DEPTH_STENCIL_ATTACHMENT_BIT)
-      usage_ |= VK_IMAGE_USAGE_DEPTH_STENCIL_ATTACHMENT_BIT;
-
-    // XXX: This check assumes that multisample storage is not supported,
-    // since it could spoil the query for additional capabilities
-    if (samples_ == Samples1 && (feat & VK_FORMAT_FEATURE_STORAGE_IMAGE_BIT))
-      usage_ |= VK_IMAGE_USAGE_STORAGE_BIT;
-
-    if (usage_ == 0)
-      return false;
-
-    if (deviceVK().devVersion() >= VK_API_VERSION_1_1) {
-      if (feat & VK_FORMAT_FEATURE_TRANSFER_SRC_BIT)
-        usage_ |= VK_IMAGE_USAGE_TRANSFER_SRC_BIT;
-      if (feat & VK_FORMAT_FEATURE_TRANSFER_DST_BIT)
-        usage_ |= VK_IMAGE_USAGE_TRANSFER_DST_BIT;
-    } else {
-      // XXX: Not in v1.0
-      usage_ |= VK_IMAGE_USAGE_TRANSFER_SRC_BIT |
-                VK_IMAGE_USAGE_TRANSFER_DST_BIT;
-    }
-
-    return true;
-  };
-
   // Set image tiling and layout properties
   auto setTiling = [&](VkImageTiling tiling) {
+    const auto feat = tiling == VK_IMAGE_TILING_LINEAR ?
+                      fmtProp.linearTilingFeatures :
+                      fmtProp.optimalTilingFeatures;
+    if ((fmtFeat & feat) != fmtFeat)
+      return false;
+
     VkImageFormatProperties prop;
-    auto res = vkGetPhysicalDeviceImageFormatProperties(phys, fmt, type_,
-                                                        tiling, usage_, 0,
-                                                        &prop);
+    const auto res = vkGetPhysicalDeviceImageFormatProperties(
+      phys, fmt, type_, tiling, usage_, 0, &prop);
+
     switch (res) {
     case VK_SUCCESS:
       if (prop.maxExtent.width < size_.width ||
           prop.maxExtent.height < size_.height ||
-          prop.maxArrayLayers < size_.depthOrLayers ||
+          (dimension_ == Dim3 ?
+           prop.maxExtent.depth :
+           prop.maxArrayLayers) < size_.depthOrLayers ||
           prop.maxMipLevels < levels_ ||
           !(prop.sampleCounts & spl))
         return false;
@@ -130,16 +148,10 @@ ImageVK::ImageVK(const Image::Desc& desc)
     }
   };
 
-  // Check if image creation with linear tiling _might_ work
-  if (samples_ != Samples1 ||
-      !setUsage(VK_IMAGE_TILING_LINEAR) ||
-      !setTiling(VK_IMAGE_TILING_LINEAR)) {
-
-    // No chance of linear tiling working, try optimal tiling
-    if (!setUsage(VK_IMAGE_TILING_OPTIMAL) ||
-        !setTiling(VK_IMAGE_TILING_OPTIMAL))
+  // Prefer linear tiling
+  if (samples_ != Samples1 || !setTiling(VK_IMAGE_TILING_LINEAR))
+    if (!setTiling(VK_IMAGE_TILING_OPTIMAL))
       throw UnsupportedExcept("Format not supported by ImageVK");
-  }
 
   // Create image
   auto dev = deviceVK().device();
@@ -151,9 +163,11 @@ ImageVK::ImageVK(const Image::Desc& desc)
   info.flags = 0;
   info.imageType = type_;
   info.format = fmt;
-  info.extent = {size_.width, size_.height, 1}; // XXX: 3D
+  info.extent = {size_.width, size_.height, dimension_ == Dim3 ?
+                                            size_.depthOrLayers :
+                                            1};
   info.mipLevels = levels_;
-  info.arrayLayers = size_.depthOrLayers; // XXX: 3D
+  info.arrayLayers = dimension_ == Dim3 ? 1 : size_.depthOrLayers;
   info.samples = spl;
   info.tiling = tiling_;
   info.usage = usage_;
@@ -558,7 +572,7 @@ SamplerVK::SamplerVK(const Sampler& sampler) : sampler_(sampler) {
 
 SamplerVK::~SamplerVK() {
   // XXX: Like the image view above, this assumes that the driver does
-  // reference counting for non-dispatchable handlers
+  // reference counting for non-dispatchable handles
   vkDestroySampler(deviceVK().device(), handle_, nullptr);
 }
 

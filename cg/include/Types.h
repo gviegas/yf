@@ -87,6 +87,39 @@ struct Offset3 : Offset2 {
   }
 };
 
+/// Range.
+///
+struct Range {
+  uint32_t start; // Inclusive
+  uint32_t end; // Exclusive
+
+  Range(uint32_t start, uint32_t end) : start(start), end(end) { }
+
+  bool operator==(const Range& other) const {
+    return start == other.start && end == other.end;
+  }
+
+  bool operator!=(const Range& other) const {
+    return !operator==(other);
+  }
+
+  /// Computes `end - start`.
+  ///
+  /// It assumes that `start` is no greater than `end`.
+  ///
+  uint32_t count() const {
+    return end - start;
+  }
+
+  /// Checks whether the range contains `other`.
+  ///
+  /// It assumes that `start` is no greater than `end`.
+  ///
+  bool contains(const Range& other) const {
+    return start <= other.start && end >= other.end;
+  }
+};
+
 CG_NS_END
 
 #endif // YF_CG_TYPES_H

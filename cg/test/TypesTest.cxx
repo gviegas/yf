@@ -75,6 +75,38 @@ struct TypesTest : Test {
       a.push_back({L"v == Offset3(Offset2{}, 0)", v == Offset3(Offset2{}, 0)});
     }
 
+    // Range
+    {
+      Range t(0, 10);
+      Range u(3, 4);
+      Range v(0, 0);
+      Range w(3, 3);
+      a.push_back({L"Range (0, 10)", t.start == 0 && t.end == 10});
+      a.push_back({L"Range (3, 4)", u.start == 3 && u.end == 4});
+      a.push_back({L"Range (0, 0)", v.start == 0 && v.end == 0});
+      a.push_back({L"Range (3, 3)", w.start == 3 && w.end == 3});
+      a.push_back({L"t.count()", t.count() == 10});
+      a.push_back({L"u.count()", u.count() == 1});
+      a.push_back({L"v.count()", v.count() == 0});
+      a.push_back({L"w.count()", w.count() == 0});
+      a.push_back({L"t.contains(t)", t.contains(t)});
+      a.push_back({L"t.contains(u)", t.contains(u)});
+      a.push_back({L"t.contains(v)", t.contains(v)});
+      a.push_back({L"t.contains(w)", t.contains(w)});
+      a.push_back({L"u.contains(t)", !u.contains(t)});
+      a.push_back({L"u.contains(u)", u.contains(u)});
+      a.push_back({L"u.contains(v)", !u.contains(v)});
+      a.push_back({L"u.contains(w)", u.contains(w)});
+      a.push_back({L"v.contains(t)", !v.contains(t)});
+      a.push_back({L"v.contains(u)", !v.contains(u)});
+      a.push_back({L"v.contains(v)", v.contains(v)});
+      a.push_back({L"v.contains(w)", !v.contains(w)});
+      a.push_back({L"w.contains(t)", !w.contains(t)});
+      a.push_back({L"w.contains(u)", !w.contains(u)});
+      a.push_back({L"w.contains(v)", !w.contains(v)});
+      a.push_back({L"w.contains(w)", w.contains(w)});
+    }
+
     return a;
   }
 };

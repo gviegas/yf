@@ -18,29 +18,7 @@ INTERNAL_NS_BEGIN
 struct BufferTest : Test {
   BufferTest() : Test(L"Buffer") { }
 
-  void runMock(Assertions& a) {
-    class Buffer_ : public Buffer {
-      uint64_t sz_;
-      Mode md_;
-      UsageMask usg_;
-     public:
-      Buffer_(size_t sz, Mode md, UsageMask usg)
-        : sz_(sz), md_(md), usg_(usg) { }
-      void write(uint64_t, const void*, uint64_t) { }
-      uint64_t size() const { return sz_; }
-      Mode mode() const { return md_; }
-      UsageMask usageMask() const { return usg_; }
-    };
-
-    Buffer_ buf(65536, Buffer::Shared, Buffer::CopySrc | Buffer::CopyDst);
-
-    a.push_back({L"Buffer()",
-                 buf.size() == 65536 &&
-                 buf.mode() == Buffer::Shared &&
-                 buf.usageMask() == (Buffer::CopySrc | Buffer::CopyDst)});
-  }
-
-  void runImpl(Assertions& a) {
+  Assertions run(const vector<string>&) {
     const uint64_t sizes[]{1, 256, 1024, 1023, 10'000, 1 << 20, 4 << 20};
     const Buffer::Mode modes[]{Buffer::Shared, Buffer::Private};
     const Buffer::UsageMask usageMasks[]{
@@ -82,14 +60,7 @@ struct BufferTest : Test {
                  bufs[i]->usageMask() == usageMasks[inds[i][2]];
     }
 
-    a.push_back({L"device().buffer()", check});
-  }
-
-  Assertions run(const std::vector<string>&) {
-    Assertions a;
-    runMock(a);
-    runImpl(a);
-    return a;
+    return {{L"device().buffer()", check}};
   }
 };
 

@@ -80,18 +80,25 @@ struct DrawTest : Test {
     buf->write(sizeof vxData + unifOff, unifData, sizeof unifData);
 
     // Create sampling image and fill with data
-    const uint8_t pxData[][4] = {{240, 127, 0, 255}, {200, 63, 0, 255}};
-
-    auto tex = dev.image({Format::Rgba8Unorm, {2, 1, 1}, 1, Samples1,
+    const uint32_t lyrN = 4;
+    const uint8_t pxData[lyrN][4] = {
+      {255, 255, 0, 255},
+      {255, 0, 255, 255},
+      {0, 255, 255, 255},
+      {255, 255, 255, 255},
+    };
+    auto tex = dev.image({Format::Rgba8Unorm, {1, 1, lyrN}, 1, Samples1,
                           Image::Dim2, Image::CopyDst | Image::Sampled});
-    tex->write(0, {}, 0, pxData, {2, 1, 1});
+    tex->write(0, {}, 0, pxData, {1, 1, lyrN});
 
     // Create descriptor table, allocate resources and copy data
     const vector<DcEntry> dcs{{0, DcTypeUniform, 1}, {1, DcTypeImgSampler, 1}};
     auto dtb = dev.dcTable(dcs);
-    dtb->allocate(1);
-    dtb->write(0, 0, 0, *buf, sizeof vxData + unifOff, sizeof unifData);
-    dtb->write(0, 1, 0, *tex, 0, 0);
+    dtb->allocate(lyrN);
+    for (uint32_t i = 0; i < lyrN; i++) {
+      dtb->write(i, 0, 0, *buf, sizeof vxData + unifOff, sizeof unifData);
+      dtb->write(i, 1, 0, *tex, i, 0);
+    }
 
     // Define vertex input
     const VxInput vxIn = {{{0, VxFormatFlt3, 0}, {1, VxFormatFlt2, vxOff}},
@@ -120,7 +127,8 @@ struct DrawTest : Test {
     tgtOp.depthValue = 1.0f;
 
     // Enter rendering loop
-    const auto tm = chrono::system_clock::now() + chrono::seconds(5);
+    const auto t0 = chrono::system_clock::now();
+    const auto tm = t0 + chrono::seconds(5);
     while (chrono::system_clock::now() < tm) {
       // Acquire next drawable image
       pair<Image*, Wsi::Index> img;
@@ -131,6 +139,10 @@ struct DrawTest : Test {
       });
       assert(tgtIt != tgts.end() && tgtIt == tgts.begin() + img.second);
 
+      const auto nm = chrono::system_clock::now() - t0;
+      const auto dv = chrono::nanoseconds(chrono::milliseconds(666));
+      const auto lyr = (nm / dv) % lyrN;
+
       // Encode commands
       GrEncoder enc;
       enc.setViewport({0.0f, 0.0f, (float)winSz.width, (float)winSz.height,
@@ -138,7 +150,7 @@ struct DrawTest : Test {
       enc.setScissor({{}, winSz});
       enc.setTarget(**tgtIt, tgtOp);
       enc.setState(*state);
-      enc.setDcTable(0, 0);
+      enc.setDcTable(0, lyr);
       enc.setVertexBuffer(*buf, 0, 0);
       enc.draw(0, 3, 0, 1);
 

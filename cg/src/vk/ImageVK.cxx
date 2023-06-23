@@ -294,21 +294,26 @@ void ImageVK::write(uint32_t plane, Origin3 origin, uint32_t level,
     vkGetImageSubresourceLayout(dev, handle_, &subres, &layout);
 
     const auto slcPitch = dimension_ == Dim3 ?
-                          layout.arrayPitch :
-                          layout.depthPitch;
+                          layout.depthPitch :
+                          layout.arrayPitch;
 
     const auto rowSz = size.width * txSz;
 
+    if (bytesPerRow == 0)
+      bytesPerRow = rowSz;
+    if (rowsPerSlice == 0)
+      rowsPerSlice = size.height;
+
     // Write data to each selected slice, row by row
-    for (auto slc = origin.z; slc < size.depthOrLayers; slc++) {
+    for (uint32_t i = 0; i < size.depthOrLayers; i++) {
       auto dst = reinterpret_cast<char*>(data_) +
                  layout.offset +
                  origin.x * txSz +
                  origin.y * layout.rowPitch +
-                 slc * slcPitch;
+                 (origin.z + i) * slcPitch;
 
       auto src = reinterpret_cast<const char*>(data) +
-                 (slc - origin.z) * bytesPerRow * rowsPerSlice;
+                 bytesPerRow * rowsPerSlice * i;
 
       for (uint32_t row = 0; row < size.height; row++) {
         memcpy(dst, src, rowSz);

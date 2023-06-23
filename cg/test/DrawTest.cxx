@@ -80,11 +80,11 @@ struct DrawTest : Test {
     buf->write(sizeof vxData + unifOff, unifData, sizeof unifData);
 
     // Create sampling image and fill with data
-    const uint8_t pxData[][4] = {{255, 0, 0, 255}, {255, 255, 0, 255}};
+    const uint8_t pxData[][4] = {{240, 127, 0, 255}, {200, 63, 0, 255}};
 
     auto tex = dev.image({Format::Rgba8Unorm, {2, 1, 1}, 1, Samples1,
                           Image::Dim2, Image::CopyDst | Image::Sampled});
-    tex->write({}, {2, 1}, 0, 0, pxData);
+    tex->write(0, {}, 0, pxData, {2, 1, 1});
 
     // Create descriptor table, allocate resources and copy data
     const vector<DcEntry> dcs{{0, DcTypeUniform, 1}, {1, DcTypeImgSampler, 1}};

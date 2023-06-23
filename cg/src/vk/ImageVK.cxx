@@ -241,15 +241,35 @@ ImageView::Ptr ImageVK::view(const ImageView::Desc& desc) {
   throw runtime_error("ImageVK::view() not yet implemented");
 }
 
-void ImageVK::write(Offset2 offset, Size2 size, uint32_t layer, uint32_t level,
-                    const void* data) {
+void ImageVK::write(uint32_t plane, Origin3 origin, uint32_t level,
+                    const void* data, Size3 size, uint32_t bytesPerRow,
+                    uint32_t rowsPerSlice) {
 
-  if (offset.x + size.width > size_.width ||
-      offset.y + size.height > size_.height ||
-      layer >= size_.depthOrLayers ||
+  if (origin.x + size.width > size_.width ||
+      origin.y + size.height > size_.height ||
+      origin.z + size.depthOrLayers > size_.depthOrLayers ||
       level >= levels_ ||
       !data)
     throw invalid_argument("ImageVK write()");
+
+  // TODO: Consider storing the aspect as data member
+  VkImageAspectFlags aspFlg = aspectOfVK(format_);
+  switch (aspFlg) {
+  case VK_IMAGE_ASPECT_COLOR_BIT:
+  case VK_IMAGE_ASPECT_DEPTH_BIT:
+  case VK_IMAGE_ASPECT_STENCIL_BIT:
+    if (plane != 0)
+      throw invalid_argument("ImageVK write() invalid plane");
+    break;
+  case VK_IMAGE_ASPECT_DEPTH_BIT | VK_IMAGE_ASPECT_STENCIL_BIT:
+    if (plane == 0)
+      aspFlg = VK_IMAGE_ASPECT_DEPTH_BIT;
+    else if (plane == 1)
+      aspFlg = VK_IMAGE_ASPECT_STENCIL_BIT;
+    else
+      throw invalid_argument("ImageVK write() invalid plane");
+    break;
+  }
 
   const auto txSz = texelSize();
 
@@ -262,91 +282,47 @@ void ImageVK::write(Offset2 offset, Size2 size, uint32_t layer, uint32_t level,
         layout_ != VK_IMAGE_LAYOUT_GENERAL)
       changeLayout(VK_IMAGE_LAYOUT_GENERAL, false);
 
+    const auto dev = deviceVK().device();
+
     // Query subresource layout
+    // NOTE: This assumes `format_` has a single aspect
     VkImageSubresource subres;
-    subres.aspectMask = aspectOfVK(format_);
+    subres.aspectMask = aspFlg;
     subres.mipLevel = level;
     subres.arrayLayer = 0;
-
-    if (subres.aspectMask != VK_IMAGE_ASPECT_COLOR_BIT &&
-        subres.aspectMask != VK_IMAGE_ASPECT_DEPTH_BIT &&
-        subres.aspectMask != VK_IMAGE_ASPECT_STENCIL_BIT)
-      throw runtime_error("Invalid aspect mask for image write");
-
-    auto dev = deviceVK().device();
     VkSubresourceLayout layout;
-    // TODO: Consider getting all required layouts once on creation
     vkGetImageSubresourceLayout(dev, handle_, &subres, &layout);
 
-    // Write data to image memory
-    uint64_t sz = size.width * txSz;
-    auto src = reinterpret_cast<const char*>(data);
-    auto dst = reinterpret_cast<char*>(data_);
-    dst += layout.offset + layout.arrayPitch * layer;
-    dst += offset.y * layout.rowPitch + offset.x * txSz;
+    const auto slcPitch = dimension_ == Dim3 ?
+                          layout.arrayPitch :
+                          layout.depthPitch;
 
-    for (uint32_t row = 0; row < size.height; row++) {
-      memcpy(dst, src, sz);
-      dst += layout.rowPitch;
-      src += sz;
+    const auto rowSz = size.width * txSz;
+
+    // Write data to each selected slice, row by row
+    for (auto slc = origin.z; slc < size.depthOrLayers; slc++) {
+      auto dst = reinterpret_cast<char*>(data_) +
+                 layout.offset +
+                 origin.x * txSz +
+                 origin.y * layout.rowPitch +
+                 slc * slcPitch;
+
+      auto src = reinterpret_cast<const char*>(data) +
+                 (slc - origin.z) * bytesPerRow * rowsPerSlice;
+
+      for (uint32_t row = 0; row < size.height; row++) {
+        memcpy(dst, src, rowSz);
+        dst += layout.rowPitch;
+        src += bytesPerRow;
+      }
     }
 
   } else {
-    // For optimal tiling, create a staging buffer into which the data
-    // will be written and then issue a buffer-to-image copy command
+    // For optimal tiling, write the data to a staging buffer and then
+    // issue a buffer-to-image copy command
 
-    if (layout_ != VK_IMAGE_LAYOUT_GENERAL)
-      changeLayout(VK_IMAGE_LAYOUT_GENERAL, true);
-
-    auto stgIt = staging_.find(layer);
-
-    // One staging buffer per layer
-    // TODO: Consider keeping a pool of staging buffers
-    if (stgIt == staging_.end()) {
-      uint64_t sz = size_.width * size_.height * txSz;
-      sz = (sz & ~255) + 256;
-      if (levels_ > 1)
-        sz <<= 1;
-      const Buffer::Desc desc{sz, Buffer::Shared, Buffer::CopySrc};
-      stgIt = staging_
-        .emplace(layer, make_unique<BufferVK>(desc))
-        .first;
-    }
-
-    BufferVK* buf = stgIt->second.get();
-
-    // The mipmap chain is stored contiguously in the buffer
-    uint64_t off = 0;
-    for (uint32_t i = 0; i < level; i++) {
-      off += (size_.width >> i) * (size_.height >> i) * txSz;
-      off = ((off-1) & ~3) + 4;
-    }
-    if (offset != Offset2{})
-      off += offset.y * (size_.width >> level) * txSz + offset.x * txSz;
-    uint64_t sz = (size.width >> level) * (size.height >> level) * txSz;
-
-    // TODO: Consider checking if write area falls inside the level bounds
-
-    // Write data to staging buffer
-    buf->write(off, data, sz);
-
-    // Get priority buffer into which the transfer will be encoded
-    // TODO: Improve staging buffer management
-    auto& queue = static_cast<QueueVK&>(deviceVK().defaultQueue());
-    auto cbuf = queue.getPriority(VK_PIPELINE_STAGE_ALL_COMMANDS_BIT,
-                                  [&](bool) { staging_.clear(); });
-
-    // Encode transfer command
-    VkBufferImageCopy region;
-    region.bufferOffset = off;
-    region.bufferRowLength = 0;
-    region.bufferImageHeight = 0;
-    region.imageSubresource = {aspectOfVK(format_), level, layer, 1};
-    region.imageOffset = {offset.x, offset.y, 1};
-    region.imageExtent = {size.width, size.height, 1};
-
-    vkCmdCopyBufferToImage(cbuf, buf->handle(), handle_, nextLayout_,
-                           1, &region);
+    // TODO
+    throw runtime_error("ImageVK::write() WIP");
   }
 }
 

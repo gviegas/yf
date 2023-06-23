@@ -201,9 +201,9 @@ class Image {
 
   /// Writes data to image memory.
   ///
-  // TODO: Update for use with 3D images
-  virtual void write(Offset2 offset, Size2 size, uint32_t layer, uint32_t level,
-                     const void* data) = 0;
+  virtual void write(uint32_t plane, Origin3 origin, uint32_t level,
+                     const void* data, Size3 size, uint32_t bytesPerRow = 0,
+                     uint32_t rowsPerSlice = 0) = 0;
 
   /// Getters.
   ///

@@ -86,7 +86,7 @@ struct CopyTest : Test {
 
     auto img = dev.image({Format::Rgba8Unorm, {3, 1, 1}, 1, Samples1,
                           Image::Dim2, imgUsg});
-    img->write({}, {3, 1}, 0, 0, pixels);
+    img->write(0, {}, 0, pixels, {3, 1, 1});
 
     // DcTable
     const vector<DcEntry> dcs{{0, DcTypeUniform, 1}, {1, DcTypeImgSampler, 1}};

@@ -34,8 +34,9 @@ class ImageVK final : public Image {
 
   ImageView::Ptr view(const ImageView::Desc& desc);
 
-  void write(Offset2 offset, Size2 size, uint32_t layer, uint32_t level,
-             const void* data);
+  void write(uint32_t plane, Origin3 origin, uint32_t level,
+             const void* data, Size3 size, uint32_t bytesPerRow,
+             uint32_t rowsPerSlice);
 
   Format format() const;
   Size3 size() const;

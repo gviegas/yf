@@ -31,7 +31,8 @@ struct ImageTest : Test {
         : fmt_(fmt), sz_(sz), lvls_(lvls), spls_(spls), dim_(dim), usg_(usg) { }
 
       ImageView::Ptr view(const ImageView::Desc&) { return nullptr; }
-      void write(Offset2, Size2, uint32_t, uint32_t, const void*) { }
+      void write(uint32_t, Origin3, uint32_t, const void*, Size3, uint32_t,
+                 uint32_t) { }
       Format format() const { return fmt_; }
       Size3 size() const { return sz_; }
       uint32_t levels() const { return lvls_; }

@@ -115,6 +115,24 @@ class ImageVK final : public Image {
   void changeLayout(bool);
 };
 
+class ImageViewVK final : public ImageView {
+ public:
+  ImageViewVK(ImageVK& image, const ImageView::Desc& desc);
+  ~ImageViewVK();
+
+  Image& image();
+  Range levels() const;
+  Range layers() const;
+  Dimension dimension() const;
+
+ private:
+  const Range levels_;
+  const Range layers_;
+  const Dimension dimension_;
+  ImageVK* image_ = nullptr;
+  VkImageView handle_ = VK_NULL_HANDLE;
+};
+
 /// Image sampler.
 ///
 class SamplerVK final {

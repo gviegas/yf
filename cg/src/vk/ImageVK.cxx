@@ -429,6 +429,43 @@ pair<VkImageLayout, VkImageLayout> ImageVK::layout() const {
   return {layout_, nextLayout_};
 }
 
+//
+// ImageViewVK
+//
+
+// TODO
+ImageViewVK::ImageViewVK(ImageVK& image, const ImageView::Desc& desc)
+  : levels_(desc.levels), layers_(desc.layers), dimension_(desc.dimension),
+    image_(&image) {
+
+  throw runtime_error("not yet implemented");
+}
+
+// TODO
+ImageViewVK::~ImageViewVK() {
+}
+
+// TODO
+Image& ImageViewVK::image() {
+  throw runtime_error("not yet implemented");
+}
+
+Range ImageViewVK::levels() const {
+  return levels_;
+}
+
+Range ImageViewVK::layers() const {
+  return layers_;
+}
+
+ImageView::Dimension ImageViewVK::dimension() const {
+  return dimension_;
+}
+
+//
+// TODO: Remove Image::View
+//
+
 ImageVK::View::Ptr ImageVK::getView(uint32_t firstLayer, uint32_t layerCount,
                                     uint32_t firstLevel, uint32_t levelCount) {
 

@@ -8,12 +8,10 @@
 #ifndef YF_CG_IMAGEVK_H
 #define YF_CG_IMAGEVK_H
 
-#include <unordered_map>
 #include <stdexcept>
 
 #include "Image.h"
 #include "VK.h"
-#include "BufferVK.h"
 
 CG_NS_BEGIN
 
@@ -52,6 +50,7 @@ class ImageVK final : public Image {
 
   /// Notifies the image that it has transitioned to a new layout.
   ///
+  // TODO: This should be atomic
   void layoutChanged(VkImageLayout newLayout);
 
   /// Getters.
@@ -108,7 +107,6 @@ class ImageVK final : public Image {
   VkDeviceMemory memory_ = VK_NULL_HANDLE;
   VkImage handle_ = VK_NULL_HANDLE;
   void* data_ = nullptr;
-  std::unordered_map<uint32_t, std::unique_ptr<BufferVK>> staging_{};
 
   VkImageLayout layout_ = VK_IMAGE_LAYOUT_UNDEFINED;
   VkImageLayout nextLayout_ = VK_IMAGE_LAYOUT_UNDEFINED;

@@ -227,11 +227,13 @@ void DcTableVK::write(uint32_t allocation, DcId id, uint32_t element,
 
   // Check if view object can be reused
   if (!ref.view || &ref.view->image() != &image ||
-      ref.view->firstLayer() != layer || ref.view->firstLevel() != level)
-    ref.view = static_cast<ImageVK&>(image).getView(layer, 1, level, 1);
+      ref.view->levels().start != level || ref.view->layers().start != layer)
+    ref.view = image.view({{level, level + 1},
+                           {layer, layer + 1},
+                           ImgView::Dim2});
 
   VkDescriptorImageInfo info;
-  info.imageView = ref.view->handle();
+  info.imageView = static_cast<ImgViewVK*>(ref.view.get())->handle();
   info.imageLayout = VK_IMAGE_LAYOUT_GENERAL;
 
   VkWriteDescriptorSet wr;

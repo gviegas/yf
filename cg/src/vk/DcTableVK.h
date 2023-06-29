@@ -2,7 +2,7 @@
 // CG
 // DcTableVK.h
 //
-// Copyright © 2020-2021 Gustavo C. Viegas.
+// Copyright © 2020-2023 Gustavo C. Viegas.
 //
 
 #ifndef YF_CG_DCTABLEVK_H
@@ -59,7 +59,7 @@ class DcTableVK final : public DcTable {
   /// `allocations` size holds descriptor-to-resource-list mappings.
   ///
   struct ImgRef {
-    ImageVK::View::Ptr view;
+    ImgViewVK::Ptr view;
     SamplerVK::Ptr sampler;
   };
 

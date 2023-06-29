@@ -310,9 +310,12 @@ void TargetVK::createColorViews(vector<VkImageView>& handles) {
   assert(handles.size() == 0);
 
   for (auto& color : *colors_) {
-    auto img = static_cast<ImageVK*>(color.image);
-    views_.push_back(img->getView(color.layer, layers_, color.level, 1));
-    handles.push_back(views_.back()->handle());
+    views_.push_back(color.image->view({
+      {color.level, color.level + 1},
+      {color.layer, color.layer + layers_},
+      layers_ == 1 ? ImgView::Dim2 : ImgView::Dim2Array}));
+
+    handles.push_back(static_cast<ImgViewVK*>(views_.back().get())->handle());
   }
 }
 
@@ -320,10 +323,12 @@ void TargetVK::createDepthStencilView(vector<VkImageView>& handles) {
   assert(colors_ ? views_.size() == colors_->size() : views_.empty());
   assert(colors_ ? handles.size() == colors_->size() : handles.empty());
 
-  auto img = static_cast<ImageVK*>(depthStencil_->image);
-  views_.push_back(img->getView(depthStencil_->layer, layers_,
-                                depthStencil_->level, 1));
-  handles.push_back(views_.back()->handle());
+  views_.push_back(depthStencil_->image->view({
+    {depthStencil_->level, 1},
+    {depthStencil_->layer, depthStencil_->layer + layers_},
+    layers_ == 1 ? ImgView::Dim2 : ImgView::Dim2Array}));
+
+  handles.push_back(static_cast<ImgViewVK*>(views_.back().get())->handle());
 }
 
 void TargetVK::createFramebuffer(const vector<VkImageView>& handles) {

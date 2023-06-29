@@ -236,9 +236,9 @@ ImageVK::~ImageVK() {
   }
 }
 
+// TODO: Manage views' lifetimes
 ImgView::Ptr ImageVK::view(const ImgView::Desc& desc) {
-  // TODO
-  throw runtime_error("ImageVK::view() not yet implemented");
+  return ImgView::Ptr(new ImgViewVK(*this, desc));
 }
 
 void ImageVK::write(uint32_t plane, Origin3 origin, uint32_t level,

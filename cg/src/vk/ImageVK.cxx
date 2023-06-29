@@ -433,12 +433,96 @@ pair<VkImageLayout, VkImageLayout> ImageVK::layout() const {
 // ImgViewVK
 //
 
-// TODO
 ImgViewVK::ImgViewVK(ImageVK& image, const ImgView::Desc& desc)
   : levels_(desc.levels), layers_(desc.layers), dimension_(desc.dimension),
     image_(&image) {
 
-  throw runtime_error("not yet implemented");
+  if (levels_.count() == 0 || levels_.count() > image.levels() ||
+      layers_.count() == 0 || layers_.count() > image.size().depthOrLayers)
+    throw invalid_argument("ImgViewVK()");
+
+  // Validate image/view compatibility and set view type
+  // TODO: Ensure that `image` is cube-compatible when applicable
+  // TODO: Validate sample count
+  VkImageViewType type;
+  switch (dimension_) {
+  case Dim1:
+    if (image.dimension() != Image::Dim1)
+      throw invalid_argument("Image/View dimension mismatch");
+    if (layers_.count() != 1)
+      throw invalid_argument("View dimension/layer count mismatch");
+    type = VK_IMAGE_VIEW_TYPE_1D;
+    break;
+
+  case Dim1Array:
+    if (image.dimension() != Image::Dim1)
+      throw invalid_argument("Image/View dimension mismatch");
+    type = VK_IMAGE_VIEW_TYPE_1D_ARRAY;
+    break;
+
+  case Dim2:
+    if (image.dimension() != Image::Dim2)
+      throw invalid_argument("Image/View dimension mismatch");
+    if (layers_.count() != 1)
+      throw invalid_argument("View dimension/layer count mismatch");
+    type = VK_IMAGE_VIEW_TYPE_2D;
+    break;
+
+  case Dim2Array:
+    if (image.dimension() != Image::Dim2)
+      throw invalid_argument("Image/View dimension mismatch");
+    type = VK_IMAGE_VIEW_TYPE_2D_ARRAY;
+    break;
+
+  case DimCube:
+    if (image.dimension() != Image::Dim2)
+      throw invalid_argument("Image/View dimension mismatch");
+    if (layers_.count() != 6)
+      throw invalid_argument("View dimension/layer count mismatch");
+    type = VK_IMAGE_VIEW_TYPE_CUBE;
+    break;
+
+  case DimCubeArray:
+    if (image.dimension() != Image::Dim2)
+      throw invalid_argument("Image/View dimension mismatch");
+    if (layers_.count() % 6)
+      throw invalid_argument("View dimension/layer count mismatch");
+    type = VK_IMAGE_VIEW_TYPE_CUBE_ARRAY;
+    break;
+
+  case Dim3:
+    if (image.dimension() != Image::Dim3)
+      throw invalid_argument("Image/View dimension mismatch");
+    // TODO: Maybe allow 0 layers here
+    if (layers_.count() != 1)
+      throw invalid_argument("View dimension/layer count mismatch");
+    type = VK_IMAGE_VIEW_TYPE_3D;
+    break;
+  }
+
+  // Create view
+  VkImageViewCreateInfo info;
+  info.sType = VK_STRUCTURE_TYPE_IMAGE_VIEW_CREATE_INFO;
+  info.pNext = nullptr;
+  info.flags = 0;
+  info.image = image.handle();
+  info.viewType = type;
+  info.format = toFormatVK(image.format());
+  info.components.r = VK_COMPONENT_SWIZZLE_IDENTITY;
+  info.components.g = VK_COMPONENT_SWIZZLE_IDENTITY;
+  info.components.b = VK_COMPONENT_SWIZZLE_IDENTITY;
+  info.components.a = VK_COMPONENT_SWIZZLE_IDENTITY;
+  // TODO: Aspect should be provided by `desc`
+  info.subresourceRange.aspectMask = aspectOfVK(image.format());
+  info.subresourceRange.baseMipLevel = levels_.start;
+  info.subresourceRange.levelCount = levels_.count();
+  info.subresourceRange.baseArrayLayer = layers_.start;
+  info.subresourceRange.layerCount = layers_.count();
+
+  const auto res = vkCreateImageView(deviceVK().device(), &info, nullptr,
+                                     &handle_);
+  if (res != VK_SUCCESS)
+    throw DeviceExcept("Could not create image view");
 }
 
 // TODO

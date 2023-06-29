@@ -445,9 +445,11 @@ ImgViewVK::ImgViewVK(ImageVK& image, const ImgView::Desc& desc)
 ImgViewVK::~ImgViewVK() {
 }
 
-// TODO
 Image& ImgViewVK::image() {
-  throw runtime_error("not yet implemented");
+  if (image_)
+    return *image_;
+  // Should never happen.
+  throw runtime_error("Unexpected null image in ImgViewVK");
 }
 
 Range ImgViewVK::levels() const {

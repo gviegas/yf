@@ -236,7 +236,7 @@ ImageVK::~ImageVK() {
   }
 }
 
-ImageView::Ptr ImageVK::view(const ImageView::Desc& desc) {
+ImgView::Ptr ImageVK::view(const ImgView::Desc& desc) {
   // TODO
   throw runtime_error("ImageVK::view() not yet implemented");
 }
@@ -430,11 +430,11 @@ pair<VkImageLayout, VkImageLayout> ImageVK::layout() const {
 }
 
 //
-// ImageViewVK
+// ImgViewVK
 //
 
 // TODO
-ImageViewVK::ImageViewVK(ImageVK& image, const ImageView::Desc& desc)
+ImgViewVK::ImgViewVK(ImageVK& image, const ImgView::Desc& desc)
   : levels_(desc.levels), layers_(desc.layers), dimension_(desc.dimension),
     image_(&image) {
 
@@ -442,23 +442,23 @@ ImageViewVK::ImageViewVK(ImageVK& image, const ImageView::Desc& desc)
 }
 
 // TODO
-ImageViewVK::~ImageViewVK() {
+ImgViewVK::~ImgViewVK() {
 }
 
 // TODO
-Image& ImageViewVK::image() {
+Image& ImgViewVK::image() {
   throw runtime_error("not yet implemented");
 }
 
-Range ImageViewVK::levels() const {
+Range ImgViewVK::levels() const {
   return levels_;
 }
 
-Range ImageViewVK::layers() const {
+Range ImgViewVK::layers() const {
   return layers_;
 }
 
-ImageView::Dimension ImageViewVK::dimension() const {
+ImgView::Dimension ImgViewVK::dimension() const {
   return dimension_;
 }
 

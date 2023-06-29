@@ -30,7 +30,7 @@ class ImageVK final : public Image {
 
   ~ImageVK();
 
-  ImageView::Ptr view(const ImageView::Desc& desc);
+  ImgView::Ptr view(const ImgView::Desc& desc);
 
   void write(uint32_t plane, Origin3 origin, uint32_t level,
              const void* data, Size3 size, uint32_t bytesPerRow,
@@ -115,10 +115,10 @@ class ImageVK final : public Image {
   void changeLayout(bool);
 };
 
-class ImageViewVK final : public ImageView {
+class ImgViewVK final : public ImgView {
  public:
-  ImageViewVK(ImageVK& image, const ImageView::Desc& desc);
-  ~ImageViewVK();
+  ImgViewVK(ImageVK& image, const ImgView::Desc& desc);
+  ~ImgViewVK();
 
   Image& image();
   Range levels() const;

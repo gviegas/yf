@@ -90,9 +90,9 @@ class Image;
 
 /// View onto an image subresource.
 ///
-class ImageView {
+class ImgView {
  public:
-  using Ptr = std::unique_ptr<ImageView>;
+  using Ptr = std::unique_ptr<ImgView>;
 
   /// View dimensionality.
   ///
@@ -127,10 +127,10 @@ class ImageView {
     Dimension dimension;
   };
 
-  ImageView() = default;
-  ImageView(const ImageView&) = delete;
-  ImageView& operator=(const ImageView&) = delete;
-  virtual ~ImageView() = default;
+  ImgView() = default;
+  ImgView(const ImgView&) = delete;
+  ImgView& operator=(const ImgView&) = delete;
+  virtual ~ImgView() = default;
 
   /// Gets the image which this is a view of.
   ///
@@ -197,7 +197,7 @@ class Image {
 
   /// Creates a new image view object.
   ///
-  virtual ImageView::Ptr view(const ImageView::Desc& desc) = 0;
+  virtual ImgView::Ptr view(const ImgView::Desc& desc) = 0;
 
   /// Writes data to image memory.
   ///

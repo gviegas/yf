@@ -30,7 +30,7 @@ struct ImageTest : Test {
              UsageMask usg)
         : fmt_(fmt), sz_(sz), lvls_(lvls), spls_(spls), dim_(dim), usg_(usg) { }
 
-      ImageView::Ptr view(const ImageView::Desc&) { return nullptr; }
+      ImgView::Ptr view(const ImgView::Desc&) { return nullptr; }
       void write(uint32_t, Origin3, uint32_t, const void*, Size3, uint32_t,
                  uint32_t) { }
       Format format() const { return fmt_; }

@@ -91,6 +91,10 @@ class ImgViewVK final : public ImgView {
   Range layers() const;
   Dimension dimension() const;
 
+  /// Getter.
+  ///
+  VkImageView handle();
+
  private:
   const Range levels_;
   const Range layers_;

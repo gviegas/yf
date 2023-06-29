@@ -548,6 +548,10 @@ ImgView::Dimension ImgViewVK::dimension() const {
   return dimension_;
 }
 
+VkImageView ImgViewVK::handle() {
+  return handle_;
+}
+
 //
 // SamplerVK
 //

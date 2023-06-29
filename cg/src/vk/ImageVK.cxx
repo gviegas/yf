@@ -525,8 +525,8 @@ ImgViewVK::ImgViewVK(ImageVK& image, const ImgView::Desc& desc)
     throw DeviceExcept("Could not create image view");
 }
 
-// TODO
 ImgViewVK::~ImgViewVK() {
+  vkDestroyImageView(deviceVK().device(), handle_, nullptr);
 }
 
 Image& ImgViewVK::image() {

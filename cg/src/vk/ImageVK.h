@@ -58,40 +58,6 @@ class ImageVK final : public Image {
   VkImage handle();
   std::pair<VkImageLayout, VkImageLayout> layout() const;
 
-  /// Image view.
-  ///
-  class View {
-   public:
-    using Ptr = std::unique_ptr<View>;
-
-    View(ImageVK&, VkImageView, uint32_t, uint32_t, uint32_t, uint32_t);
-    View(const View&) = delete;
-    View& operator=(const View&) = delete;
-    ~View();
-
-    /// Getters.
-    ///
-    ImageVK& image();
-    VkImageView handle();
-    uint32_t firstLayer() const;
-    uint32_t layerCount() const;
-    uint32_t firstLevel() const;
-    uint32_t levelCount() const;
-
-   private:
-    ImageVK& image_;
-    VkImageView handle_;
-    uint32_t firstLayer_;
-    uint32_t layerCount_;
-    uint32_t firstLevel_;
-    uint32_t levelCount_;
-  };
-
-  /// Gets an image view.
-  ///
-  View::Ptr getView(uint32_t firstLayer, uint32_t layerCount,
-                    uint32_t firstLevel, uint32_t levelCount);
-
  private:
   const Format format_{};
   const Size3 size_{0, 0, 0};

@@ -549,102 +549,6 @@ ImgView::Dimension ImgViewVK::dimension() const {
 }
 
 //
-// TODO: Remove Image::View
-//
-
-ImageVK::View::Ptr ImageVK::getView(uint32_t firstLayer, uint32_t layerCount,
-                                    uint32_t firstLevel, uint32_t levelCount) {
-
-  if (layerCount == 0 || firstLayer + layerCount > size_.depthOrLayers ||
-      levelCount == 0 || firstLevel + levelCount > levels_)
-    throw invalid_argument("ImageVK getView()");
-
-  VkImageViewCreateInfo info;
-  info.sType = VK_STRUCTURE_TYPE_IMAGE_VIEW_CREATE_INFO;
-  info.pNext = nullptr;
-  info.flags = 0;
-  info.image = handle_;
-  info.format = toFormatVK(format_);
-
-  info.components.r = VK_COMPONENT_SWIZZLE_IDENTITY;
-  info.components.g = VK_COMPONENT_SWIZZLE_IDENTITY;
-  info.components.b = VK_COMPONENT_SWIZZLE_IDENTITY;
-  info.components.a = VK_COMPONENT_SWIZZLE_IDENTITY;
-
-  info.subresourceRange.aspectMask = aspectOfVK(format_);
-  info.subresourceRange.baseMipLevel = firstLevel;
-  info.subresourceRange.levelCount = levelCount;
-  info.subresourceRange.baseArrayLayer = firstLayer;
-  info.subresourceRange.layerCount = layerCount;
-
-  // TODO: 3D
-  if (dimension_ == Dim2) {
-    if (layerCount == 1)
-      info.viewType = VK_IMAGE_VIEW_TYPE_2D;
-    else
-      info.viewType = VK_IMAGE_VIEW_TYPE_2D_ARRAY;
-  } else {
-    if (layerCount == 1)
-      info.viewType = VK_IMAGE_VIEW_TYPE_1D;
-    else
-      info.viewType = VK_IMAGE_VIEW_TYPE_1D_ARRAY;
-  }
-
-  VkImageView iv;
-  auto res = vkCreateImageView(deviceVK().device(), &info, nullptr, &iv);
-  if (res != VK_SUCCESS)
-    throw DeviceExcept("Could not create image view");
-
-  return make_unique<View>(*this, iv, firstLayer, layerCount,
-                           firstLevel, levelCount);
-}
-
-ImageVK::View::View(ImageVK& image, VkImageView handle,
-                    uint32_t firstLayer, uint32_t layerCount,
-                    uint32_t firstLevel, uint32_t levelCount)
-  : image_(image), handle_(handle),
-    firstLayer_(firstLayer), layerCount_(layerCount),
-    firstLevel_(firstLevel), levelCount_(levelCount) { }
-
-ImageVK::View::~View() {
-
-  // [1.2.166 c3.3]
-  // "(...) non-dispatchable handles may encode object information directly in
-  // the handle rather than acting as a reference to an underlying object, and
-  // thus may not have unique handle values. If handle values are not unique,
-  // then destroying one such handle must not cause identical handles of other
-  // types to become invalid, and must not cause identical handles of the same
-  // type to become invalid if that handle value has been created more times
-  // than it has been destroyed."
-
-  vkDestroyImageView(deviceVK().device(), handle_, nullptr);
-}
-
-ImageVK& ImageVK::View::image() {
-  return image_;
-}
-
-VkImageView ImageVK::View::handle() {
-  return handle_;
-}
-
-uint32_t ImageVK::View::firstLayer() const {
-  return firstLayer_;
-}
-
-uint32_t ImageVK::View::layerCount() const {
-  return layerCount_;
-}
-
-uint32_t ImageVK::View::firstLevel() const {
-  return firstLevel_;
-}
-
-uint32_t ImageVK::View::levelCount() const {
-  return levelCount_;
-}
-
-//
 // SamplerVK
 //
 
@@ -676,8 +580,6 @@ SamplerVK::SamplerVK(const Sampler& sampler) : sampler_(sampler) {
 }
 
 SamplerVK::~SamplerVK() {
-  // XXX: Like the image view above, this assumes that the driver does
-  // reference counting for non-dispatchable handles
   vkDestroySampler(deviceVK().device(), handle_, nullptr);
 }
 

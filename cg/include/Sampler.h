@@ -77,7 +77,7 @@ class Sampler {
   /// Gets min/mag/mipmap filters.
   ///
   Filter magFilter() const;
-  Filter minFiler() const;
+  Filter minFilter() const;
   MipFilter mipFilter() const;
 
   /// Gets level of detail clamp bounds.

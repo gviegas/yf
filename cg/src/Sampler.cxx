@@ -44,7 +44,7 @@ Filter Sampler::magFilter() const {
   return magFilter_;
 }
 
-Filter Sampler::minFiler() const {
+Filter Sampler::minFilter() const {
   return minFilter_;
 }
 

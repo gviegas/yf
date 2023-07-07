@@ -190,7 +190,7 @@ class Image {
     UsageMask usageMask;
   };
 
-  Image() = default;
+  Image(const Desc& desc);
   Image(const Image&) = delete;
   Image& operator=(const Image&) = delete;
   virtual ~Image() = default;
@@ -205,19 +205,42 @@ class Image {
                      const void* data, Size3 size, uint32_t bytesPerRow = 0,
                      uint32_t rowsPerSlice = 0) = 0;
 
-  /// Getters.
+  /// Gets the pixel format.
   ///
-  virtual Format format() const = 0;
-  virtual Size3 size() const = 0;
-  virtual uint32_t levels() const = 0;
-  virtual Samples samples() const = 0;
-  virtual Dimension dimension() const = 0;
-  virtual UsageMask usageMask() const = 0;
+  Format format() const;
+
+  /// Gets the size of the image.
+  ///
+  Size3 size() const;
+
+  /// Gets the number of mip levels in the image.
+  ///
+  uint32_t levels() const;
+
+  /// Gets the sample count.
+  ///
+  Samples samples() const;
+
+  /// Gets the image dimension.
+  ///
+  Dimension dimension() const;
+
+  /// Gets the allowed usages for the image.
+  ///
+  UsageMask usageMask() const;
 
   /// Gets the number of bytes in a single texel of the `Format`.
   ///
   static uint32_t texelSize(Format format);
   uint32_t texelSize() const;
+
+ private:
+  const Format format_;
+  const Size3 size_;
+  const uint32_t levels_;
+  const Samples samples_;
+  const Dimension dimension_;
+  const UsageMask usageMask_;
 };
 
 /// Wrap modes.

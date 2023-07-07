@@ -19,32 +19,23 @@ struct ImageTest : Test {
 
   Assertions run(const vector<string>&) {
     class Image_ : public Image {
-      Format fmt_;
-      Size3 sz_;
-      uint32_t lvls_;
-      Samples spls_;
-      Dimension dim_;
-      UsageMask usg_;
      public:
-      Image_(Format fmt, Size3 sz, uint32_t lvls, Samples spls, Dimension dim,
-             UsageMask usg)
-        : fmt_(fmt), sz_(sz), lvls_(lvls), spls_(spls), dim_(dim), usg_(usg) { }
-
+      Image_(const Desc& desc) : Image(desc) { }
       ImgView::Ptr view(const ImgView::Desc&) { return nullptr; }
       void write(uint32_t, Origin3, uint32_t, const void*, Size3, uint32_t,
                  uint32_t) { }
-      Format format() const { return fmt_; }
-      Size3 size() const { return sz_; }
-      uint32_t levels() const { return lvls_; }
-      Samples samples() const { return spls_; }
-      Dimension dimension() const { return dim_; }
-      UsageMask usageMask() const { return usg_; }
     };
 
     Assertions a;
 
-    Image_ img(Format::Rgba8Unorm, {2048, 2048, 16}, 1, Samples1,
-               Image::Dim2, Image::CopySrc | Image::CopyDst | Image::Sampled);
+    Image_ img({
+      Format::Rgba8Unorm,
+      {2048, 2048, 16},
+      1,
+      Samples1,
+      Image::Dim2,
+      Image::CopySrc | Image::CopyDst | Image::Sampled
+    });
 
     a.push_back({L"Image(Format::Rgba8Unorm, 2048, 16, 1, Samples1)",
                  img.format() == Format::Rgba8Unorm &&

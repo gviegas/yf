@@ -20,48 +20,45 @@ using namespace std;
 // ImageVK
 //
 
-ImageVK::ImageVK(const Image::Desc& desc)
-  : format_(desc.format), size_(desc.size), levels_(desc.levels),
-    samples_(desc.samples), dimension_(desc.dimension),
-    usageMask_(desc.usageMask), owned_(true) {
-
-  if (size_.width == 0 || size_.height == 0 || size_.depthOrLayers == 0)
+// TODO: Should move `desc` validation to superclass.
+ImageVK::ImageVK(const Image::Desc& desc) : Image(desc), owned_(true) {
+  if (size().width == 0 || size().height == 0 || size().depthOrLayers == 0)
     throw invalid_argument("ImageVK requires size != 0");
-  if (levels_ == 0)
+  if (levels() == 0)
     throw invalid_argument("ImageVK requires levels != 0");
 
-  const VkFormat fmt = toFormatVK(format_);
+  const VkFormat fmt = toFormatVK(format());
   if (fmt == VK_FORMAT_UNDEFINED)
     throw invalid_argument("ImageVK requires a valid format");
 
-  const VkSampleCountFlagBits spl = toSampleCountVK(samples_);
+  const VkSampleCountFlagBits spl = toSampleCountVK(samples());
 
   // Convert and validate dimension
   const auto& lim = deviceVK().physLimits();
   VkImageType type;
-  switch (dimension_) {
+  switch (dimension()) {
   case Dim1:
-    if (size_.width > lim.maxImageDimension1D)
+    if (size().width > lim.maxImageDimension1D)
       throw invalid_argument("ImageVK size limit");
-    if (size_.height != 1)
+    if (size().height != 1)
       throw invalid_argument("ImageVK requires height == 1 for 1D images");
-    if (size_.depthOrLayers > lim.maxImageArrayLayers)
+    if (size().depthOrLayers > lim.maxImageArrayLayers)
       throw invalid_argument("ImageVK layer limit");
     type = VK_IMAGE_TYPE_1D;
     break;
   case Dim2:
-    if (size_.width > lim.maxImageDimension2D ||
-        size_.height > lim.maxImageDimension2D)
+    if (size().width > lim.maxImageDimension2D ||
+        size().height > lim.maxImageDimension2D)
       throw invalid_argument("ImageVK size limit");
-    if (size_.depthOrLayers > lim.maxImageArrayLayers)
+    if (size().depthOrLayers > lim.maxImageArrayLayers)
       throw invalid_argument("ImageVK layer limit");
     // TODO: Decide how to handle cubes
     type = VK_IMAGE_TYPE_2D;
     break;
   case Dim3:
-    if (size_.width > lim.maxImageDimension3D ||
-        size_.height > lim.maxImageDimension3D ||
-        size_.depthOrLayers > lim.maxImageDimension3D)
+    if (size().width > lim.maxImageDimension3D ||
+        size().height > lim.maxImageDimension3D ||
+        size().depthOrLayers > lim.maxImageDimension3D)
       throw invalid_argument("ImageVK size limit");
     type = VK_IMAGE_TYPE_3D;
     break;
@@ -70,28 +67,28 @@ ImageVK::ImageVK(const Image::Desc& desc)
   // Convert usage mask and record required format features
   VkImageUsageFlags usage = 0;
   VkFormatFeatureFlags fmtFeat = 0;
-  if (usageMask_ & CopySrc) {
+  if (usageMask() & CopySrc) {
     usage |= VK_IMAGE_USAGE_TRANSFER_SRC_BIT;
     if (deviceVK().devVersion() >= VK_API_VERSION_1_1)
       fmtFeat |= VK_FORMAT_FEATURE_TRANSFER_SRC_BIT;
   }
-  if (usageMask_ & CopyDst) {
+  if (usageMask() & CopyDst) {
     usage |= VK_IMAGE_USAGE_TRANSFER_DST_BIT;
     if (deviceVK().devVersion() >= VK_API_VERSION_1_1)
       fmtFeat |= VK_FORMAT_FEATURE_TRANSFER_DST_BIT;
   }
-  if (usageMask_ & Sampled) {
+  if (usageMask() & Sampled) {
     usage |= VK_IMAGE_USAGE_SAMPLED_BIT;
     fmtFeat |= VK_FORMAT_FEATURE_SAMPLED_IMAGE_BIT |
                // TODO: Check elsewhere
                VK_FORMAT_FEATURE_SAMPLED_IMAGE_FILTER_LINEAR_BIT;
   }
-  if (usageMask_ & Storage) {
+  if (usageMask() & Storage) {
     usage |= VK_IMAGE_USAGE_STORAGE_BIT;
     fmtFeat |= VK_FORMAT_FEATURE_STORAGE_IMAGE_BIT;
   }
-  if (usageMask_ & Attachment) {
-    switch (aspectOfVK(format_)) {
+  if (usageMask() & Attachment) {
+    switch (aspectOfVK(format())) {
     case VK_IMAGE_ASPECT_COLOR_BIT:
       usage |= VK_IMAGE_USAGE_COLOR_ATTACHMENT_BIT;
       fmtFeat |= VK_FORMAT_FEATURE_COLOR_ATTACHMENT_BIT |
@@ -124,12 +121,12 @@ ImageVK::ImageVK(const Image::Desc& desc)
 
     switch (res) {
     case VK_SUCCESS:
-      if (prop.maxExtent.width < size_.width ||
-          prop.maxExtent.height < size_.height ||
-          (dimension_ == Dim3 ?
+      if (prop.maxExtent.width < size().width ||
+          prop.maxExtent.height < size().height ||
+          (dimension() == Dim3 ?
            prop.maxExtent.depth :
-           prop.maxArrayLayers) < size_.depthOrLayers ||
-          prop.maxMipLevels < levels_ ||
+           prop.maxArrayLayers) < size().depthOrLayers ||
+          prop.maxMipLevels < levels() ||
           !(prop.sampleCounts & spl))
         return false;
 
@@ -149,7 +146,7 @@ ImageVK::ImageVK(const Image::Desc& desc)
   };
 
   // Prefer linear tiling
-  if (samples_ != Samples1 || !setTiling(VK_IMAGE_TILING_LINEAR))
+  if (samples() != Samples1 || !setTiling(VK_IMAGE_TILING_LINEAR))
     if (!setTiling(VK_IMAGE_TILING_OPTIMAL))
       throw UnsupportedExcept("Format not supported by ImageVK");
 
@@ -163,11 +160,11 @@ ImageVK::ImageVK(const Image::Desc& desc)
   info.flags = 0;
   info.imageType = type;
   info.format = fmt;
-  info.extent = {size_.width, size_.height, dimension_ == Dim3 ?
-                                            size_.depthOrLayers :
-                                            1};
-  info.mipLevels = levels_;
-  info.arrayLayers = dimension_ == Dim3 ? 1 : size_.depthOrLayers;
+  info.extent = {size().width, size().height, dimension() == Dim3 ?
+                                              size().depthOrLayers :
+                                              1};
+  info.mipLevels = levels();
+  info.arrayLayers = dimension() == Dim3 ? 1 : size().depthOrLayers;
   info.samples = spl;
   info.tiling = tiling_;
   info.usage = usage;
@@ -208,22 +205,21 @@ ImageVK::ImageVK(const Image::Desc& desc)
   }
 }
 
+// TODO: Should move `desc` validation to superclass.
 ImageVK::ImageVK(const Desc& desc, VkImage handle, void* data,
                  VkImageLayout layout, bool owned)
-  : format_(desc.format), size_(desc.size), levels_(desc.levels),
-    samples_(desc.samples), dimension_(desc.dimension),
-    usageMask_(desc.usageMask), owned_(owned),
+  : Image(desc), owned_(owned),
     tiling_(data ? VK_IMAGE_TILING_LINEAR : VK_IMAGE_TILING_OPTIMAL),
     handle_(handle), data_(data), layout_(layout), nextLayout_(layout) {
 
   // TODO: Validate further
   if (handle_ == VK_NULL_HANDLE)
     throw invalid_argument("ImageVK requires a valid handle");
-  if (size_.width == 0 || size_.height == 0 || size_.depthOrLayers == 0)
+  if (size().width == 0 || size().height == 0 || size().depthOrLayers == 0)
     throw invalid_argument("ImageVK requires size != 0");
-  if (levels_ == 0)
+  if (levels() == 0)
     throw invalid_argument("ImageVK requires levels != 0");
-  if (toFormatVK(format_) == VK_FORMAT_UNDEFINED)
+  if (toFormatVK(format()) == VK_FORMAT_UNDEFINED)
     throw invalid_argument("ImageVK requires a valid format");
 }
 
@@ -245,15 +241,15 @@ void ImageVK::write(uint32_t plane, Origin3 origin, uint32_t level,
                     const void* data, Size3 size, uint32_t bytesPerRow,
                     uint32_t rowsPerSlice) {
 
-  if (origin.x + size.width > size_.width ||
-      origin.y + size.height > size_.height ||
-      origin.z + size.depthOrLayers > size_.depthOrLayers ||
-      level >= levels_ ||
+  if (origin.x + size.width > this->size().width ||
+      origin.y + size.height > this->size().height ||
+      origin.z + size.depthOrLayers > this->size().depthOrLayers ||
+      level >= levels() ||
       !data)
     throw invalid_argument("ImageVK write()");
 
   // TODO: Consider storing the aspect as data member
-  VkImageAspectFlags aspFlg = aspectOfVK(format_);
+  VkImageAspectFlags aspFlg = aspectOfVK(format());
   switch (aspFlg) {
   case VK_IMAGE_ASPECT_COLOR_BIT:
   case VK_IMAGE_ASPECT_DEPTH_BIT:
@@ -293,7 +289,7 @@ void ImageVK::write(uint32_t plane, Origin3 origin, uint32_t level,
     VkSubresourceLayout layout;
     vkGetImageSubresourceLayout(dev, handle_, &subres, &layout);
 
-    const auto slcPitch = dimension_ == Dim3 ?
+    const auto slcPitch = dimension() == Dim3 ?
                           layout.depthPitch :
                           layout.arrayPitch;
 
@@ -331,30 +327,6 @@ void ImageVK::write(uint32_t plane, Origin3 origin, uint32_t level,
   }
 }
 
-Format ImageVK::format() const {
-  return format_;
-}
-
-Size3 ImageVK::size() const {
-  return size_;
-}
-
-uint32_t ImageVK::levels() const {
-  return levels_;
-}
-
-Samples ImageVK::samples() const {
-  return samples_;
-}
-
-Image::Dimension ImageVK::dimension() const {
-  return dimension_;
-}
-
-Image::UsageMask ImageVK::usageMask() const {
-  return usageMask_;
-}
-
 void ImageVK::changeLayout(VkImageLayout newLayout, bool defer) {
   if (nextLayout_ == newLayout)
     return;
@@ -372,11 +344,11 @@ void ImageVK::changeLayout(VkImageLayout newLayout, bool defer) {
   barrier.srcQueueFamilyIndex = VK_QUEUE_FAMILY_IGNORED;
   barrier.dstQueueFamilyIndex = VK_QUEUE_FAMILY_IGNORED;
   barrier.image = handle_;
-  barrier.subresourceRange.aspectMask = aspectOfVK(format_);
+  barrier.subresourceRange.aspectMask = aspectOfVK(format());
   barrier.subresourceRange.baseMipLevel = 0;
-  barrier.subresourceRange.levelCount = levels_;
+  barrier.subresourceRange.levelCount = levels();
   barrier.subresourceRange.baseArrayLayer = 0;
-  barrier.subresourceRange.layerCount = size_.depthOrLayers; // XXX: 3D
+  barrier.subresourceRange.layerCount = size().depthOrLayers; // XXX: 3D
 
   barrier_ = barrier;
   changeLayout(defer);

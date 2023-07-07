@@ -12,6 +12,36 @@
 using namespace CG_NS;
 using namespace std;
 
+// TODO: Validate parameters here rather than on backend.
+Image::Image(const Desc& desc)
+  : format_(desc.format), size_(desc.size), levels_(desc.levels),
+    samples_(desc.samples), dimension_(desc.dimension),
+    usageMask_(desc.usageMask) { }
+
+Format Image::format() const {
+  return format_;
+}
+
+Size3 Image::size() const {
+  return size_;
+}
+
+uint32_t Image::levels() const {
+  return levels_;
+}
+
+Samples Image::samples() const {
+  return samples_;
+}
+
+Image::Dimension Image::dimension() const {
+  return dimension_;
+}
+
+Image::UsageMask Image::usageMask() const {
+  return usageMask_;
+}
+
 uint32_t Image::texelSize(Format format) {
   switch (format) {
   case Format::R8Unorm:

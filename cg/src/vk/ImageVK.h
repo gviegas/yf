@@ -36,13 +36,6 @@ class ImageVK final : public Image {
              const void* data, Size3 size, uint32_t bytesPerRow,
              uint32_t rowsPerSlice);
 
-  Format format() const;
-  Size3 size() const;
-  uint32_t levels() const;
-  Samples samples() const;
-  Dimension dimension() const;
-  UsageMask usageMask() const;
-
   /// Performs a layout transition.
   ///
   void changeLayout(VkImageLayout newLayout, bool defer);
@@ -59,13 +52,6 @@ class ImageVK final : public Image {
   std::pair<VkImageLayout, VkImageLayout> layout() const;
 
  private:
-  const Format format_{};
-  const Size3 size_{0, 0, 0};
-  const uint32_t levels_ = 0;
-  const Samples samples_{};
-  const Dimension dimension_{};
-  const UsageMask usageMask_{};
-
   const bool owned_ = true;
 
   VkImageTiling tiling_ = VK_IMAGE_TILING_OPTIMAL;

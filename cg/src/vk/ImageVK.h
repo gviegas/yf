@@ -72,20 +72,11 @@ class ImgViewVK final : public ImgView {
   ImgViewVK(ImageVK& image, const ImgView::Desc& desc);
   ~ImgViewVK();
 
-  Image& image();
-  Range levels() const;
-  Range layers() const;
-  Dimension dimension() const;
-
   /// Getter.
   ///
   VkImageView handle();
 
  private:
-  const Range levels_;
-  const Range layers_;
-  const Dimension dimension_;
-  ImageVK* image_ = nullptr;
   VkImageView handle_ = VK_NULL_HANDLE;
 };
 

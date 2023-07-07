@@ -127,20 +127,33 @@ class ImgView {
     Dimension dimension;
   };
 
-  ImgView() = default;
+  ImgView(Image& image, const Desc& desc);
   ImgView(const ImgView&) = delete;
   ImgView& operator=(const ImgView&) = delete;
-  virtual ~ImgView() = default;
+  virtual ~ImgView() = 0;
 
   /// Gets the image which this is a view of.
   ///
-  virtual Image& image() = 0;
+  // TODO: Should be reference-counted.
+  Image& image();
 
-  /// Getters.
+  /// Gets the level range.
   ///
-  virtual Range levels() const = 0;
-  virtual Range layers() const = 0;
-  virtual Dimension dimension() const = 0;
+  Range levels() const;
+
+  /// Gets the layer range.
+  ///
+  Range layers() const;
+
+  /// Gets the view dimension.
+  ///
+  Dimension dimension() const;
+
+ private:
+  Image& image_;
+  const Range levels_;
+  const Range layers_;
+  const Dimension dimension_;
 };
 
 /// Formatted multidimensional data in device memory.

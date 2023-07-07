@@ -405,23 +405,23 @@ pair<VkImageLayout, VkImageLayout> ImageVK::layout() const {
 // ImgViewVK
 //
 
+// TODO: Should move `desc` validation to superclass.
 ImgViewVK::ImgViewVK(ImageVK& image, const ImgView::Desc& desc)
-  : levels_(desc.levels), layers_(desc.layers), dimension_(desc.dimension),
-    image_(&image) {
+  : ImgView(image, desc) {
 
-  if (levels_.count() == 0 || levels_.count() > image.levels() ||
-      layers_.count() == 0 || layers_.count() > image.size().depthOrLayers)
+  if (levels().count() == 0 || levels().count() > image.levels() ||
+      layers().count() == 0 || layers().count() > image.size().depthOrLayers)
     throw invalid_argument("ImgViewVK()");
 
   // Validate image/view compatibility and set view type
   // TODO: Ensure that `image` is cube-compatible when applicable
   // TODO: Validate sample count
   VkImageViewType type;
-  switch (dimension_) {
+  switch (dimension()) {
   case Dim1:
     if (image.dimension() != Image::Dim1)
       throw invalid_argument("Image/View dimension mismatch");
-    if (layers_.count() != 1)
+    if (layers().count() != 1)
       throw invalid_argument("View dimension/layer count mismatch");
     type = VK_IMAGE_VIEW_TYPE_1D;
     break;
@@ -435,7 +435,7 @@ ImgViewVK::ImgViewVK(ImageVK& image, const ImgView::Desc& desc)
   case Dim2:
     if (image.dimension() != Image::Dim2)
       throw invalid_argument("Image/View dimension mismatch");
-    if (layers_.count() != 1)
+    if (layers().count() != 1)
       throw invalid_argument("View dimension/layer count mismatch");
     type = VK_IMAGE_VIEW_TYPE_2D;
     break;
@@ -449,7 +449,7 @@ ImgViewVK::ImgViewVK(ImageVK& image, const ImgView::Desc& desc)
   case DimCube:
     if (image.dimension() != Image::Dim2)
       throw invalid_argument("Image/View dimension mismatch");
-    if (layers_.count() != 6)
+    if (layers().count() != 6)
       throw invalid_argument("View dimension/layer count mismatch");
     type = VK_IMAGE_VIEW_TYPE_CUBE;
     break;
@@ -457,7 +457,7 @@ ImgViewVK::ImgViewVK(ImageVK& image, const ImgView::Desc& desc)
   case DimCubeArray:
     if (image.dimension() != Image::Dim2)
       throw invalid_argument("Image/View dimension mismatch");
-    if (layers_.count() % 6)
+    if (layers().count() % 6)
       throw invalid_argument("View dimension/layer count mismatch");
     type = VK_IMAGE_VIEW_TYPE_CUBE_ARRAY;
     break;
@@ -466,7 +466,7 @@ ImgViewVK::ImgViewVK(ImageVK& image, const ImgView::Desc& desc)
     if (image.dimension() != Image::Dim3)
       throw invalid_argument("Image/View dimension mismatch");
     // TODO: Maybe allow 0 layers here
-    if (layers_.count() != 1)
+    if (layers().count() != 1)
       throw invalid_argument("View dimension/layer count mismatch");
     type = VK_IMAGE_VIEW_TYPE_3D;
     break;
@@ -486,10 +486,10 @@ ImgViewVK::ImgViewVK(ImageVK& image, const ImgView::Desc& desc)
   info.components.a = VK_COMPONENT_SWIZZLE_IDENTITY;
   // TODO: Aspect should be provided by `desc`
   info.subresourceRange.aspectMask = aspectOfVK(image.format());
-  info.subresourceRange.baseMipLevel = levels_.start;
-  info.subresourceRange.levelCount = levels_.count();
-  info.subresourceRange.baseArrayLayer = layers_.start;
-  info.subresourceRange.layerCount = layers_.count();
+  info.subresourceRange.baseMipLevel = levels().start;
+  info.subresourceRange.levelCount = levels().count();
+  info.subresourceRange.baseArrayLayer = layers().start;
+  info.subresourceRange.layerCount = layers().count();
 
   const auto res = vkCreateImageView(deviceVK().device(), &info, nullptr,
                                      &handle_);
@@ -499,25 +499,6 @@ ImgViewVK::ImgViewVK(ImageVK& image, const ImgView::Desc& desc)
 
 ImgViewVK::~ImgViewVK() {
   vkDestroyImageView(deviceVK().device(), handle_, nullptr);
-}
-
-Image& ImgViewVK::image() {
-  if (image_)
-    return *image_;
-  // Should never happen.
-  throw runtime_error("Unexpected null image in ImgViewVK");
-}
-
-Range ImgViewVK::levels() const {
-  return levels_;
-}
-
-Range ImgViewVK::layers() const {
-  return layers_;
-}
-
-ImgView::Dimension ImgViewVK::dimension() const {
-  return dimension_;
 }
 
 VkImageView ImgViewVK::handle() {

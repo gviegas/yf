@@ -105,3 +105,26 @@ uint32_t Image::texelSize(Format format) {
 uint32_t Image::texelSize() const {
   return texelSize(format());
 }
+
+// TODO: Validate parameters here rather than on backend.
+ImgView::ImgView(Image& image, const Desc& desc)
+  : image_(image), levels_(desc.levels), layers_(desc.layers),
+    dimension_(desc.dimension) { }
+
+ImgView::~ImgView() { }
+
+Image& ImgView::image() {
+  return image_;
+}
+
+Range ImgView::levels() const {
+  return levels_;
+}
+
+Range ImgView::layers() const {
+  return layers_;
+}
+
+ImgView::Dimension ImgView::dimension() const {
+  return dimension_;
+}

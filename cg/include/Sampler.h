@@ -8,7 +8,10 @@
 #ifndef YF_CG_SAMPLER_H
 #define YF_CG_SAMPLER_H
 
+#include <cstdint>
 #include <memory>
+
+#include "yf/cg/Defs.h"
 
 CG_NS_BEGIN
 
@@ -52,7 +55,7 @@ class Sampler {
     WrapMode wrapModeV;
     WrapMode wrapModeW;
     Filter magFilter;
-    Filter minFiler;
+    Filter minFilter;
     MipFilter mipFilter;
     float lodMinClamp;
     float lodMaxClamp;
@@ -95,7 +98,7 @@ class Sampler {
   const WrapMode wrapModeV_;
   const WrapMode wrapModeW_;
   const Filter magFilter_;
-  const Filter minFiler_;
+  const Filter minFilter_;
   const MipFilter mipFilter_;
   const float lodMinClamp_;
   const float lodMaxClamp_;

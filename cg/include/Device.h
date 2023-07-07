@@ -15,6 +15,7 @@
 #include "yf/cg/Queue.h"
 #include "yf/cg/Buffer.h"
 #include "yf/cg/Image.h"
+#include "yf/cg/Sampler.h"
 #include "yf/cg/Shader.h"
 #include "yf/cg/DcTable.h"
 #include "yf/cg/Pass.h"
@@ -45,6 +46,10 @@ class Device {
   /// Creates a new image object.
   ///
   virtual Image::Ptr image(const Image::Desc& desc) = 0;
+
+  /// Creates a new sampler object.
+  ///
+  virtual Sampler::Ptr sampler(const Sampler::Desc& desc) = 0;
 
   /// Creates a new shader object.
   ///

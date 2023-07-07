@@ -80,27 +80,6 @@ class ImgViewVK final : public ImgView {
   VkImageView handle_ = VK_NULL_HANDLE;
 };
 
-/// Image sampler.
-///
-class SamplerVK final {
- public:
-  using Ptr = std::unique_ptr<SamplerVK>;
-
-  SamplerVK(const Sampler& sampler);
-  SamplerVK(const SamplerVK&) = delete;
-  SamplerVK& operator=(const SamplerVK&) = delete;
-  ~SamplerVK();
-
-  /// Getters.
-  ///
-  const Sampler& sampler() const;
-  VkSampler handle();
-
- private:
-  Sampler sampler_{};
-  VkSampler handle_ = VK_NULL_HANDLE;
-};
-
 /// Converts from a `Format` value.
 ///
 inline VkFormat toFormatVK(Format format) {
@@ -287,76 +266,6 @@ inline VkImageAspectFlags aspectOfVK(Format format) {
   case Format::D24UnormS8:
   case Format::D32FloatS8:
     return VK_IMAGE_ASPECT_DEPTH_BIT | VK_IMAGE_ASPECT_STENCIL_BIT;
-
-  default:
-    throw std::invalid_argument(__func__);
-  }
-}
-
-/// Converts from a `WrapMode` value.
-///
-inline VkSamplerAddressMode toAddressModeVK(WrapMode wrapMode) {
-  switch (wrapMode) {
-  case WrapModeClamp:  return VK_SAMPLER_ADDRESS_MODE_CLAMP_TO_EDGE;
-  case WrapModeMirror: return VK_SAMPLER_ADDRESS_MODE_MIRRORED_REPEAT;
-  case WrapModeRepeat: return VK_SAMPLER_ADDRESS_MODE_REPEAT;
-  default:
-    throw std::invalid_argument(__func__);
-  }
-}
-
-/// Converts from a `Filter` value (magnification).
-///
-inline VkFilter toFilterVK(Filter magFilter) {
-  switch (magFilter) {
-  case FilterNearest: return VK_FILTER_NEAREST;
-  case FilterLinear:  return VK_FILTER_LINEAR;
-  default:
-    throw std::invalid_argument(__func__);
-  }
-}
-
-/// Converts from a `Filter` value (minification).
-///
-inline VkFilter toFilterVK(Filter minFilter, VkSamplerMipmapMode& mipmapMode,
-                           float& minLod, float& maxLod) {
-
-  switch (minFilter) {
-  case FilterNearest:
-    mipmapMode = VK_SAMPLER_MIPMAP_MODE_NEAREST;
-    minLod = 0.0f;
-    maxLod = 0.25f;
-    return VK_FILTER_NEAREST;
-
-  case FilterLinear:
-    mipmapMode = VK_SAMPLER_MIPMAP_MODE_NEAREST;
-    minLod = 0.0f;
-    maxLod = 0.25f;
-    return VK_FILTER_LINEAR;
-
-  case FilterNearestNearest:
-    mipmapMode = VK_SAMPLER_MIPMAP_MODE_NEAREST;
-    minLod = 0.0f;
-    maxLod = VK_LOD_CLAMP_NONE;
-    return VK_FILTER_NEAREST;
-
-  case FilterNearestLinear:
-    mipmapMode = VK_SAMPLER_MIPMAP_MODE_LINEAR;
-    minLod = 0.0f;
-    maxLod = VK_LOD_CLAMP_NONE;
-    return VK_FILTER_NEAREST;
-
-  case FilterLinearNearest:
-    mipmapMode = VK_SAMPLER_MIPMAP_MODE_NEAREST;
-    minLod = 0.0f;
-    maxLod = VK_LOD_CLAMP_NONE;
-    return VK_FILTER_LINEAR;
-
-  case FilterLinearLinear:
-    mipmapMode = VK_SAMPLER_MIPMAP_MODE_LINEAR;
-    minLod = 0.0f;
-    maxLod = VK_LOD_CLAMP_NONE;
-    return VK_FILTER_LINEAR;
 
   default:
     throw std::invalid_argument(__func__);

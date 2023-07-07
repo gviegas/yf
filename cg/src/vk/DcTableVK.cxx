@@ -255,9 +255,12 @@ void DcTableVK::write(uint32_t allocation, DcId id, uint32_t element,
     wr.descriptorType = VK_DESCRIPTOR_TYPE_STORAGE_IMAGE;
     break;
   case DcTypeImgSampler:
-    if (!ref.sampler || (sampler && *sampler != ref.sampler->sampler()))
-      ref.sampler = make_unique<SamplerVK>(sampler ? *sampler : Sampler{});
-    info.sampler = ref.sampler->handle();
+    if (!sampler) {
+      ref.sampler = make_unique<SamplerVK>(Sampler::Desc{});
+      info.sampler = static_cast<SamplerVK*>(ref.sampler.get())->handle();
+    } else {
+      info.sampler = static_cast<SamplerVK*>(sampler)->handle();
+    }
     wr.descriptorType = VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER;
     break;
   default:

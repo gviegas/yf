@@ -455,6 +455,10 @@ Image::Ptr DeviceVK::image(const Image::Desc& desc) {
   return make_unique<ImageVK>(desc);
 }
 
+Sampler::Ptr DeviceVK::sampler(const Sampler::Desc& desc) {
+  return make_unique<SamplerVK>(desc);
+}
+
 Shader::Ptr DeviceVK::shader(Stage stage, const string& codeFile,
                              const string& entryPoint) {
 

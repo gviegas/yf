@@ -14,6 +14,7 @@
 #include "DcTable.h"
 #include "VK.h"
 #include "ImageVK.h"
+#include "SamplerVK.h"
 
 CG_NS_BEGIN
 
@@ -58,6 +59,7 @@ class DcTableVK final : public DcTable {
   /// size holding resources used in the most recent update. A list of
   /// `allocations` size holds descriptor-to-resource-list mappings.
   ///
+  // TODO: Deprecate
   struct ImgRef {
     ImgViewVK::Ptr view;
     SamplerVK::Ptr sampler;

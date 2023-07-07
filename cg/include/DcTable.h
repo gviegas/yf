@@ -2,7 +2,7 @@
 // CG
 // DcTable.h
 //
-// Copyright © 2020-2021 Gustavo C. Viegas.
+// Copyright © 2020-2023 Gustavo C. Viegas.
 //
 
 #ifndef YF_CG_DCTABLE_H
@@ -15,6 +15,7 @@
 #include "yf/cg/Defs.h"
 #include "yf/cg/Buffer.h"
 #include "yf/cg/Image.h"
+#include "yf/cg/Sampler.h"
 
 CG_NS_BEGIN
 

@@ -19,18 +19,12 @@ class BufferVK final : public Buffer {
   ~BufferVK();
 
   void write(uint64_t offset, const void* data, uint64_t size);
-  uint64_t size() const;
-  Mode mode() const;
-  UsageMask usageMask() const;
 
   /// Getter.
   ///
   VkBuffer handle();
 
  private:
-  const uint64_t size_;
-  const Mode mode_;
-  const UsageMask usageMask_;
   VkDeviceMemory memory_ = VK_NULL_HANDLE;
   VkBuffer handle_ = VK_NULL_HANDLE;
   void* data_ = nullptr;

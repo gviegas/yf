@@ -60,7 +60,7 @@ class Buffer {
     UsageMask usageMask;
   };
 
-  Buffer() = default;
+  Buffer(const Desc& desc);
   Buffer(const Buffer&) = delete;
   Buffer& operator=(const Buffer&) = delete;
   virtual ~Buffer() = default;
@@ -71,15 +71,20 @@ class Buffer {
 
   /// Gets the size of the buffer.
   ///
-  virtual uint64_t size() const = 0;
+  uint64_t size() const;
 
   /// Gets the buffer mode.
   ///
-  virtual Mode mode() const = 0;
+  Mode mode() const;
 
   /// Gets the buffer's usage mask.
   ///
-  virtual UsageMask usageMask() const = 0;
+  UsageMask usageMask() const;
+
+ private:
+  const uint64_t size_;
+  const Mode mode_;
+  const UsageMask usageMask_;
 };
 
 CG_NS_END

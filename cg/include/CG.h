@@ -2,7 +2,7 @@
 // CG
 // CG.h
 //
-// Copyright © 2020-2021 Gustavo C. Viegas.
+// Copyright © 2020-2023 Gustavo C. Viegas.
 //
 
 #ifndef YF_CG_H
@@ -19,6 +19,7 @@
 #include "yf/cg/Limits.h"
 #include "yf/cg/Pass.h"
 #include "yf/cg/Queue.h"
+#include "yf/cg/Sampler.h"
 #include "yf/cg/Shader.h"
 #include "yf/cg/State.h"
 #include "yf/cg/Types.h"

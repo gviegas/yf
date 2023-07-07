@@ -51,16 +51,16 @@ class Sampler {
   /// Sampler descriptor.
   ///
   struct Desc {
-    WrapMode wrapModeU;
-    WrapMode wrapModeV;
-    WrapMode wrapModeW;
-    Filter magFilter;
-    Filter minFilter;
-    MipFilter mipFilter;
-    float lodMinClamp;
-    float lodMaxClamp;
-    CmpFunc compare;
-    uint16_t maxAnisotropy;
+    WrapMode wrapModeU = WrapMode::ClampToEdge;
+    WrapMode wrapModeV = WrapMode::ClampToEdge;
+    WrapMode wrapModeW = WrapMode::ClampToEdge;
+    Filter magFilter = Filter::Nearest;
+    Filter minFilter = Filter::Nearest;
+    MipFilter mipFilter = MipFilter::Nearest;
+    float lodMinClamp = 0.0f;
+    float lodMaxClamp = 32.0f;
+    CmpFunc compare = CmpFunc::None;
+    uint16_t maxAnisotropy = 1;
   };
 
   Sampler(const Desc& desc);

@@ -459,10 +459,8 @@ Sampler::Ptr DeviceVK::sampler(const Sampler::Desc& desc) {
   return make_unique<SamplerVK>(desc);
 }
 
-Shader::Ptr DeviceVK::shader(Stage stage, const string& codeFile,
-                             const string& entryPoint) {
-
-  return make_unique<ShaderVK>(stage, codeFile, entryPoint);
+Shader::Ptr DeviceVK::shader(const Shader::Desc& desc) {
+  return make_unique<ShaderVK>(desc);
 }
 
 DcTable::Ptr DeviceVK::dcTable(const vector<DcEntry>& entries) {

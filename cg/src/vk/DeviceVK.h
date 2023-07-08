@@ -30,9 +30,7 @@ class DeviceVK final : public Device {
   Buffer::Ptr buffer(const Buffer::Desc& desc);
   Image::Ptr image(const Image::Desc& desc);
   Sampler::Ptr sampler(const Sampler::Desc& desc);
-
-  Shader::Ptr shader(Stage stage, const std::string& codeFile,
-                     const std::string& entryPoint);
+  Shader::Ptr shader(const Shader::Desc& desc);
 
   DcTable::Ptr dcTable(const std::vector<DcEntry>& entries);
 

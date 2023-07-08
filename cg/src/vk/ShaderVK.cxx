@@ -2,7 +2,7 @@
 // CG
 // ShaderVK.cxx
 //
-// Copyright © 2020-2021 Gustavo C. Viegas.
+// Copyright © 2020-2023 Gustavo C. Viegas.
 //
 
 #include <cwchar>
@@ -17,15 +17,14 @@
 using namespace CG_NS;
 using namespace std;
 
-ShaderVK::ShaderVK(Stage stage, const string& codeFile,
-                   const string& entryPoint)
-  : stage_(stage), entryPoint_(entryPoint) {
+ShaderVK::ShaderVK(const Desc& desc)
+  : stage_(desc.stage), entryPoint_(desc.entryPoint) {
 
-  if (codeFile.empty() || entryPoint.empty())
+  if (desc.codeFile.empty() || desc.entryPoint.empty())
     throw invalid_argument("ShaderVK requires valid codeFile and entryPoint");
 
   // Get shader code data and create module
-  ifstream ifs(codeFile);
+  ifstream ifs(desc.codeFile);
   if (!ifs)
     throw FileExcept("Could not open shader file");
 

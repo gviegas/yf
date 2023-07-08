@@ -25,8 +25,8 @@ struct CopyTest : Test {
     auto& que = dev.defaultQueue();
 
     // Shaders
-    auto vert = dev.shader(StageVertex, "test/data/vert");
-    auto frag = dev.shader(StageFragment, "test/data/frag");
+    auto vert = dev.shader({StageVertex, "main", "test/data/vert"});
+    auto frag = dev.shader({StageFragment, "main", "test/data/frag"});
 
     // Wsi
     auto win = WS_NS::createWindow(480, 400, name_);

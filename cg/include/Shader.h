@@ -34,6 +34,18 @@ class Shader {
  public:
   using Ptr = std::unique_ptr<Shader>;
 
+  /// Shader descriptor.
+  ///
+  struct Desc {
+    // TODO: Stage and entry point should be set elsewhere;
+    // they need not be stored on Shader class
+    Stage stage;
+    std::string entryPoint;
+    // TODO: Should pass the data directly - add a helper that
+    // read this data from file
+    std::string codeFile;
+  };
+
   Shader() = default;
   Shader(const Shader&) = delete;
   Shader& operator=(const Shader&) = delete;

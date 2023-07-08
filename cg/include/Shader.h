@@ -46,15 +46,22 @@ class Shader {
     std::string codeFile;
   };
 
-  Shader() = default;
+  Shader(const Desc& desc);
   Shader(const Shader&) = delete;
   Shader& operator=(const Shader&) = delete;
-  virtual ~Shader() = default;
+  virtual ~Shader() = 0;
 
-  /// Getters.
+  /// Gets the shader stage.
   ///
-  virtual Stage stage() const = 0;
-  virtual const std::string& entryPoint() const = 0;
+  Stage stage() const;
+
+  /// Gets the shader function's entry point.
+  ///
+  const std::string& entryPoint() const;
+
+ private:
+  const Stage stage_;
+  const std::string entryPoint_;
 };
 
 CG_NS_END

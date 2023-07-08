@@ -17,12 +17,7 @@
 using namespace CG_NS;
 using namespace std;
 
-ShaderVK::ShaderVK(const Desc& desc)
-  : stage_(desc.stage), entryPoint_(desc.entryPoint) {
-
-  if (desc.codeFile.empty() || desc.entryPoint.empty())
-    throw invalid_argument("ShaderVK requires valid codeFile and entryPoint");
-
+ShaderVK::ShaderVK(const Desc& desc) : Shader(desc) {
   // Get shader code data and create module
   ifstream ifs(desc.codeFile);
   if (!ifs)
@@ -46,7 +41,7 @@ ShaderVK::ShaderVK(const Desc& desc)
   info.pCode = reinterpret_cast<uint32_t*>(buf.get());
 
   auto dev = deviceVK().device();
-  auto res = vkCreateShaderModule(dev, &info, nullptr, &module_);
+  auto res = vkCreateShaderModule(dev, &info, nullptr, &handle_);
   if (res != VK_SUCCESS)
     throw DeviceExcept("Could not create shader module");
 }
@@ -54,17 +49,9 @@ ShaderVK::ShaderVK(const Desc& desc)
 ShaderVK::~ShaderVK() {
   // TODO: Notify
   auto dev = deviceVK().device();
-  vkDestroyShaderModule(dev, module_, nullptr);
+  vkDestroyShaderModule(dev, handle_, nullptr);
 }
 
-Stage ShaderVK::stage() const {
-  return stage_;
-}
-
-const std::string& ShaderVK::entryPoint() const {
-  return entryPoint_;
-}
-
-VkShaderModule ShaderVK::module() {
-  return module_;
+VkShaderModule ShaderVK::handle() {
+  return handle_;
 }

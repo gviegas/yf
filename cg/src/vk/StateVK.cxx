@@ -72,7 +72,7 @@ GrStateVK::GrStateVK(const Config& config)
     info.pNext = nullptr;
     info.flags = 0;
     info.stage = toSingleShaderStageVK(shd->stage());
-    info.module = static_cast<ShaderVK*>(shd)->module();
+    info.module = static_cast<ShaderVK*>(shd)->handle();
     info.pName = static_cast<ShaderVK*>(shd)->entryPoint().data();
     info.pSpecializationInfo = nullptr;
 
@@ -319,7 +319,7 @@ CpStateVK::CpStateVK(const Config& config)
   stgInfo.pNext = nullptr;
   stgInfo.flags = 0;
   stgInfo.stage = VK_SHADER_STAGE_COMPUTE_BIT;
-  stgInfo.module = static_cast<ShaderVK*>(config.shader)->module();
+  stgInfo.module = static_cast<ShaderVK*>(config.shader)->handle();
   stgInfo.pName = static_cast<ShaderVK*>(config.shader)->entryPoint().data();
   stgInfo.pSpecializationInfo = nullptr;
 

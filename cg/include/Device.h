@@ -8,8 +8,8 @@
 #ifndef YF_CG_DEVICE_H
 #define YF_CG_DEVICE_H
 
-#include <cstdint>
-#include <memory>
+// TODO: Remove when all objects are created from descriptors
+#include <vector>
 
 #include "yf/cg/Defs.h"
 #include "yf/cg/Queue.h"
@@ -57,21 +57,25 @@ class Device {
 
   /// Creates a new descriptor table object.
   ///
+  // TODO: Provide parameters through a descriptor struct
   virtual DcTable::Ptr dcTable(const std::vector<DcEntry>& entries) = 0;
 
   /// Creates a new pass object.
   ///
+  // TODO: Provide parameters through a descriptor struct
   virtual Pass::Ptr pass(const std::vector<AttachDesc>* colors,
                          const std::vector<AttachDesc>* resolves,
                          const AttachDesc* depthStencil) = 0;
 
   /// Creates a new state object.
   ///
+  // TODO: Provide parameters through a descriptor struct
   virtual GrState::Ptr state(const GrState::Config& config) = 0;
   virtual CpState::Ptr state(const CpState::Config& config) = 0;
 
   /// Creates a new wsi object.
   ///
+  // TODO: Provide parameters through a descriptor struct
   virtual Wsi::Ptr wsi(WS_NS::Window& window) = 0;
 
   /// Gets limits.

@@ -2,12 +2,13 @@
 // CG
 // Shader.h
 //
-// Copyright © 2020-2021 Gustavo C. Viegas.
+// Copyright © 2020-2023 Gustavo C. Viegas.
 //
 
 #ifndef YF_CG_SHADER_H
 #define YF_CG_SHADER_H
 
+#include <cstdint>
 #include <memory>
 #include <string>
 
@@ -15,15 +16,16 @@
 
 CG_NS_BEGIN
 
+/// Mask of `Stage` bits.
+///
+using StageMask = uint32_t;
+
 /// Programmable shader stages.
 ///
-enum Stage {
-  StageVertex,
-  StageTesCtrl,
-  StageTesEval,
-  StageGeometry,
-  StageFragment,
-  StageCompute
+enum Stage : uint32_t {
+  StageVertex   = 0x01,
+  StageFragment = 0x02,
+  StageCompute  = 0x04
 };
 
 /// Shader stage module.

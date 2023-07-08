@@ -2,7 +2,7 @@
 // CG
 // StateVK.cxx
 //
-// Copyright © 2020-2021 Gustavo C. Viegas.
+// Copyright © 2020-2023 Gustavo C. Viegas.
 //
 
 #include "StateVK.h"
@@ -71,7 +71,7 @@ GrStateVK::GrStateVK(const Config& config)
     info.sType = VK_STRUCTURE_TYPE_PIPELINE_SHADER_STAGE_CREATE_INFO;
     info.pNext = nullptr;
     info.flags = 0;
-    info.stage = toShaderStageVK(shd->stage());
+    info.stage = toSingleShaderStageVK(shd->stage());
     info.module = static_cast<ShaderVK*>(shd)->module();
     info.pName = static_cast<ShaderVK*>(shd)->entryPoint().data();
     info.pSpecializationInfo = nullptr;

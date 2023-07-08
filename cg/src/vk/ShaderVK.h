@@ -2,7 +2,7 @@
 // CG
 // ShaderVK.h
 //
-// Copyright © 2020-2021 Gustavo C. Viegas.
+// Copyright © 2020-2023 Gustavo C. Viegas.
 //
 
 #ifndef YF_CG_SHADERVK_H
@@ -36,17 +36,35 @@ class ShaderVK final : public Shader {
 
 /// Converts from a `Stage` value.
 ///
-inline VkShaderStageFlagBits toShaderStageVK(Stage stage) {
+/// This function throws if `stage` is not one of the predefined
+/// shader stages. One should call `toMultipleShaderStagesVK` if
+/// there may be more than one stage set.
+///
+inline VkShaderStageFlagBits toSingleShaderStageVK(Stage stage) {
   switch (stage) {
   case StageVertex:   return VK_SHADER_STAGE_VERTEX_BIT;
-  case StageTesCtrl:  return VK_SHADER_STAGE_TESSELLATION_CONTROL_BIT;
-  case StageTesEval:  return VK_SHADER_STAGE_TESSELLATION_EVALUATION_BIT;
-  case StageGeometry: return VK_SHADER_STAGE_GEOMETRY_BIT;
   case StageFragment: return VK_SHADER_STAGE_FRAGMENT_BIT;
   case StageCompute:  return VK_SHADER_STAGE_COMPUTE_BIT;
   default:
     throw std::invalid_argument(__func__);
   }
+}
+
+/// Converts from a `StageMask` value.
+///
+/// This function throws if `mask` has no valid bits set.
+///
+inline VkShaderStageFlags toMultipleShaderStagesVK(StageMask mask) {
+  VkShaderStageFlags flags = 0;
+  if (mask & StageVertex)
+    flags |= VK_SHADER_STAGE_VERTEX_BIT;
+  if (mask & StageFragment)
+    flags |= VK_SHADER_STAGE_FRAGMENT_BIT;
+  if (mask & StageCompute)
+    flags |= VK_SHADER_STAGE_COMPUTE_BIT;
+  return flags == 0 ?
+         throw std::invalid_argument(__func__) :
+         flags;
 }
 
 CG_NS_END

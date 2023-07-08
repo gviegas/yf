@@ -85,7 +85,7 @@ void PassVK::setColors(vector<VkAttachmentDescription>& descs,
     auto& desc = descs.back();
     desc.flags = 0;
     desc.format = toFormatVK(color.format);
-    desc.samples = toSampleCountVK(color.samples);
+    desc.samples = toSingleSampleCountVK(color.samples);
     desc.loadOp = toLoadOpVK(op->first);
     desc.storeOp = toStoreOpVK(op->second);
     desc.stencilLoadOp = VK_ATTACHMENT_LOAD_OP_DONT_CARE;
@@ -112,7 +112,7 @@ void PassVK::setDepthStencil(vector<VkAttachmentDescription>& descs,
   auto& desc = descs.back();
   desc.flags = 0;
   desc.format = toFormatVK(depthStencil_->format);
-  desc.samples = toSampleCountVK(depthStencil_->samples);
+  desc.samples = toSingleSampleCountVK(depthStencil_->samples);
   desc.loadOp = toLoadOpVK(depthOp.first);
   desc.storeOp = toStoreOpVK(depthOp.second);
   desc.stencilLoadOp = toLoadOpVK(stencilOp.first);

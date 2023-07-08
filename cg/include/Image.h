@@ -74,16 +74,20 @@ enum class Format {
   D32FloatS8
 };
 
+/// Mask of `Samples` bits.
+///
+using SamplesMask = uint32_t;
+
 /// Sample counts.
 ///
-enum Samples {
-  Samples1,
-  Samples2,
-  Samples4,
-  Samples8,
-  Samples16,
-  Samples32,
-  Samples64
+enum Samples : uint32_t {
+  Samples1  = 0x01,
+  Samples2  = 0x02,
+  Samples4  = 0x04,
+  Samples8  = 0x08,
+  Samples16 = 0x10,
+  Samples32 = 0x20,
+  Samples64 = 0x40
 };
 
 class Image;

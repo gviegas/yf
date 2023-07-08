@@ -198,7 +198,11 @@ inline Format fromFormatVK(VkFormat format) {
 
 /// Converts from a `Samples` value.
 ///
-inline VkSampleCountFlagBits toSampleCountVK(Samples samples) {
+/// This functions throws if `samples` is not one of the predefined
+/// sample counts. One should call `toMultipleSampleCountsVK` if
+/// there may be more than one sample count flag set.
+///
+inline VkSampleCountFlagBits toSingleSampleCountVK(Samples samples) {
   switch (samples) {
   case Samples1:  return VK_SAMPLE_COUNT_1_BIT;
   case Samples2:  return VK_SAMPLE_COUNT_2_BIT;
@@ -210,6 +214,31 @@ inline VkSampleCountFlagBits toSampleCountVK(Samples samples) {
   default:
     throw std::invalid_argument(__func__);
   }
+}
+
+/// Converts from a `SamplesMask` value.
+///
+/// This function throws if `mask` has no valid bits set.
+///
+inline VkSampleCountFlags toMultipleSampleCountsVK(SamplesMask mask) {
+  VkSampleCountFlags flags = 0;
+  if (mask & Samples1)
+    mask |= VK_SAMPLE_COUNT_1_BIT;
+  if (mask & Samples2)
+    mask |= VK_SAMPLE_COUNT_2_BIT;
+  if (mask & Samples4)
+    mask |= VK_SAMPLE_COUNT_4_BIT;
+  if (mask & Samples8)
+    mask |= VK_SAMPLE_COUNT_8_BIT;
+  if (mask & Samples16)
+    mask |= VK_SAMPLE_COUNT_16_BIT;
+  if (mask & Samples32)
+    mask |= VK_SAMPLE_COUNT_32_BIT;
+  if (mask & Samples64)
+    mask |= VK_SAMPLE_COUNT_64_BIT;
+  return flags == 0 ?
+         throw std::invalid_argument(__func__) :
+         flags;
 }
 
 /// Gets the aspect of a given `Format` value.

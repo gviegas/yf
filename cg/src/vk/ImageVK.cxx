@@ -31,7 +31,7 @@ ImageVK::ImageVK(const Image::Desc& desc) : Image(desc), owned_(true) {
   if (fmt == VK_FORMAT_UNDEFINED)
     throw invalid_argument("ImageVK requires a valid format");
 
-  const VkSampleCountFlagBits spl = toSampleCountVK(samples());
+  const VkSampleCountFlagBits spl = toSingleSampleCountVK(samples());
 
   // Convert and validate dimension
   const auto& lim = deviceVK().physLimits();

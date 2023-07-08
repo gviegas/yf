@@ -160,9 +160,9 @@ GrStateVK::GrStateVK(const Config& config)
   VkSampleCountFlagBits splCount = VK_SAMPLE_COUNT_1_BIT;
   if (config.pass->colors())
     // XXX: Assuming that all colors have the same sample count
-    splCount = toSampleCountVK(config.pass->colors()->back().samples);
+    splCount = toSingleSampleCountVK(config.pass->colors()->back().samples);
   else
-    splCount = toSampleCountVK(config.pass->depthStencil()->samples);
+    splCount = toSingleSampleCountVK(config.pass->depthStencil()->samples);
 
   VkPipelineMultisampleStateCreateInfo msInfo;
   msInfo.sType = VK_STRUCTURE_TYPE_PIPELINE_MULTISAMPLE_STATE_CREATE_INFO;

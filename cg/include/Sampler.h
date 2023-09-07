@@ -40,8 +40,15 @@ enum class MipFilter {
 /// Compare functions.
 ///
 enum class CmpFunc {
-  None
-  // TODO...
+  None,
+  Never,
+  Less,
+  Equal,
+  LessEqual,
+  Greater,
+  NotEqual,
+  GreaterEqual,
+  Always
 };
 
 class Sampler {

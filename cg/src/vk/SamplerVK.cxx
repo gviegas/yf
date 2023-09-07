@@ -22,6 +22,10 @@ SamplerVK::SamplerVK(const Desc& desc) : Sampler(desc) {
   const auto clampedAniso = min(static_cast<float>(1/*maxAnisotropy()*/),
                                 lim.maxSamplerAnisotropy);
 
+  const auto cmp = desc.compare == CmpFunc::None ? VK_FALSE : VK_TRUE;
+  const auto cmpOp = cmp == VK_TRUE ? toCompareOpVK(desc.compare)
+                                    : VK_COMPARE_OP_NEVER;
+
   VkSamplerCreateInfo info;
   info.sType = VK_STRUCTURE_TYPE_SAMPLER_CREATE_INFO;
   info.pNext = nullptr;
@@ -35,8 +39,8 @@ SamplerVK::SamplerVK(const Desc& desc) : Sampler(desc) {
   info.mipLodBias = 0.0f;
   info.anisotropyEnable = VK_FALSE; // TODO
   info.maxAnisotropy = clampedAniso;
-  info.compareEnable = VK_FALSE; // TODO
-  info.compareOp = VK_COMPARE_OP_ALWAYS; // TODO
+  info.compareEnable = cmp;
+  info.compareOp = cmpOp;
   info.minLod = desc.lodMinClamp;
   info.maxLod = desc.lodMaxClamp;
   info.borderColor = VK_BORDER_COLOR_FLOAT_OPAQUE_BLACK;

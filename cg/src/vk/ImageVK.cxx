@@ -102,6 +102,33 @@ ImageVK::ImageVK(const Image::Desc& desc) : Image(desc), owned_(true) {
       break;
     }
   }
+  if (usageMask() & Input) {
+    const auto mask = VK_IMAGE_USAGE_COLOR_ATTACHMENT_BIT |
+                      VK_IMAGE_USAGE_DEPTH_STENCIL_ATTACHMENT_BIT;
+    if (!(usage & mask)) {
+      // TODO: Should be an error
+      switch (aspectOfVK(format())) {
+      case VK_IMAGE_ASPECT_COLOR_BIT:
+        usage |= VK_IMAGE_USAGE_COLOR_ATTACHMENT_BIT;
+        fmtFeat |= VK_FORMAT_FEATURE_COLOR_ATTACHMENT_BIT;
+        break;
+      case VK_IMAGE_ASPECT_DEPTH_BIT:
+      case VK_IMAGE_ASPECT_STENCIL_BIT:
+        usage |= VK_IMAGE_USAGE_DEPTH_STENCIL_ATTACHMENT_BIT;
+        fmtFeat |= VK_FORMAT_FEATURE_DEPTH_STENCIL_ATTACHMENT_BIT;
+        break;
+      }
+    }
+    usage |= VK_IMAGE_USAGE_INPUT_ATTACHMENT_BIT;
+  }
+  if (usageMask() & Transient) {
+    const auto mask = VK_IMAGE_USAGE_COLOR_ATTACHMENT_BIT |
+                      VK_IMAGE_USAGE_DEPTH_STENCIL_ATTACHMENT_BIT |
+                      VK_IMAGE_USAGE_INPUT_ATTACHMENT_BIT;
+    if ((usage & mask) && !(usage & ~mask))
+      // TODO: Maybe check heap types before setting this flag
+      usage |= VK_IMAGE_USAGE_TRANSIENT_ATTACHMENT_BIT;
+  }
 
   auto phys = deviceVK().physicalDev();
   VkFormatProperties fmtProp;
@@ -146,6 +173,7 @@ ImageVK::ImageVK(const Image::Desc& desc) : Image(desc), owned_(true) {
   };
 
   // Prefer linear tiling
+  // TODO: Maybe check usage too
   if (samples() != Samples1 || !setTiling(VK_IMAGE_TILING_LINEAR))
     if (!setTiling(VK_IMAGE_TILING_OPTIMAL))
       throw UnsupportedExcept("Format not supported by ImageVK");
@@ -182,6 +210,7 @@ ImageVK::ImageVK(const Image::Desc& desc) : Image(desc), owned_(true) {
   vkGetImageMemoryRequirements(dev, handle_, &memReq);
 
   try {
+    // TODO: Update to support lazily allocated memory
     memory_ = allocateVK(memReq, tiling_ == VK_IMAGE_TILING_LINEAR);
   } catch (...) {
     vkDestroyImage(dev, handle_, nullptr);

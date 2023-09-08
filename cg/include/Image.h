@@ -107,7 +107,7 @@ class ImgView {
     Dim2Array,
     DimCube,
     DimCubeArray,
-    Dim3,
+    Dim3
   };
   // TODO: Update this when migrating to C++20
 #if __cplusplus >= 202002L
@@ -193,7 +193,9 @@ class Image {
     CopyDst    = 0x02,
     Sampled    = 0x04,
     Storage    = 0x08,
-    Attachment = 0x10
+    Attachment = 0x10,
+    Input      = 0x20,
+    Transient  = 0x40
   };
 
   /// Image descriptor.

@@ -35,7 +35,7 @@ ImageVK::ImageVK(const Image::Desc& desc) : Image(desc), owned_(true) {
 
   // Convert and validate dimension
   const auto& lim = deviceVK().physLimits();
-  VkImageType type;
+  VkImageType type = VK_IMAGE_TYPE_1D;
   switch (dimension()) {
   case Dim1:
     if (size().width > lim.maxImageDimension1D)
@@ -445,7 +445,7 @@ ImgViewVK::ImgViewVK(ImageVK& image, const ImgView::Desc& desc)
   // Validate image/view compatibility and set view type
   // TODO: Ensure that `image` is cube-compatible when applicable
   // TODO: Validate sample count
-  VkImageViewType type;
+  VkImageViewType type = VK_IMAGE_VIEW_TYPE_1D;
   switch (dimension()) {
   case Dim1:
     if (image.dimension() != Image::Dim1)

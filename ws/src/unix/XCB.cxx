@@ -211,7 +211,7 @@ void WS_NS::initXCB() {
 
   vars.connection = conn;
 
-  setPlatform(PlatformXCB);
+  setPlatform(Platform::Xcb);
 }
 
 void WS_NS::deinitXCB() {
@@ -222,7 +222,7 @@ void WS_NS::deinitXCB() {
 
   unloadXCB();
 
-  setPlatform(PlatformNone);
+  setPlatform(Platform::None);
 }
 
 WS_NS_BEGIN

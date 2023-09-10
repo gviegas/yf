@@ -2,7 +2,7 @@
 // WS
 // Platform.cxx
 //
-// Copyright © 2020-2021 Gustavo C. Viegas.
+// Copyright © 2020-2023 Gustavo C. Viegas.
 //
 
 #include "Platform.h"
@@ -14,11 +14,9 @@
 # include "unix/WindowXCB.h"
 # include "unix/EventXCB.h"
 #elif defined(__APPLE__)
-# include "macos/WindowMAC.h"
-# include "macos/EventMAC.h"
+# error "Not implemented"
 #elif defined(_WIN32)
-# include "win32/WindowW32.h"
-# include "win32/EventW32.h"
+# error "Not implemented"
 #else
 # error "Invalid platform"
 #endif // defined(__linux__)
@@ -31,7 +29,7 @@ INTERNAL_NS_BEGIN
 
 /// The current platform.
 ///
-auto curPfm = WS_NS::PlatformNone;
+auto curPfm = WS_NS::Platform::None;
 
 /// The dispatch function.
 ///
@@ -43,9 +41,9 @@ function<void ()> dispatchFn = dispatchDummy;
 void dispatchDummy() {
 #if defined(__linux__)
   switch (platform()) {
-  case PlatformNone:
+  case Platform::None:
     throw UnsupportedExcept("No supported platform available");
-  case PlatformXCB:
+  case Platform::Xcb:
     dispatchFn = dispatchXCB;
     break;
   default:
@@ -53,7 +51,7 @@ void dispatchDummy() {
   }
 #else
 // TODO: Other systems
-# error "Unimplemented"
+# error "Not implemented"
 #endif // defined(__linux__)
 
   dispatchFn();
@@ -73,7 +71,7 @@ void setPlatform(Platform pfm) {
 
 Platform platform() {
   // Try to initialize a platform if have none
-  if (curPfm == PlatformNone) {
+  if (curPfm == Platform::None) {
 #if defined(__linux__)
     if (getenv("WAYLAND_DISPLAY"))
       // TODO: Replace with `initWL` when implemented
@@ -82,7 +80,7 @@ Platform platform() {
       initXCB();
 #else
 // TODO: Other systems
-# error "Unimplemented"
+# error "Not implemented"
 #endif // defined(__linux__)
   }
 
@@ -93,16 +91,16 @@ Window::Ptr createWindow(uint32_t width, uint32_t height, const wstring& title,
                          Window::CreationMask mask) {
 #if defined(__linux__)
   switch (platform()) {
-  case PlatformNone:
+  case Platform::None:
     throw UnsupportedExcept("No supported platform available");
-  case PlatformXCB:
+  case Platform::Xcb:
     return make_unique<WindowXCB>(width, height, title, mask);
   default:
     throw runtime_error("Unexpected");
   }
 #else
 // TODO: Other systems
-# error "Unimplemented"
+# error "Not implemented"
 #endif // defined(__linux__)
 
   return nullptr;
@@ -114,21 +112,21 @@ void dispatch() {
 
 #if defined(__linux__)
 xcb_connection_t* connectionXCB() {
-  if (curPfm != PlatformXCB)
+  if (curPfm != Platform::Xcb)
     throw runtime_error("XCB is not the current platform");
 
   return varsXCB().connection;
 }
 
 xcb_visualid_t visualIdXCB() {
-  if (curPfm != PlatformXCB)
+  if (curPfm != Platform::Xcb)
     throw runtime_error("XCB is not the current platform");
 
   return varsXCB().visualId;
 }
 
 xcb_window_t windowXCB(const Window& window) {
-  if (curPfm != PlatformXCB)
+  if (curPfm != Platform::Xcb)
     throw runtime_error("XCB is not the current platform");
 
   return static_cast<const WindowXCB&>(window).window();

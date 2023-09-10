@@ -27,11 +27,11 @@ bool WsiVK::checkPhysicalDevice(VkPhysicalDevice physicalDev, int32_t family) {
 // Wayland and XCB
 # if defined(VK_USE_PLATFORM_XCB_KHR)
   switch (pfm) {
-  case WS_NS::PlatformWL:
+  case WS_NS::Platform::Wayland:
     // TODO
-    throw runtime_error("Unimplemented");
+    throw runtime_error("Not implemented");
     break;
-  case WS_NS::PlatformXCB:
+  case WS_NS::Platform::Xcb:
     r = vkGetPhysicalDeviceXcbPresentationSupportKHR(physicalDev, family,
                                                      WS_NS::connectionXCB(),
                                                      WS_NS::visualIdXCB());
@@ -41,24 +41,24 @@ bool WsiVK::checkPhysicalDevice(VkPhysicalDevice physicalDev, int32_t family) {
   }
 // Wayland only
 # else
-  if (platform != WS_NS::PlatformWL)
+  if (platform != WS_NS::Platform::Wayland)
     throw runtime_error("Platform mismatch");
 
   // TODO
-  throw runtime_error("Unimplemented");
+  throw runtime_error("Not implemented");
 # endif
 
 // Win32
 #elif defined(VK_USE_PLATFORM_WIN32_KHR)
-  if (pfm != WS_NS::PlatformW32)
+  if (pfm != WS_NS::Platform::Win32)
     throw runtime_error("Platform mismatch");
 
   // TODO
-  throw runtime_error("Unimplemented");
+  throw runtime_error("Not implemented");
 
 // XCB
 #elif defined(VK_USE_PLATFORM_XCB_KHR)
-  if (pfm != WS_NS::PlatformXCB)
+  if (pfm != WS_NS::Platform::Xcb)
     throw runtime_error("Platform mismatch");
 
   r = vkGetPhysicalDeviceXcbPresentationSupportKHR(physicalDev, family,
@@ -67,11 +67,11 @@ bool WsiVK::checkPhysicalDevice(VkPhysicalDevice physicalDev, int32_t family) {
 
 // CAMetalLayer
 #elif defined(VK_USE_PLATFORM_METAL_EXT)
-  if (pfm != WS_NS::PlatformMAC)
+  if (pfm != WS_NS::Platform::Macos)
     throw runtime_error("Platform mismatch");
 
   // TODO
-  throw runtime_error("Unimplemented");
+  throw runtime_error("Not implemented");
 
 #else
   return false;
@@ -132,11 +132,11 @@ void WsiVK::initSurface() {
 // Wayland and XCB
 # if defined(VK_USE_PLATFORM_XCB_KHR)
   switch (pfm) {
-  case WS_NS::PlatformWL:
+  case WS_NS::Platform::Wayland:
     // TODO
-    throw runtime_error("Unimplemented");
+    throw runtime_error("Not implemented");
     break;
-  case WS_NS::PlatformXCB: {
+  case WS_NS::Platform::Xcb: {
     VkXcbSurfaceCreateInfoKHR info{
       VK_STRUCTURE_TYPE_XCB_SURFACE_CREATE_INFO_KHR,
       nullptr,
@@ -153,24 +153,24 @@ void WsiVK::initSurface() {
   }
 // Wayland only
 # else
-  if (pfm != WS_NS::PlatformWL)
+  if (pfm != WS_NS::Platform::Wayland)
     throw runtime_error("Platform mismatch");
 
   // TODO
-  throw runtime_error("Unimplemented");
+  throw runtime_error("Not implemented");
 # endif
 
 // Win32
 #elif defined(VK_USE_PLATFORM_WIN32_KHR)
-  if (pfm != WS_NS::PlatformW32)
+  if (pfm != WS_NS::Platform::Win32)
     throw runtime_error("Platform mismatch");
 
   // TODO
-  throw runtime_error("Unimplemented");
+  throw runtime_error("Not implemented");
 
 // XCB
 #elif defined(VK_USE_PLATFORM_XCB_KHR)
-  if (pfm != WS_NS::PlatformXCB)
+  if (pfm != WS_NS::Platform::Xcb)
     throw runtime_error("Platform mismatch");
 
   VkXcbSurfaceCreateInfoKHR info{
@@ -186,11 +186,11 @@ void WsiVK::initSurface() {
 
 // CAMetalLayer
 #elif defined(VK_USE_PLATFORM_METAL_EXT)
-  if (pfm != WS_NS::PlatformMAC)
+  if (pfm != WS_NS::Platform::Macos)
     throw runtime_error("Platform mismatch");
 
   // TODO
-  throw runtime_error("Unimplemented");
+  throw runtime_error("Not implemented");
 
 #else
 # error "Invalid platform"
